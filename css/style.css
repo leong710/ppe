@@ -1,0 +1,159 @@
+
+.center {
+    text-align: center;
+}
+/* .container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    background-image: linear-gradient(to top left,#fffc4a,#47ffe6);
+} */
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    font-family: 'ubuntu' , '微軟正黑體';
+    /* background-image: linear-gradient(to top left,#fffc4a,#47ffe6); */
+    /* font-size: 16px; */
+}
+/* html {
+        background-color: rgba(0,0,0,.8);
+        background-image: linear-gradient(to top left,#4C0085,#000080);
+    } */
+body {
+    /* background-color: rgb(#00273b); */
+    /* background-image: linear-gradient(to top left,#4A0080,#000000); */
+        /* 背景全部推開=螢幕高度滿版 */
+    /* height: 80vh; */
+    /* 背景顏色-原本的漸層 */
+    /* background-image: linear-gradient(to top left,#4A0080,#000000); */
+    background-image: linear-gradient(to top left,#00273b,#00273b);
+    /* 背景固定不移動 */
+    background-attachment: fixed;
+    }
+table, td, th {
+    border: 0px solid #aaa;
+    border-collapse: collapse;
+    padding: 5px;
+    position: relative;
+    font-size: 14px;
+    text-align: center;
+    margin: auto;         /*置中對齊*/
+}
+
+table, tr {
+    width: 100%;
+}
+table thead, th {
+    /* font-size: 16px; */
+    /* text-align: center; */
+    /* 原本的淡色系 */
+    /* background-color: rgb(122, 162, 238); */
+    color:White;
+    background-color:#5D7B9D;
+    font-weight:bold;
+
+    /* table凍結表頭 */
+    position: sticky;
+    z-index: 1;
+    top: 0;
+}
+td textarea {
+    height: 100%; /*高度填充*/
+    width: 100%;
+    padding: 1; /*防止textarea超過td邊框*/
+    vertical-align: bottom; /*chrome的td有margin-top情況 用此CSS調整*/
+    border: none; /*border用td的*/
+}
+/* 欄位漸層設定 */
+tr:nth-of-type(even) {
+    background-color: #ddd;
+}
+tr:nth-of-type(odd) {
+    background-color: #f3f3f3;
+}
+a {
+    text-decoration: none;
+    color:#0000CC;
+}
+a:hover {
+    /* font-size: 1.05rem; */
+    font-weight: bold;
+    text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+}
+/* .btn {
+    font-size: 12px;
+    padding: 2px 2px;
+    margin: 5px;
+} */
+.box {
+    box-sizing: border-box; /*老師推薦用法，寬度自動算，完全不用自己算*/
+    /* width: calc(100%/2);    老師推薦用法，總長除以等份，完全不用自己算 */
+    text-align: center;
+    /* display: inline-block; */
+    display: inline-flex;
+    /* background-color: #fffc4a; */
+    /* font-size: 16px; */
+    vertical-align: top;        /*div框向上對齊*/
+    /* top, middle, bottom, baseline */
+    margin: 5px;
+    padding: 5px;               /*div框的內距，為了不讓兩框文字相連*/
+}
+.submit {
+    vertical-align: bottom;        /*div框向上對齊*/
+}
+
+/* @import './reset.css'; */
+/* reset先不要 */
+.menu {
+    /* height: 100vh; */
+    /* width: 300px; */
+    /* width: 20%; */
+    /* background-color: #7C7C7C; */
+    background-color: #ECECFF;
+    float: left;
+}
+.menu_li {
+    line-height: 35px;
+    /* height: 100px; */
+}
+.content {
+    /* height: 100vh; */
+    /* width: 100%; */
+    width: 100vw;
+    /* background-color: rgb(226, 129, 129); */
+    /* background-color: #ECECFF; */
+}
+/* 上面是新引入的 */
+
+.article {
+    background-color: white;
+}
+
+#gotop {
+    width: 30px;
+    height: 30px;
+    /* background-color: #222; */
+    background-color: #0DCAF0;
+    color: #fff;
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999; /* 把top設在最高層 */
+    /* opacity: .6;
+    /* transition: .3s; */ /*       透明度影響美觀，所以老師關掉 */
+}
+
+/* footer {
+    background-color: var(--dark);
+    color: var(--light);
+} */
+

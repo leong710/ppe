@@ -115,7 +115,7 @@
                 </div>
                 <!-- 表頭按鈕 -->
                 <div class="col-md-6 py-0 text-end">
-                    <?php if($_SESSION["AUTH"]["role"] <= 1){ ?>
+                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                         <a href="create.php" title="新增catalog" class="btn btn-primary"> <i class="fa fa-plus"></i> 新增品項</a>
                         <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
                         <!-- <a href="..\trade\create.php" title="管理員限定" class="btn btn-warning"><i class="fa fa-upload" aria-hidden="true"></i> 批量撥補</a> -->

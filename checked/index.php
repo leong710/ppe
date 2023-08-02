@@ -96,7 +96,7 @@
                     <div class="col-md-6 text-end">
                         <div>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                <button type="submit" id="checkItem" class="btn btn-sm btn-xs btn-success">open check list</button>
+                                <button type="button" id="checkItem" class="btn btn-sm btn-xs btn-success" onclick="open_check_list()" >open check list</button>
                             <?php } ?>
                         </div>
                     </div>
@@ -492,7 +492,7 @@
     // Bootstrap Alarm function
     function alert(message, type) {
         var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<a href="#"  id="checkItem" class="alert-link">[打開點檢表]</a>' + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
+        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<a href="#"  id="checkItem" class="alert-link" onclick="open_check_list()" >[打開點檢表]</a>' + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
 
         alertPlaceholder.append(wrapper)
     }
@@ -501,10 +501,8 @@
         alert('*** <?php echo $today_year;?>_<?php echo $half;?> 年度 衛材儲存量確認開始了! 請務必在指定時間前完成確認~ ', 'danger')
     }
 
-    
-    var checkItem = document.getElementById("checkItem");   // 歷史清單裡的按鈕 open check list
     // 在清單上建立按鈕 open check list
-    checkItem.addEventListener('click',function(){
+    function open_check_list(){
         if($("#checkList").css("display")=="none"){
             $("#checkList").css("display","block")
             return;
@@ -513,7 +511,7 @@
             $("#checkList").css("display","none")
             return;
         }
-    })
+    }
 
 </script>
 

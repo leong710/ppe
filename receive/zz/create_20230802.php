@@ -22,11 +22,31 @@
         <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
+        <!-- dataTable RWD JS -->
+        <!-- <script src="../../libs/dataTables/jquery.dataTables.min.js" referrerpolicy="no-referrer"></script> -->
+        <!-- <script src="../../libs/dataTables/dataTables.responsive.min.js" referrerpolicy="no-referrer"></script> -->
     <!-- mloading JS -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
+        .cover label {
+            display: inline-block;
+            width: 150px;
+            height: 100px;
+            margin: 5px;
+            cursor: pointer;
+            border: 5px solid #fff;
+        }
+        .cover label img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .img:checked + label{
+            border: 3px solid #f00;
+        }
         .unblock{
             display: none;
             /* transition: 3s; */
@@ -36,11 +56,11 @@
             /* max-height: 100px; */
             max-height: 100px;
         }
+        /* 標籤增加陰影辨識度 */
         .badge {
-            /* 標籤增加陰影辨識度 */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        .cata_info_btn , .add_btn{
+        .add_btn {
             /* 將圖示的背景色設置為透明並添加陰影 */
             background-color: transparent; 
             text-shadow: 0px 0px 1px #fff;
@@ -48,11 +68,20 @@
             /* 將圖示的背景色設置為按鈕的背景色 */
             /* background-color: inherit; */
         }
-        .cata_info_btn:hover , .add_btn:hover{
-            /* color: red; */
-            transition: .5s;
-            font-weight: bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        /*眼睛*/
+        #checkEye {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
+        .cata_info_btn {
+            /* 將圖示的背景色設置為透明並添加陰影 */
+            background-color: transparent; 
+            text-shadow: 0px 0px 1px #fff;
+            color: blue;
+            /* 將圖示的背景色設置為按鈕的背景色 */
+            /* background-color: inherit; */
         }
         tr > th {
             color: blue;
@@ -68,11 +97,11 @@
     </style>
     <script>    // mloading function
         function mloading(){
-            $("body").mLoading({
+            $("body").mLoading({    // 開啟loading
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
-        mloading();    // 畫面載入時開啟loading
+        mloading();
     </script>
 </head>
 
@@ -86,16 +115,17 @@
                         <h3><b>領用申請</b></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
                     </div>
                 </div>
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
                         需求單號：(尚未給號)</br>
-                        開單日期：<?php echo date('Y-m-d H:i'); ?>&nbsp(實際以送出時間為主)</br>
+                        開單日期：<?php echo date('Y-m-d H:i'); ?> (實際以送出時間為主)</br>
                         填單人員：<?php echo $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-6">
+    
                     </div>
                 </div>
     
@@ -136,11 +166,16 @@
                                                 <tr>
                                                     <td class="unblock"><?php echo $catalog["cate_no"];?></td>
                                                     <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
-                                                    <td><?php echo $catalog["SN"];?></td>
+                                                    <td>
+                                                        <!-- <input type="checkbox" name="catalog_SN[<php echo $catalog["SN"];?>]" id="catalog_SN_<php echo $catalog["SN"];?>" class="img unblock" value="<php echo $catalog["SN"];?>"> -->
+                                                        <!-- <label for="catalog_SN_<php echo $catalog["SN"];?>"><php echo $catalog["SN"];?></label> -->
+                                                        <?php echo $catalog["SN"];?>
+                                                    </td>
                                                     <td style="text-align: left;">
                                                         <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog['SN'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
                                                             class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
-                                                        <?php echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?></td>
+                                                        <?php echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?>
+                                                    </td>
                                                     <td><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
                                                                                 case "1": echo "bg-primary"; break;
                                                                                 case "2": echo "bg-success"; break;
@@ -158,9 +193,13 @@
                                                             echo $catalog["unit"] ? "</br>單位：".$catalog["unit"]:"";
                                                             echo $catalog["OBM"] ? "</br>品牌/製造商：".$catalog["OBM"]:"";
                                                             echo $catalog["model"] ? "</br>型號：".$catalog["model"]:""; 
-                                                        ?></td>
-                                                    <td><input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
-                                                            placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)"></td>
+                                                        ?>
+                                                    </td>
+                                                    <td>
+                                                        <!-- <input type="number" name="amount[<php echo $catalog['SN'];?>]" id="<php echo $catalog['SN'];?>" class="form-control amount t-center" -->
+                                                        <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
+                                                            placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)">
+                                                    </td>
                                                     <td>
                                                         <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value);"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
                                                     </td>
@@ -187,6 +226,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="shopping_cart_tbody">
+    
                                             </tbody>
                                         </table>
                                     </div>
@@ -208,19 +248,19 @@
                                     <div class="row">
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位">
+                                                <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位" value="南科環安處">
                                                 <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱">
+                                                <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱" value="環安衛四部">
                                                 <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" onblur="this.value = this.value.toUpperCase();">
+                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" value="9T044500">
                                                 <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -242,7 +282,7 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機">
+                                                <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機" value="42117">
                                                 <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -292,8 +332,8 @@
                                             </br>&nbsp4.以上若有填報不實，將於以退件。 
                                         </div>
                                         <input type="hidden" value="1" name="idty">
-                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" name="created_emp_id">
-                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="created_cname">
+                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" name="sin_emp_id">
+                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="sin_cname">
                                     </div>
     
                                     <div class="row">
@@ -320,8 +360,8 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-5">
-                                        <label for="sin_comm" class="form-check-label" >command：</label>
-                                        <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                        <label for="out_remark" class="form-check-label" >command：</label>
+                                        <textarea name="remark" id="remark" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
@@ -332,6 +372,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </form>
                     <hr>
                 </div>
@@ -348,6 +389,8 @@
                         ?>
                     </div>
                 </div>
+    
+
             </div>
         </div>
     </div>
@@ -360,12 +403,19 @@
                         <h5 class="modal-title">細項說明：</h5>
                         <button type="button" class="btn-close" aria-label="Close" data-bs-target="#catalog_modal" data-bs-toggle="modal"></button>
                     </div>
+    
                     <div class="modal-body px-5">
                         <div class="row">
-                            <div class="col-6 col-md-4" id="pic_append"></div>
-                            <div class="col-6 col-md-8" id="info_append"></div>
+                            <div class="col-6 col-md-4" id="pic_append">
+    
+                            </div>
+                            <div class="col-6 col-md-8" id="info_append">
+    
+                            </div>
                         </div>
+    
                     </div>
+    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success" data-bs-dismiss="modal">返回</button>
                     </div>
@@ -424,6 +474,27 @@
         })
     }
 // // // catalog_modal 篩選 function
+    // 目錄中分類篩選：All或各分類cate_no => 停用，因為改用dataTable
+        // var catalog_list = document.querySelectorAll('.catalog_list > tbody > tr');
+        // function groupBy_cate_no(cate_no){
+        //     mloading();
+        //     if(cate_no==='All'){
+        //         catalog_list.forEach(function(row){
+        //             row.classList.remove('unblock');
+        //         })
+        //     }else{
+        //         catalog_list.forEach(function(row){
+        //             if(row.children[0].innerText === cate_no){
+        //                 row.classList.remove('unblock');
+        //             }else{
+        //                 row.classList.add('unblock');
+        //             }
+        //         })  
+        //     }
+        //     $("body").mLoading("hide");
+        // }
+    //
+
     // 加入購物車清單
     function add_item(cata_SN, add_amount){
         var swal_title = '加入購物車清單';
@@ -440,7 +511,7 @@
             Object(catalog).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
                     // var input_cb = '<input type="checkbox" name="catalog_SN['+cata['SN']+']" id="catalog_SN_'+cata['SN']+'" class="select_item" value="'+cata['SN']+'" checked onchange="check_item(this.value)">';
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                    var input_cb = '<input type="checkbox" name="catalog_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
@@ -490,7 +561,6 @@
         return false;       // false = 沒找到數值
     }
 
-    // 清算購物車件數，顯示件數，切換申請單按鈕
     function check_shopping_count(flag){
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
         var nav_review_btn = document.getElementById('nav-review-tab'); 
@@ -538,10 +608,8 @@
             $('[data-toggle="tooltip"]').tooltip();
         })
 
-        window.addEventListener("load", function(event) {
-            // All resources finished loading! // 關閉mLoading提示
-            $("body").mLoading("hide");
-        });
+        // 關閉mLoading提示
+        $("body").mLoading("hide");
 
     })
 

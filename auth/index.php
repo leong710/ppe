@@ -387,7 +387,8 @@
                                         <select name="fab_id" id="fab_id" class="form-control" required >
                                             <option value="" selected hidden>-- 請選擇主fab --</option>
                                             <?php foreach($fabs as $fab){ ?>
-                                                <option value="<?php echo $fab["id"];?>"><?php echo $fab["id"];?>: <?php echo $fab["fab_title"];?> (<?php echo $fab["fab_remark"];?>)</option>
+                                                <option value="<?php echo $fab["id"];?>">
+                                                    <?php echo $fab["id"].": ".$fab["fab_title"]." (".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? "--(已關閉)":"";?></option>
                                             <?php } ?>
                                         </select>
                                         <label for="fab_id" class="form-label">主fab_id：<sup class="text-danger"> *</sup></label>

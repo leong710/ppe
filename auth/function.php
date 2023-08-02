@@ -149,7 +149,7 @@
         $pdo = pdo();
         $sql = "SELECT _fab.* 
                 FROM _fab
-                WHERE _fab.flag = 'On'
+                -- WHERE _fab.flag = 'On'
                 ORDER BY _fab.id ASC";
         $stmt = $pdo->prepare($sql);
         try {

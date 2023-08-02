@@ -120,7 +120,7 @@
                                     <option value="" hidden>--請選擇主fab--</option>
                                     <?php foreach($fabs as $fab){ ?>
                                         <option value="<?php echo $fab["id"];?>" for="fab_id" <?php echo ($fab["id"] == $user["fab_id"]) ? "selected":"";?>>
-                                            <?php echo $fab["id"];?>: <?php echo $fab["fab_title"];?> (<?php echo $fab["fab_remark"];?>)</option>
+                                            <?php echo $fab["id"].": ".$fab["fab_title"]." (".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? "--(已關閉)":"";?></option>
                                     <?php } ?>
                                 </select>
                                 <label for="fab_id" class="form-label">主fab_id：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>

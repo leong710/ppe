@@ -34,7 +34,7 @@
         if(isset($_POST["delete_contact"])){
             delete_contact($_REQUEST);
     }
-        
+
     $contacts = show_contact();
     $supps = show_supp();
 
@@ -392,7 +392,7 @@
                             <input type="hidden" name="activeTab" value="1">
                             <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="新增" name="fab_submit" class="btn btn-primary">
+                                <input type="submit" value="新增" name="contact_submit" class="btn btn-primary">
                             <?php } ?>
                             <input type="reset" value="清除" class="btn btn-info">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>

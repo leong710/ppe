@@ -4,6 +4,20 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $swal_json = array();
+    if(isset($_POST["receive_submit"])){
+        $swal_json = store_receive($_REQUEST);
+    }
+                // if(isset($_POST["submit"])){
+                //     $result = store_catalog($_REQUEST);
+                //     if($result){
+                //         header("location:../catalog/");
+                //         exit;
+                //     }else{
+                //         echo "<script>history.back()</script>";         // 儲存失敗，用script導回上一頁，可取得扁擔內容
+                //     }
+                // }
+
     $allLocals = show_allLocal();                   // 所有儲存站點
     $catalogs = show_catalogs();                    // 器材=All
     $categories = show_categories();                // 分類
@@ -75,7 +89,18 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
-        mloading();    // 畫面載入時開啟loading
+
+        // // // swl function    
+        var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+
+        if(swal_json.length != 0){
+            swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});    // 3秒
+            // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});     // 關閉畫面
+
+        }else{
+            mloading();    // 畫面載入時開啟loading
+        }
+
     </script>
 </head>
 
@@ -115,7 +140,7 @@
                                 aria-controls="nav-review" aria-selected="false">3.申請單成立</button>
                         </div>
                     </nav>
-                    <form action="store.php" method="post">
+                    <form action="#" method="post">
                         <!-- 內頁 -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
@@ -341,10 +366,13 @@
     
                 <!-- 尾段：衛材訊息 -->
                 <div class="col-12 mb-0">
-                    <div style="font-size: 6px;" class="text-end">
+                    <div style="font-size: 6px;" class="">
                         <?php
-                            echo "<pre>";
-                            echo "</pre>text-end";
+                            if(isset($_REQUEST)){
+                                echo "text-start</br><pre>";
+                                print_r($_REQUEST);
+                                echo "</pre>text-end";
+                            }
                         ?>
                     </div>
                 </div>

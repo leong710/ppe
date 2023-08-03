@@ -80,13 +80,13 @@
                                         <i class="fa-solid fa-cash-register"></i>&nbsp領用管理</a>
                                         <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                             
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/create.php"><i class="fa-regular fa-square-plus"></i>&nbsp領用申請</a></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/create.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                             
                                             <?php if($_SESSION[$sys_id]["role"] == "0" || $_SESSION[$sys_id]["role"] == "1"){ ?>
                                                 <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item" href="../receive/list.php">&nbsp領用清單</a></li>
+                                                <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-list-ol"></i>&nbsp領用清單</a></li>
                                                 <li><a class="dropdown-item" href="../receive/index.php">&nbsp領用分類管理</a></li>
-                                                <li><a class="dropdown-item" href="../receive/create.php"><i class="fa fa-edit"></i>&nbsp新增領用</a></li>
+                                                <li><a class="dropdown-item" href="../receive/create.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li>
                                             <?php } ?>
                                         </ul>
                                     </li>

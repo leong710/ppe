@@ -64,6 +64,283 @@
     }
 // // // Create表單會用到 -- end
 
+// // // 領用單 CRUD
+    // 儲存_receive領用申請表單 20230803
+    function store_receive($request){
+        $pdo = pdo();
+        extract($request);
+        // item資料前處理
+            $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
+            
+            // 製作log紀錄前處理：塞進去製作元素
+                $logs_request["idty"] = $idty;   
+                $logs_request["cname"] = $created_cname;
+                $logs_request["logs"] = "";   
+                $logs_request["remark"] = $sin_comm;   
+            // 呼叫toLog製作log檔
+                $logs_enc = toLog($logs_request);
+
+        //// **** 儲存receive表單
+            $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
+                        , cata_SN_amount, idty, logs, created_emp_id, created_cname, updated_user
+                        , created_at, updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now())";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
+                        , $cata_SN_amount_enc, $idty, $logs_enc, $created_emp_id, $created_cname, $created_cname]);
+                $swal_json = array(
+                    "fun" => "store_receive",
+                    "action" => "success",
+                    "content" => '領用申請送出成功'
+                );
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                $swal_json = array(
+                    "fun" => "store_receive",
+                    "action" => "error",
+                    "content" => '領用申請送出失敗'
+                );
+            }
+        return $swal_json;
+    }
+    // 顯示被選定的_receive表單 20230803
+    function show_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _r.id = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $issue = $stmt->fetch();
+            return $issue;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 驗收動作的_receive表單
+    function update_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $receive_id = array('id' => $p_id);               // 指定receive_id
+        $receive = show_receive($receive_id);                  // 把receive~原表單叫近來處理
+            $b_ppty = $receive['ppty'];                       // 指定~原表單需求類別ppty
+            $local_id = $receive['local_id'];                 // 指定~原收件區in_local
+            $logs = $receive['logs'];                         // 指定~原表單記錄檔logs
+            $b_idty = $receive['idty'];                       // 指定~原表單狀態b_idty
+            $in_date = $receive['in_date'];                   // 指定~原表單狀態in_date
+            $item_str = $receive["item"];                     // 把item整串(未解碼)存到$item_str
+            $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
+            $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec     = catalog_id
+            $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec   = amount
+        //PHP stdClass Object轉array 
+            if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
+            if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
+
+        // V2 判斷前單$b_idty不是1待簽、12待領，就返回        
+        if($b_idty == 1 || $b_idty == 12){
+            $idty = $p_idty;
+        }else{    
+            echo "<script>alert('$b_idty.此表單在您簽核前已被改變成[非待簽核]狀態，請再確認，謝謝!');</script>";
+            return;
+        }
+        
+        // 12待收 => 10結案
+        if($b_ppty == 1 && $b_idty == 12 && $p_idty == 10){
+            // 逐筆呼叫處理
+            foreach(array_keys($item_dec) as $it){
+                // 假如po_num是空的，給他NA
+                if(empty($po_num_dec[$it])){
+                    $po_num_dec[$it] = 'NA';
+                }
+        
+                $process = [];  // 清空預設值
+                $process = array('stock_id' => $it,
+                                'lot_num' => $in_date,             // lot_num = 批號/期限；因PM發貨時會把發貨日寫入in_date，所以只能暫時先吃他
+                                'po_num' => $out_local,            // po_num = 採購編號；因PM發貨時會把PO_num寫入out_local
+                                'catalog_id' => $item_dec[$it],    // catalog_id = 器材目錄id
+                                'p_amount' => $amount_dec[$it],    // p_amount = 正常數量
+                                'p_local' => $in_local,             // p_local = local單位id
+                                'idty' => $b_idty);                // idty = 交易狀態
+                process_issue($process);
+            }
+        }
+
+        // 把原本沒有的塞進去
+        $request['idty'] = $idty;   
+        $request['cname'] = $_SESSION["AUTH"]["cname"];
+        $request['logs'] = $logs;   
+        
+        // 呼叫toLog製作log檔
+        $logs_enc = toLog($request);
+
+        // 更新trade表單
+        $sql = "UPDATE _issue 
+                SET idty=?, logs=?, in_date=now() 
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$p_idty, $logs_enc, $p_id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+
+    }
+    // 刪除單筆_receive紀錄 20230803
+    function delete_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM _receive WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // 20230803 在_receive_list秀出所有_receive清單 // 20230803 嵌入分頁工具
+    function show_receive_list($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark , u.cname AS fab_cname
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _l.fab_id ";
+        // 處理 byUser or admin 不同顯示內容
+        if($emp_id != 'All'){
+            $sql .= " WHERE _r.emp_id=? OR _r.created_emp_id=? ";                   
+            if($role <= 1){
+                $sql .= " OR _r.idty=1 ";      //處理 byAdmin
+            }
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _r.updated_at DESC";
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+            }
+
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
+            }else{
+                $stmt->execute();                           //處理 by All
+            }
+            $issues = $stmt->fetchAll();
+            return $issues;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    
+
+
+// // // 領用單 CRUD -- end
+
+// // // CSV & Log tools
+    // 匯出CSV
+    function export_csv($filename,$data){ 
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Content-Disposition: attachment;filename="' . $filename . '";');
+        header('Content-Type: application/csv; charset=UTF-8');
+        echo $data; 
+    } 
+    // 製作記錄JSON_Log檔   20230803
+    function toLog($request){
+        extract($request);
+        // log資料前處理
+        // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
+        switch($idty){
+            case "0":   $action = '核准 (Approve)';       break;
+            case "1":   $action = '送出 (Submit)';        break;
+            case "2":   $action = '駁回 (Disapprove)';    break;
+            case "3":   $action = '作廢 (Abort)';         break;
+            case "10":  $action = '結案';                 break;
+            case "11":  $action = '轉PR';                 break;
+            case "12":  $action = '發貨/待收';            break;
+            case "13":  $action = 'PR請購進貨';           break;
+            default:    $action = '錯誤 (Error)';         return;
+        }
+
+        if(!isset($logs)){
+            $logs = [];
+            $logs_arr =[];
+        }else{
+            $logs_dec = json_decode($logs);
+            $logs_arr = (array) $logs_dec;
+        }
+
+        $app = [];  // 定義app陣列=appry
+        // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
+        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
+        $app = array(   "cname" => $cname,
+                        "datetime" => date('Y-m-d H:i:s'), 
+                        "action" => $action,
+                        "remark" => $log_remark);
+
+        array_push($logs_arr, $app);
+        $logs = json_encode($logs_arr);
+
+        return $logs;        
+    }
+    // 讀取所有JSON_Log記錄
+    function showLogs($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _issue.*
+                FROM `_issue`
+                WHERE _issue.id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $_issue = $stmt->fetch();
+            return $_issue;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 刪除單項log值-20220215
+    function updateLogs($request){
+        $pdo = pdo();
+        extract($request);
+
+        $query = array('id'=> $id );
+        // 把trade表單叫近來處理
+            // $trade = showTrade($query);
+        $trade = showLogs($query);
+        //這個就是JSON格式轉Array新增字串==搞死我
+        $logs_dec = json_decode($trade['logs']);
+        $logs_arr = (array) $logs_dec;
+        // unset($logs_arr[$log_id]);  // 他會產生index導致原本的表亂掉
+        array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
+
+        $logs = json_encode($logs_arr);
+        $sql = "UPDATE _issue 
+                SET logs=? 
+                WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$logs, $id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+// // // CSV & Log tools -- end
+
+
+
+
 
 
 
@@ -514,115 +791,7 @@
     }
 // // // 待轉PR總表 -- end
 
-// // // CSV & Log tools
-    // 匯出CSV
-    function export_csv($filename,$data){ 
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        header('Content-Disposition: attachment;filename="' . $filename . '";');
-        header('Content-Type: application/csv; charset=UTF-8');
-        echo $data; 
-    } 
-    // 製作記錄JSON_Log檔
-    function toLog($request){
-        extract($request);
-        // log資料前處理
-        // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
-        switch($idty){
-            case "0":
-                $action = '核准 (Approve)';
-                break;
-            case "1":
-                $action = '送出 (Submit)';
-                break;
-            case "2":
-                $action = '駁回 (Disapprove)';
-                break;
-            case "3":
-                $action = '作廢 (Abort)';
-                break;
-            case "10":
-                $action = '結案';
-                break;
-            case "11":
-                $action = '轉PR';
-                break;
-            case "12":
-                $action = '發貨/待收';
-                break;
-            case "13":
-                $action = 'PR請購進貨';
-                break;
-            default:
-                $action = '錯誤 (Error)';
-                return;
-        }
 
-        if(!isset($logs)){
-            $logs = [];
-            $logs_arr =[];
-        }else{
-            $logs_dec = json_decode($logs);
-            $logs_arr = (array) $logs_dec;
-        }
-
-        $app = [];                                  // 定義app陣列=appry
-        date_default_timezone_set("Asia/Taipei");   // 設定台灣時區，用在陣列新增datetime
-        // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
-        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
-        $app = array("cname" => $cname,
-                    "datetime" => date('Y-m-d H:i:s'), 
-                    "action" => $action,
-                    "remark" => $log_remark);
-
-        array_push($logs_arr, $app);
-        $logs = json_encode($logs_arr);
-
-        return $logs;        
-    }
-    // 讀取所有JSON_Log記錄
-    function showLogs($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _issue.*
-                FROM `_issue`
-                WHERE _issue.id = ?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$id]);
-            $_issue = $stmt->fetch();
-            return $_issue;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 刪除單項log值-20220215
-    function updateLogs($request){
-        $pdo = pdo();
-        extract($request);
-
-        $query = array('id'=> $id );
-        // 把trade表單叫近來處理
-            // $trade = showTrade($query);
-        $trade = showLogs($query);
-        //這個就是JSON格式轉Array新增字串==搞死我
-        $logs_dec = json_decode($trade['logs']);
-        $logs_arr = (array) $logs_dec;
-        // unset($logs_arr[$log_id]);  // 他會產生index導致原本的表亂掉
-        array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
-
-        $logs = json_encode($logs_arr);
-        $sql = "UPDATE _issue 
-                SET logs=? 
-                WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$logs, $id]);
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-// // // CSV & Log tools -- end
 
 // // // index 統計數據
     // 20230719 在index表頭顯示各類別的數量：    // 統計看板--上：表單核簽狀態

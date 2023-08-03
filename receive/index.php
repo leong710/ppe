@@ -17,17 +17,18 @@
         }
 
     // 組合查詢陣列
-        $list_issue_setting = array(
+        $receive_list_setting = array(
             'sys_id' => $sys_id,
+            'role' => $_SESSION[$sys_id]["role"],
             'emp_id' => $is_emp_id
         );
-        $issues = show_issue_list($list_issue_setting);
-        $sum_issues = show_sum_issue($list_issue_setting);              // 統計看板--上：表單核簽狀態
-        $sum_issues_ship = show_sum_issue_ship($list_issue_setting);    // 統計看板--下：轉PR單
+        $receives = show_receive_list($receive_list_setting);
+        $sum_issues = show_sum_issue($receive_list_setting);              // 統計看板--上：表單核簽狀態
+        $sum_issues_ship = show_sum_issue_ship($receive_list_setting);    // 統計看板--下：轉PR單
 
     // <!-- 20211215分頁工具 -->
         // 分頁設定
-        $per_total = count($issues);        // 計算總筆數
+        $per_total = count($receives);        // 計算總筆數
         $per = 25;                          // 每頁筆數
         $pages = ceil($per_total/$per);     // 計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          // !isset 判斷有沒有$_GET['page']這個變數
@@ -36,7 +37,15 @@
             $page = $_GET['page'];
         }
         $start = ($page-1)*$per;            // 每一頁開始的資料序號(資料庫序號是從0開始)
-        $issues = issue_page_div($start, $per, $list_issue_setting);
+        
+        $receive_page_div = array(
+            'start' => $start,
+            'per' => $per
+        );
+        array_push($receive_list_setting, $receive_page_div);
+
+        // $issues = issue_page_div($start, $per, $list_issue_setting);
+        $receives = show_receive_list($receive_list_setting);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
         if($page_end>$per_total){           // 最後頁的最後筆數=總筆數
@@ -59,12 +68,12 @@
     <!-- <div class="container"> -->
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(200, 255, 255, .6);">
+            <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(255, 200, 100, .6);">
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-1"></i> 請購需求單總表</h3>
+                            <h3><i class="fa-solid fa-1"></i>&nbsp領用申請單總表</h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">
@@ -237,56 +246,50 @@
                                     <thead>
                                         <tr>
                                             <th>開單日期</th>
-                                            <th>需求廠區</th>
-                                            <th>需求者</th>
-                                            <th>發貨廠區</th>
-                                            <th>發貨人</th>
+                                            <th>提貨廠區/發貨人</th>
+                                            <th>申請單位...</th>
+                                            <th>申請人...</th>
                                             <th>簽單日期</th>
                                             <th>類別</th>
-                                            <th>狀態</th>
-                                            <th>貨態</th>
+                                            <th>表單狀態</th>
                                             <th>action</th>
                                         </tr>
                                     </thead>
                                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
-                                        <?php foreach($issues as $issue){ ?>
+                                        <?php foreach($receives as $receive){ ?>
                                             <tr>
-                                                <td><?php echo substr($issue['create_date'],0,10); ?></td>
-                                                <td><?php echo $issue['fab_i_title'].'('.$issue['fab_i_remark'].')';?></td>
-                                                <td><?php echo $issue['cname_i'];?></td>
+                                                <td><?php echo substr($receive['created_at'],0,10); ?></td>
+                                                <td><?php echo $receive['fab_title'].'('.$receive['fab_remark'].')</br>'.$receive["fab_cname"];?></td>
                                                 <td style="font-size: 12px; word-break: break-all;">
-                                                    <?php echo (!empty($issue["fab_o_title"])) ? $issue["fab_o_title"].'('.$issue['fab_o_remark'].')' : $issue["out_local"];?>
-                                                </td>
-                                                <td><?php echo $issue['cname_o'];?></td>
-                                                <td style="font-size: 6px;"><?php echo substr($issue['in_date'],0,10); ?></td>
-                                                <td>
-                                                    <?php if($issue['ppty'] == '0'){?>臨時<?php ;}?>
-                                                    <?php if($issue['ppty'] == '1'){?>定期<?php ;}?>
-                                                </td>
-                                                <td>
-                                                    <?php if($issue['idty'] == '0'){?><span <?php if($_SESSION[$sys_id]['role'] <= 1 ){ ?>
-                                                            class="badge rounded-pill bg-warning text-dark" <?php }?> >待轉</span><?php ;}?>
-                                                    <?php if($issue['idty'] == '1'){?><span <?php if($_SESSION[$sys_id]['role'] <= 1 ){ ?>
-                                                            class="badge rounded-pill bg-danger" <?php }?> >待簽</span><?php ;}?>
-                                                    <?php if($issue['idty'] == '2'){?>退件<?php ;}?>
-                                                    <?php if($issue['idty'] == '3'){?>取消<?php ;}?>
-                                                    <?php if($issue['idty'] == '10'){?>結案<?php ;}?>
-                                                    <?php if($issue['idty'] == '11'){?>轉PR<?php ;}?>
-                                                    <?php if($issue['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
-                                                </td>
-                                                <td style="font-size: 12px; word-break: break-all;"><?php echo $issue['_ship'];?>
-                                                    <?php if($issue['_ship'] == '0'){?>結案<?php ;}?>
-                                                    <?php if($issue['_ship'] == '1'){?>轉PR<?php ;}?>
+                                                    <?php echo $receive["plant"]."/".$receive["dept"];echo (!empty($receive["sign_code"])) ? "</br>(".$receive["sign_code"].")" :"";?></td>
+                                                <td style="font-size: 12px; word-break: break-all;">
+                                                    <?php echo $receive["emp_id"]."-".$receive["cname"];echo (!empty($receive["extp"])) ? "</br>/".$receive["extp"]:"";?></td>
+                                                <td style="font-size: 6px;"><?php echo substr($receive["updated_at"],0,10); ?></td>
+                                                <td><?php echo $receive['ppty'];
+                                                        switch($receive['ppty']){
+                                                            case "0":   echo '.臨時';  break;
+                                                            case "1":   echo '.定期';  break;
+                                                            case "3":   echo '.緊急';  break;
+                                                            default:    echo '錯誤';   return;
+                                                        } ;?></td>
+                                                <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
+                                                        echo ($receive['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark" >待轉</span>':"";
+                                                        echo ($receive['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger" >待簽</span>':"";
+                                                        echo ($receive['idty'] == '2')  ? "退件":"";
+                                                        echo ($receive['idty'] == '3')  ? "取消":"";
+                                                        echo ($receive['idty'] == '10') ? "結案":"";
+                                                        echo ($receive['idty'] == '11') ? "轉PR":"";
+                                                        echo ($receive['idty'] == '12') ? "<span class='badge rounded-pill bg-success'>待收</span>":""; ?>
                                                 </td>
                                                 <td>
                                                     <!-- Action功能欄 -->
-                                                    <?php if(($issue['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
+                                                    <?php if(($receive['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
                                                     <!-- 待簽：PM+管理員功能 -->
-                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                        <a href="show.php?id=<?php echo $receive['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
                                                     <!-- siteUser功能 -->
-                                                        <a href="show.php?id=<?php echo $issue['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                        <a href="show.php?id=<?php echo $receive['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>
                                             </tr>

@@ -185,6 +185,8 @@
                                                     <th>select</th>
                                                     <th>SN</th>
                                                     <th>品名</th>
+                                                    <th>型號</th>
+                                                    <th>尺寸</th>
                                                     <th>數量</th>
                                                     <th>單位</th>
                                                 </tr>
@@ -344,6 +346,7 @@
                     <div style="font-size: 6px;" class="text-end">
                         <?php
                             echo "<pre>";
+                            print_r($_REQUEST);
                             echo "</pre>text-end";
                         ?>
                     </div>
@@ -439,7 +442,7 @@
                 if(cata['SN'] === cata_SN){
                     // var input_cb = '<input type="checkbox" name="catalog_SN['+cata['SN']+']" id="catalog_SN_'+cata['SN']+'" class="select_item" value="'+cata['SN']+'" checked onchange="check_item(this.value)">';
                     var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }

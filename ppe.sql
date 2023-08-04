@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2023-07-26 05:38:27
+-- 產生時間： 2023-08-04 10:40:29
 -- 伺服器版本： 10.4.24-MariaDB
 -- PHP 版本： 8.1.6
 
@@ -60,22 +60,23 @@ CREATE TABLE `x_obm` (
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `x_supq`
+-- 資料表結構 `x_receive`
 --
 
-CREATE TABLE `x_supq` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `part_no` varchar(30) NOT NULL COMMENT '料號',
-  `supq_remark` varchar(255) NOT NULL COMMENT '料號註解',
-  `year` year(4) NOT NULL COMMENT '年度',
-  `SN` varchar(10) NOT NULL COMMENT '器材編號',
-  `scomp_no` varchar(20) NOT NULL COMMENT '供應商',
-  `qp` int(10) NOT NULL COMMENT '報價(元)',
-  `spec_review` varchar(255) NOT NULL COMMENT '規格審核',
-  `flag` varchar(3) NOT NULL COMMENT '開關',
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  `updated_user` varchar(10) NOT NULL COMMENT '建檔人員'
+CREATE TABLE `x_receive` (
+  `id` int(11) UNSIGNED NOT NULL COMMENT '交易單號',
+  `out_date` datetime NOT NULL COMMENT '出貨日期',
+  `item` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '批號/品項/數量',
+  `out_local` text NOT NULL COMMENT '出貨廠區',
+  `out_user_id` int(10) UNSIGNED NOT NULL COMMENT '出貨人emp_id',
+  `out_cname` varchar(10) NOT NULL COMMENT '發貨人姓名',
+  `in_remark` varchar(255) NOT NULL COMMENT '備註說明',
+  `in_date` datetime DEFAULT NULL COMMENT '領用日期',
+  `in_local` varchar(255) NOT NULL COMMENT '領用廠區全稱',
+  `in_user_id` int(10) UNSIGNED DEFAULT NULL COMMENT '領用人emp_id',
+  `in_cname` varchar(10) NOT NULL COMMENT '領用人姓名',
+  `idty` int(10) UNSIGNED NOT NULL COMMENT '交易狀態\r\n0完成/1待收/2退貨/3取消',
+  `logs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '表單簽核紀錄'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -306,7 +307,8 @@ CREATE TABLE `_contact` (
 --
 
 INSERT INTO `_contact` (`id`, `cname`, `phone`, `email`, `fax`, `comp_no`, `contact_remark`, `flag`, `created_at`, `updated_at`, `updated_user`) VALUES
-(1, '林中強', '0930930341', 'zolalin@ms.mtcmercury.com.tw', '07-5224015', '04908814', '', 'On', '2023-07-07 08:21:53', '2023-07-10 16:14:09', '陳建良');
+(1, '林中強', '0930930341', 'zolalin@ms.mtcmercury.com.tw', '07-5224015', '04908814', '', 'On', '2023-07-07 08:21:53', '2023-07-10 16:14:09', '陳建良'),
+(2, '麥可', '0930930341', 'leong710@gmail.com', '123456789', '53237150', 'test', 'On', '2023-08-02 14:59:32', '2023-08-02 14:59:32', '陳建良');
 
 -- --------------------------------------------------------
 
@@ -568,6 +570,43 @@ INSERT INTO `_pno` (`id`, `part_no`, `pno_remark`, `_year`, `cata_SN`, `size`, `
 -- --------------------------------------------------------
 
 --
+-- 資料表結構 `_receive`
+--
+
+CREATE TABLE `_receive` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `uuid` varchar(255) NOT NULL COMMENT '系統uuid',
+  `plant` varchar(30) NOT NULL COMMENT '申請單位',
+  `dept` varchar(30) NOT NULL COMMENT '申請部門',
+  `sign_code` varchar(20) NOT NULL COMMENT '部門代號',
+  `emp_id` varchar(10) NOT NULL COMMENT '申請人工號',
+  `cname` varchar(20) NOT NULL COMMENT '申請人姓名',
+  `extp` varchar(10) NOT NULL COMMENT '申請人分機',
+  `local_id` int(10) UNSIGNED NOT NULL COMMENT '申請廠區(接案)',
+  `ppty` int(10) UNSIGNED NOT NULL COMMENT '需求類別：1一般、3緊急',
+  `receive_remark` varchar(255) NOT NULL COMMENT '用途說明',
+  `cata_SN_amount` longtext NOT NULL COMMENT '需求清單',
+  `idty` int(10) UNSIGNED NOT NULL COMMENT '交易狀態 0完成/1待收/2退貨/3取消',
+  `logs` longtext NOT NULL COMMENT '表單簽核紀錄',
+  `created_at` datetime NOT NULL COMMENT '開單日期',
+  `created_emp_id` varchar(10) NOT NULL COMMENT '開單人工號',
+  `created_cname` varchar(10) NOT NULL COMMENT '開單人姓名',
+  `updated_at` datetime NOT NULL COMMENT '更新日期',
+  `updated_user` varchar(10) NOT NULL COMMENT '更新人員'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- 傾印資料表的資料 `_receive`
+--
+
+INSERT INTO `_receive` (`id`, `uuid`, `plant`, `dept`, `sign_code`, `emp_id`, `cname`, `extp`, `local_id`, `ppty`, `receive_remark`, `cata_SN_amount`, `idty`, `logs`, `created_at`, `created_emp_id`, `created_cname`, `updated_at`, `updated_user`) VALUES
+(2, 'r2', '南科環安處', '環安衛四部', '9T044500', '10008048', '陳建良', '42117', 2, 3, '', '{\"P-015-AG\":\"1\"}', 1, '[{\"cname\":\"\\u9673\\u5efa\\u826f\",\"datetime\":\"2023-08-03 10:09:07\",\"action\":\"\\u9001\\u51fa (Submit)\",\"remark\":\"\"}]', '2023-08-03 10:09:07', '10008048', '陳建良', '2023-08-03 10:09:07', '陳建良'),
+(7, '0064efc3-327b-11ee-ab7d-2cfda183ef4f', '南科環安處', '環安衛四部', '9T044500', '10008048', '陳建良', '42117', 2, 3, 'test 修正~', '{\"P-015-AG\":\"1\",\"P-014\":\"100\",\"P-052\":\"100\",\"P-36\":\"100\",\"P-35\":\"100\"}', 1, '[{\"cname\":\"\\u9673\\u5efa\\u826f\",\"datetime\":\"2023-08-04 11:57:16\",\"action\":\"\\u9001\\u51fa (Submit)\",\"remark\":\"test \\u4fee\\u6b63~\"}]', '2023-08-04 11:57:16', '10008048', '陳建良', '2023-08-04 11:57:16', '陳建良'),
+(15, 'd8b03079-3292-11ee-ab7d-2cfda183ef4f', '南科環安處', '環安衛二部', '9T042500', '10008048', '陳建良', '42117', 3, 1, 'test 修正~', '{\"P-35\":\"100\"}', 1, '[{\"cname\":\"\\u9673\\u5efa\\u826f\",\"datetime\":\"2023-08-04 15:04:18\",\"action\":\"\\u9001\\u51fa (Submit)\",\"remark\":\"test comm1\"},{\"cname\":\"\\u9673\\u5efa\\u826f\",\"datetime\":\"2023-08-04 15:29:28\",\"action\":\"\\u9001\\u51fa (Submit)\",\"remark\":\"comm\\u758a\\u52a03\"}]', '2023-08-04 14:47:58', '10008048', '陳建良', '2023-08-04 15:29:28', '陳建良');
+
+-- --------------------------------------------------------
+
+--
 -- 資料表結構 `_site`
 --
 
@@ -667,7 +706,8 @@ CREATE TABLE `_supp` (
 --
 
 INSERT INTO `_supp` (`id`, `sname`, `scname`, `supp_remark`, `inv_title`, `comp_no`, `_address`, `contact`, `phone`, `email`, `fax`, `flag`, `created_at`, `updated_at`, `updated_user`) VALUES
-(1, 'MTC-MERCURY TRADING', '明江貿易', '測試數據-明江貿易', '明江貿易股份有限公司', '04908814', '高雄市鼓山區中華一路820號12樓E棟', '林中強', '0930930341', 'zolalin@ms.mtcmercury.com.tw', '07-5224015', 'On', '2023-07-05 06:45:40', '2023-07-10 16:05:48', '陳建良');
+(1, 'MTC-MERCURY TRADING', '明江貿易', '測試數據-明江貿易', '明江貿易股份有限公司', '04908814', '高雄市鼓山區中華一路820號12樓E棟', '林中強', '0930930341', 'zolalin@ms.mtcmercury.com.tw', '07-5224015', 'On', '2023-07-05 06:45:40', '2023-07-10 16:05:48', '陳建良'),
+(2, '', '國潤發科技有限公司', '', '', '53237150', '', NULL, NULL, NULL, NULL, 'On', '2023-08-02 14:52:59', '2023-08-02 14:52:59', '陳建良');
 
 -- --------------------------------------------------------
 
@@ -723,7 +763,7 @@ CREATE TABLE `_users` (
 
 INSERT INTO `_users` (`id`, `emp_id`, `user`, `cname`, `fab_id`, `sfab_id`, `created_at`, `role`, `idty`) VALUES
 (1, '10008048', 'leong.chen', '陳建良', '5', '2,3,4', '2022-08-15 13:58:58', '1', '1'),
-(2, '501442117', 'admin', '管理員', '1', '', '2022-08-17 09:39:31', '0', '1'),
+(2, '501442117', 'admin', '管理員', '2', '13', '2022-08-17 09:39:31', '0', '1'),
 (3, '90000001', 'susu', '測試員01', '12', '', '2022-09-01 12:46:49', '2', '1'),
 (6, '90000002', 'micro', '麥可', '3', '', '2022-12-07 15:14:40', '', '1'),
 (8, '13085117', 'dorise.cheng', '鄭羽淳', '12', '1', '2023-07-12 16:53:57', '1', '1');
@@ -745,9 +785,9 @@ ALTER TABLE `x_obm`
   ADD PRIMARY KEY (`id`);
 
 --
--- 資料表索引 `x_supq`
+-- 資料表索引 `x_receive`
 --
-ALTER TABLE `x_supq`
+ALTER TABLE `x_receive`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -796,6 +836,12 @@ ALTER TABLE `_pno`
   ADD KEY `part_no` (`part_no`);
 
 --
+-- 資料表索引 `_receive`
+--
+ALTER TABLE `_receive`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 資料表索引 `_site`
 --
 ALTER TABLE `_site`
@@ -834,7 +880,7 @@ ALTER TABLE `_users`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `checked_log`
 --
 ALTER TABLE `checked_log`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ai';
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ai', AUTO_INCREMENT=8;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `x_obm`
@@ -843,10 +889,10 @@ ALTER TABLE `x_obm`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- 使用資料表自動遞增(AUTO_INCREMENT) `x_supq`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `x_receive`
 --
-ALTER TABLE `x_supq`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `x_receive`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '交易單號';
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_cata`
@@ -864,7 +910,7 @@ ALTER TABLE `_cate`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_contact`
 --
 ALTER TABLE `_contact`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_fab`
@@ -891,6 +937,12 @@ ALTER TABLE `_pno`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138;
 
 --
+-- 使用資料表自動遞增(AUTO_INCREMENT) `_receive`
+--
+ALTER TABLE `_receive`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_site`
 --
 ALTER TABLE `_site`
@@ -906,7 +958,7 @@ ALTER TABLE `_stock`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_supp`
 --
 ALTER TABLE `_supp`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `_trade`

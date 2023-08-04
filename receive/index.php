@@ -61,7 +61,10 @@
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
-
+        .unblock{
+            display: none;
+            /* transition: 3s; */
+        }   
     </style>
 </head>
 <body>
@@ -91,7 +94,7 @@
                     <div class="col-12 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="create.php" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫需求單</a>
+                                <a href="form.php?action=create" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請單</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
@@ -246,7 +249,7 @@
                                     <thead>
                                         <tr>
                                             <th>開單日期</th>
-                                            <th>提貨廠區/發貨人</th>
+                                            <th>提貨廠區</th>
                                             <th>申請單位...</th>
                                             <th>申請人...</th>
                                             <th>簽單日期</th>
@@ -260,12 +263,11 @@
                                         <?php foreach($receives as $receive){ ?>
                                             <tr>
                                                 <td><?php echo substr($receive['created_at'],0,10); ?></td>
-                                                <td><?php echo $receive['fab_title'].'('.$receive['fab_remark'].')</br>'.$receive["fab_cname"];?></td>
-                                                <td style="font-size: 12px; word-break: break-all;">
-                                                    <?php echo $receive["plant"]."/".$receive["dept"];echo (!empty($receive["sign_code"])) ? "</br>(".$receive["sign_code"].")" :"";?></td>
-                                                <td style="font-size: 12px; word-break: break-all;">
-                                                    <?php echo $receive["emp_id"]."-".$receive["cname"];echo (!empty($receive["extp"])) ? "</br>/".$receive["extp"]:"";?></td>
-                                                <td style="font-size: 6px;"><?php echo substr($receive["updated_at"],0,10); ?></td>
+                                                <td><?php echo $receive['fab_title'].' ('.$receive['fab_remark'].')';?></td>
+                                                <!-- <td style="font-size: 12px; word-break: break-all;"> -->
+                                                <td><?php echo $receive["plant"]." / ".$receive["dept"];?></td>
+                                                <td><?php echo $receive["cname"]; echo $receive["emp_id"] ? " (".$receive["emp_id"].")":"";?></td>
+                                                <td><?php echo substr($receive["updated_at"],0,10); ?></td>
                                                 <td><?php echo $receive['ppty'];
                                                         switch($receive['ppty']){
                                                             case "0":   echo '.臨時';  break;
@@ -286,10 +288,10 @@
                                                     <!-- Action功能欄 -->
                                                     <?php if(($receive['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
                                                     <!-- 待簽：PM+管理員功能 -->
-                                                        <a href="edit.php?uuid=<?php echo $receive['uuid'];?>&action=edit" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                        <a href="form.php?uuid=<?php echo $receive['uuid'];?>&action=edit" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
                                                     <!-- siteUser功能 -->
-                                                        <a href="edit.php?uuid=<?php echo $receive['uuid'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                        <a href="form.php?uuid=<?php echo $receive['uuid'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>
                                             </tr>

@@ -4,6 +4,47 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    // 刪除表單
+    if(isset($_POST["delete_receive"])){
+        $check_delete_result = delete_receive($_REQUEST);
+        if($check_delete_result){
+            echo "<script>alert('receive領用申請單 -- 已刪除');</script>";
+            header("refresh:0;url=index.php");
+            exit;		// 請注意
+        }else{
+            echo "<script>alert('receive領用申請單 -- 刪除失敗!!');</script>";
+        }
+    }
+    // 更新log
+    if(isset($_POST["delete_log"])){
+        updateLogs($_REQUEST);
+    }
+    // $receive_row = [];      // 預設receive_row=空array
+    $receive_row = array(
+        "uuid" => ""
+    );                      // 預設receive_row[uuid]=空array
+    $logs_arr = [];         // 預設logs_arr=空array
+    if(isset($_REQUEST["uuid"])){
+        // $_REQUEST["uid"] = "`".strval($_REQUEST["uuid"])."`";        // 查詢前處理，uuid需要包引號才能帶入
+        $receive_row = show_receive($_REQUEST);
+        if(empty($receive_row)){
+            echo "<script>alert('uuid-error：{$_REQUEST["uuid"]}')</script>";
+            header("refresh:0;url=index.php");
+            exit;
+        }
+        // logs紀錄鋪設前處理 
+        $logs_dec = json_decode($receive_row["logs"]);
+        $logs_arr = (array) $logs_dec;
+
+        // echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
+        // header("location:../catalog/");                 // 用這個，因為跳太快
+    }
+    if(isset($_REQUEST["action"])){
+        $action = $_REQUEST["action"];
+    }else{
+        $action = 'new';    // 新開單
+    }
+
     $allLocals = show_allLocal();                   // 所有儲存站點
     $catalogs = show_catalogs();                    // 器材=All
     $categories = show_categories();                // 分類
@@ -86,19 +127,26 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>領用申請</b></h3>
+                        <h3><b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
                     </div>
                 </div>
+
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        需求單號：(尚未給號)</br>
-                        開單日期：<?php echo date('Y-m-d H:i'); ?>&nbsp(實際以送出時間為主)</br>
-                        填單人員：<?php echo $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
+                        需求單號：<?php echo ($action == 'new') ? "(尚未給號)": "aid_".$receive_row['id']; ?></br>
+                        開單日期：<?php echo ($action == 'new') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
+                        填單人員：<?php echo ($action == 'new') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-6 text-end">
+                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
+                            <form action="" method="post">
+                                <input type="hidden" name="uuid" value="<?php echo $receive_row["uuid"];?>">
+                                <input type="submit" name="delete_receive" value="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
+                            </form>
+                        <?php }?>
                     </div>
                 </div>
     
@@ -115,8 +163,8 @@
                                 aria-controls="nav-review" aria-selected="false">3.申請單成立</button>
                         </div>
                     </nav>
+                    <!-- 內頁 -->
                     <form action="store.php" method="post">
-                        <!-- 內頁 -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -296,9 +344,12 @@
                                             </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
                                             </br>&nbsp4.以上若有填報不實，將於以退件。 
                                         </div>
-                                        <input type="hidden" value="1" name="idty">
-                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" name="created_emp_id" id="created_emp_id">
-                                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="created_cname" id="created_cname">
+                                        <input type="hidden" name="idty" id="idty" value="1">
+                                        <input type="hidden" name="created_emp_id" id="created_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                                        <input type="hidden" name="created_cname" id="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                        <input type="hidden" name="uuid" id="uuid" value="">
                                     </div>
     
                                     <div class="row">
@@ -316,7 +367,7 @@
                             </div>
                         </div>
 
-                        <!-- 彈出畫面說明模組 saveSubmit-->
+                        <!-- 彈出畫面模組 saveSubmit-->
                         <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable">
                                 <div class="modal-content">
@@ -339,16 +390,48 @@
                         </div>
                     </form>
                     <hr>
+                    <!-- 尾段logs訊息 -->
+                    <div class="col-12 pt-0 rounded bg-light unblock" id="logs_div">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                表單Log記錄：
+                            </div>
+                            <div class="col-12 col-md-6">
+                        
+                            </div>
+                        </div>
+                        <table class="for-table logs table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>Signer</th>
+                                    <th>Time Signed</th>
+                                    <th>Status</th>
+                                    <th>Comment</th>
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?><th>action</th><?php } ?>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div style="font-size: 6px;" class="text-end">
+                            logs訊息text-end
+                        </div>
+                    </div>
+
                 </div>
     
                 <!-- 尾段：衛材訊息 -->
-                <div class="col-12 mb-0">
-                    <div style="font-size: 6px;" class="text-end">
-                        <?php
-                            echo "<pre>";
-                            print_r($_REQUEST);
-                            echo "</pre>text-end";
-                        ?>
+                <div class="row unblock">
+                    <div class="col-12 mb-0">
+                        <div style="font-size: 6px;">
+                            <?php
+                                if($_REQUEST){
+                                    echo "<pre>";
+                                    // print_r($_REQUEST);
+                                    echo "</pre>text-end";
+                                }
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -426,12 +509,16 @@
     }
 // // // catalog_modal 篩選 function
     // 加入購物車清單
-    function add_item(cata_SN, add_amount){
+    function add_item(cata_SN, add_amount, flag){
         var swal_title = '加入購物車清單';
-        var swal_time = 1 * 1000;
+        // flag=off不顯示swal、其他是預設1秒
+        if(flag == 'off'){
+            var swal_time = 0;
+        }else{
+            var swal_time = 1 * 1000;
+        }
 
         if(add_amount <= 0 ){
-            // alert(cata_SN+' 沒有填數量!');
             var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
             var swal_action = 'error';
             swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
@@ -440,14 +527,13 @@
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalog).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    // var input_cb = '<input type="checkbox" name="catalog_SN['+cata['SN']+']" id="catalog_SN_'+cata['SN']+'" class="select_item" value="'+cata['SN']+'" checked onchange="check_item(this.value)">';
                     var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
             })
-            // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值、false = 沒找到數值
+            // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
             if(check_item_return){
                 var swal_content = ' 更新成功';
                 var swal_action = 'info';
@@ -455,10 +541,13 @@
                 var swal_content = ' 加入成功';
                 var swal_action = 'success';
             }
-            swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            // swal_time>0才顯示swal，主要過濾edit時的渲染導入
+            if(swal_time > 0){
+                swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            }
             
         }
-        check_shopping_count('add');
+        check_shopping_count();        // 清算購物車件數
     }
 
     // 查找購物車清單已存在的項目，並予以清除
@@ -482,17 +571,17 @@
                         swal_time = swal_time * 1000;
                         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
                     }
-                    check_shopping_count('true');
+                    check_shopping_count();
                     return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
                 }
             }
         }
-        // check_shopping_count('false');
+        // check_shopping_count();
         return false;       // false = 沒找到數值
     }
 
     // 清算購物車件數，顯示件數，切換申請單按鈕
-    function check_shopping_count(flag){
+    function check_shopping_count(){
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
         var nav_review_btn = document.getElementById('nav-review-tab'); 
         $('#shopping_count').empty();
@@ -502,6 +591,62 @@
         }else{
             nav_review_btn.classList.add('disabled');           // 購物車等於0，disabled
         }
+    }
+    
+// // // Edit選染
+    var action = '<?=$action;?>';                       // 引入action資料
+    function edit_item(){
+        var receive_row = <?=json_encode($receive_row);?>;                        // 引入receive_row資料作為Edit
+        var receive_item = {
+            "plant"          : "plant/申請單位", 
+            "dept"           : "dept/部門名稱", 
+            "sign_code"      : "sign_code/部門代號", 
+            "emp_id"         : "emp_id/工號",
+            "cname"          : "cname/申請人姓名",
+            "extp"           : "extp/分機",
+            "local_id"       : "local_id/領用站點",
+            "ppty"           : "** ppty/需求類別",
+            "receive_remark" : "receive_remark/用途說明",
+            "created_emp_id" : "created_emp_id/開單人工號",
+            "created_cname"  : "created_cname/開單人姓名",
+            // "idty"           : "idty",
+            "uuid"           : "uuid",
+            "cata_SN_amount" : "** cata_SN_amount"
+            // "sin_comm"       : "command/簽核comm",
+        };    // 定義要抓的key=>value
+        // step1.將原排程陣列逐筆繞出來
+        Object.keys(receive_item).forEach(function(receive_key){
+            if(receive_key == 'ppty'){      // ppty/需求類別
+                document.querySelector('#'+receive_key+'_'+receive_row[receive_key]).checked = true;
+                
+            }else if(receive_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
+                var receive_row_cart = JSON.parse(receive_row[receive_key]);
+                Object.keys(receive_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, receive_row_cart[cart_key], 'off');
+                })
+                
+            }else{
+                document.querySelector('#'+receive_key).value = receive_row[receive_key]; 
+
+            }
+        })
+
+        // 鋪設logs紀錄
+        var json = JSON.parse('<?=json_encode($logs_arr)?>');
+        var uuid = '<?=$receive_row["uuid"]?>';
+        var forTable = document.querySelector('.logs tbody');
+        for (var i = 0, len = json.length; i < len; i++) {
+            forTable.innerHTML += 
+                '<tr>' + '<td>' + [i] + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
+                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
+                        `<input type="hidden" name="log_id" value="` + [i] + `";>` +
+                        `<input type="hidden" name="uuid" value="` + uuid + `";>` +
+                        `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
+                    '</form>' + '</td><?php } ?>' +
+                '</tr>';
+        }
+        document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
+
     }
 
     $(document).ready(function () {
@@ -538,8 +683,12 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip();
         })
-
-
+        
+        // 確認action不是新表單，就進行Edit模式渲染
+        if(action != 'new'){                                // 確認action不是新表單，就進行Edit模式渲染
+            edit_item();
+            $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+        }
 
         window.addEventListener("load", function(event) {
             // All resources finished loading! // 關閉mLoading提示

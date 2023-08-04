@@ -83,7 +83,7 @@
         //// **** 儲存receive表單
             $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
                         , cata_SN_amount, idty, logs, created_emp_id, created_cname, updated_user
-                        , created_at, updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now())";
+                        , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
@@ -91,14 +91,14 @@
                 $swal_json = array(
                     "fun" => "store_receive",
                     "action" => "success",
-                    "content" => '領用申請送出成功'
+                    "content" => '領用申請--送出成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
                     "fun" => "store_receive",
                     "action" => "error",
-                    "content" => '領用申請送出失敗'
+                    "content" => '領用申請--送出失敗'
                 );
             }
         return $swal_json;
@@ -107,17 +107,19 @@
     function show_receive($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark
+        $sql = "SELECT _r.* 
+                    -- , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark
                 FROM `_receive` _r
-                LEFT JOIN _local _l ON _r.local_id = _l.id
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _r.id = ? ";
+                    -- LEFT JOIN _local _l ON _r.local_id = _l.id
+                    -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                    -- LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _r.uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$id]);
-            $issue = $stmt->fetch();
-            return $issue;
+
+            $stmt->execute([$uuid]);
+            $receive_row = $stmt->fetch();
+            return $receive_row;
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -126,80 +128,73 @@
     function update_receive($request){
         $pdo = pdo();
         extract($request);
-        $receive_id = array('id' => $p_id);               // 指定receive_id
-        $receive = show_receive($receive_id);                  // 把receive~原表單叫近來處理
-            $b_ppty = $receive['ppty'];                       // 指定~原表單需求類別ppty
-            $local_id = $receive['local_id'];                 // 指定~原收件區in_local
-            $logs = $receive['logs'];                         // 指定~原表單記錄檔logs
-            $b_idty = $receive['idty'];                       // 指定~原表單狀態b_idty
-            $in_date = $receive['in_date'];                   // 指定~原表單狀態in_date
-            $item_str = $receive["item"];                     // 把item整串(未解碼)存到$item_str
-            $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-            $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec     = catalog_id
-            $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec   = amount
-        //PHP stdClass Object轉array 
-            if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-            if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
-
-        // V2 判斷前單$b_idty不是1待簽、12待領，就返回        
-        if($b_idty == 1 || $b_idty == 12){
-            $idty = $p_idty;
-        }else{    
-            echo "<script>alert('$b_idty.此表單在您簽核前已被改變成[非待簽核]狀態，請再確認，謝謝!');</script>";
-            return;
-        }
-        
-        // 12待收 => 10結案
-        if($b_ppty == 1 && $b_idty == 12 && $p_idty == 10){
-            // 逐筆呼叫處理
-            foreach(array_keys($item_dec) as $it){
-                // 假如po_num是空的，給他NA
-                if(empty($po_num_dec[$it])){
-                    $po_num_dec[$it] = 'NA';
-                }
-        
-                $process = [];  // 清空預設值
-                $process = array('stock_id' => $it,
-                                'lot_num' => $in_date,             // lot_num = 批號/期限；因PM發貨時會把發貨日寫入in_date，所以只能暫時先吃他
-                                'po_num' => $out_local,            // po_num = 採購編號；因PM發貨時會把PO_num寫入out_local
-                                'catalog_id' => $item_dec[$it],    // catalog_id = 器材目錄id
-                                'p_amount' => $amount_dec[$it],    // p_amount = 正常數量
-                                'p_local' => $in_local,             // p_local = local單位id
-                                'idty' => $b_idty);                // idty = 交易狀態
-                process_issue($process);
-            }
-        }
-
-        // 把原本沒有的塞進去
-        $request['idty'] = $idty;   
-        $request['cname'] = $_SESSION["AUTH"]["cname"];
-        $request['logs'] = $logs;   
-        
+        // item資料前處理
+        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
+    
+        // 把_receive表單logs叫近來處理
+            $query = array('uuid'=> $uuid );
+            $receive_logs = showLogs($query);
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["idty"] = $idty;   
+            $logs_request["cname"] = $created_cname;
+            $logs_request["logs"] = $receive_logs["logs"];   
+            $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
-        $logs_enc = toLog($request);
+            $logs_enc = toLog($logs_request);
 
-        // 更新trade表單
-        $sql = "UPDATE _issue 
-                SET idty=?, logs=?, in_date=now() 
-                WHERE id=? ";
+            // $row_plant          = $receive_row["plant"];
+            // $row_dept           = $receive_row["dept"];
+            // $row_sign_code      = $receive_row["sign_code"];
+            // $row_emp_id         = $receive_row["emp_id"];
+            // $row_cname          = $receive_row["cname"];
+            // $row_extp           = $receive_row["extp"];
+            // $row_local_id       = $receive_row["local_id"];
+            // $row_ppty           = $receive_row["ppty"];
+            // $row_receive_remark = $receive_row["receive_remark"];
+            // $row_logs           = $receive_row["logs"];
+            // $row_cata_SN_amount = $receive_row["cata_SN_amount"];
+            // $row_cata_SN_amount_str = $receive_row["cata_SN_amount"];               // 把cata_SN_amount整串(未解碼)存到$cata_SN_amount_str
+            // $row_cata_SN_amount_arr = explode("_," ,$cata_SN_amount_str);           // 把字串轉成陣列進行後面的應用
+            // $row_cata_SN_amount_dec = json_decode($cata_SN_amount_arr[0]);          // 解碼後存到$cata_SN_amount_dec     = catalog_id
+            // $row_created_emp_id = $receive_row["created_emp_id"];
+            // $row_created_cname  = $receive_row["created_cname"];
+            // $row_uuid           = $receive_row["uuid"];
+
+        // 更新_receive表單
+        $sql = "UPDATE _receive
+                SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
+                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ? , updated_at = now()
+                WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$p_idty, $logs_enc, $p_id]);
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty, $logs_enc, $updated_user, $uuid]);
+            $swal_json = array(
+                "fun" => "update_receive",
+                "action" => "success",
+                "content" => '領用申請--更新成功'
+            );
         }catch(PDOException $e){
             echo $e->getMessage();
+            $swal_json = array(
+                "fun" => "update_receive",
+                "action" => "error",
+                "content" => '領用申請--更新失敗'
+            );
         }
-
+        return $swal_json;
     }
     // 刪除單筆_receive紀錄 20230803
     function delete_receive($request){
         $pdo = pdo();
         extract($request);
-        $sql = "DELETE FROM _receive WHERE id = ?";
+        $sql = "DELETE FROM _receive WHERE uuid = ?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$id]);
+            $stmt->execute([$uuid]);
+            return true;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
 
@@ -294,44 +289,45 @@
 
         return $logs;        
     }
-    // 讀取所有JSON_Log記錄
+    // 讀取所有JSON_Log記錄 20230804
     function showLogs($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _issue.*
-                FROM `_issue`
-                WHERE _issue.id = ?";
+        $sql = "SELECT _receive.logs
+                FROM `_receive`
+                WHERE _receive.uuid = ?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$id]);
-            $_issue = $stmt->fetch();
-            return $_issue;
+            $stmt->execute([$uuid]);
+            $receive_logs = $stmt->fetch();
+            return $receive_logs;
+
         }catch(PDOException $e){
             echo $e->getMessage();
+
         }
     }
-    // 刪除單項log值-20220215
+    // 刪除單項log值-20230804
     function updateLogs($request){
         $pdo = pdo();
         extract($request);
 
-        $query = array('id'=> $id );
-        // 把trade表單叫近來處理
-            // $trade = showTrade($query);
-        $trade = showLogs($query);
+        $query = array('uuid'=> $uuid );
+        // 把_receive表單叫近來處理
+        $receive = showLogs($query);
         //這個就是JSON格式轉Array新增字串==搞死我
-        $logs_dec = json_decode($trade['logs']);
+        $logs_dec = json_decode($receive['logs']);
         $logs_arr = (array) $logs_dec;
         // unset($logs_arr[$log_id]);  // 他會產生index導致原本的表亂掉
         array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
 
         $logs = json_encode($logs_arr);
-        $sql = "UPDATE _issue 
-                SET logs=? 
-                WHERE id=?";
+        $sql = "UPDATE _receive 
+                SET logs = ? 
+                WHERE uuid = ?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$logs, $id]);
+            $stmt->execute([$logs, $uuid]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }

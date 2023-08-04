@@ -86,7 +86,7 @@
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-list-ol"></i>&nbsp領用清單</a></li>
                                                 <li><a class="dropdown-item" href="../receive/index.php">&nbsp領用分類管理</a></li>
-                                                <li><a class="dropdown-item" href="../receive/create.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li>
+                                                <li><a class="dropdown-item" href="../receive/edit.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li>
                                             <?php } ?>
                                         </ul>
                                     </li>

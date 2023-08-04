@@ -3,8 +3,16 @@
     require_once("function.php");
 
     $swal_json = array();
-    if(isset($_POST["receive_submit"])){
-        $swal_json = store_receive($_REQUEST);
+    switch($_REQUEST["action"]){
+        case "new": 
+            $swal_json = store_receive($_REQUEST);
+            break;
+        case "edit": 
+            $swal_json = update_receive($_REQUEST);
+            break;
+        default: 
+            echo "bg-light text-success"; 
+            break;
     }
 ?>
 <?php include("../template/header.php"); ?>
@@ -24,6 +32,7 @@
     $("body").mLoading({ icon: "../../libs/jquery/Wedges-3s-120px.gif", });    
     // 引入swal_json值
     var swal_json = <?=json_encode($swal_json);?>;
+    var url = 'index.php';
 
     if(swal_json.length != 0){
         $("body").mLoading("hide");
@@ -31,7 +40,6 @@
         // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});     // 關閉畫面
         
         if(swal_json['action'] == 'success'){
-            url = 'index.php';
             // location.href = this.url;
             swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = this.url;});     // 關閉畫面
             
@@ -45,8 +53,8 @@
         window.addEventListener("load", function(event) {
             $("body").mLoading("hide");
         });
+        location.href = this.url;
     }
     
-    header("refresh:0;url=index.php");
 
 </script>

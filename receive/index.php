@@ -286,10 +286,10 @@
                                                     <!-- Action功能欄 -->
                                                     <?php if(($receive['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
                                                     <!-- 待簽：PM+管理員功能 -->
-                                                        <a href="show.php?id=<?php echo $receive['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                        <a href="edit.php?uuid=<?php echo $receive['uuid'];?>&action=edit" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
                                                     <!-- siteUser功能 -->
-                                                        <a href="show.php?id=<?php echo $receive['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                        <a href="edit.php?uuid=<?php echo $receive['uuid'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>
                                             </tr>

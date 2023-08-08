@@ -442,7 +442,7 @@
                                 <!-- 第一排的功能 : 顯示已加入名單+input -->
                                 <div class="col-12 px-4 py-0">
                                     <div id="selectScomp_noItem"></div>
-                                    <input type="hidden" class="form-control" name="scomp_no[]" id="scomp_no" placeholder="已加入的供應商">
+                                    <input type="hidden" class="form-control" name="scomp_no[]" id="scomp_no" placeholder="已加入的">
                                 </div>
                                 <!-- 第二排的功能 : 搜尋功能 -->
                                 <div class="col-12 px-4">

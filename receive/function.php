@@ -73,8 +73,9 @@
             $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
             
             // 製作log紀錄前處理：塞進去製作元素
-                $logs_request["idty"] = $idty;   
+                $logs_request["idty"] = $idty;
                 $logs_request["cname"] = $created_cname;
+                $logs_request["step"] = "填單人";                   // 節點
                 $logs_request["logs"] = "";   
                 $logs_request["remark"] = $sin_comm;   
             // 呼叫toLog製作log檔
@@ -124,24 +125,29 @@
             echo $e->getMessage();
         }
     }
-    // 驗收動作的_receive表單
+    // edit動作的_receive表單
     function update_receive($request){
         $pdo = pdo();
         extract($request);
         // item資料前處理
-        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
+        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
     
         // 把_receive表單logs叫近來處理
             $query = array('uuid'=> $uuid );
             $receive_logs = showLogs($query);
+            if($action == "edit"){
+                $idty = 4;
+            }
         // 製作log紀錄前處理：塞進去製作元素
-            $logs_request["idty"] = $idty;   
+            $logs_request["action"] = $action;
+            $logs_request["step"] = '填單人';
+            $logs_request["idty"] = $idty;
             $logs_request["cname"] = $created_cname;
             $logs_request["logs"] = $receive_logs["logs"];   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
-
+        // back
             // $row_plant          = $receive_row["plant"];
             // $row_dept           = $receive_row["dept"];
             // $row_sign_code      = $receive_row["sign_code"];
@@ -197,49 +203,44 @@
             return false;
         }
     }
-
-    // 20230803 在_receive_list秀出所有_receive清單 // 20230803 嵌入分頁工具
-    function show_receive_list($request){
+    // sign動作的_receive表單 20230807
+    function sign_receive($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark , u.cname AS fab_cname
-                FROM `_receive` _r
-                LEFT JOIN _local _l ON _r.local_id = _l.id
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                LEFT JOIN _site _s ON _f.site_id = _s.id
-                LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _l.fab_id ";
-        // 處理 byUser or admin 不同顯示內容
-        if($emp_id != 'All'){
-            $sql .= " WHERE _r.emp_id=? OR _r.created_emp_id=? ";                   
-            if($role <= 1){
-                $sql .= " OR _r.idty=1 ";      //處理 byAdmin
-            }
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _r.updated_at DESC";
-        // 決定是否採用 page_div 20230803
-            if(isset($start) && isset($per)){
-                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
-            }else{
-                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
-            }
+    
+        // 把_receive表單logs叫近來處理
+            $query = array('uuid'=> $uuid );
+            $receive_logs = showLogs($query);
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["idty"] = $idty;   
+            $logs_request["cname"] = $updated_user;
+            $logs_request["logs"] = $receive_logs["logs"];   
+            $logs_request["remark"] = $sin_comm;   
+        // 呼叫toLog製作log檔
+            $logs_enc = toLog($logs_request);
 
+        // 更新_receive表單
+        $sql = "UPDATE _receive
+                SET idty = ? , logs = ? , updated_user = ? , updated_at = now()
+                WHERE uuid = ? ";
+        $stmt = $pdo->prepare($sql);
         try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
-            }else{
-                $stmt->execute();                           //處理 by All
-            }
-            $issues = $stmt->fetchAll();
-            return $issues;
-
+            $stmt->execute([$idty, $logs_enc, $updated_user, $uuid]);
+            $swal_json = array(
+                "fun" => "sign_receive",
+                "action" => "success",
+                "content" => '領用申請--sign成功'
+            );
         }catch(PDOException $e){
             echo $e->getMessage();
+            $swal_json = array(
+                "fun" => "sign_receive",
+                "action" => "error",
+                "content" => '領用申請--sign失敗'
+            );
         }
+        return $swal_json;
     }
-    
-
-
 // // // 領用單 CRUD -- end
 
 // // // CSV & Log tools
@@ -261,6 +262,7 @@
             case "1":   $action = '送出 (Submit)';        break;
             case "2":   $action = '駁回 (Disapprove)';    break;
             case "3":   $action = '作廢 (Abort)';         break;
+            case "4":   $action = '編輯 (Edit)';          break;
             case "10":  $action = '結案';                 break;
             case "11":  $action = '轉PR';                 break;
             case "12":  $action = '發貨/待收';            break;
@@ -279,7 +281,8 @@
         $app = [];  // 定義app陣列=appry
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
         $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
-        $app = array(   "cname" => $cname,
+        $app = array(   "step" => $step,
+                        "cname" => $cname,
                         "datetime" => date('Y-m-d H:i:s'), 
                         "action" => $action,
                         "remark" => $log_remark);
@@ -334,8 +337,109 @@
     }
 // // // CSV & Log tools -- end
 
+// // // index +統計數據
+    // 20230803 在_receive_list秀出所有_receive清單 // 20230803 嵌入分頁工具
+    function show_receive_list($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark 
+                        -- , u.cname AS fab_cname
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                -- LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _l.fab_id
+                 ";
+        // 處理 byUser or admin 不同顯示內容
+        if($emp_id != 'All'){
+            $sql .= " WHERE _r.emp_id=? OR _r.created_emp_id=? ";                   
+            if($role <= 1){
+                $sql .= " OR _r.idty=1 ";      //處理 byAdmin
+            }
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _r.updated_at DESC";
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+            }
 
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
+            }else{
+                $stmt->execute();                           //處理 by All
+            }
+            $issues = $stmt->fetchAll();
+            return $issues;
 
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20230808 在index表頭顯示各類別的數量：    // 統計看板--上：表單核簽狀態
+    function show_sum_receive($request){
+        $pdo = pdo();
+        extract($request);
+        if($emp_id == 'All'){
+            $sql = "SELECT DISTINCT _r.ppty, _r.idty,
+                        (SELECT COUNT(*) FROM `_receive` _r2 WHERE  _r2.idty = _r.idty AND _r2.ppty = _r.ppty) AS idty_count
+                    FROM `_receive` _r ";
+        }else{
+            $sql = "SELECT DISTINCT _r.ppty, _r.idty,
+                        (SELECT COUNT(*) FROM `_receive` _r2 WHERE  _r2.idty = _r.idty AND _r2.ppty = _r.ppty AND ( _r2.emp_id=? OR _r2.created_emp_id=? )) AS idty_count
+                    FROM `_receive` _r
+                    WHERE _r.emp_id=? OR _r.created_emp_id=? ";             //處理 byUser
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _r.ppty, _r.idty ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            if($emp_id == 'All'){
+                $stmt->execute();                                           //處理 byAll
+            }else{
+                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
+            }
+            $sum_receive = $stmt->fetchAll();
+            return $sum_receive;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20230719 在index表頭顯示各類別的數量：    // 統計看板--下：轉PR單
+    function show_sum_receive_ship($request){
+        $pdo = pdo();
+        extract($request);
+        if($emp_id != 'All'){
+            $sql = "SELECT DISTINCT _receive._ship, LEFT(_receive.in_date, 10) AS in_date,
+                        (SELECT COUNT(*) FROM `_receive` _i2 WHERE _i2._ship = _receive._ship AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS ship_count
+                    FROM `_receive`
+                    WHERE _receive._ship IS NOT NULL AND ( _receive.out_user_id=? OR _receive.in_user_id=? )";      //處理 byUser
+        }else{
+            $sql = "SELECT DISTINCT _receive._ship, LEFT(_receive.in_date, 10) AS in_date,
+                        (SELECT COUNT(*) FROM `_receive` _i2 WHERE _i2._ship = _receive._ship) AS ship_count
+                    FROM `_receive`
+                    WHERE _receive._ship IS NOT NULL ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _receive._ship DESC";
+        $stmt = $pdo->prepare($sql.' LIMIT 10');    // TOP 10
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
+            }else{
+                $stmt->execute();                           //處理 byAll
+            }
+            $sum_receive_ship = $stmt->fetchAll();
+            return $sum_receive_ship;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+// // // index +統計數據 -- end
 
 
 

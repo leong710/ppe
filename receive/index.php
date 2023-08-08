@@ -23,12 +23,11 @@
             'emp_id' => $is_emp_id
         );
         $receives = show_receive_list($receive_list_setting);
-        $sum_issues = show_sum_issue($receive_list_setting);              // 統計看板--上：表單核簽狀態
-        $sum_issues_ship = show_sum_issue_ship($receive_list_setting);    // 統計看板--下：轉PR單
+        $sum_receives = show_sum_receive($receive_list_setting);              // 左統計看板--上：表單核簽狀態
+        // $sum_receives_ship = show_sum_receive_ship($receive_list_setting);    // 左統計看板--下：轉PR單
 
     // <!-- 20211215分頁工具 -->
-        // 分頁設定
-        $per_total = count($receives);        // 計算總筆數
+        $per_total = count($receives);      // 計算總筆數
         $per = 25;                          // 每頁筆數
         $pages = ceil($per_total/$per);     // 計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          // !isset 判斷有沒有$_GET['page']這個變數
@@ -44,7 +43,6 @@
         );
         array_push($receive_list_setting, $receive_page_div);
 
-        // $issues = issue_page_div($start, $per, $list_issue_setting);
         $receives = show_receive_list($receive_list_setting);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
@@ -97,7 +95,7 @@
                                 <a href="form.php?action=create" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請單</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
+                                <a href="show_receiveAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
                             <?php } ?>
                         <?php } ?>
                     </div>
@@ -120,23 +118,24 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach($sum_issues as $sum_issue){ ?>
+                                            <?php foreach($sum_receives as $sum_receive){ ?>
                                                 <tr>
-                                                    <td>
-                                                        <?php if($sum_issue['ppty'] == '0'){?>臨時<?php ;}?>
-                                                        <?php if($sum_issue['ppty'] == '1'){?>定期<?php ;}?>
-                                                    </td>
-                                                    <td>
-                                                        <?php if($sum_issue['idty'] == '0'){?><span class="badge rounded-pill bg-warning text-dark">待轉</span><?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '1'){?><span class="badge rounded-pill bg-danger">待簽</span><?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '2'){?>退件<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '3'){?>取消<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '10'){?>結案<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '11'){?>轉PR<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
-                                                    </td>
-                                                    <td>
-                                                        <?php echo $sum_issue['idty_count']."&nbsp件";?></td>
+                                                    <td><?php 
+                                                            if($sum_receive['ppty'] == '1'){ echo "定期";}
+                                                            if($sum_receive['ppty'] == '3'){ echo "緊急";}
+                                                        ?></td>
+                                                    <td><?php switch($sum_receive['idty']){
+                                                            case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                                            case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                                            case "2" : echo "退件"; break;
+                                                            case "3" : echo "取消"; break;
+                                                            case "10": echo "結案"; break;
+                                                            case "11": echo "轉PR"; break;
+                                                            case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                                            default: echo "na"; break;
+                                                            // return; 
+                                                            }?></td>
+                                                    <td><?php echo $sum_receive['idty_count']."&nbsp件";?></td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
@@ -155,13 +154,13 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach($sum_issues_ship as $sum_issue_ship){ ?>
+                                            <!-- <php foreach($sum_receives_ship as $sum_receive_ship){ ?> -->
                                                 <tr>
-                                                    <td><?php echo substr($sum_issue_ship['in_date'],0,10);?></td>
-                                                    <td style="word-break: break-all;"><a href="review_issueAmount.php?pr_no=<?php echo $sum_issue_ship['_ship']; ?>" data-toggle="tooltip" data-placement="bottom" title="<?php echo $sum_issue_ship['ship_count']."&nbsp件";?>">
-                                                        <?php echo $sum_issue_ship['_ship'];?></td>
+                                                    <!-- <td><php echo substr($sum_receive_ship['in_date'],0,10);?></td> -->
+                                                    <!-- <td style="word-break: break-all;"><a href="review_receiveAmount.php?pr_no=<php echo $sum_receive_ship['_ship']; ?>" data-toggle="tooltip" data-placement="bottom" title="<?php echo $sum_receive_ship['ship_count']."&nbsp件";?>"> -->
+                                                        <!-- <php echo $sum_receive_ship['_ship'];?></td> -->
                                                 </tr>
-                                            <?php } ?>
+                                            <!-- <php } ?> -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -273,11 +272,11 @@
                                                             case "0":   echo '.臨時';  break;
                                                             case "1":   echo '.定期';  break;
                                                             case "3":   echo '.緊急';  break;
-                                                            default:    echo '錯誤';   return;
+                                                            // default:    echo '錯誤';   return;
                                                         } ;?></td>
                                                 <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
-                                                        echo ($receive['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark" >待轉</span>':"";
-                                                        echo ($receive['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger" >待簽</span>':"";
+                                                        echo ($receive['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"";
+                                                        echo ($receive['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger">待簽</span>':"";
                                                         echo ($receive['idty'] == '2')  ? "退件":"";
                                                         echo ($receive['idty'] == '3')  ? "取消":"";
                                                         echo ($receive['idty'] == '10') ? "結案":"";
@@ -286,12 +285,12 @@
                                                 </td>
                                                 <td>
                                                     <!-- Action功能欄 -->
-                                                    <?php if(($receive['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
-                                                    <!-- 待簽：PM+管理員功能 -->
-                                                        <a href="form.php?uuid=<?php echo $receive['uuid'];?>&action=edit" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                    <?php if(($receive['idty'] == '1') && $sys_role){ ?> 
+                                                        <!-- 待簽：PM+管理員功能 -->
+                                                        <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
-                                                    <!-- siteUser功能 -->
-                                                        <a href="form.php?uuid=<?php echo $receive['uuid'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                        <!-- siteUser功能 -->
+                                                        <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=review" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>
                                             </tr>

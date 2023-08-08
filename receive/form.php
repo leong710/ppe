@@ -72,7 +72,14 @@
         .unblock{
             display: none;
             /* transition: 3s; */
-        }        
+        }
+        /*眼睛*/
+        #checkEye {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
         #catalog_list img {
             max-width: 100px;
             /* max-height: 100px; */
@@ -143,7 +150,7 @@
                         <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="uuid" value="<?php echo $receive_row["uuid"];?>">
-                                <input type="submit" name="delete_receive" value="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
+                                <input type="submit" name="delete_receive" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
                     </div>
@@ -284,6 +291,7 @@
                                             <div class="form-floating">
                                                 <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
                                                 <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
+                                                <button type="button" onclick="search_fun();"><i id="checkEye" class="fa-solid fa-paint-roller" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊"></i></button>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
@@ -343,12 +351,6 @@
                                             </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
                                             </br>&nbsp4.以上若有填報不實，將於以退件。 
                                         </div>
-                                        <input type="hidden" name="idty" id="idty" value="1">
-                                        <input type="hidden" name="created_emp_id" id="created_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                        <input type="hidden" name="created_cname" id="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="uuid" id="uuid" value="">
                                     </div>
     
                                     <div class="row">
@@ -379,6 +381,12 @@
                                         <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
+                                        <input type="hidden" name="created_emp_id" id="created_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                                        <input type="hidden" name="created_cname" id="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="uuid" id="uuid" value="">
+                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty" id="idty" value="1">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                             <input type="submit" value="Submit" name="receive_submit" class="btn btn-primary">
                                         <?php } ?>
@@ -402,7 +410,7 @@
                         <table class="for-table logs table table-sm table-hover">
                             <thead>
                                 <tr>
-                                    <th>id</th>
+                                    <th>Step</th>
                                     <th>Signer</th>
                                     <th>Time Signed</th>
                                     <th>Status</th>
@@ -436,7 +444,17 @@
             </div>
         </div>
     </div>
-    
+    <!-- toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        以工號帶入其他資訊...完成!!
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
     <!-- 彈出說明模組 cata_info -->
         <div class="modal fade" id="cata_info" tabindex="-1" aria-labelledby="cata_info" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -591,6 +609,61 @@
             nav_review_btn.classList.add('disabled');           // 購物車等於0，disabled
         }
     }
+
+// // // searchUser function 
+    // 第一-階段：search Key_word
+    function search_fun(){
+        mloading("show");                       // 啟用mLoading
+        let search = $('#emp_id').val().trim();
+        $('#plant, #dept, #sign_code, #cname, #extp').empty();
+        if(!search || (search.length < 8)){
+            alert("查詢工號字數最少 8 個字以上!!");
+            $("body").mLoading("hide");
+            return false;
+        } 
+        $.ajax({
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',
+            method:'get',
+            dataType:'json',
+            data:{
+                functionname: 'search',                     // 操作功能
+                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                search: search                              // 查詢對象key_word
+            },
+            success: function(res){
+                var res_r = res["result"];
+                // 將結果進行渲染
+                if (res_r !== '') {
+                    let obj_val = res_r[0];                                         // 取Object物件0
+                    console.log('obj_val:',obj_val);
+                    if(obj_val.dept_d){                                             // 位差判斷填入
+                        document.getElementById('plant').value = obj_val.dept_c;    // 將欄位帶入數值 = dept_c 部
+                        document.getElementById('dept').value = obj_val.dept_d;     // 將欄位帶入數值 = dept_d 課
+                    }else{
+                        document.getElementById('plant').value = obj_val.dept_b;    // 將欄位帶入數值 = dept_b 處
+                        document.getElementById('dept').value = obj_val.dept_c;     // 將欄位帶入數值 = dept_c 部
+                    }
+                    document.getElementById('sign_code').value = obj_val.dept_no;   // 將欄位帶入數值 = dept_no 部門代號
+                    document.getElementById('cname').value = obj_val.cname;         // 將欄位帶入數值 = cname
+                    if(obj_val.extp){
+                        document.getElementById('extp').value = obj_val.extp;       // 將欄位帶入數值 = extp
+                    }else{
+                        document.getElementById('extp').value = '';
+                    }
+                    var toastLiveExample = document.getElementById('liveToast');
+                    var toast = new bootstrap.Toast(toastLiveExample);
+                    toast.show();
+                }else{
+                    alert("查無工號["+search+"]!!");
+                }
+            },
+            error (){
+                console.log("search error");
+            }
+        })
+        $("body").mLoading("hide");
+    }
+// // // searchUser function 
     
 // // // Edit選染
     var action = '<?=$action;?>';                       // 引入action資料
@@ -636,7 +709,7 @@
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
-                '<tr>' + '<td>' + [i] + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
+                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
                     '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
                         `<input type="hidden" name="log_id" value="` + [i] + `";>` +
                         `<input type="hidden" name="uuid" value="` + uuid + `";>` +

@@ -4,11 +4,14 @@
 
     $swal_json = array();
     switch($_REQUEST["action"]){
-        case "new": 
+        case "create": 
             $swal_json = store_receive($_REQUEST);
             break;
         case "edit": 
             $swal_json = update_receive($_REQUEST);
+            break;
+        case "sign": 
+            $swal_json = sign_receive($_REQUEST);
             break;
         default: 
             echo "bg-light text-success"; 

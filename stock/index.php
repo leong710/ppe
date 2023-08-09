@@ -46,8 +46,8 @@
         $fabs = show_fab($sort_fab_setting);                // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id
-        if(isset($_GET["fab_id"])){    // 有帶查詢，套查詢參數
-            $sort_fab_id = $_GET["fab_id"];
+        if(isset($_REQUEST["fab_id"])){    // 有帶查詢，套查詢參數
+            $sort_fab_id = $_REQUEST["fab_id"];
         }else{                          // 先給預設值
             if(isset($_SESSION[$sys_id]["fab_id"])){
                 $sort_fab_id = $_SESSION[$sys_id]["fab_id"];
@@ -56,8 +56,8 @@
             }
         }
         // 查詢篩選條件：cate_no
-        if(isset($_GET["cate_no"])){
-            $sort_cate_no = $_GET["cate_no"];
+        if(isset($_REQUEST["cate_no"])){
+            $sort_cate_no = $_REQUEST["cate_no"];
         }else{
             $sort_cate_no = "All";
         }
@@ -66,7 +66,7 @@
             'fab_id' => $sort_fab_id,
             'cate_no' => $sort_cate_no
         );
-    
+ 
         $stocks = show_stock($list_issue_setting);                  // 依查詢條件儲存點顯示存量
         $categories = show_categories();                            // 取得所有分類item
         $sum_categorys = show_sum_category($list_issue_setting);    // 統計分類與數量
@@ -141,7 +141,7 @@
             <div class="col_xl_12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .9);">
                 <div class="row">
                     <div class="col-md-4 py-0">
-                        <h5><?php echo $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")";?>_庫存管理： </h5>
+                        <h5><?php echo isset($sortFab["id"]) ? $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>_庫存管理： </h5>
                     </div>
                     <!-- sort/groupBy function -->
                     <div class="col-md-4 py-0">
@@ -149,10 +149,10 @@
                             <div class="input-group">
                                 <span class="input-group-text">篩選</span>
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="" selected hidden>-- 請選擇local --</option>
+                                    <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
                                         <?php if($_SESSION[$sys_id]["role"] <= 1 || $fab["id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($fab["id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                            <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sort_fab_id ? "selected":"";?>>
+                                            <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
                                     <?php } ?>
@@ -215,11 +215,11 @@
                                         echo "首頁 ";
                                         echo "上一頁 ";		
                                     }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
                                     }else if(isset($sortFab["id"])){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=1>首頁 </a> ";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";		
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=1>首頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";		
                                     }else{
                                         echo "<a href=?page=1>首頁 </a> ";
                                         echo "<a href=?page=".($page-1).">上一頁 </a> ";		
@@ -241,9 +241,9 @@
                                         //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
                                         if($page-$lnum <= $i && $i <= $page+$rnum){
                                             if($i==$page){
-                                                echo $i.' ';
+                                                echo '<u><b>'.$i.'</b></u> ';
                                             }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                                echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
+                                                echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
                                             }else{
                                                 echo '<a href=?page='.$i.'>'.$i.'</a> ';
                                             }
@@ -254,11 +254,11 @@
                                         echo " 下一頁";
                                         echo " 末頁";
                                     }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
                                     }else if(isset($sortFab["id"])){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";
                                     }else{
                                         echo "<a href=?page=".($page+1)."> 下一頁</a>";
                                         echo "<a href=?page=".$pages."> 末頁</a>";		
@@ -340,11 +340,11 @@
                                         echo "首頁 ";
                                         echo "上一頁 ";		
                                     }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
                                     }else if(isset($sortFab["id"])){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=1>首頁 </a> ";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";	
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=1>首頁 </a> ";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";	
                                     }else{
                                         echo "<a href=?page=1>首頁 </a> ";
                                         echo "<a href=?page=".($page-1).">上一頁 </a> ";		
@@ -366,9 +366,9 @@
                                         //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
                                         if($page-$lnum <= $i && $i <= $page+$rnum){
                                             if($i==$page){
-                                                echo $i.' ';
+                                                echo '<u><b>'.$i.'</b></u> ';
                                             }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                                echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
+                                                echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
                                             }else{
                                                 echo '<a href=?page='.$i.'>'.$i.'</a> ';
                                             }
@@ -379,11 +379,11 @@
                                         echo " 下一頁";
                                         echo " 末頁";
                                     }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
                                     }else if(isset($sortFab["id"])){
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?site_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";	
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
+                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";	
                                     }else{
                                         echo "<a href=?page=".($page+1)."> 下一頁</a>";
                                         echo "<a href=?page=".$pages."> 末頁</a>";		
@@ -491,6 +491,10 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <!-- 第三排提示 -->
+                        <div class="col-12 rounded bg-light pt-0">
+                            *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
                     </div>
 
@@ -609,7 +613,10 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!-- 第三排提示 -->
+                        <div class="col-12 rounded bg-light pt-0">
+                            *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
+                        </div>
                         <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_stock_info"></div>
                     </div>

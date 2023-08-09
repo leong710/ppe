@@ -154,14 +154,14 @@
                                         <div class="row">
                                             <div class="col-12 col-md-5 py-0">
                                                 <h5><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
-                                                    case "1": echo "bg-primary"; break;
-                                                    case "2": echo "bg-success"; break;
-                                                    case "3": echo "bg-warning text-dark"; break;
-                                                    case "4": echo "bg-danger"; break;
-                                                    case "5": echo "bg-info text-dark"; break;
-                                                    case "6": echo "bg-dark"; break;
-                                                    case "7": echo "bg-secondary"; break;
-                                                    default: echo "bg-light text-success"; break;
+                                                    case "1": echo "bg-primary";            break;
+                                                    case "2": echo "bg-success";            break;
+                                                    case "3": echo "bg-warning text-dark";  break;
+                                                    case "4": echo "bg-danger";             break;
+                                                    case "5": echo "bg-info text-dark";     break;
+                                                    case "6": echo "bg-dark";               break;
+                                                    case "7": echo "bg-secondary";          break;
+                                                    default: echo "bg-light text-success";  break;
                                                     }?>">
                                                 <?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span></h5>
                                             </div>

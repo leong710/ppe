@@ -19,7 +19,7 @@
             $amount += $row["amount"];
 
             $sql = "UPDATE _stock
-                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=CONCAT(po_no, CHAR(10), ?), lot_num=?, updated_user=?, updated_at=now()
+                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_user=?, updated_at=now()
                     WHERE id=?";
             $stmt = $pdo->prepare($sql);
             try{
@@ -77,25 +77,62 @@
     function update_stock($request){
         $pdo = pdo();
         extract($request);
-        $sql = "UPDATE _stock
-                SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, updated_user=?, updated_at=now()
-                WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user, $id]);
-            $swal_json = array(
-                "fun" => "update_stock",
-                "action" => "success",
-                "content" => '更新套用成功'
-            );
-        }catch(PDOException $e){
-            echo $e->getMessage();
-            $swal_json = array(
-                "fun" => "update_stock",
-                "action" => "error",
-                "content" => '更新套用失敗'
-            );
-        }
+            // 20230809 新增確認同local_ld+catalog_id+lot_num的單子合併計算
+            $sql_check = "SELECT * 
+                          FROM _stock 
+                          WHERE local_id =? AND cata_SN =? AND lot_num =? AND po_no=? AND id <>? ";
+            $stmt_check = $pdo -> prepare($sql_check);
+            $stmt_check -> execute([$local_id, $cata_SN, $lot_num, $po_no, $id]);
+
+            if($stmt_check -> rowCount() >0){     
+                // 確認no編號是否已經被註冊掉，用rowCount最快~不要用fetch
+                echo "<script>alert('local同批號衛材已存在，將進行合併計算~')</script>";
+                $row = $stmt_check -> fetch();
+                $amount += $row["amount"];
+    
+                $sql = "UPDATE _stock
+                        SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_user=?, updated_at=now()
+                        WHERE id=?";
+                $stmt = $pdo->prepare($sql);
+                try{
+                    $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
+                    $swal_json = array(
+                        "fun" => "update_stock",
+                        "action" => "success",
+                        "content" => '合併套用成功'
+                    );
+                    delete_stock($request);     // 已合併到另一儲存項目，故需要刪除舊項目
+
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $swal_json = array(
+                        "fun" => "update_stock",
+                        "action" => "error",
+                        "content" => '合併套用失敗'
+                    );
+                }
+            }else{
+                // echo "<script>alert('local器材只有單一筆，不用合併計算~')</script>";
+                $sql = "UPDATE _stock
+                        SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, updated_user=?, updated_at=now()
+                        WHERE id=?";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user, $id]);
+                    $swal_json = array(
+                        "fun" => "update_stock",
+                        "action" => "success",
+                        "content" => '更新套用成功'
+                    );
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $swal_json = array(
+                        "fun" => "update_stock",
+                        "action" => "error",
+                        "content" => '更新套用失敗'
+                    );
+                }
+            }
         return $swal_json;
     }
 

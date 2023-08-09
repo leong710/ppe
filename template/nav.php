@@ -82,7 +82,7 @@
                                             
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                             
-                                            <?php if($_SESSION[$sys_id]["role"] == "0" || $_SESSION[$sys_id]["role"] == "1"){ ?>
+                                            <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-list-ol"></i>&nbsp領用清單</a></li>
                                                 <li><a class="dropdown-item" href="../receive/index.php">&nbsp領用分類管理</a></li>
@@ -104,7 +104,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         <!-- <li><a class="dropdown-item" href="#">&nbsp庫存</a></li> -->
                                         <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/stock/byCatalog.php"><i class="fa-solid fa-cart-shopping"></i><i class="fa-solid fa-suitcase"></i>器材存量管理</a></li> -->
-                                        <?php if($_SESSION[$sys_id]["role"] == "1" ){ ?>
+                                        <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp倉庫庫存</a></li>
                                             <li><a class="dropdown-item" href="#">x<i class="fa fa-check" aria-hidden="true"></i>&nbsp商品庫存</a></li>
@@ -203,7 +203,7 @@
                                 <?php if(isset($_SESSION[$sys_id])){ ?>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/edit.php?user=<?php echo $_SESSION["AUTH"]["user"];?>"><i class="fa fa-user-circle" aria-hidden="true"></i> 編輯User資訊</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <?php if($_SESSION[$sys_id]["role"] <= "1"){ ?>
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/index.php"><i class="fa fa-address-card" aria-hidden="true"></i> 管理使用者</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     <?php } ?>

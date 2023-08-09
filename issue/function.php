@@ -32,7 +32,7 @@
 
     }
     // 顯示被選定的issue表單
-    function showIssue($request){
+    function show_issue($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
@@ -131,7 +131,7 @@
 
     }
     // 刪除單筆Issue紀錄
-    function deleteIssue($request){
+    function delete_issue($request){
         $pdo = pdo();
         extract($request);
         $sql = "DELETE FROM _issue WHERE id = ?";

@@ -104,6 +104,7 @@
                 <!-- 表頭：右側 -->
                 <div class="col-12 col-md-4 pb-2">
                     <?php echo isset($buy_ty) ? "buy_ty/廠區規模(限購類別)：".$buy_ty:""; ?>
+                    </br>*.安全水位建議值 = 規模限購 / 2
                 </div>
             </div>
 

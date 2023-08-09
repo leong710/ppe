@@ -303,7 +303,7 @@
                             <div class="row">
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
-                                        <input type="number" name="standard_lv" id="standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
+                                        <input type="number" name="standard_lv" id="standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="9999"
                                             <?php echo $_SESSION[$sys_id]["role"] >= 2 ? "readonly":""; ?> >
                                         <label for="standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>
                                     </div>
@@ -346,6 +346,10 @@
     
     
                             </div>
+                        </div>
+                        <!-- 第三排提示 -->
+                        <div class="col-12 rounded bg-light pt-0">
+                            *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -459,7 +463,10 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!-- 第三排提示 -->
+                        <div class="col-12 rounded bg-light pt-0">
+                            *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
+                        </div>
                         <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_stock_info"></div>
                     </div>

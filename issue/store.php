@@ -17,6 +17,12 @@
             echo "bg-light text-success"; 
             break;
     }
+
+    $swal_json = array(
+        "fun" => "store_receive",
+        "action" => "success",
+        "content" => '領用申請--送出成功'
+    );
 ?>
 <?php include("../template/header.php"); ?>
 

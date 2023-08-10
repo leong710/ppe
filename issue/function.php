@@ -5,31 +5,36 @@
         $pdo = pdo();
         extract($request);
         // item資料前處理
+        $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
-            $catalog_SN = array_filter($catalog_SN);            // 去除陣列中空白元素
-            $amount = array_filter($amount);                    // 去除陣列中空白元素
-            // 小陣列要先編碼才能塞進去大陣列
-                $catalog_SN_enc = json_encode($catalog_SN);
-                $amount_enc = json_encode($amount);
-            //陣列合併
-                $item_arr = [];
-                $item_arr['catalog_SN'] = $catalog_SN_enc;
-                $item_arr['amount'] = $amount_enc;
-            // implode()把陣列元素組合為字串：
-                $item_str = implode("_," , $item_arr);               // 陣列轉成字串進行儲存到mySQL
-
-            // 設定表單狀態idty=1待領
-                $idty = '1';
+        // 製作log紀錄前處理：塞進去製作元素
+        $logs_request["idty"] = $idty;
+        $logs_request["cname"] = $cname;
+        $logs_request["step"] = "填單人";                   // 節點
+        $logs_request["logs"] = "";   
+        $logs_request["remark"] = $sin_comm;   
+    // 呼叫toLog製作log檔
+        $logs = toLog($logs_request);
 
         //// **** 儲存issue表單
-            $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
-            $stmt = $pdo->prepare($sql);
-            try {
-                $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
-            }catch(PDOException $e){
-                echo $e->getMessage();
-            }
-
+        $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
+            $swal_json = array(
+                "fun" => "store_issue",
+                "action" => "success",
+                "content" => '請購需求單--送出成功'
+            );
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json = array(
+                "fun" => "store_issue",
+                "action" => "error",
+                "content" => '請購需求單--送出失敗'
+            );
+        }
+        return $swal_json;
     }
     // 顯示被選定的issue表單
     function show_issue($request){
@@ -46,12 +51,12 @@
                 LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
                 LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
                 LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
-                WHERE _issue.id = ?";
+                WHERE _issue.id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);

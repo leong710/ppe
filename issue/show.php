@@ -4,15 +4,6 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    if(isset($_POST["delete"])){            // 刪除表單
-        deleteIssue($_REQUEST);
-        header("location:../issue/");       // 用這個，因為跳太快
-        exit;
-    }
-    if(isset($_POST["delete_log"])){        // 刪除log
-        updateLogs($_REQUEST);
-    }
-
     if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
         update_pr2fab($_REQUEST);
         header("refresh:0;url=index.php");
@@ -24,308 +15,650 @@
         header("refresh:0;url=index.php");
         exit;
     }
-    
-    $issue = showIssue($_REQUEST);          // 帶入該筆紀錄內容
-    if(empty($issue)){                      // 查無資料時返回指定頁面
-        header("location:../issue/");       // 用這個，因為跳太快
-        exit;
-    }
-    
-    $catalogs = show_catalogs();            // 讀取所有catalog
-        // 20230627-針對品項錯位bug進行調整 -- 取消插入
-        // $space = [];                        // 因為陣列是從0開始，必須插入一空白陣列到前面，讓正確資料由1開始
-        // array_unshift($catalogs, $space);   // 插到前面
 
-    $myfab_id = $_SESSION[$sys_id]['fab_id'];
+    // 決定表單開啟方式
+    if(isset($_REQUEST["action"])){
+        $action = $_REQUEST["action"];              // 有action就帶action
+    }else{
+        $action = 'review';                         // 沒有action就新開單
+    }
+
+    if(isset($_REQUEST["id"])){
+        $issue_row = show_issue($_REQUEST);
+        if(empty($issue_row)){
+            echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
+            header("refresh:0;url=index.php");
+            exit;
+        }
+        // logs紀錄鋪設前處理 
+        $logs_dec = json_decode($issue_row["logs"]);
+        $logs_arr = (array) $logs_dec;
+
+    }else{
+        $issue_row = array( "id" => "" );       // 預設issue_row[id]=空array
+        $logs_arr = [];                             // 預設logs_arr=空array
+        $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
+    }
+
+    $allLocals = show_allLocal();                   // 所有儲存站點
+    $catalogs = show_catalogs();                    // 器材=All
+    // $categories = show_categories();                // 分類
+    // $sum_categorys = show_sum_category();           // 統計分類與數量
 
 ?>
+
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
-
 <head>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-</head>
-<!-- 針對item儲存狀況快照的內容進行反解處理 -->
-<?php 
-    $item_str = $issue["item"];                     // 把item整串(未解碼)存到$item_str
-    $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-    $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec
-    $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec
-
-    //PHP stdClass Object轉array 
-    if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-    if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
-        
-    // 20230627-針對品項錯位bug進行調整 -- 重新建構目錄清單，以SN作為object.key
-        $obj_catalogs = [];
-        foreach($catalogs as $cata){
-            $obj_catalogs[$cata["SN"]] = [
-                'id' => $cata["id"],
-                'SN' => $cata["SN"],
-                'pname' => $cata["pname"],
-                'PIC' => $cata["PIC"],
-                'cata_remark' => $cata["cata_remark"],
-                'OBM' => $cata["OBM"],
-                'model' => $cata["model"],
-                'size' => $cata["size"],
-                'unit' => $cata["unit"],
-                'SPEC' => $cata["SPEC"],
-                'part_no' => $cata["part_no"],
-                'scomp_no' => $cata["scomp_no"],
-                'buy_a' => $cata["buy_a"],
-                'buy_b' => $cata["buy_b"],
-                'flag' => $cata["flag"],
-                'updated_user' => $cata["updated_user"],
-                'cate_title' => $cata["cate_title"],
-                'cate_no' => $cata["cate_no"],
-                'cate_id' => $cata["cate_id"]
-            ];
+    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <style>
+        .unblock{
+            display: none;
+            /* transition: 3s; */
         }
-?>
-<!-- log紀錄鋪設前處理 -->
-<?php
-    $logs_dec = json_decode($issue["logs"]);
-    $logs_arr = (array) $logs_dec;
-?>
+        .tag{
+            display: inline-block;
+            /* 粉紅 */
+            /* background-color: #fa0e7e; */
+            /* 粉藍 */
+            background-color: #0e7efa;
+            font: 14px;
+            color: white;
+            border-radius: 5px;
+            padding: 0px 3px 0px 7px;
+            margin-right: 5px;
+            margin-bottom:5px;
+            /* 粉紅 */
+            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
+            /* 粉藍 */
+            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
+        }
+        .tag .remove {
+            margin: 0 7px 3px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .op_tab_btn {
+            /* 將圖示的背景色設置為透明並添加陰影 */
+            background-color: transparent; 
+            text-shadow: 0px 0px 1px #fff;
+            color: blue;
+            /* 將圖示的背景色設置為按鈕的背景色 */
+            /* background-color: inherit; */
+        }
+        #catalog_list img {
+            max-width: 100px;
+            /* max-height: 100px; */
+            max-height: 100px;
+        }
+        .badge {
+            /* 標籤增加陰影辨識度 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .cata_info_btn , .add_btn{
+            /* 將圖示的背景色設置為透明並添加陰影 */
+            background-color: transparent; 
+            text-shadow: 0px 0px 1px #fff;
+            color: blue;
+            /* 將圖示的背景色設置為按鈕的背景色 */
+            /* background-color: inherit; */
+        }
+        .cata_info_btn:hover , .add_btn:hover{
+            /* color: red; */
+            transition: .5s;
+            font-weight: bold;
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
+        tr > th {
+            color: blue;
+            text-align: center;
+            vertical-align: top; 
+            word-break: break-all; 
+            background-color: white;
+            font-size: 16px;
+        }
+        tr > td {
+            vertical-align: middle; 
+        }
+    </style>
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+            }); 
+        }
+        // mloading();    // 畫面載入時開啟loading
+    </script>
+</head>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;">
-            <!-- 表單表頭功能鍵 -->
-            <div class="row px-2">
-                <div class="col-12 col-md-6">
-                    <div class="" style="display:inline-block;">
-                        <h3>檢視需求單</h3>
-                    </div> 
-                    <div class="" style="display:inline-block;">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            <form action="" method="post">
-                                <input type="hidden" name="id" value="<?php echo $issue["id"];?>">
-                                <input type="submit" name="delete" value="刪除表單" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
-                            </form>
-                        <?php } ?>
-                    </div> 
-                </div> 
-                <div class="col-12 col-md-6 text-end">
-                    <!-- 收發貨回歸Trad衛材撥補作業 -->
-                    <?php if($issue['idty'] == 12 && ($issue['in_user_id'] == $_SESSION[$sys_id]['id'] || $_SESSION[$sys_id]['role'] <= 1 )){?>  
-                        <!-- <a href="#" target="_blank" title="收貨確認" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doSign"><i class="fa-solid fa-gift"></i> 收貨確認</a> -->
-                    <?php }?>
-                    <!-- 收發貨回歸Trad衛材撥補作業 -->
-                    <?php if($_SESSION[$sys_id]['role'] <= 1 && $issue['idty'] == 11){?>  
-                        <!-- <a href="#" target="_blank" title="發貨確認" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pr2site"><i class="fa-solid fa-truck-fast"></i> 發貨確認</a> -->
-                    <?php }?>
-
-                    <?php if( $issue['idty'] == 1 && ($_SESSION[$sys_id]['role'] <= 1 || $issue['in_user_id'] == $_SESSION[$sys_id]['id'])){ ?> 
-                        <!-- 簽核：PM+管理員功能 -->
-                        <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doSign"><i class="fa fa-check" aria-hidden="true"></i> 
-                            <?php echo $issue['in_user_id'] == $_SESSION[$sys_id]['id'] ? "調整":"簽核";?></a>
-                    <?php }?>                    
-
-                    <div class=""  style="display:inline-block;">
-                        <button class="btn btn-info" onclick="history.back()"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</button>
+<body>
+    <div class="col-12">
+        <div class="row justify-content-center">
+            <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
+                <!-- 表頭1 -->
+                <div class="row px-2">
+                    <div class="col-12 col-md-6 py-0">
+                        <h3><b>請購需求單</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
-                </div> 
-            </div>
-            <!-- 文件表頭 -->
-            <div class="col-xl-12 col-12 py-0">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div>
-                            需求單號：<?php echo $issue["id"];?></br>
-                            開單日期：<?php echo $issue["create_date"];?></br>
-                            開單人員：<?php echo $issue["cname_i"];?>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div>
-                            表單狀態：<?php echo $issue['idty'];?>
-                                    <?php if($issue['idty'] == '0'){?><span class="badge rounded-pill bg-warning text-dark">待轉</span><?php ;}?>
-                                    <?php if($issue['idty'] == '1'){?><span class="badge rounded-pill bg-danger">待簽</span><?php ;}?>
-                                    <?php if($issue['idty'] == '2'){?>退件<?php ;}?>
-                                    <?php if($issue['idty'] == '3'){?>取消<?php ;}?>
-                                    <?php if($issue['idty'] == '10'){?>結案<?php ;}?>
-                                    <?php if($issue['idty'] == '11'){?>轉PR<?php ;}?>
-                                    <?php if($issue['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
-                            </br>需求類別：<?php echo $issue['ppty'];?>
-                                    <?php if($issue['ppty'] == '0'){?>臨時<?php ;}?>
-                                    <?php if($issue['ppty'] == '1'){?>定期<?php ;}?>
-                            </br>需求廠區：<?php echo $issue["site_i_title"].'&nbsp'. $issue["fab_i_title"].'('.$issue["fab_i_remark"].')'.'_'.$issue["local_i_title"];?>
-                            
-                        </div>
+                    <div class="col-12 col-md-6 py-0 text-end">
+                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
                     </div>
                 </div>
-            </div>
 
-            <!-- 撥補清單table -->
-            <div class="col-xl-12 col-12 rounded bg-light mb-3">
-                <table class="for-table">
-                    <thead>
-                        <tr>
-                            <th>SN</th>
-                            <th>分類</th>
-                            <th>名稱</th>
-                            <th>單位</th>
-                            <th>需求數量</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- 鋪設內容 -->
-                        <!-- 20230627-針對品項錯位bug進行調整 -- 以id作為object.key -->
-                        <?php foreach($item_dec as $itemID){?>
-                            <tr>
-                                <td class="t-left"><?php echo $obj_catalogs[$itemID]['SN'];?></td>
-                                <td><?php echo $obj_catalogs[$itemID]['cate_no'].".".$obj_catalogs[$itemID]['cate_title'];?></td>
-                                <td class="t-left"><?php echo $obj_catalogs[$itemID]['pname'];?></td>
-                                <td><?php echo $obj_catalogs[$itemID]['unit'];?></td>
-                                <td><?php echo $amount_dec[$itemID];?></td>
-                            </tr>
+                <div class="row px-2">
+                    <div class="col-12 col-md-6">
+                        需求單號：<?php echo ($action != 'review') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
+                        開單日期：<?php echo ($action != 'review') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
+                        填單人員：<?php echo ($action != 'review') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
+                    </div>
+                    <div class="col-12 col-md-6 text-end">
+                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
+                            <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
                         <?php }?>
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 尾段2：表單logs訊息 -->
-            <div class="col-12 pt-0 rounded bg-light">
-                <div class="row">
-                    <div class="col-12 col-md-6">
-                        表單Log記錄：
-                    </div>
-                    <div class="col-12 col-md-6">
-                   
                     </div>
                 </div>
-                <table class="for-table logs table table-sm table-hover">
-                    <thead>
-                        <tr class="table-dark">
-                            <th>id</th>
-                            <th>Signer</th>
-                            <th>Time Signed</th>
-                            <th>Status</th>
-                            <th>Comment</th>
-                            <?php if($_SESSION[$sys_id]["role"] == "0"){ ?><th>action</th><?php } ?>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <div style="font-size: 6px;" class="text-end">
-                    衛材訊息text-end
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- 彈出畫面說明模組 doSign-->
-    <div class="modal fade" id="doSign" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <form action="update.php" method="post" onsubmit="">
+    
+                <!-- container -->
+                <div class="col-12 p-0">
+                    <!-- 內頁 -->
+                        <div class="tab-content rounded bg-light" id="nav-tabContent">
+                            <!-- 3.申請單成立 -->
+                            <div class="tab-pane bg-white fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
+                                <div class="col-12 py-3 px-5">
+                                    <!-- 表列0 說明 -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            申請人相關資料：
+                                            <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                        </div>
+                                        <hr>
+                                        <div class="col-12 py-0" id="info_table"> 
+                                                     
+                                            <!-- 表列2 申請人 -->
+                                            <div class="row">
+                                                <div class="col-6 col-md-6 py-1 px-2">
+                                                    <div class="form-floating">
+                                                        <input type="text" name="in_user_id" id="in_user_id" class="form-control" required placeholder="工號" value="" readonly >
+                                                        <label for="in_user_id" class="form-label">in_user_id/工號：<sup class="text-danger"> *</sup></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-6 py-1 px-2">
+                                                    <div class="form-floating">
+                                                        <input type="text" name="cname_i" id="cname_i" class="form-control" required placeholder="申請人姓名" value="" readonly >
+                                                        <label for="cname_i" class="form-label">cname_i/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 表列3 領用站點 -->
+                                            <div class="row">
+                                                <div class="col-12 col-md-6 py-1 px-2">
+                                                    <div class="form-floating">
+                                                        <select name="in_local" id="in_local" class="form-select" required disabled>
+                                                            <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
+                                                            <?php foreach($allLocals as $allLocal){ ?>
+                                                                    <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
+                                                                        <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                                            <?php } ?>
+                                                        </select>
+                                                        <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 py-1 px-2">
+                                                    <div style="display: flex;">
+                                                        <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                        <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
+                                                        <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
+                                                        <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled >
+                                                        <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
+                                                        <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
+                                                        <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">衛材需求單簽核：</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body px-5">
-                        <label for="p_idty" class="form-label">idty/核決：</label></br>
-                        
-                        <!-- 簽核：PM+管理員功能 -->
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                            <?php if($issue['idty'] == 1){ ?>
-                                <input type="radio" name="p_idty" value="0" id="p_idty_0" class="form-check-input" required>
-                                <label for="p_idty_0" class="form-check-label">核准</label>&nbsp&nbsp
+                                            <!-- 表列5 說明 -->
+                                            <div class="row">
+                                                <div class="col-12 col-md-12 py-2 px-2">
+                      
+                                                </div>
+                                                <hr>
+                                                <div class="col-12 py-1">
+                                                    <b>備註：</b>
+                                                    </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
+                                                    </br>&nbsp2.簽核：申請人=>申請部門三級主管=>環安單位承辦人=>環安單位(課)主管=>發放人及領用人=>各廠環安單位存查3年。 
+                                                    </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
+                                                    </br>&nbsp4.以上若有填報不實，將於以退件。 
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    </div>
 
-                                <input type="radio" name="p_idty" value="2" id="p_idty_2" class="form-check-input" required>
-                                <label for="p_idty_2" class="form-check-label">駁回</label>&nbsp&nbsp
-                            <?php }?>
-                        <?php }?> 
-                        <!-- 簽核：申請人功能 -->
-                        <?php if($issue['idty'] == 1){
-                            if($issue['in_user_id'] == $_SESSION[$sys_id]['id'] || $_SESSION[$sys_id]['role'] <= 1 ){ ?>
-                                <input type="radio" name="p_idty" value="3" id="p_idty_3" class="form-check-input" required>
-                                <label for="p_idty_3" class="form-check-label">作廢</label>
-                        <?php } }?>
-                        <!-- 驗收 -->
-                        <?php if($issue['idty'] == 12 && ($issue['in_user_id'] == $_SESSION[$sys_id]['id'] || $_SESSION[$sys_id]['role'] <= 1 )){ ?>
-                            <input type="radio" name="p_idty" value="10" id="p_idty_10" class="form-check-input" required checked>
-                            <label for="p_idty_10" class="form-check-label">驗收</label>
-                        <?php }?>                    
-                        <br>
-                        <br>
-                        <div class="form-floating">
-                            <textarea name="remark" id="remark" class="form-control" style="height: 100px"></textarea>
-                            <label for="remark" class="form-check-label" >備註說明：<sup class="text-danger"> *</sup></label>
+                                    <!-- 表列4 購物車 -->
+                                    <div class="row">
+                                        <div class="col-12 border rounded bg-info">
+                                            <label class="form-label">器材用品/數量單位：&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></label>
+                                            <div class=" rounded border bg-light" id="shopping_cart">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>select</th>
+                                                            <th>SN</th>
+                                                            <th>品名</th>
+                                                            <th>型號</th>
+                                                            <th>尺寸</th>
+                                                            <th>數量</th>
+                                                            <th>單位</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="shopping_cart_tbody">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-6 col-md-2 py-1 px-2">
+                                        </div>
+                                        <div class="col-6 col-md-10 py-1 px-2 text-end">
+                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">核准 (Approve)</button>
+                                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
+                                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                            <?php }else{ ?>
+                                                <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 彈出畫面模組 submitModal-->
+                        <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                <form action="#" method="post">
+
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">請購需求單：&nbsp<span id="idty_title"></span></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        
+                                        <div class="modal-body px-5">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="input-group" id="select_inSign_Form">
+                                                        <button type="button" id="searchUser_btn" class="btn btn-primary" value="searchUser" onclick="op_tab(this.value)" >加簽&nbsp<i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                                        <!-- 第一排的功能 : 顯示已加入名單+input -->
+                                                        &nbsp&nbsp<div id="selected_inSign"></div>
+                                                        <input type="hidden" class="form-control" name="in_sign" id="in_sign" placeholder="加簽人工號">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 border rounder" id="searchUser_table">
+                                                    <!-- 第二排的功能 : 搜尋功能 -->
+                                                    <div class="input-group search" id="select_inSign_Form">
+                                                        <span class="input-group-text form-label">篩選</span>
+                                                        <input type="text" class="form-control" style="height: auto;" id="key_word" placeholder="請輸入工號、姓名或NT帳號" aria-label="請輸入查詢對象">
+                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="search_fun();">查詢</button>
+                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button>
+                                                    </div>
+                                                    <!-- 第三排的功能 : 放查詢結果-->
+                                                    <div class="result" id="result">
+                                                        <table id="result_table" class="table table-striped table-hover"></table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <label for="sin_comm" class="form-check-label" >command：</label>
+                                            <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="hidden" name="id" id="id" value="">
+                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                            <input type="hidden" name="idty" id="idty" value="">
+                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                                <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    <hr>
+                    <!-- 尾段logs訊息 -->
+                    <div class="col-12 pt-0 rounded bg-light" id="logs_div">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                表單Log記錄：
+                            </div>
+                            <div class="col-12 col-md-6">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 py-1 px-4">
+                                <table class="for-table logs table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Step</th>
+                                            <th>Signer</th>
+                                            <th>Time Signed</th>
+                                            <th>Status</th>
+                                            <th >Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="font-size: 6px;" class="text-end">
+                                logs訊息text-end
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="p_id" value="<?php echo $issue["id"];?>">
-                        <input type="hidden" name="p_in_user_id" value="<?php echo $_SESSION[$sys_id]["id"];?>">
-                        <input type="submit" name="submit" value="Submit" class="btn btn-primary">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    </div>
                 </div>
-
-            </form>    
-        </div>
-    </div>
-<!-- 彈出畫面說明模組 PM出貨給各廠-->
-    <div class="modal fade" id="pr2site" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <form action="" method="post" >
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">PM發貨確認：</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-5">
-                        <div class="form-floating">
-                            <input type="text" name="remark" id="remark" class="form-control" required placeholder="請填入PO單號" maxlength="12">
-                            <label for="remark" class="form-label">remark/請填入PO單號：<sup class="text-danger"> *</sup></label>
+    
+                <!-- 尾段：衛材訊息 -->
+                <div class="row block">
+                    <div class="col-12 mb-0">
+                        <div style="font-size: 6px;">
+                            <?php
+                                if($issue_row){
+                                    echo "<pre>";
+                                    // print_r($_REQUEST);
+                                    print_r($issue_row);
+                                    echo "</pre>text-end";
+                                }
+                            ?>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="idty" value="12">
-                        <input type="hidden" name="out_user_id" value="<?php echo $_SESSION[$sys_id]['id'];?>">
-                        <input type="hidden" name="pr2site" value="<?php echo $issue['id'];?>">
-                        <input type="submit" name="pr2site_submit" value="Submit" class="btn btn-primary">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    </div>
                 </div>
-            </form>    
+            </div>
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
-<div id="gotop">
-    <i class="fas fa-angle-up fa-1x"></i>
-</div>
-<!-- 鋪設logs紀錄 -->
-<script>    
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');
-    var id = <?=$issue["id"]?>;
-    var forTable = document.querySelector('.logs tbody');
-    console.log(json);
-    for (var i = 0, len = json.length; i < len; i++) {
-        forTable.innerHTML += 
-            '<tr>' +
-                '<td>' + [i] + '</td>' +
-                '<td>' + json[i].cname + '</td>' +
-                '<td>' + json[i].datetime + '</td>' +
-                '<td>' + json[i].action + '</td>' +
-                '<td style="word-break: break-all;">' + json[i].remark + '</td>' +
-                '<?php if($_SESSION[$sys_id]["role"] == "0"){ ?><td>' + '<form action="" method="post">'+
-                    `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    `<input type="hidden" name="id" value="` + id + `";>` +
-                    `<input type="submit" name="delete_log" value="刪除Log" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                '</form>'  + '</td><?php } ?>' +
-            '</tr>';
-    }
-</script>
+    <!-- goTop滾動畫面DIV 2/4-->
+        <div id="gotop">
+            <i class="fas fa-angle-up fa-2x"></i>
+        </div>
+</body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
- 
+
+<script>
+    // 引入catalogs資料
+    var catalogs = <?=json_encode($catalogs);?>;
+    // 加入購物車清單
+    function add_item(cata_SN, add_amount, swal_flag){
+        var swal_title = '加入購物車清單';
+        // swal_flag=off不顯示swal、其他是預設1秒
+        if(swal_flag == 'off'){
+            var swal_time = 0;
+        }else{
+            var swal_time = 1 * 1000;
+        }
+
+        if(add_amount <= 0 ){
+            var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
+            var swal_action = 'error';
+            swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
+
+        }else{
+            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+            Object(catalogs).forEach(function(cata){          
+                if(cata['SN'] === cata_SN){
+                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)" disabled>';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    $('#shopping_cart_tbody').append(add_cata_item);
+                    return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
+                }
+            })
+            // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
+            if(check_item_return){
+                var swal_content = ' 更新成功';
+                var swal_action = 'info';
+            }else{
+                var swal_content = ' 加入成功';
+                var swal_action = 'success';
+            }
+            // swal_time>0才顯示swal，主要過濾edit時的渲染導入
+            if(swal_time > 0){
+                swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            }
+            
+        }
+        check_shopping_count();
+    }
+
+    // 查找購物車清單已存在的項目，並予以清除
+    function check_item(cata_SN, swal_time) {
+        // swal_time = 是否啟動swal提示 ： 0 = 不啟動
+        if(!swal_time){
+            swal_time = 1;
+        }
+        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
+        if (shopping_cart_list.length > 0) {
+            // 使用for迴圈遍歷NodeList，而不是Object.keys()
+            for (var i = 0; i < shopping_cart_list.length; i++) {
+                var trElement = shopping_cart_list[i];
+                if (trElement.id === 'item_' + cata_SN) {
+                    // 從父節點中移除指定的<tr>元素
+                    trElement.parentNode.removeChild(trElement);
+                    if(swal_time != 0){
+                        var swal_title = '移除購物車項目';
+                        var swal_content = ' 移除成功';
+                        var swal_action = 'warning';
+                        swal_time = swal_time * 1000;
+                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+                    }
+                    return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
+                }
+            }
+        }
+        return false;       // false = 沒找到數值
+    }
+    
+    // 清算購物車件數，顯示件數，切換申請單按鈕
+    function check_shopping_count(){
+        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
+        $('#shopping_count').empty();
+        if(shopping_cart_list.length > 0){
+            $('#shopping_count').append(shopping_cart_list.length);
+        }
+    }
+    // 簽核類型渲染
+    function submit_item(idty, idty_title){
+        $('#idty, #idty_title, #action').empty();
+        document.getElementById('action').value = 'sign';
+        document.getElementById('idty').value = idty;
+        $('#idty_title').append(idty_title);
+    }
+// // // Edit選染
+    // 引入action資料
+    var action = '<?=$action;?>';
+    function edit_item(){
+        // 引入issue_row資料作為Edit
+        var issue_row = <?=json_encode($issue_row);?>;
+        var issue_item = {
+            "in_user_id"     : "in_user_id/工號",
+            "cname_i"        : "cname_i/申請人姓名",
+            "in_local"       : "in_local/領用站點",
+            "ppty"           : "** ppty/需求類別",
+            // "id"             : "id",
+            "item"           : "** item"
+            // "sin_comm"       : "command/簽核comm",
+        };    // 定義要抓的key=>value
+        // step1.將原陣列逐筆繞出來
+        Object.keys(issue_item).forEach(function(issue_key){
+            if(issue_key == 'ppty'){                      // ppty/需求類別
+                var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
+                if(ppty){
+                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                }
+                
+            }else if(issue_key == 'item'){      //item 購物車
+                var issue_row_cart = JSON.parse(issue_row[issue_key]);
+                Object.keys(issue_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, issue_row_cart[cart_key], 'off');
+                })
+            }else{
+                var row_key = document.querySelector('#'+issue_key);
+                if(row_key){
+                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
+                }
+            }
+        })
+
+        // 鋪設logs紀錄
+        var json = JSON.parse('<?=json_encode($logs_arr)?>');
+        // var id = '<=$issue_row["id"]?>';
+        var forTable = document.querySelector('.logs tbody');
+        for (var i = 0, len = json.length; i < len; i++) {
+            forTable.innerHTML += 
+                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td></tr>';
+        }
+    }
+
+    // tab_table的顯示關閉功能
+    function op_tab(tab_value){
+        $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
+        var tab_table = document.getElementById(tab_value+"_table");
+        if (tab_table.style.display === "none") {
+            tab_table.style.display = "table";
+        } else {
+            tab_table.style.display = "none";
+        }
+    }
+
+        // // // // search user function
+            //     function resetMain(){
+            //         $("#result").removeClass("border rounded bg-white");
+            //         $('#result_table').empty();
+            //         document.querySelector('#key_word').value = '';
+            //     }
+            //     // 第一-階段：search Key_word
+            //     function search_fun(){
+            //         mloading("show");                       // 啟用mLoading
+            //         let search = $('.search > input').val().trim();
+            //         if(!search || (search.length < 2)){
+            //             alert("查詢字數最少 2 個字以上!!");
+            //             $("body").mLoading("hide");
+            //             return false;
+            //         } 
+            //         $.ajax({
+            //             url:'http://tneship.cminl.oa/hrdb/api/index.php',
+            //             method:'get',
+            //             dataType:'json',
+            //             data:{
+            //                 functionname: 'search',                     // 操作功能
+            //                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+            //                 search: search                              // 查詢對象key_word
+            //             },
+            //             success: function(res){
+            //                 var res_r = res["result"];
+            //                 postList(res_r);                            // 將結果轉給postList進行渲染
+            //             },
+            //             error (){
+            //                 console.log("search error");
+            //             }
+            //         })
+            //         $("body").mLoading("hide");
+            //     }
+            //     // 第一階段：渲染功能
+            //     function postList(res_r){
+            //         // 清除表頭
+            //         $('#result_table').empty();
+            //         $("#result").addClass("bg-white");
+            //         // 定義表格頭段
+            //         var div_result_table = document.querySelector('.result table');
+            //         var Rinner = "<thead><tr>"+
+            //                         "<th>員工編號</th>"+"<th>員工姓名</th>"+"<th>user_ID</th>"+"<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>select</th>"+
+            //                     "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
+            //         // 鋪設表格頭段thead
+            //         div_result_table.innerHTML += Rinner;
+            //         // 定義表格中段tbody
+            //         var div_result_tbody = document.querySelector('.result table tbody');
+            //         $('#tbody').empty();
+            //         var len = res_r.length;
+            //         for (let i=0; i < len; i++) {
+            //             // 把user訊息包成json字串以便夾帶
+            //             let user_json = res_r[i].emp_id+','+ res_r[i].cname;
+            //             div_result_tbody.innerHTML += 
+            //                 '<tr>' +
+            //                     '<td>' + res_r[i].emp_id +'</td>' +
+            //                     '<td>' + res_r[i].cname + '</td>' +
+            //                     '<td>' + res_r[i].user + '</td>' +
+            //                     '<td>' + res_r[i].dept_no + '</td>' +
+            //                     '<td>' + res_r[i].dept_c +'/'+ res_r[i].dept_d + '</td>' +
+            //                     '<td>' + '<button type="button" class="btn btn-default btn-xs" id="'+res_r[i].emp_id
+            //                         +'" value='+user_json+' onclick="tagsInput_me(this.value);">'+
+            //                     '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
+            //                 '</tr>';
+            //         }
+            //         $("body").mLoading("hide");                 // 關閉mLoading
+
+            //     }
+            //     // 第二階段：點選、上移渲染模組
+            //     var tags = [];
+            //     function tagsInput_me(val) {
+            //         let cname = val.substr(val.search(',',)+1);   // 指定cname
+            //         let emp_id = val.substr(0, val.search(','));   // 指定emp_id
+            //         if (val !== '') {
+            //             $('#selected_inSign').empty();
+            //             $('#selected_inSign').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+            //             let in_sign = document.getElementById('in_sign');
+            //             if(in_sign){
+            //                 in_sign.value = emp_id;
+            //             }
+            //             resetMain();                    // 清除表單
+            //             op_tab('searchUser');           // 隱藏searchUser
+
+            //         }
+            //         // edit_pm.handleUpdate();
+            //     }
+            //     // 第二階段：移除單項模組
+            //     $('#selected_inSign').on('click', '.remove', function() {
+            //         $(this).closest('.tag').remove();   // 自畫面中移除
+            //         let in_sign = document.getElementById('in_sign');
+            //         if(in_sign){
+            //             in_sign.value = '';
+            //         }
+            //     });
+
+
+    $(document).ready(function () {
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+        
+        edit_item();        // 啟動鋪設畫面
+
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+
+    })
+
+</script>
+
 <?php include("../template/footer.php"); ?>

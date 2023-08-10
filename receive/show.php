@@ -235,9 +235,9 @@
                                                     <div style="display: flex;">
                                                         <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
                                                         <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled>
-                                                        <label for="ppty_1" class="form-check-label">一般&nbsp&nbsp&nbsp</label>
+                                                        <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
                                                         <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled>
-                                                        <label for="ppty_3" class="form-check-label">緊急(事故須通報防災)</label>
+                                                        <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -426,10 +426,10 @@
     // 引入catalogs資料
     var catalogs = <?=json_encode($catalogs);?>;
     // 加入購物車清單
-    function add_item(cata_SN, add_amount, flag){
+    function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
-        // flag=off不顯示swal、其他是預設1秒
-        if(flag == 'off'){
+        // swal_flag=off不顯示swal、其他是預設1秒
+        if(swal_flag == 'off'){
             var swal_time = 0;
         }else{
             var swal_time = 1 * 1000;
@@ -569,100 +569,100 @@
         }
     }
 
-// // // search user function
-    function resetMain(){
-        $("#result").removeClass("border rounded bg-white");
-        $('#result_table').empty();
-        document.querySelector('#key_word').value = '';
-    }
-    // 第一-階段：search Key_word
-    function search_fun(){
-        mloading("show");                       // 啟用mLoading
-        let search = $('.search > input').val().trim();
-        if(!search || (search.length < 2)){
-            alert("查詢字數最少 2 個字以上!!");
-            $("body").mLoading("hide");
-            return false;
-        } 
-        $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',
-            method:'get',
-            dataType:'json',
-            data:{
-                functionname: 'search',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                              // 查詢對象key_word
-            },
-            success: function(res){
-                var res_r = res["result"];
-                postList(res_r);                            // 將結果轉給postList進行渲染
-            },
-            error (){
-                console.log("search error");
-            }
-        })
-        $("body").mLoading("hide");
-    }
-    // 第一階段：渲染功能
-    function postList(res_r){
-        // 清除表頭
-        $('#result_table').empty();
-        $("#result").addClass("bg-white");
-        // 定義表格頭段
-        var div_result_table = document.querySelector('.result table');
-        var Rinner = "<thead><tr>"+
-                        "<th>員工編號</th>"+"<th>員工姓名</th>"+"<th>user_ID</th>"+"<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>select</th>"+
-                    "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
-        // 鋪設表格頭段thead
-        div_result_table.innerHTML += Rinner;
-        // 定義表格中段tbody
-        var div_result_tbody = document.querySelector('.result table tbody');
-        $('#tbody').empty();
-        var len = res_r.length;
-        for (let i=0; i < len; i++) {
-            // 把user訊息包成json字串以便夾帶
-            let user_json = res_r[i].emp_id+','+ res_r[i].cname;
-            div_result_tbody.innerHTML += 
-                '<tr>' +
-                    '<td>' + res_r[i].emp_id +'</td>' +
-                    '<td>' + res_r[i].cname + '</td>' +
-                    '<td>' + res_r[i].user + '</td>' +
-                    '<td>' + res_r[i].dept_no + '</td>' +
-                    '<td>' + res_r[i].dept_c +'/'+ res_r[i].dept_d + '</td>' +
-                    '<td>' + '<button type="button" class="btn btn-default btn-xs" id="'+res_r[i].emp_id
-                        +'" value='+user_json+' onclick="tagsInput_me(this.value);">'+
-                    '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
-                '</tr>';
-        }
-        $("body").mLoading("hide");                 // 關閉mLoading
+// // // // search user function
+//     function resetMain(){
+//         $("#result").removeClass("border rounded bg-white");
+//         $('#result_table').empty();
+//         document.querySelector('#key_word').value = '';
+//     }
+//     // 第一-階段：search Key_word
+//     function search_fun(){
+//         mloading("show");                       // 啟用mLoading
+//         let search = $('.search > input').val().trim();
+//         if(!search || (search.length < 2)){
+//             alert("查詢字數最少 2 個字以上!!");
+//             $("body").mLoading("hide");
+//             return false;
+//         } 
+//         $.ajax({
+//             url:'http://tneship.cminl.oa/hrdb/api/index.php',
+//             method:'get',
+//             dataType:'json',
+//             data:{
+//                 functionname: 'search',                     // 操作功能
+//                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+//                 search: search                              // 查詢對象key_word
+//             },
+//             success: function(res){
+//                 var res_r = res["result"];
+//                 postList(res_r);                            // 將結果轉給postList進行渲染
+//             },
+//             error (){
+//                 console.log("search error");
+//             }
+//         })
+//         $("body").mLoading("hide");
+//     }
+//     // 第一階段：渲染功能
+//     function postList(res_r){
+//         // 清除表頭
+//         $('#result_table').empty();
+//         $("#result").addClass("bg-white");
+//         // 定義表格頭段
+//         var div_result_table = document.querySelector('.result table');
+//         var Rinner = "<thead><tr>"+
+//                         "<th>員工編號</th>"+"<th>員工姓名</th>"+"<th>user_ID</th>"+"<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>select</th>"+
+//                     "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
+//         // 鋪設表格頭段thead
+//         div_result_table.innerHTML += Rinner;
+//         // 定義表格中段tbody
+//         var div_result_tbody = document.querySelector('.result table tbody');
+//         $('#tbody').empty();
+//         var len = res_r.length;
+//         for (let i=0; i < len; i++) {
+//             // 把user訊息包成json字串以便夾帶
+//             let user_json = res_r[i].emp_id+','+ res_r[i].cname;
+//             div_result_tbody.innerHTML += 
+//                 '<tr>' +
+//                     '<td>' + res_r[i].emp_id +'</td>' +
+//                     '<td>' + res_r[i].cname + '</td>' +
+//                     '<td>' + res_r[i].user + '</td>' +
+//                     '<td>' + res_r[i].dept_no + '</td>' +
+//                     '<td>' + res_r[i].dept_c +'/'+ res_r[i].dept_d + '</td>' +
+//                     '<td>' + '<button type="button" class="btn btn-default btn-xs" id="'+res_r[i].emp_id
+//                         +'" value='+user_json+' onclick="tagsInput_me(this.value);">'+
+//                     '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
+//                 '</tr>';
+//         }
+//         $("body").mLoading("hide");                 // 關閉mLoading
 
-    }
-    // 第二階段：點選、上移渲染模組
-    var tags = [];
-    function tagsInput_me(val) {
-        let cname = val.substr(val.search(',',)+1);   // 指定cname
-        let emp_id = val.substr(0, val.search(','));   // 指定emp_id
-        if (val !== '') {
-            $('#selected_inSign').empty();
-            $('#selected_inSign').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
-            let in_sign = document.getElementById('in_sign');
-            if(in_sign){
-                in_sign.value = emp_id;
-            }
-            resetMain();                    // 清除表單
-            op_tab('searchUser');           // 隱藏searchUser
+//     }
+//     // 第二階段：點選、上移渲染模組
+//     var tags = [];
+//     function tagsInput_me(val) {
+//         let cname = val.substr(val.search(',',)+1);   // 指定cname
+//         let emp_id = val.substr(0, val.search(','));   // 指定emp_id
+//         if (val !== '') {
+//             $('#selected_inSign').empty();
+//             $('#selected_inSign').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+//             let in_sign = document.getElementById('in_sign');
+//             if(in_sign){
+//                 in_sign.value = emp_id;
+//             }
+//             resetMain();                    // 清除表單
+//             op_tab('searchUser');           // 隱藏searchUser
 
-        }
-        // edit_pm.handleUpdate();
-    }
-    // 第二階段：移除單項模組
-    $('#selected_inSign').on('click', '.remove', function() {
-        $(this).closest('.tag').remove();   // 自畫面中移除
-        let in_sign = document.getElementById('in_sign');
-        if(in_sign){
-            in_sign.value = '';
-        }
-    });
+//         }
+//         // edit_pm.handleUpdate();
+//     }
+//     // 第二階段：移除單項模組
+//     $('#selected_inSign').on('click', '.remove', function() {
+//         $(this).closest('.tag').remove();   // 自畫面中移除
+//         let in_sign = document.getElementById('in_sign');
+//         if(in_sign){
+//             in_sign.value = '';
+//         }
+//     });
 
 
     $(document).ready(function () {

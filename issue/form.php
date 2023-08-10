@@ -27,10 +27,10 @@
         $action = 'create';                         // 沒有action就新開單
     }
 
-    if(!empty($_REQUEST["uuid"])){
+    if(!empty($_REQUEST["id"])){
         $issue_row = show_issue($_REQUEST);
         if(empty($issue_row)){
-            echo "<script>alert('uuid-error：{$_REQUEST["uuid"]}')</script>";
+            echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             // header("refresh:0;url=index.php");
             // exit;
         }
@@ -39,16 +39,24 @@
         $logs_arr = (array) $logs_dec;
 
     }else{
-        $issue_row = array( "uuid" => "" );       // 預設issue_row[uuid]=空array
+        $issue_row = array( "id" => "" );           // 預設issue_row[id]=空array
         $logs_arr = [];                             // 預設logs_arr=空array
-        $action = 'create';                         // 因為沒有uuid，列為新開單，防止action outOfspc
+        $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-
-    if(!empty($_POST["local_id"])){
+    if(!empty($_POST["in_local"])){
         $select_local = select_local($_REQUEST);
         $buy_ty = $select_local["buy_ty"];
         $catalogs = read_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+    
+    }else if(!empty($issue_row["in_local"])){
+        $query_local = array(
+            'local_id' => $issue_row["in_local"]
+        );
+        $select_local = select_local($query_local);
+        $buy_ty = $select_local["buy_ty"];
+        $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+
     }else{
         $select_local = array(
             'id' => ''
@@ -152,8 +160,8 @@
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
-                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['created_at']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $issue_row["created_emp_id"]." / ".$issue_row["created_cname"] ;?>
+                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
+                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇收貨廠區 -->
@@ -174,7 +182,7 @@
 
                         <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
                             <form action="" method="post">
-                                <input type="hidden" name="uuid" value="<?php echo $issue_row["uuid"];?>">
+                                <input type="hidden" name="id" value="<?php echo $issue_row["id"];?>">
                                 <input type="submit" name="delete_issue" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
@@ -300,12 +308,12 @@
                                         <hr>
                                     </div>
     
-                                    <!-- 表列1 領用站點 -->
+                                    <!-- 表列1 請購需求單站點 -->
                                     <div class="row unblock">
                                         <div class="col-12 col-md-6 py-3 px-2">
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
-                                                    <option value="" hidden>--請選擇 收貨 儲存點--</option>
+                                                    <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
                                                         <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
@@ -339,9 +347,9 @@
                                                 <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled>
                                                 <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked>
-                                                <label for="ppty_1" class="form-check-label">一般&nbsp&nbsp&nbsp</label>
+                                                <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required>
-                                                <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">緊急</label>
+                                                <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                             </div>
                                         </div>
                                     </div>
@@ -350,12 +358,6 @@
                                     
                                     <!-- 表列5 說明 -->
                                     <div class="row">
-                                        <div class="col-12 px-2">
-                                            <div class="form-floating">
-                                                <textarea name="issue_remark" id="issue_remark" class="form-control" style="height: 90px;" placeholder="(由申請單位填寫用品/器材請領原由)"></textarea>
-                                                <label for="issue_remark" class="form-label">issue_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
-                                            </div>
-                                        </div>
                                         <hr>
                                         <div class="col-12 py-1">
                                             備註：
@@ -367,6 +369,7 @@
                                     </div>
     
                                     <div class="row">
+                                        <hr>
                                         <div class="col-6 col-md-6 py-1 px-2">
                                             
                                         </div>
@@ -386,7 +389,7 @@
                             <div class="modal-dialog modal-dialog-scrollable">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">領用申請單：</h5>
+                                        <h5 class="modal-title">請購需求單</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-5">
@@ -394,7 +397,7 @@
                                         <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="uuid" id="uuid" value="">
+                                        <input type="hidden" name="id" id="id" value="">
                                         <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                         <input type="hidden" name="idty" id="idty" value="1">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
@@ -536,10 +539,10 @@
     }
 // // // catalog_modal 篩選 function
     // 加入購物車清單
-    function add_item(cata_SN, add_amount, flag){
+    function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
-        // flag=off不顯示swal、其他是預設1秒
-        if(flag == 'off'){
+        // swal_flag=off不顯示swal、其他是預設1秒
+        if(swal_flag == 'off'){
             var swal_time = 0;
         }else{
             var swal_time = 1 * 1000;
@@ -671,45 +674,45 @@
     function edit_item(){
         var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
         var issue_item = {
-            "emp_id"         : "emp_id/工號",
-            "cname"          : "cname/申請人姓名",
-            "local_id"       : "local_id/領用站點",
+            "in_user_id"     : "in_user_id/工號",
+            "cname_i"        : "cname_i/申請人姓名",
+            "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
-            "issue_remark"   : "issue_remark/用途說明",
-            "created_emp_id" : "created_emp_id/開單人工號",
-            "created_cname"  : "created_cname/開單人姓名",
-            // "idty"           : "idty",
-            "uuid"           : "uuid",
-            "cata_SN_amount" : "** cata_SN_amount"
+            "id"             : "id",
+            "item"           : "** item"
             // "sin_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
         Object.keys(issue_item).forEach(function(issue_key){
             if(issue_key == 'ppty'){      // ppty/需求類別
-                document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
+                if(ppty){
+                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                }
                 
-            }else if(issue_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
+            }else if(issue_key == 'item'){      //item 購物車
                 var issue_row_cart = JSON.parse(issue_row[issue_key]);
                 Object.keys(issue_row_cart).forEach(function(cart_key){
                     add_item(cart_key, issue_row_cart[cart_key], 'off');
                 })
-                
             }else{
-                document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
-
+                var row_key = document.querySelector('#'+issue_key);
+                if(row_key){
+                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
+                }
             }
         })
 
         // 鋪設logs紀錄
         var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        var uuid = '<?=$issue_row["uuid"]?>';
+        var id = '<?=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
                     '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
                         `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="uuid" value="` + uuid + `";>` +
+                        `<input type="hidden" name="id" value="` + id + `";>` +
                         `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
                     '</form>' + '</td><?php } ?>' +
                 '</tr>';

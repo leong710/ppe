@@ -36,7 +36,7 @@
             $page = $_GET['page'];
         }
         $start = ($page-1)*$per;            // 每一頁開始的資料序號(資料庫序號是從0開始)
-        
+        // 合併嵌入分頁工具
         $receive_page_div = array(
             'start' => $start,
             'per' => $per
@@ -74,7 +74,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-1"></i>&nbsp領用申請單總表</h3>
+                            <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請單總表</b></h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">
@@ -132,7 +132,7 @@
                                                             case "10": echo "結案"; break;
                                                             case "11": echo "轉PR"; break;
                                                             case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
-                                                            default: echo "na"; break;
+                                                            default: echo $sum_receive['idty'].".na"; break;
                                                             // return; 
                                                             }?></td>
                                                     <td><?php echo $sum_receive['idty_count']."&nbsp件";?></td>
@@ -272,16 +272,19 @@
                                                             case "0":   echo '.臨時';  break;
                                                             case "1":   echo '.定期';  break;
                                                             case "3":   echo '.緊急';  break;
-                                                            // default:    echo '錯誤';   return;
+                                                            // default:    echo '錯誤';   break;
                                                         } ;?></td>
                                                 <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
-                                                        echo ($receive['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"";
-                                                        echo ($receive['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger">待簽</span>':"";
-                                                        echo ($receive['idty'] == '2')  ? "退件":"";
-                                                        echo ($receive['idty'] == '3')  ? "取消":"";
-                                                        echo ($receive['idty'] == '10') ? "結案":"";
-                                                        echo ($receive['idty'] == '11') ? "轉PR":"";
-                                                        echo ($receive['idty'] == '12') ? "<span class='badge rounded-pill bg-success'>待收</span>":""; ?>
+                                                            switch($receive['idty']){
+                                                                case "0"    : echo $sys_role ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
+                                                                case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";                 break;
+                                                                case "2"    : echo "退件";          break;
+                                                                case "3"    : echo "取消";          break;
+                                                                case "10"   : echo "結案";          break;
+                                                                case "11"   : echo "轉PR";          break;
+                                                                case "12"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";        break;
+                                                                default     : echo $receive['idty'];  break;
+                                                            }; ?>
                                                 </td>
                                                 <td>
                                                     <!-- Action功能欄 -->

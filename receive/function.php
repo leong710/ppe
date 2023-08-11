@@ -281,11 +281,11 @@
         $app = [];  // 定義app陣列=appry
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
         $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
-        $app = array(   "step" => $step,
-                        "cname" => $cname,
-                        "datetime" => date('Y-m-d H:i:s'), 
-                        "action" => $action,
-                        "remark" => $log_remark);
+        $app = array(   "step"      => $step,
+                        "cname"     => $cname,
+                        "datetime"  => date('Y-m-d H:i:s'), 
+                        "action"    => $action,
+                        "remark"    => $log_remark);
 
         array_push($logs_arr, $app);
         $logs = json_encode($logs_arr);
@@ -441,238 +441,7 @@
 
 // // // index +統計數據 -- end
 
-
-
-
-// // // issue需求單 CRUD
-    // 儲存交易表單
-    function store_issue($request){
-        $pdo = pdo();
-        extract($request);
-        // item資料前處理
-
-            $catalog_SN = array_filter($catalog_SN);            // 去除陣列中空白元素
-            $amount = array_filter($amount);                    // 去除陣列中空白元素
-            // 小陣列要先編碼才能塞進去大陣列
-                $catalog_SN_enc = json_encode($catalog_SN);
-                $amount_enc = json_encode($amount);
-            //陣列合併
-                $item_arr = [];
-                $item_arr['catalog_SN'] = $catalog_SN_enc;
-                $item_arr['amount'] = $amount_enc;
-            // implode()把陣列元素組合為字串：
-                $item_str = implode("_," , $item_arr);               // 陣列轉成字串進行儲存到mySQL
-
-            // 設定表單狀態idty=1待領
-                $idty = '1';
-
-        //// **** 儲存issue表單
-            $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
-            $stmt = $pdo->prepare($sql);
-            try {
-                $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
-            }catch(PDOException $e){
-                echo $e->getMessage();
-            }
-
-    }
-    // 顯示被選定的issue表單
-    function showIssue($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
-                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
-                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                        , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
-                        , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
-                        , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
-                FROM `_issue`
-                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
-                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
-                WHERE _issue.id = ?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$id]);
-            $issue = $stmt->fetch();
-            return $issue;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 驗收動作的update表單
-    function update_issue($request){
-        $pdo = pdo();
-        extract($request);
-        $issue_id = array('id' => $p_id);               // 指定issue_id
-        $issue = showIssue($issue_id);                  // 把issue~原表單叫近來處理
-            $b_ppty = $issue['ppty'];                       // 指定~原表單需求類別ppty
-            $in_local = $issue['in_local'];                 // 指定~原收件區in_local
-            $out_local = $issue['out_local'];               // 指定~原發貨區out_local
-            $logs = $issue['logs'];                         // 指定~原表單記錄檔logs
-            $b_idty = $issue['idty'];                       // 指定~原表單狀態b_idty
-            $in_date = $issue['in_date'];                   // 指定~原表單狀態in_date
-            $item_str = $issue["item"];                     // 把item整串(未解碼)存到$item_str
-            $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-            $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec     = catalog_id
-            $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec   = amount
-        //PHP stdClass Object轉array 
-            if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-            if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
-
-        // V2 判斷前單$b_idty不是1待簽、12待領，就返回        
-        if($b_idty == 1 || $b_idty == 12){
-            $idty = $p_idty;
-        }else{    
-            echo "<script>alert('$b_idty.此表單在您簽核前已被改變成[非待簽核]狀態，請再確認，謝謝!');</script>";
-            return;
-        }
-        
-        // 12待收 => 10結案
-        if($b_ppty == 1 && $b_idty == 12 && $p_idty == 10){
-            // 逐筆呼叫處理
-            foreach(array_keys($item_dec) as $it){
-                // 假如po_num是空的，給他NA
-                if(empty($po_num_dec[$it])){
-                    $po_num_dec[$it] = 'NA';
-                }
-        
-                $process = [];  // 清空預設值
-                $process = array('stock_id' => $it,
-                                'lot_num' => $in_date,             // lot_num = 批號/期限；因PM發貨時會把發貨日寫入in_date，所以只能暫時先吃他
-                                'po_num' => $out_local,            // po_num = 採購編號；因PM發貨時會把PO_num寫入out_local
-                                'catalog_id' => $item_dec[$it],    // catalog_id = 器材目錄id
-                                'p_amount' => $amount_dec[$it],    // p_amount = 正常數量
-                                'p_local' => $in_local,             // p_local = local單位id
-                                'idty' => $b_idty);                // idty = 交易狀態
-                process_issue($process);
-            }
-        }
-
-        // 把原本沒有的塞進去
-        $request['idty'] = $idty;   
-        $request['cname'] = $_SESSION["AUTH"]["cname"];
-        $request['logs'] = $logs;   
-        
-        // 呼叫toLog製作log檔
-        $logs_enc = toLog($request);
-
-        // 更新trade表單
-        $sql = "UPDATE _issue 
-                SET idty=?, logs=?, in_date=now() 
-                WHERE id=? ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$p_idty, $logs_enc, $p_id]);
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-
-    }
-    // 刪除單筆Issue紀錄
-    function deleteIssue($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "DELETE FROM _issue WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$id]);
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-
-    // 20230719 在issue_list秀出所有issue清單
-    function show_issue_list($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
-                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
-                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
-                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
-                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
-                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
-                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
-                FROM `_issue`
-                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
-                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
-        if($emp_id != 'All'){
-            if($_SESSION[$sys_id]["role"] <= 1){
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
-            }else{
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
-            }
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY create_date DESC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
-            }else{
-                $stmt->execute();                           //處理 by All
-            }
-            $issues = $stmt->fetchAll();
-            return $issues;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 20230719 分頁工具
-    function issue_page_div($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
-                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
-                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
-                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
-                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
-                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
-                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
-                FROM `_issue`
-                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
-                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
-        if($emp_id != 'All'){
-            if($_SESSION[$sys_id]["role"] <= 1){
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
-            }else{
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
-            }
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY create_date DESC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id]);       //處理 byUser
-            }else{
-                $stmt->execute();               //處理 byAll
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
-        }
-    }
-// // // issue  -- end
+// ---------
 
 // // // process_issue處理交易事件
     // 處理交易事件--所屬器材數量之加減
@@ -1091,8 +860,6 @@
         }
     }
 
-
-
     // 找出自己的資料 
     function showMe($request){
         $pdo = pdo();
@@ -1107,10 +874,6 @@
             echo $e->getMessage();
         }
     }
-
-
-
-
 
     // create時用自己區域
     function show_local($request){
@@ -1132,7 +895,6 @@
         }
     }
 
-
     // deBug專用
     function deBug($request){
         extract($request);
@@ -1141,6 +903,236 @@
     }
 
 
+
+// // // issue需求單 CRUD
+    // 儲存交易表單
+    function store_issue($request){
+        $pdo = pdo();
+        extract($request);
+        // item資料前處理
+
+            $catalog_SN = array_filter($catalog_SN);            // 去除陣列中空白元素
+            $amount = array_filter($amount);                    // 去除陣列中空白元素
+            // 小陣列要先編碼才能塞進去大陣列
+                $catalog_SN_enc = json_encode($catalog_SN);
+                $amount_enc = json_encode($amount);
+            //陣列合併
+                $item_arr = [];
+                $item_arr['catalog_SN'] = $catalog_SN_enc;
+                $item_arr['amount'] = $amount_enc;
+            // implode()把陣列元素組合為字串：
+                $item_str = implode("_," , $item_arr);               // 陣列轉成字串進行儲存到mySQL
+
+            // 設定表單狀態idty=1待領
+                $idty = '1';
+
+        //// **** 儲存issue表單
+            $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
+            }catch(PDOException $e){
+                echo $e->getMessage();
+            }
+
+    }
+    // 顯示被選定的issue表單
+    function showIssue($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
+                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
+                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
+                        , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
+                        , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                        , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
+                        , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
+                FROM `_issue`
+                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
+                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
+                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
+                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
+                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
+                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
+                WHERE _issue.id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $issue = $stmt->fetch();
+            return $issue;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 驗收動作的update表單
+    function update_issue($request){
+        $pdo = pdo();
+        extract($request);
+        $issue_id = array('id' => $p_id);               // 指定issue_id
+        $issue = showIssue($issue_id);                  // 把issue~原表單叫近來處理
+            $b_ppty = $issue['ppty'];                       // 指定~原表單需求類別ppty
+            $in_local = $issue['in_local'];                 // 指定~原收件區in_local
+            $out_local = $issue['out_local'];               // 指定~原發貨區out_local
+            $logs = $issue['logs'];                         // 指定~原表單記錄檔logs
+            $b_idty = $issue['idty'];                       // 指定~原表單狀態b_idty
+            $in_date = $issue['in_date'];                   // 指定~原表單狀態in_date
+            $item_str = $issue["item"];                     // 把item整串(未解碼)存到$item_str
+            $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
+            $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec     = catalog_id
+            $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec   = amount
+        //PHP stdClass Object轉array 
+            if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
+            if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
+
+        // V2 判斷前單$b_idty不是1待簽、12待領，就返回        
+        if($b_idty == 1 || $b_idty == 12){
+            $idty = $p_idty;
+        }else{    
+            echo "<script>alert('$b_idty.此表單在您簽核前已被改變成[非待簽核]狀態，請再確認，謝謝!');</script>";
+            return;
+        }
+        
+        // 12待收 => 10結案
+        if($b_ppty == 1 && $b_idty == 12 && $p_idty == 10){
+            // 逐筆呼叫處理
+            foreach(array_keys($item_dec) as $it){
+                // 假如po_num是空的，給他NA
+                if(empty($po_num_dec[$it])){
+                    $po_num_dec[$it] = 'NA';
+                }
+        
+                $process = [];  // 清空預設值
+                $process = array('stock_id' => $it,
+                                'lot_num' => $in_date,             // lot_num = 批號/期限；因PM發貨時會把發貨日寫入in_date，所以只能暫時先吃他
+                                'po_num' => $out_local,            // po_num = 採購編號；因PM發貨時會把PO_num寫入out_local
+                                'catalog_id' => $item_dec[$it],    // catalog_id = 器材目錄id
+                                'p_amount' => $amount_dec[$it],    // p_amount = 正常數量
+                                'p_local' => $in_local,             // p_local = local單位id
+                                'idty' => $b_idty);                // idty = 交易狀態
+                process_issue($process);
+            }
+        }
+
+        // 把原本沒有的塞進去
+        $request['idty'] = $idty;   
+        $request['cname'] = $_SESSION["AUTH"]["cname"];
+        $request['logs'] = $logs;   
+        
+        // 呼叫toLog製作log檔
+        $logs_enc = toLog($request);
+
+        // 更新trade表單
+        $sql = "UPDATE _issue 
+                SET idty=?, logs=?, in_date=now() 
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$p_idty, $logs_enc, $p_id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+
+    }
+    // 刪除單筆Issue紀錄
+    function deleteIssue($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM _issue WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // 20230719 在issue_list秀出所有issue清單
+    function show_issue_list($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
+                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
+                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
+                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
+                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
+                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
+                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
+                FROM `_issue`
+                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
+                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
+                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
+                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
+                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
+                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+        if($emp_id != 'All'){
+            if($_SESSION[$sys_id]["role"] <= 1){
+                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
+            }else{
+                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
+            }
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY create_date DESC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
+            }else{
+                $stmt->execute();                           //處理 by All
+            }
+            $issues = $stmt->fetchAll();
+            return $issues;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20230719 分頁工具
+    function issue_page_div($start, $per, $request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
+                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
+                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
+                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
+                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
+                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
+                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
+                FROM `_issue`
+                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
+                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
+                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
+                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
+                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
+                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+        if($emp_id != 'All'){
+            if($_SESSION[$sys_id]["role"] <= 1){
+                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
+            }else{
+                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
+            }
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY create_date DESC";
+        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id]);       //處理 byUser
+            }else{
+                $stmt->execute();               //處理 byAll
+            }
+            $rs = $stmt->fetchAll();
+            return $rs;
+        }catch(PDOException $e){
+            echo $e->getMessage(); 
+        }
+    }
+// // // issue  -- end
 
 
 

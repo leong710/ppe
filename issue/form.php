@@ -44,7 +44,8 @@
         $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-    if(!empty($_POST["in_local"])){
+    if(!empty($_POST["local_id"])){
+        $_REQUEST["local_id"] = $_POST["local_id"];
         $select_local = select_local($_REQUEST);
         $buy_ty = $select_local["buy_ty"];
         $catalogs = read_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
@@ -146,7 +147,7 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col-12 border rounded px-3 py-4" style="background-color: #D4D4D4;">
+            <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
@@ -264,7 +265,7 @@
                                                             oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)">
                                                     </td>
                                                     <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value);"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value,'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -309,7 +310,7 @@
                                     </div>
     
                                     <!-- 表列1 請購需求單站點 -->
-                                    <div class="row unblock">
+                                    <div class="row block">
                                         <div class="col-12 col-md-6 py-3 px-2">
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
@@ -361,10 +362,8 @@
                                         <hr>
                                         <div class="col-12 py-1">
                                             備註：
-                                            </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
-                                            </br>&nbsp2.簽核：申請人=>申請部門三級主管=>環安單位承辦人=>環安單位(課)主管=>發放人及領用人=>各廠環安單位存查3年。 
-                                            </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
-                                            </br>&nbsp4.以上若有填報不實，將於以退件。 
+                                            </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
+                                            </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
                                         </div>
                                     </div>
     
@@ -397,11 +396,12 @@
                                         <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
+                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                         <input type="hidden" name="id" id="id" value="">
                                         <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                         <input type="hidden" name="idty" id="idty" value="1">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                            <input type="submit" value="Submit" name="issue_submit" class="btn btn-primary">
+                                            <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                     </div>
@@ -441,13 +441,13 @@
                 </div>
     
                 <!-- 尾段：衛材訊息 -->
-                <div class="row block">
+                <div class="row unblock">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
-                                    print_r($_REQUEST);
+                                    // print_r($_REQUEST);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -461,8 +461,8 @@
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
             <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
                 <div class="d-flex">
-                    <div class="toast-body">
-                        以工號帶入其他資訊...完成!!
+                    <div class="toast-body" id="toast-body">
+                        
                     </div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
@@ -628,7 +628,8 @@
     function search_fun(){
         mloading("show");                       // 啟用mLoading
         let search = $('#emp_id').val().trim();
-        $('#plant, #dept, #sign_code, #cname, #extp').empty();
+        $('#cname').empty();
+
         if(!search || (search.length < 8)){
             alert("查詢工號字數最少 8 個字以上!!");
             $("body").mLoading("hide");
@@ -648,24 +649,35 @@
                 // 將結果進行渲染
                 if (res_r !== '') {
                     let obj_val = res_r[0];                                         // 取Object物件0
-                    document.getElementById('cname').value = obj_val.cname;         // 將欄位帶入數值 = cname
-                    if(obj_val.extp){
-                        document.getElementById('extp').value = obj_val.extp;       // 將欄位帶入數值 = extp
+                    var input_cname = document.getElementById('cname');
+                    if(obj_val && input_cname){
+                        input_cname.value = obj_val.cname;              // 將欄位帶入數值 = cname
+                        var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
+                        inside_toast(sinn);
                     }else{
-                        document.getElementById('extp').value = '';
+                        // alert("查無工號["+search+"]!!");
+                        input_cname.value = '';                         // 將欄位cname清除
+                        var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
+                        inside_toast(sinn);
                     }
-                    var toastLiveExample = document.getElementById('liveToast');
-                    var toast = new bootstrap.Toast(toastLiveExample);
-                    toast.show();
-                }else{
-                    alert("查無工號["+search+"]!!");
                 }
+
             },
             error (){
                 console.log("search error");
             }
         })
         $("body").mLoading("hide");
+    }
+
+    function inside_toast(sinn){
+        // init toast
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        var toast_body = document.getElementById('toast-body');
+        toast_body.innerHTML = sinn;
+        toast.show();
+
     }
 // // // searchUser function 
     

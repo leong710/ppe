@@ -6,12 +6,13 @@
 
     if(isset($_POST["issue2pr_submit"])){    // 轉PR => 11
         update_issue2pr($_REQUEST);
+        echo "<script>alert('PR開單已完成!')</script>";
         header("refresh:0;url=index.php");
         exit;
     }
 
     // 帶入該筆紀錄內容
-    $w_ppty = "All";    // 全部
+    $w_ppty = "All";                    // 全部
     $issues = show_issueAmount($w_ppty);
     // 讀取所有catalog
     $catalogs = show_catalogs();
@@ -60,36 +61,36 @@
 <!-- 針對item儲存狀況快照的內容進行反解處理 -->
 <?php foreach($issues as $is){
     $item_str = $is["item"];                     // 把item整串(未解碼)存到$item_str
-    $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-    $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec
-    $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec
+    $item_dec = json_decode($item_str);          // 解碼後存到$item_dec
     //PHP stdClass Object轉array 
     if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-    if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; }     
-    foreach($item_dec as $it){
-        $all_item[$it] = $item_dec[$it];
+    $item_key = array_keys((array)$item_dec);   // 取得診列key
+    foreach($item_key as $it){
+        $all_item[$it] = $it;
         if(empty($all_amount[$it])){
-            $all_amount[$it] = $amount_dec[$it];
+            $all_amount[$it] = $item_dec[$it];
         }else{
-            $all_amount[$it] = $all_amount[$it] + $amount_dec[$it];
+            $all_amount[$it] = $all_amount[$it] + $item_dec[$it];
         }
         if(empty($issue_fab[$it])){
-            $issue_fab[$it] = ($is['fab_i_title'].': '.$amount_dec[$it]);
+            $issue_fab[$it] = ($is['fab_i_title'].': '.$item_dec[$it]);
         }else{
-            $issue_fab[$it] = $issue_fab[$it].'</br>'.$is['fab_i_title'].': '.$amount_dec[$it];
+            $issue_fab[$it] = $issue_fab[$it].'</br>'.$is['fab_i_title'].': '.$item_dec[$it];
         }
         array_push($issue_SN_list, $is['id']);
     }
+
 }?>
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;">
+        <!-- <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;"> -->
+        <div class="col-12 rounded p-4 my-2" style="background-color: rgba(200, 255, 255, .6);">
             <!-- 表單表頭功能鍵 -->
             <div class="row px-2">
                 <div class="col-12 col-md-6">
                     <div class="">
-                        <h3>待轉PR總表</h3>
+                        <h3><b>請購需求單待轉PR</b></h3>
                     </div> 
                     <div class="">
 
@@ -110,7 +111,7 @@
                 <div id="table" class="col-xl-12 col-12 rounded bg-light mb-3">
                     <div class="row">
                         <div class="col-12 col-md-6 pb-0">
-                            需求單數量：<?php echo count($issues)."件";?>
+                            請購需求單數量：<?php echo count($issues)."件";?>
                         </div>
                         <div class="col-12 col-md-6 pb-0">
                        
@@ -121,11 +122,13 @@
                         <table class="for-table">
                             <thead>
                                 <tr>
-                                    <th>id</th>
+                                    <th>SN</th>
                                     <th>分類</th>
-                                    <th>衛材名稱</th>
+                                    <th>品名</th>
+                                    <th>型號</th>
+                                    <th>尺寸</th>
+                                    <th>數量</th>
                                     <th>單位</th>
-                                    <th>需求數量</th>
                                     <th>細項</th>
                                 </tr>
                             </thead>
@@ -136,8 +139,10 @@
                                         <td class="t-left"><?php echo $obj_catalogs[$it]['SN'];?></td>
                                         <td><?php echo $obj_catalogs[$it]['cate_no'].".".$obj_catalogs[$it]['cate_title'];?></td>
                                         <td class="t-left"><?php echo $obj_catalogs[$it]['pname'];?></td>
-                                        <td><?php echo $obj_catalogs[$it]['unit'];?></td>
+                                        <td><?php echo $obj_catalogs[$it]['model'];?></td>
+                                        <td><?php echo $obj_catalogs[$it]['size'];?></td>
                                         <td><?php echo $all_amount[$it];?></td>
+                                        <td><?php echo $obj_catalogs[$it]['unit'];?></td>
                                         <td class="t-left"><?php echo $issue_fab[$it];?></td>
                                     </tr>
                                 <?php }?>
@@ -146,7 +151,7 @@
                     </div>
                     <hr>
                     <div style="font-size: 6px;" class="text-end">
-                        衛材訊息text-end
+                        器材訊息text-end
                     </div>
                 </div>
             </div>
@@ -170,6 +175,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="idty" value="11">
+                        <input type="hidden" name="step" value="PR開單">
                         <input type="hidden" name="issue2pr" value="<?php echo implode(',',$issue_SN_list);?>">
                         <input type="submit" name="issue2pr_submit" value="Submit" class="btn btn-primary">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>

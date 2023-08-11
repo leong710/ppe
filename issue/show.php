@@ -4,17 +4,17 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
-        update_pr2fab($_REQUEST);
-        header("refresh:0;url=index.php");
-        exit;
-    }
+    // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
+    //     update_pr2fab($_REQUEST);
+    //     header("refresh:0;url=index.php");
+    //     exit;
+    // }
 
-    if(isset($_POST["getIssue_submit"])){    // 收貨 => 10
-        update_getIssue($_REQUEST);
-        header("refresh:0;url=index.php");
-        exit;
-    }
+    // if(isset($_POST["getIssue_submit"])){    // 收貨 => 10
+    //     update_getIssue($_REQUEST);
+    //     header("refresh:0;url=index.php");
+    //     exit;
+    // }
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -157,14 +157,11 @@
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        需求單號：<?php echo ($action != 'review') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
-                        開單日期：<?php echo ($action != 'review') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
-                        填單人員：<?php echo ($action != 'review') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
+                        需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
+                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
                     </div>
                     <div class="col-12 col-md-6 text-end">
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
-                            <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
-                        <?php }?>
+
                     </div>
                 </div>
     
@@ -177,9 +174,14 @@
                                 <div class="col-12 py-3 px-5">
                                     <!-- 表列0 說明 -->
                                     <div class="row">
-                                        <div class="col-12">
+                                        <div class="col-6 col-md-6">
                                             申請人相關資料：
                                             <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                        </div>
+                                        <div class="col-6 col-md-6 text-end">
+                                            <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
+                                                <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
+                                            <?php }?>
                                         </div>
                                         <hr>
                                         <div class="col-12 py-0" id="info_table"> 
@@ -235,10 +237,8 @@
                                                 <hr>
                                                 <div class="col-12 py-1">
                                                     <b>備註：</b>
-                                                    </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
-                                                    </br>&nbsp2.簽核：申請人=>申請部門三級主管=>環安單位承辦人=>環安單位(課)主管=>發放人及領用人=>各廠環安單位存查3年。 
-                                                    </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
-                                                    </br>&nbsp4.以上若有填報不實，將於以退件。 
+                                                    </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
+                                                    </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
                                                 </div>
                                             </div>
                                         </div>
@@ -270,13 +270,11 @@
                                     </div>
                                     
                                     <div class="row">
-                                        <div class="col-6 col-md-2 py-1 px-2">
-                                        </div>
-                                        <div class="col-6 col-md-10 py-1 px-2 text-end">
+                                        <div class="col-12 py-1 px-2 text-end">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">核准 (Approve)</button>
+                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
-                                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                                                <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
                                                 <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php }else{ ?>
                                                 <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
@@ -290,8 +288,8 @@
 
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
-                                <form action="#" method="post">
+                            <div class="modal-dialog modal-dialog-scrollable modal-l">
+                                <form action="store.php" method="post">
 
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -300,42 +298,18 @@
                                         </div>
                                         
                                         <div class="modal-body px-5">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="input-group" id="select_inSign_Form">
-                                                        <button type="button" id="searchUser_btn" class="btn btn-primary" value="searchUser" onclick="op_tab(this.value)" >加簽&nbsp<i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                                        <!-- 第一排的功能 : 顯示已加入名單+input -->
-                                                        &nbsp&nbsp<div id="selected_inSign"></div>
-                                                        <input type="hidden" class="form-control" name="in_sign" id="in_sign" placeholder="加簽人工號">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12 border rounder" id="searchUser_table">
-                                                    <!-- 第二排的功能 : 搜尋功能 -->
-                                                    <div class="input-group search" id="select_inSign_Form">
-                                                        <span class="input-group-text form-label">篩選</span>
-                                                        <input type="text" class="form-control" style="height: auto;" id="key_word" placeholder="請輸入工號、姓名或NT帳號" aria-label="請輸入查詢對象">
-                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="search_fun();">查詢</button>
-                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button>
-                                                    </div>
-                                                    <!-- 第三排的功能 : 放查詢結果-->
-                                                    <div class="result" id="result">
-                                                        <table id="result_table" class="table table-striped table-hover"></table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <hr>
                                             <label for="sin_comm" class="form-check-label" >command：</label>
                                             <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
+                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                             <input type="hidden" name="id" id="id" value="">
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                             <?php } ?>
+                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </form>
@@ -374,15 +348,15 @@
                     </div>
                 </div>
     
-                <!-- 尾段：衛材訊息 -->
-                <div class="row block">
+                <!-- 尾段：deBug訊息 -->
+                <div class="row unblock">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($issue_row){
                                     echo "<pre>";
                                     // print_r($_REQUEST);
-                                    print_r($issue_row);
+                                    // print_r($issue_row);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -503,24 +477,24 @@
             "cname_i"        : "cname_i/申請人姓名",
             "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
-            // "id"             : "id",
+            "id"             : "id",
             "item"           : "** item"
             // "sin_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來
         Object.keys(issue_item).forEach(function(issue_key){
-            if(issue_key == 'ppty'){                      // ppty/需求類別
+            if(issue_key == 'ppty' && issue_row[issue_key]){                      // ppty/需求類別
                 var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
                 if(ppty){
                     document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
                 }
                 
-            }else if(issue_key == 'item'){      //item 購物車
+            }else if(issue_key == 'item' && issue_row[issue_key]){      //item 購物車
                 var issue_row_cart = JSON.parse(issue_row[issue_key]);
                 Object.keys(issue_row_cart).forEach(function(cart_key){
                     add_item(cart_key, issue_row_cart[cart_key], 'off');
                 })
-            }else{
+            }else if(issue_row[issue_key]){
                 var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
                     document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
@@ -548,102 +522,6 @@
             tab_table.style.display = "none";
         }
     }
-
-        // // // // search user function
-            //     function resetMain(){
-            //         $("#result").removeClass("border rounded bg-white");
-            //         $('#result_table').empty();
-            //         document.querySelector('#key_word').value = '';
-            //     }
-            //     // 第一-階段：search Key_word
-            //     function search_fun(){
-            //         mloading("show");                       // 啟用mLoading
-            //         let search = $('.search > input').val().trim();
-            //         if(!search || (search.length < 2)){
-            //             alert("查詢字數最少 2 個字以上!!");
-            //             $("body").mLoading("hide");
-            //             return false;
-            //         } 
-            //         $.ajax({
-            //             url:'http://tneship.cminl.oa/hrdb/api/index.php',
-            //             method:'get',
-            //             dataType:'json',
-            //             data:{
-            //                 functionname: 'search',                     // 操作功能
-            //                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-            //                 search: search                              // 查詢對象key_word
-            //             },
-            //             success: function(res){
-            //                 var res_r = res["result"];
-            //                 postList(res_r);                            // 將結果轉給postList進行渲染
-            //             },
-            //             error (){
-            //                 console.log("search error");
-            //             }
-            //         })
-            //         $("body").mLoading("hide");
-            //     }
-            //     // 第一階段：渲染功能
-            //     function postList(res_r){
-            //         // 清除表頭
-            //         $('#result_table').empty();
-            //         $("#result").addClass("bg-white");
-            //         // 定義表格頭段
-            //         var div_result_table = document.querySelector('.result table');
-            //         var Rinner = "<thead><tr>"+
-            //                         "<th>員工編號</th>"+"<th>員工姓名</th>"+"<th>user_ID</th>"+"<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>select</th>"+
-            //                     "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
-            //         // 鋪設表格頭段thead
-            //         div_result_table.innerHTML += Rinner;
-            //         // 定義表格中段tbody
-            //         var div_result_tbody = document.querySelector('.result table tbody');
-            //         $('#tbody').empty();
-            //         var len = res_r.length;
-            //         for (let i=0; i < len; i++) {
-            //             // 把user訊息包成json字串以便夾帶
-            //             let user_json = res_r[i].emp_id+','+ res_r[i].cname;
-            //             div_result_tbody.innerHTML += 
-            //                 '<tr>' +
-            //                     '<td>' + res_r[i].emp_id +'</td>' +
-            //                     '<td>' + res_r[i].cname + '</td>' +
-            //                     '<td>' + res_r[i].user + '</td>' +
-            //                     '<td>' + res_r[i].dept_no + '</td>' +
-            //                     '<td>' + res_r[i].dept_c +'/'+ res_r[i].dept_d + '</td>' +
-            //                     '<td>' + '<button type="button" class="btn btn-default btn-xs" id="'+res_r[i].emp_id
-            //                         +'" value='+user_json+' onclick="tagsInput_me(this.value);">'+
-            //                     '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
-            //                 '</tr>';
-            //         }
-            //         $("body").mLoading("hide");                 // 關閉mLoading
-
-            //     }
-            //     // 第二階段：點選、上移渲染模組
-            //     var tags = [];
-            //     function tagsInput_me(val) {
-            //         let cname = val.substr(val.search(',',)+1);   // 指定cname
-            //         let emp_id = val.substr(0, val.search(','));   // 指定emp_id
-            //         if (val !== '') {
-            //             $('#selected_inSign').empty();
-            //             $('#selected_inSign').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
-            //             let in_sign = document.getElementById('in_sign');
-            //             if(in_sign){
-            //                 in_sign.value = emp_id;
-            //             }
-            //             resetMain();                    // 清除表單
-            //             op_tab('searchUser');           // 隱藏searchUser
-
-            //         }
-            //         // edit_pm.handleUpdate();
-            //     }
-            //     // 第二階段：移除單項模組
-            //     $('#selected_inSign').on('click', '.remove', function() {
-            //         $(this).closest('.tag').remove();   // 自畫面中移除
-            //         let in_sign = document.getElementById('in_sign');
-            //         if(in_sign){
-            //             in_sign.value = '';
-            //         }
-            //     });
-
 
     $(document).ready(function () {
 

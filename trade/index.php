@@ -83,7 +83,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 ">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-2"></i> 調撥作業</h3>
+                            <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥作業</b></h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">
@@ -130,15 +130,17 @@
                                                 <tbody>
                                                     <?php foreach($sum_trades as $sum_trade){ ?>
                                                         <tr>
-                                                            <td>
-                                                                <?php if($sum_trade['idty'] == '0'){?><span class="badge rounded-pill bg-warning text-dark">結案</span><?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '1'){?><span class="badge rounded-pill bg-danger">待簽</span><?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '2'){?>退件<?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '3'){?>取消<?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '10'){?>pr進貨<?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '11'){?>轉PR<?php ;}?>
-                                                                <?php if($sum_trade['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
-                                                            </td>
+                                                            <td><?php switch($sum_trade['idty']){
+                                                                    case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                                                    case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                                                    case "2" : echo "退件"; break;
+                                                                    case "3" : echo "取消"; break;
+                                                                    case "10": echo "結案"; break;
+                                                                    case "11": echo "轉PR"; break;
+                                                                    case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                                                    default: echo "na"; break;
+                                                                    // return; 
+                                                                    }?></td>
                                                             <td>
                                                                 <?php echo $sum_trade['idty_count']."&nbsp件";?></td>
                                                         </tr>
@@ -249,14 +251,15 @@
                                                         <td class="t-left"><?php echo $trade["site_i_title"].'&nbsp'.$trade["fab_i_title"].'('.$trade['fab_i_remark'].')'.'_'.$trade["local_i_title"];?></td>
                                                         <td><?php echo $trade['cname_i'];?></td>
                                                         <td style="font-size: 6px;"><?php echo substr($trade['in_date'],0,10); ?></td>
-                                                        <td>
-                                                            <?php if($trade['idty'] == '0'){?>完成<?php ;}?>
-                                                            <?php if($trade['idty'] == '1'){?><span <?php if($trade['fab_i_id'] == $_SESSION[$sys_id]['fab_id'] || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"]))){ ?>
-                                                                    class="badge rounded-pill bg-danger" <?php }?> >待簽</span><?php ;}?>
-                                                            <?php if($trade['idty'] == '2'){?>退貨<?php ;}?>
-                                                            <?php if($trade['idty'] == '3'){?>取消<?php ;}?>
-                                                            <?php if($trade['idty'] == '10'){?>pr進貨<?php ;}?>
-                                                        </td>
+                                                        <td><?php $fab_role = ($trade['fab_i_id'] == $_SESSION[$sys_id]['fab_id'] || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"])));
+                                                            switch($trade['idty']){
+                                                                case "0"    : echo "完成";                  break;
+                                                                case "1"    : echo $fab_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽"; break;
+                                                                case "2"    : echo "退件";                  break;
+                                                                case "3"    : echo "取消";                  break;
+                                                                case "10"   : echo "pr進貨";                break;
+                                                                default     : echo $trade['idty']."na";     break;
+                                                            }?></td>
                                                         <td>
                                                             <?php if(($trade['fab_i_id'] === $_SESSION[$sys_id]['fab_id']) && ($trade['idty'] === '1')){ ?> 
                                                                 <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>

@@ -309,7 +309,7 @@
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-lg">
-                                <form action="#" method="post">
+                                <form action="store.php" method="post">
 
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -351,10 +351,10 @@
                                             <input type="hidden" name="uuid" id="uuid" value="">
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                                 <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                             <?php } ?>
+                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </form>
@@ -393,14 +393,14 @@
                     </div>
                 </div>
     
-                <!-- 尾段：衛材訊息 -->
-                <div class="row block">
+                <!-- 尾段：duBug訊息 -->
+                <div class="row unblock">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
-                                    print_r($_REQUEST);
+                                    // print_r($_REQUEST);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -569,100 +569,7 @@
         }
     }
 
-// // // // search user function
-//     function resetMain(){
-//         $("#result").removeClass("border rounded bg-white");
-//         $('#result_table').empty();
-//         document.querySelector('#key_word').value = '';
-//     }
-//     // 第一-階段：search Key_word
-//     function search_fun(){
-//         mloading("show");                       // 啟用mLoading
-//         let search = $('.search > input').val().trim();
-//         if(!search || (search.length < 2)){
-//             alert("查詢字數最少 2 個字以上!!");
-//             $("body").mLoading("hide");
-//             return false;
-//         } 
-//         $.ajax({
-//             url:'http://tneship.cminl.oa/hrdb/api/index.php',
-//             method:'get',
-//             dataType:'json',
-//             data:{
-//                 functionname: 'search',                     // 操作功能
-//                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-//                 search: search                              // 查詢對象key_word
-//             },
-//             success: function(res){
-//                 var res_r = res["result"];
-//                 postList(res_r);                            // 將結果轉給postList進行渲染
-//             },
-//             error (){
-//                 console.log("search error");
-//             }
-//         })
-//         $("body").mLoading("hide");
-//     }
-//     // 第一階段：渲染功能
-//     function postList(res_r){
-//         // 清除表頭
-//         $('#result_table').empty();
-//         $("#result").addClass("bg-white");
-//         // 定義表格頭段
-//         var div_result_table = document.querySelector('.result table');
-//         var Rinner = "<thead><tr>"+
-//                         "<th>員工編號</th>"+"<th>員工姓名</th>"+"<th>user_ID</th>"+"<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>select</th>"+
-//                     "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
-//         // 鋪設表格頭段thead
-//         div_result_table.innerHTML += Rinner;
-//         // 定義表格中段tbody
-//         var div_result_tbody = document.querySelector('.result table tbody');
-//         $('#tbody').empty();
-//         var len = res_r.length;
-//         for (let i=0; i < len; i++) {
-//             // 把user訊息包成json字串以便夾帶
-//             let user_json = res_r[i].emp_id+','+ res_r[i].cname;
-//             div_result_tbody.innerHTML += 
-//                 '<tr>' +
-//                     '<td>' + res_r[i].emp_id +'</td>' +
-//                     '<td>' + res_r[i].cname + '</td>' +
-//                     '<td>' + res_r[i].user + '</td>' +
-//                     '<td>' + res_r[i].dept_no + '</td>' +
-//                     '<td>' + res_r[i].dept_c +'/'+ res_r[i].dept_d + '</td>' +
-//                     '<td>' + '<button type="button" class="btn btn-default btn-xs" id="'+res_r[i].emp_id
-//                         +'" value='+user_json+' onclick="tagsInput_me(this.value);">'+
-//                     '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
-//                 '</tr>';
-//         }
-//         $("body").mLoading("hide");                 // 關閉mLoading
 
-//     }
-//     // 第二階段：點選、上移渲染模組
-//     var tags = [];
-//     function tagsInput_me(val) {
-//         let cname = val.substr(val.search(',',)+1);   // 指定cname
-//         let emp_id = val.substr(0, val.search(','));   // 指定emp_id
-//         if (val !== '') {
-//             $('#selected_inSign').empty();
-//             $('#selected_inSign').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
-//             let in_sign = document.getElementById('in_sign');
-//             if(in_sign){
-//                 in_sign.value = emp_id;
-//             }
-//             resetMain();                    // 清除表單
-//             op_tab('searchUser');           // 隱藏searchUser
-
-//         }
-//         // edit_pm.handleUpdate();
-//     }
-//     // 第二階段：移除單項模組
-//     $('#selected_inSign').on('click', '.remove', function() {
-//         $(this).closest('.tag').remove();   // 自畫面中移除
-//         let in_sign = document.getElementById('in_sign');
-//         if(in_sign){
-//             in_sign.value = '';
-//         }
-//     });
 
 
     $(document).ready(function () {

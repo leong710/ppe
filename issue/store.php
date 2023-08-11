@@ -4,25 +4,14 @@
 
     $swal_json = array();
     switch($_REQUEST["action"]){
-        case "create": 
-            $swal_json = store_issue($_REQUEST);
-            break;
-        case "edit": 
-            $swal_json = update_issue($_REQUEST);
-            break;
-        case "sign": 
-            // $swal_json = sign_issue($_REQUEST);
-            break;
-        default: 
-            echo "bg-light text-success"; 
-            break;
+        case "create"   : $swal_json = store_issue($_REQUEST);      break;      // 開單
+        case "edit"     : $swal_json = update_issue($_REQUEST);     break;      // 編輯
+        case "sign"     : $swal_json = sign_issue($_REQUEST);       break;      // 簽核
+        case "pr2fab"   : $swal_json = update_pr2fab($_REQUEST);    break;      // $_POST["pr2fab_submit"] 發貨 => 12
+        case "getIssue" : $swal_json = update_getIssue($_REQUEST);  break;      // $_POST["getIssue_submit"] 收貨 => 10
+        default         : echo "bg-light text-success";             break;
     }
 
-    $swal_json = array(
-        "fun" => "store_receive",
-        "action" => "success",
-        "content" => '領用申請--送出成功'
-    );
 ?>
 <?php include("../template/header.php"); ?>
 

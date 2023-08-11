@@ -219,7 +219,7 @@
                                                     <td><input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
                                                             placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)"></td>
                                                     <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value);"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value,'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -448,8 +448,7 @@
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
             <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
                 <div class="d-flex">
-                    <div class="toast-body">
-                        以工號帶入其他資訊...完成!!
+                    <div class="toast-body" id="toast-body">
                     </div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
@@ -635,26 +634,39 @@
                 // 將結果進行渲染
                 if (res_r !== '') {
                     let obj_val = res_r[0];                                         // 取Object物件0
-                    console.log('obj_val:',obj_val);
-                    if(obj_val.dept_d){                                             // 位差判斷填入
-                        document.getElementById('plant').value = obj_val.dept_c;    // 將欄位帶入數值 = dept_c 部
-                        document.getElementById('dept').value = obj_val.dept_d;     // 將欄位帶入數值 = dept_d 課
+                    var input_cname = document.getElementById('cname');
+                    var input_plant = document.getElementById('plant');
+                    var input_dept = document.getElementById('dept');
+                    var input_sign_code = document.getElementById('sign_code');
+                    var input_extp = document.getElementById('extp');
+                    if(obj_val){
+                        if(obj_val.dept_d){                        // 位差判斷填入
+                            input_plant.value = obj_val.dept_c;    // 將欄位帶入數值 = dept_c 部
+                            input_dept.value = obj_val.dept_d;     // 將欄位帶入數值 = dept_d 課
+                        }else{
+                            input_plant.value = obj_val.dept_b;    // 將欄位帶入數值 = dept_b 處
+                            input_dept.value = obj_val.dept_c;     // 將欄位帶入數值 = dept_c 部
+                        }
+                        input_sign_code.value = obj_val.dept_no;   // 將欄位帶入數值 = dept_no 部門代號
+                        input_cname.value = obj_val.cname;         // 將欄位帶入數值 = cname
+                        if(obj_val.extp){
+                            input_extp.value = obj_val.extp;       // 將欄位帶入數值 = extp
+                        }else{
+                            input_extp.value = '';
+                        }
+                        var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
+                        inside_toast(sinn);
+
                     }else{
-                        document.getElementById('plant').value = obj_val.dept_b;    // 將欄位帶入數值 = dept_b 處
-                        document.getElementById('dept').value = obj_val.dept_c;     // 將欄位帶入數值 = dept_c 部
+                        // alert("查無工號["+search+"]!!");
+                        input_cname.value = '';                         // 將欄位cname清除
+                        input_plant.value = '';
+                        input_dept.value = '';
+                        input_sign_code.value = '';
+                        input_extp.value = '';
+                        var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
+                        inside_toast(sinn);
                     }
-                    document.getElementById('sign_code').value = obj_val.dept_no;   // 將欄位帶入數值 = dept_no 部門代號
-                    document.getElementById('cname').value = obj_val.cname;         // 將欄位帶入數值 = cname
-                    if(obj_val.extp){
-                        document.getElementById('extp').value = obj_val.extp;       // 將欄位帶入數值 = extp
-                    }else{
-                        document.getElementById('extp').value = '';
-                    }
-                    var toastLiveExample = document.getElementById('liveToast');
-                    var toast = new bootstrap.Toast(toastLiveExample);
-                    toast.show();
-                }else{
-                    alert("查無工號["+search+"]!!");
                 }
             },
             error (){
@@ -662,6 +674,16 @@
             }
         })
         $("body").mLoading("hide");
+    }
+
+    function inside_toast(sinn){
+        // init toast
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        var toast_body = document.getElementById('toast-body');
+        toast_body.innerHTML = sinn;
+        toast.show();
+
     }
 // // // searchUser function 
     

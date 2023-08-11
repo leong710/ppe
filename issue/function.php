@@ -1,4 +1,122 @@
 <?php
+// // // Create表單會用到
+    // 20230719 單選自己區域
+    function select_local($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty 
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag='On' AND _l.id=?
+                ORDER BY _s.id, _f.id, _l.id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $local = $stmt->fetch();
+            return $local;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20230719 create、撥補時用全區域
+    function show_allLocal(){
+        $pdo = pdo();
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag='On'
+                ORDER BY _s.id, _f.id, _l.id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $locals = $stmt->fetchAll();
+            return $locals;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20230116-開啟需求單時，先讀取local衛材存量，供填表單時參考
+    function read_local_stock($request){
+        $pdo = pdo();
+        extract($request);
+        $sql_old = "SELECT _cata.*, _cate.cate_title, _cate.id AS cate_id, ps.*
+                FROM _cata 
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
+                LEFT JOIN (
+                            SELECT _stock.cata_SN , sum(_stock.amount) AS amount, s.stock_stand, s.sqty
+                            FROM `_stock`
+                            LEFT JOIN _local ON _stock.local_id = _local.id
+                            LEFT JOIN _cata ON _stock.cata_SN = _cata.SN
+                            LEFT JOIN (
+                                        SELECT concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) AS tcc	
+                                            , sum(_s.standard_lv) AS stock_stand	
+                                            , sum(_stock.amount)-sum(_s.standard_lv) AS sqty	
+                                        FROM `_stock`
+                                        LEFT JOIN _local ON _stock.local_id = _local.id	
+                                        LEFT JOIN (	
+                                                    SELECT _stock.id, _stock.standard_lv	
+                                                    FROM `_stock`
+                                                    LEFT JOIN _local _l ON _stock.local_id = _l.id	
+                                                    GROUP BY local_id, cata_SN	
+                                                    ) _s ON _stock.id = _s.id	
+                                        GROUP BY _stock.local_id, _stock.cata_SN	
+                                    ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) = tcc	
+                            WHERE _local.id=?
+                            GROUP BY _local.id, _stock.cata_SN
+                            ORDER BY cata_SN, lot_num ASC
+                        ) ps ON	_cata.SN = ps.cata_SN
+                ORDER BY _cate.id, _cata.id ASC ";
+
+        $sql = "SELECT c.*, cate.cate_title, cate.id AS cate_id, ps.*
+                FROM _cata c
+                LEFT JOIN _cate cate ON c.cate_no = cate.cate_no
+                LEFT JOIN (
+                        SELECT s.cata_SN, SUM(s.amount) AS amount, s.stock_stand, s.sqty
+                        FROM `_stock` s
+                        LEFT JOIN _local l ON s.local_id = l.id
+                        LEFT JOIN _cata c ON s.cata_SN = c.SN
+                        LEFT JOIN (
+                                SELECT CONCAT_WS('_', l.fab_id, s.local_id, s.cata_SN) AS tcc,
+                                    SUM(s.standard_lv) AS stock_stand,
+                                    SUM(s.amount) - SUM(s.standard_lv) AS sqty
+                                FROM `_stock` s
+                                LEFT JOIN _local l ON s.local_id = l.id
+                                GROUP BY s.local_id, s.cata_SN
+                            ) s ON CONCAT_WS('_', l.fab_id, s.local_id, s.cata_SN) = s.tcc
+                        WHERE l.id = ?
+                        GROUP BY l.id, s.cata_SN
+                    ) ps ON c.SN = ps.cata_SN
+                ORDER BY cate.id, c.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $catalogs = $stmt->fetchAll();
+            return $catalogs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 秀出catalog全部
+    // 20230721 開啟需求單時，先讀取local衛材存量，供填表單時參考
+    function show_catalogs(){
+        $pdo = pdo();
+        $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id
+                FROM _cata
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
+                ORDER BY _cata.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $catalogs = $stmt->fetchAll();
+            return $catalogs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+// // // Create表單會用到 -- end
+
 // // // issue需求單 CRUD
     // 儲存交易表單
     function store_issue($request){
@@ -8,13 +126,13 @@
         $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
         // 製作log紀錄前處理：塞進去製作元素
-        $logs_request["idty"] = $idty;
-        $logs_request["cname"] = $cname;
-        $logs_request["step"] = "填單人";                   // 節點
-        $logs_request["logs"] = "";   
-        $logs_request["remark"] = $sin_comm;   
-    // 呼叫toLog製作log檔
-        $logs = toLog($logs_request);
+            $logs_request["idty"] = $idty;
+            $logs_request["cname"] = $cname;
+            $logs_request["step"] = "填單人";                   // 節點
+            $logs_request["logs"] = "";   
+            $logs_request["remark"] = $sin_comm;   
+        // 呼叫toLog製作log檔
+            $logs = toLog($logs_request);
 
         //// **** 儲存issue表單
         $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
@@ -41,21 +159,21 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
-                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
-                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                        , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
-                        , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
-                        , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
+                        -- , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
+                        -- , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
+                        -- , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
+                        -- , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                        -- , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
+                        -- , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
                 LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
                 LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
+                -- LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
+                -- LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                -- LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
+                -- LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                -- LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
+                -- LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
                 WHERE _issue.id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
@@ -70,6 +188,104 @@
     function update_issue($request){
         $pdo = pdo();
         extract($request);
+        // item資料前處理
+        $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
+
+        // 把_issue表單logs叫近來處理
+            $query = array('id'=> $id );
+            $issue_logs = showLogs($query);
+            if($action == "edit"){
+                $idty = 4;
+            }
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["action"] = $action;
+            $logs_request["step"] = '填單人';
+            $logs_request["idty"] = $idty;
+            $logs_request["cname"] = $created_cname;
+            $logs_request["logs"] = $issue_logs["logs"];   
+            $logs_request["remark"] = $sin_comm;   
+        // 呼叫toLog製作log檔
+            $logs_enc = toLog($logs_request);
+
+        // 更新_issue表單
+        $sql = "UPDATE _issue 
+                SET item=?, in_user_id=?, in_local=?, idty=?, logs=?, ppty=?
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs_enc, $ppty, $id]);
+            $swal_json = array(
+                "fun" => "update_issue",
+                "action" => "success",
+                "content" => '請購需求單--更新成功'
+            );
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json = array(
+                "fun" => "update_issue",
+                "action" => "error",
+                "content" => '請購需求單--更新失敗'
+            );
+        }
+        return $swal_json;
+    }
+    // 刪除單筆Issue紀錄
+    function delete_issue($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM _issue WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // sign動作的_issue表單 20230807
+    function sign_issue($request){
+        $pdo = pdo();
+        extract($request);
+    
+        // 把_issue表單logs叫近來處理
+            $query = array('id'=> $id );
+            $issue_logs = showLogs($query);
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["idty"] = $idty;   
+            $logs_request["cname"] = $updated_user;
+            $logs_request["logs"] = $issue_logs["logs"];   
+            $logs_request["remark"] = $sin_comm;   
+        // 呼叫toLog製作log檔
+            $logs_enc = toLog($logs_request);
+
+        // 更新_issue表單
+        $sql = "UPDATE _issue
+                SET idty = ? , logs = ?
+                WHERE id = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$idty, $logs_enc, $id]);
+            $swal_json = array(
+                "fun" => "sign_issue",
+                "action" => "success",
+                "content" => '請購需求單--sign成功'
+            );
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json = array(
+                "fun" => "sign_issue",
+                "action" => "error",
+                "content" => '請購需求單--sign失敗'
+            );
+        }
+        return $swal_json;
+    }
+    // 驗收動作的update表單  ==> 這是舊的要修正
+    function sign_update_issue($request){
+        $pdo = pdo();
+        extract($request);
+        // item資料前處理
+        $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
+
         $issue_id = array('id' => $p_id);               // 指定issue_id
         $issue = showIssue($issue_id);                  // 把issue~原表單叫近來處理
             $b_ppty = $issue['ppty'];                       // 指定~原表單需求類別ppty
@@ -135,38 +351,122 @@
         }
 
     }
-    // 刪除單筆Issue紀錄
-    function delete_issue($request){
+// // // issue  -- end
+
+// // // CSV & Log tools
+    // 匯出CSV
+    function export_csv($filename,$data){ 
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Content-Disposition: attachment;filename="' . $filename . '";');
+        header('Content-Type: application/csv; charset=UTF-8');
+        echo $data; 
+    } 
+    // 製作記錄JSON_Log檔
+    function toLog($request){
+        extract($request);
+        // log資料前處理
+        // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
+        switch($idty){
+            case "0":   $action = '核准 (Approve)';         break;
+            case "1":   $action = '送出 (Submit)';          break;
+            case "2":   $action = '駁回 (Disapprove)';      break;
+            case "3":   $action = '作廢 (Abort)';           break;
+            case "4":   $action = '編輯 (Edit)';            break;
+            case "10":  $action = '結案';                   break;
+            case "11":  $action = '轉PR';                   break;
+            case "12":  $action = '發貨/待收';              break;
+            case "13":  $action = 'PR請購進貨';             break;
+            default:    $action = '錯誤 (Error)';           return;
+        }
+
+        if(!isset($logs)){
+            $logs = [];
+            $logs_arr =[];
+        }else{
+            $logs_dec = json_decode($logs);
+            $logs_arr = (array) $logs_dec;
+        }
+
+        $app = [];                                  // 定義app陣列=appry
+        date_default_timezone_set("Asia/Taipei");   // 設定台灣時區，用在陣列新增datetime
+        // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
+        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
+        $app = array(   "step"      => $step,
+                        "cname"     => $cname,
+                        "datetime"  => date('Y-m-d H:i:s'), 
+                        "action"    => $action,
+                        "remark"    => $log_remark);
+
+        array_push($logs_arr, $app);
+        $logs = json_encode($logs_arr);
+
+        return $logs;        
+    }
+    // 讀取所有JSON_Log記錄
+    function showLogs($request){
         $pdo = pdo();
         extract($request);
-        $sql = "DELETE FROM _issue WHERE id = ?";
+        $sql = "SELECT _issue.*
+                FROM `_issue`
+                WHERE _issue.id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
+            $_issue = $stmt->fetch();
+            return $_issue;
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
+    // 刪除單項log值-20220215
+    function updateLogs($request){
+        $pdo = pdo();
+        extract($request);
 
+        $query = array('id'=> $id );
+        // 把trade表單叫近來處理
+            // $trade = showTrade($query);
+        $trade = showLogs($query);
+        //這個就是JSON格式轉Array新增字串==搞死我
+        $logs_dec = json_decode($trade['logs']);
+        $logs_arr = (array) $logs_dec;
+        // unset($logs_arr[$log_id]);  // 他會產生index導致原本的表亂掉
+        array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
+
+        $logs = json_encode($logs_arr);
+        $sql = "UPDATE _issue 
+                SET logs=? 
+                WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$logs, $id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+// // // CSV & Log tools -- end
+
+// // // index 統計數據
     // 20230719 在issue_list秀出所有issue清單
     function show_issue_list($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
-                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
-                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
-                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
-                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
-                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
-                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
+        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
+                       , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
+                       , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
+                       , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
+                       , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                       , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
+                       , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
                 LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
                 LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
                 LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
         if($emp_id != 'All'){
             if($_SESSION[$sys_id]["role"] <= 1){
@@ -177,7 +477,13 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY create_date DESC";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+            }
+     
         try {
             if($emp_id != 'All'){
                 $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
@@ -190,49 +496,122 @@
             echo $e->getMessage();
         }
     }
-    // 20230719 分頁工具
-    function issue_page_div($start, $per, $request){
+
+    // 20230719 在index表頭顯示各類別的數量：    // 統計看板--上：表單核簽狀態
+    function show_sum_issue($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i,
-                        _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark,
-                        _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,
-                        _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, 
-                        _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
-                        _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark,
-                        _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark 
-                FROM `_issue`
-                LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
-                LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+
         if($emp_id != 'All'){
-            if($_SESSION[$sys_id]["role"] <= 1){
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
-            }else{
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
-            }
+            $sql = "SELECT DISTINCT _issue.ppty, _issue.idty,
+                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE  _i2.idty = _issue.idty AND _i2.ppty = _issue.ppty
+                         AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS idty_count
+                    FROM `_issue` 
+                    WHERE _issue.out_user_id=? OR _issue.in_user_id=?";      //處理 byUser
+        }else{
+            $sql = "SELECT DISTINCT _issue.ppty, _issue.idty,
+                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE  _i2.idty = _issue.idty AND _i2.ppty = _issue.ppty) AS idty_count
+                    FROM `_issue` ";
         }
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY create_date DESC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
+        $sql .= " ORDER BY _issue.ppty, _issue.idty ASC";
+        $stmt = $pdo->prepare($sql);
         try {
             if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id]);       //處理 byUser
+                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
             }else{
-                $stmt->execute();               //處理 byAll
+                $stmt->execute();                           //處理 byAll
             }
-            $rs = $stmt->fetchAll();
-            return $rs;
+            $sum_issue = $stmt->fetchAll();
+            return $sum_issue;
         }catch(PDOException $e){
-            echo $e->getMessage(); 
+            echo $e->getMessage();
         }
     }
-// // // issue  -- end
+    // 20230719 在index表頭顯示各類別的數量：    // 統計看板--下：轉PR單
+    function show_sum_issue_ship($request){
+        $pdo = pdo();
+        extract($request);
+        if($emp_id != 'All'){
+            $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
+                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS ship_count
+                    FROM `_issue`
+                    WHERE _issue._ship IS NOT NULL AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";      //處理 byUser
+        }else{
+            $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
+                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship) AS ship_count
+                    FROM `_issue`
+                    WHERE _issue._ship IS NOT NULL ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _issue._ship DESC";
+        $stmt = $pdo->prepare($sql.' LIMIT 10');    // TOP 10
+        try {
+            if($emp_id != 'All'){
+                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
+            }else{
+                $stmt->execute();                           //處理 byAll
+            }
+            $sum_issue_ship = $stmt->fetchAll();
+            return $sum_issue_ship;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 在index秀出所有的衛材清單
+    function show_Sub_stock($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT stock.*, users.cname, _site.id as site_id, _site.site_title, _site.remark as site_remark, 
+                        _fab.id AS fab_id, _fab.fab_title, _fab.remark as fab_remark, 
+                        _local.local_title, _local.remark as loccal_remark, _catalog.title as catalog_title, 
+                        _catalog.unit as catalog_unit, categories.cate_title
+                FROM `stock`
+                LEFT JOIN users ON users.id = stock.user_id
+                RIGHT JOIN _local ON stock.local_id = _local.id
+                LEFT JOIN _site ON _local.site_id = _site.id
+                LEFT JOIN _fab ON _site.fab_idd = _fab.i
+                LEFT JOIN _catalog ON _catalog.id = stock.catalog_id
+                LEFT JOIN categories ON _catalog.category_id = categories.id
+                WHERE _site.id=? AND catalog_id IS NOT null
+                ORDER BY site_id, fab_id, local_id, catalog_id, lot_num ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$site_id]);
+            $stocks = $stmt->fetchAll();
+            return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 在index秀出所有的衛材清單
+    function show_local_stock($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT stock.*, users.cname, _site.id as site_id, _site.site_title, _site.remark as site_remark, 
+                        _fab.id AS fab_id, _fab.fab_title, _fab.remark as fab_remark, 
+                        _local.local_title, _local.remark as loccal_remark, _catalog.title as catalog_title, 
+                        _catalog.unit as catalog_unit, categories.cate_title
+                FROM `stock`
+                LEFT JOIN users ON users.id = stock.user_id
+                RIGHT JOIN _local ON _local.id = stock.local_id
+                LEFT JOIN _fab ON _fab.id = _local.fab_id
+                LEFT JOIN _site ON _site.id = _local.site_id
+                LEFT JOIN _catalog ON _catalog.id = stock.catalog_id
+                LEFT JOIN categories ON _catalog.category_id = categories.id
+                WHERE _local.id=? AND catalog_id IS NOT null
+                ORDER BY site_id, fab_id, local_id, catalog_id, lot_num ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $stocks = $stmt->fetchAll();
+            return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+// // // index 統計數據 -- end
+
 
 // // // process_issue處理交易事件
     // 處理交易事件--所屬器材數量之加減
@@ -378,7 +757,7 @@
             foreach($issue2pr as $issue2pr_id){
 
                 $issue_id = array('id' => $issue2pr_id);      // 指定issue_id
-                $row = showIssue($issue_id);                  // 把issue表單叫進來處理
+                $row = show_issue($issue_id);                  // 把issue表單叫進來處理
                 $logs = $row['logs'];                         // 指定表單記錄檔logs
                 // 把原本沒有的塞進去
                 $request['cname'] = $_SESSION["AUTH"]["cname"];
@@ -451,333 +830,10 @@
     }
 // // // 待轉PR總表 -- end
 
-// // // CSV & Log tools
-    // 匯出CSV
-    function export_csv($filename,$data){ 
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        header('Content-Disposition: attachment;filename="' . $filename . '";');
-        header('Content-Type: application/csv; charset=UTF-8');
-        echo $data; 
-    } 
-    // 製作記錄JSON_Log檔
-    function toLog($request){
-        extract($request);
-        // log資料前處理
-        // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
-        switch($idty){
-            case "0":
-                $action = '核准 (Approve)';
-                break;
-            case "1":
-                $action = '送出 (Submit)';
-                break;
-            case "2":
-                $action = '駁回 (Disapprove)';
-                break;
-            case "3":
-                $action = '作廢 (Abort)';
-                break;
-            case "10":
-                $action = '結案';
-                break;
-            case "11":
-                $action = '轉PR';
-                break;
-            case "12":
-                $action = '發貨/待收';
-                break;
-            case "13":
-                $action = 'PR請購進貨';
-                break;
-            default:
-                $action = '錯誤 (Error)';
-                return;
-        }
 
-        if(!isset($logs)){
-            $logs = [];
-            $logs_arr =[];
-        }else{
-            $logs_dec = json_decode($logs);
-            $logs_arr = (array) $logs_dec;
-        }
 
-        $app = [];                                  // 定義app陣列=appry
-        date_default_timezone_set("Asia/Taipei");   // 設定台灣時區，用在陣列新增datetime
-        // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
-        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
-        $app = array("cname" => $cname,
-                    "datetime" => date('Y-m-d H:i:s'), 
-                    "action" => $action,
-                    "remark" => $log_remark);
 
-        array_push($logs_arr, $app);
-        $logs = json_encode($logs_arr);
 
-        return $logs;        
-    }
-    // 讀取所有JSON_Log記錄
-    function showLogs($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _issue.*
-                FROM `_issue`
-                WHERE _issue.id = ?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$id]);
-            $_issue = $stmt->fetch();
-            return $_issue;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 刪除單項log值-20220215
-    function updateLogs($request){
-        $pdo = pdo();
-        extract($request);
-
-        $query = array('id'=> $id );
-        // 把trade表單叫近來處理
-            // $trade = showTrade($query);
-        $trade = showLogs($query);
-        //這個就是JSON格式轉Array新增字串==搞死我
-        $logs_dec = json_decode($trade['logs']);
-        $logs_arr = (array) $logs_dec;
-        // unset($logs_arr[$log_id]);  // 他會產生index導致原本的表亂掉
-        array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
-
-        $logs = json_encode($logs_arr);
-        $sql = "UPDATE _issue 
-                SET logs=? 
-                WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$logs, $id]);
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-// // // CSV & Log tools -- end
-
-// // // index 統計數據
-    // 20230719 在index表頭顯示各類別的數量：    // 統計看板--上：表單核簽狀態
-    function show_sum_issue($request){
-        $pdo = pdo();
-        extract($request);
-
-        if($emp_id != 'All'){
-            $sql = "SELECT DISTINCT _issue.ppty, _issue.idty,
-                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE  _i2.idty = _issue.idty AND _i2.ppty = _issue.ppty
-                         AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS idty_count
-                    FROM `_issue` 
-                    WHERE _issue.out_user_id=? OR _issue.in_user_id=?";      //處理 byUser
-        }else{
-            $sql = "SELECT DISTINCT _issue.ppty, _issue.idty,
-                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE  _i2.idty = _issue.idty AND _i2.ppty = _issue.ppty) AS idty_count
-                    FROM `_issue` ";
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _issue.ppty, _issue.idty ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
-            }else{
-                $stmt->execute();                           //處理 byAll
-            }
-            $sum_issue = $stmt->fetchAll();
-            return $sum_issue;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 20230719 在index表頭顯示各類別的數量：    // 統計看板--下：轉PR單
-    function show_sum_issue_ship($request){
-        $pdo = pdo();
-        extract($request);
-        if($emp_id != 'All'){
-            $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
-                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS ship_count
-                    FROM `_issue`
-                    WHERE _issue._ship IS NOT NULL AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";      //處理 byUser
-        }else{
-            $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
-                        (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship) AS ship_count
-                    FROM `_issue`
-                    WHERE _issue._ship IS NOT NULL ";
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _issue._ship DESC";
-        $stmt = $pdo->prepare($sql.' LIMIT 10');    // TOP 10
-        try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
-            }else{
-                $stmt->execute();                           //處理 byAll
-            }
-            $sum_issue_ship = $stmt->fetchAll();
-            return $sum_issue_ship;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 在index秀出所有的衛材清單
-    function show_Sub_stock($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT stock.*, users.cname, _site.id as site_id, _site.site_title, _site.remark as site_remark, 
-                        _fab.id AS fab_id, _fab.fab_title, _fab.remark as fab_remark, 
-                        _local.local_title, _local.remark as loccal_remark, _catalog.title as catalog_title, 
-                        _catalog.unit as catalog_unit, categories.cate_title
-                FROM `stock`
-                LEFT JOIN users ON users.id = stock.user_id
-                RIGHT JOIN _local ON stock.local_id = _local.id
-                LEFT JOIN _site ON _local.site_id = _site.id
-                LEFT JOIN _fab ON _site.fab_idd = _fab.i
-                LEFT JOIN _catalog ON _catalog.id = stock.catalog_id
-                LEFT JOIN categories ON _catalog.category_id = categories.id
-                WHERE _site.id=? AND catalog_id IS NOT null
-                ORDER BY site_id, fab_id, local_id, catalog_id, lot_num ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$site_id]);
-            $stocks = $stmt->fetchAll();
-            return $stocks;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 在index秀出所有的衛材清單
-    function show_local_stock($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT stock.*, users.cname, _site.id as site_id, _site.site_title, _site.remark as site_remark, 
-                        _fab.id AS fab_id, _fab.fab_title, _fab.remark as fab_remark, 
-                        _local.local_title, _local.remark as loccal_remark, _catalog.title as catalog_title, 
-                        _catalog.unit as catalog_unit, categories.cate_title
-                FROM `stock`
-                LEFT JOIN users ON users.id = stock.user_id
-                RIGHT JOIN _local ON _local.id = stock.local_id
-                LEFT JOIN _fab ON _fab.id = _local.fab_id
-                LEFT JOIN _site ON _site.id = _local.site_id
-                LEFT JOIN _catalog ON _catalog.id = stock.catalog_id
-                LEFT JOIN categories ON _catalog.category_id = categories.id
-                WHERE _local.id=? AND catalog_id IS NOT null
-                ORDER BY site_id, fab_id, local_id, catalog_id, lot_num ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id]);
-            $stocks = $stmt->fetchAll();
-            return $stocks;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-// // // index 統計數據 -- end
-
-// // // Create表單會用到
-    // 20230719 單選自己區域
-    function select_local($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty 
-                FROM `_local` _l
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _l.flag='On' AND _l.id=?
-                ORDER BY _s.id, _f.id, _l.id ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
-            return $local;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 20230719 create、撥補時用全區域
-    function show_allLocal(){
-        $pdo = pdo();
-        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark
-                FROM `_local` _l
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _l.flag='On'
-                ORDER BY _s.id, _f.id, _l.id ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute();
-            $locals = $stmt->fetchAll();
-            return $locals;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 20230116-開啟需求單時，先讀取local衛材存量，供填表單時參考
-    function read_local_stock($request){
-        $pdo = pdo();
-        extract($request);
-        $sql_old = "SELECT _cata.*, _cate.cate_title, _cate.id AS cate_id, ps.*
-                FROM _cata 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
-                LEFT JOIN (
-                            SELECT _stock.cata_SN , sum(_stock.amount) AS amount, s.stock_stand, s.sqty
-                            FROM `_stock`
-                            LEFT JOIN _local ON _stock.local_id = _local.id
-                            LEFT JOIN _cata ON _stock.cata_SN = _cata.SN
-                            LEFT JOIN (
-                                        SELECT concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) AS tcc	
-                                            , sum(_s.standard_lv) AS stock_stand	
-                                            , sum(_stock.amount)-sum(_s.standard_lv) AS sqty	
-                                        FROM `_stock`
-                                        LEFT JOIN _local ON _stock.local_id = _local.id	
-                                        LEFT JOIN (	
-                                                    SELECT _stock.id, _stock.standard_lv	
-                                                    FROM `_stock`
-                                                    LEFT JOIN _local _l ON _stock.local_id = _l.id	
-                                                    GROUP BY local_id, cata_SN	
-                                                    ) _s ON _stock.id = _s.id	
-                                        GROUP BY _stock.local_id, _stock.cata_SN	
-                                    ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) = tcc	
-                            WHERE _local.id=?
-                            GROUP BY _local.id, _stock.cata_SN
-                            ORDER BY cata_SN, lot_num ASC
-                        ) ps ON	_cata.SN = ps.cata_SN
-                ORDER BY _cate.id, _cata.id ASC ";
-
-        $sql = "SELECT c.*, cate.cate_title, cate.id AS cate_id, ps.*
-                FROM _cata c
-                LEFT JOIN _cate cate ON c.cate_no = cate.cate_no
-                LEFT JOIN (
-                        SELECT s.cata_SN, SUM(s.amount) AS amount, s.stock_stand, s.sqty
-                        FROM `_stock` s
-                        LEFT JOIN _local l ON s.local_id = l.id
-                        LEFT JOIN _cata c ON s.cata_SN = c.SN
-                        LEFT JOIN (
-                                SELECT CONCAT_WS('_', l.fab_id, s.local_id, s.cata_SN) AS tcc,
-                                    SUM(s.standard_lv) AS stock_stand,
-                                    SUM(s.amount) - SUM(s.standard_lv) AS sqty
-                                FROM `_stock` s
-                                LEFT JOIN _local l ON s.local_id = l.id
-                                GROUP BY s.local_id, s.cata_SN
-                            ) s ON CONCAT_WS('_', l.fab_id, s.local_id, s.cata_SN) = s.tcc
-                        WHERE l.id = ?
-                        GROUP BY l.id, s.cata_SN
-                    ) ps ON c.SN = ps.cata_SN
-                ORDER BY cate.id, c.id ASC ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id]);
-            $catalogs = $stmt->fetchAll();
-            return $catalogs;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-
-// // // Create表單會用到 -- end
 
 
     // 找出自己的資料 
@@ -794,26 +850,6 @@
             echo $e->getMessage();
         }
     }
-
-    // 秀出catalog全部
-    // 20230721 開啟需求單時，先讀取local衛材存量，供填表單時參考
-    function show_catalogs(){
-        $pdo = pdo();
-        $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id
-                FROM _cata
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
-                ORDER BY _cata.id ASC ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute();
-            $catalogs = $stmt->fetchAll();
-            return $catalogs;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-
-
 
     // create時用自己區域
     function show_local($request){

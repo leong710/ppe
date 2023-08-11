@@ -26,7 +26,6 @@
         $sum_issues_ship = show_sum_issue_ship($list_issue_setting);    // 統計看板--下：轉PR單
 
     // <!-- 20211215分頁工具 -->
-        // 分頁設定
         $per_total = count($issues);        // 計算總筆數
         $per = 25;                          // 每頁筆數
         $pages = ceil($per_total/$per);     // 計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
@@ -36,7 +35,14 @@
             $page = $_GET['page'];
         }
         $start = ($page-1)*$per;            // 每一頁開始的資料序號(資料庫序號是從0開始)
-        $issues = issue_page_div($start, $per, $list_issue_setting);
+        // 合併嵌入分頁工具
+        $issue_page_div = array(
+            'start' => $start,
+            'per' => $per
+        );
+        array_push($list_issue_setting, $issue_page_div);
+
+        $issues = show_issue_list($list_issue_setting);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
         if($page_end>$per_total){           // 最後頁的最後筆數=總筆數
@@ -64,7 +70,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-1"></i> 請購需求單總表</h3>
+                            <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求單總表</b></h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">
@@ -82,7 +88,7 @@
                     <div class="col-12 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="create.php" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫需求單</a>
+                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求單</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
@@ -110,19 +116,22 @@
                                         <tbody>
                                             <?php foreach($sum_issues as $sum_issue){ ?>
                                                 <tr>
-                                                    <td>
-                                                        <?php if($sum_issue['ppty'] == '0'){?>臨時<?php ;}?>
-                                                        <?php if($sum_issue['ppty'] == '1'){?>定期<?php ;}?>
-                                                    </td>
-                                                    <td>
-                                                        <?php if($sum_issue['idty'] == '0'){?><span class="badge rounded-pill bg-warning text-dark">待轉</span><?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '1'){?><span class="badge rounded-pill bg-danger">待簽</span><?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '2'){?>退件<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '3'){?>取消<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '10'){?>結案<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '11'){?>轉PR<?php ;}?>
-                                                        <?php if($sum_issue['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
-                                                    </td>
+                                                    <td><?php 
+                                                            if($sum_issue['ppty'] == '0'){ echo "臨時";}
+                                                            if($sum_issue['ppty'] == '1'){ echo "定期";}
+                                                            if($sum_issue['ppty'] == '3'){ echo "緊急";}
+                                                        ?></td>
+                                                    <td><?php switch($sum_issue['idty']){
+                                                            case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                                            case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                                            case "2" : echo "退件"; break;
+                                                            case "3" : echo "取消"; break;
+                                                            case "10": echo "結案"; break;
+                                                            case "11": echo "轉PR"; break;
+                                                            case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                                            default: echo "na"; break;
+                                                            // return; 
+                                                            }?></td>
                                                     <td>
                                                         <?php echo $sum_issue['idty_count']."&nbsp件";?></td>
                                                 </tr>
@@ -260,20 +269,21 @@
                                                 </td>
                                                 <td><?php echo $issue['cname_o'];?></td>
                                                 <td style="font-size: 6px;"><?php echo substr($issue['in_date'],0,10); ?></td>
-                                                <td>
-                                                    <?php if($issue['ppty'] == '0'){?>臨時<?php ;}?>
-                                                    <?php if($issue['ppty'] == '1'){?>定期<?php ;}?>
-                                                </td>
-                                                <td>
-                                                    <?php if($issue['idty'] == '0'){?><span <?php if($_SESSION[$sys_id]['role'] <= 1 ){ ?>
-                                                            class="badge rounded-pill bg-warning text-dark" <?php }?> >待轉</span><?php ;}?>
-                                                    <?php if($issue['idty'] == '1'){?><span <?php if($_SESSION[$sys_id]['role'] <= 1 ){ ?>
-                                                            class="badge rounded-pill bg-danger" <?php }?> >待簽</span><?php ;}?>
-                                                    <?php if($issue['idty'] == '2'){?>退件<?php ;}?>
-                                                    <?php if($issue['idty'] == '3'){?>取消<?php ;}?>
-                                                    <?php if($issue['idty'] == '10'){?>結案<?php ;}?>
-                                                    <?php if($issue['idty'] == '11'){?>轉PR<?php ;}?>
-                                                    <?php if($issue['idty'] == '12'){?><span class="badge rounded-pill bg-success">待收</span><?php ;}?>
+                                                <td><?php echo $issue['ppty'];
+                                                        switch($issue['ppty']){
+                                                            case "0":   echo '.臨時';  break;
+                                                            case "1":   echo '.定期';  break;
+                                                            case "3":   echo '.緊急';  break;
+                                                            // default:    echo '錯誤';   break;
+                                                        };?></td>
+                                                <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
+                                                        echo ($issue['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"";
+                                                        echo ($issue['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger">待簽</span>':"";
+                                                        echo ($issue['idty'] == '2')  ? "退件":"";
+                                                        echo ($issue['idty'] == '3')  ? "取消":"";
+                                                        echo ($issue['idty'] == '10') ? "結案":"";
+                                                        echo ($issue['idty'] == '11') ? "轉PR":"";
+                                                        echo ($issue['idty'] == '12') ? "<span class='badge rounded-pill bg-success'>待收</span>":""; ?>
                                                 </td>
                                                 <td style="font-size: 12px; word-break: break-all;"><?php echo $issue['_ship'];?>
                                                     <?php if($issue['_ship'] == '0'){?>結案<?php ;}?>

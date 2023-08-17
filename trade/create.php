@@ -43,13 +43,13 @@
     </style>
 </head>
 
-<div class="container">
+<div class="col-12">
     <div class="row justify-content-center">
-        <div class="col-12 bg-light border p-4 rounded my-2">
+        <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
                 <!-- 表頭：訊息 -->
-                <div class="row">
+                <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3>批量調撥</h3>
+                        <h3><b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
@@ -58,21 +58,18 @@
                         <a href="index.php" class="btn btn-danger" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
-                <div class="row px-3 mx-3 mt-2">
+                <div class="row px-2">
                     <!-- 表頭：左側 -->
-                    <div class="col-md-6 pb-0">
-                        <div>
-                            交易單號：(尚未給號)</br>
-                            交易日期：<?php echo date('Y-m-d H:i'); ?> (實際以送出當下時間為主)</br>
-                            發貨人員：<?php echo $_SESSION["AUTH"]["cname"];?></br>
-                            發貨廠區：<?php if(isset($select_local)){
-                                        echo $select_local["id"].': '.$select_local["site_title"].'&nbsp'.$select_local["fab_title"].'_'.$select_local["local_title"];
-                                    }?></br>
-                        </div>
+                    <div class="col-12 col-md-6">
+                        交易單號：(尚未給號)</br>
+                        交易日期：<?php echo date('Y-m-d H:i'); ?> (實際以送出當下時間為主)</br>
+                        發貨人員：<?php echo $_SESSION["AUTH"]["cname"];?></br>
+                        發貨廠區：<?php if(isset($select_local)){
+                                    echo $select_local["id"].': '.$select_local["site_title"].'&nbsp'.$select_local["fab_title"].'_'.$select_local["local_title"];
+                                }?></br>
                     </div>
-                    
                     <!-- 表頭：右側上=選擇出庫廠區 -->
-                    <div class="col-md-6 pb-0">
+                    <div class="col-12 col-md-6">
                         <form action="" method="post" onsubmit="this.$myLocal.disabled=false">
                             <div class="form-floating">
                                 <select name="local_id" id="local_id" class="form-select" required onchange="this.form.submit()">

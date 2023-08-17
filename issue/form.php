@@ -262,10 +262,11 @@
                                                                                         default :echo $catalog['buy_a']; $buy_qty = $catalog['buy_a']; break; }
                                                                                     echo "&nbsp/&nbsp".$catalog["unit"];?>" 
                                                             min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                            oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)">
+                                                            oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
+                                                            onblur="if(value>this.max)value = this.max; add_cart_btn(this.id, this.value);" >
                                                     </td>
                                                     <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value,'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -538,6 +539,18 @@
         })
     }
 // // // catalog_modal 篩選 function
+    // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value --> 20230816 修正手動輸入超過限購，add_btn的value會只吃最大值
+    function add_cart_btn(cata_SN, add_amount){
+        let add_btn = document.getElementById('add_'+ cata_SN);
+        if(add_btn){
+            if(add_amount == ''){
+                add_btn.value = '';
+            } else {
+                add_btn.value = add_amount;
+            }
+        }
+    }
+
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
@@ -748,20 +761,44 @@
             }
         });
 
-        // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
-        let amounts = [...document.querySelectorAll('.amount')];
-        for(let amount of amounts){
-            amount.onchange = e => {
-                let amount_id = e.target.id;
-                if(amount.value == ''){
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
-                    document.getElementById('add_'+ amount_id).value = '';
-                } else {
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
-                    document.getElementById('add_'+ amount_id).value = amount.value;
-                }
-            }
-        }
+        // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
+        // let amounts = [...document.querySelectorAll('.amount')];
+        // for(let amount of amounts){
+        //     amount.onchange = e => {
+        //     // amount.onblur = e => {
+        //         let amount_id = e.target.id;
+        //         if(amount.value == ''){
+        //             // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
+        //             document.getElementById('add_'+ amount_id).value = '';
+        //         } else {
+        //             // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
+        //             document.getElementById('add_'+ amount_id).value = amount.value;
+        //         }
+        //     }
+        // }
+
+        // 20230817 禁用Enter鍵表單自動提交 
+        document.onkeydown = function(event) { 
+            var target, code, tag; 
+            if (!event) { 
+                event = window.event;       //針對ie瀏覽器 
+                target = event.srcElement; 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "TEXTAREA") { return true; } 
+                    else { return false; } 
+                } 
+            } else { 
+                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "INPUT") { return false; } 
+                    else { return true; } 
+                } 
+            } 
+        };
 
         // 在任何地方啟用工具提示框
         $(function () {

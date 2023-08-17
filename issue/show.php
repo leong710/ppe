@@ -168,121 +168,119 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                        <div class="tab-content rounded bg-light" id="nav-tabContent">
-                            <!-- 3.申請單成立 -->
-                            <div class="tab-pane bg-white fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
-                                <div class="col-12 py-3 px-5">
-                                    <!-- 表列0 說明 -->
-                                    <div class="row">
-                                        <div class="col-6 col-md-6">
-                                            申請人相關資料：
-                                            <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                        </div>
-                                        <div class="col-6 col-md-6 text-end">
-                                            <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
-                                                <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
-                                            <?php }?>
-                                        </div>
-                                        <hr>
-                                        <div class="col-12 py-0" id="info_table"> 
-                                                     
-                                            <!-- 表列2 申請人 -->
-                                            <div class="row">
-                                                <div class="col-6 col-md-6 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="in_user_id" id="in_user_id" class="form-control" required placeholder="工號" value="" readonly >
-                                                        <label for="in_user_id" class="form-label">in_user_id/工號：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-6 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="cname_i" id="cname_i" class="form-control" required placeholder="申請人姓名" value="" readonly >
-                                                        <label for="cname_i" class="form-label">cname_i/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- 表列3 領用站點 -->
-                                            <div class="row">
-                                                <div class="col-12 col-md-6 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <select name="in_local" id="in_local" class="form-select" required disabled>
-                                                            <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
-                                                            <?php foreach($allLocals as $allLocal){ ?>
-                                                                    <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
-                                                                        <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                        <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 py-1 px-2">
-                                                    <div style="display: flex;">
-                                                        <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                        <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
-                                                        <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
-                                                        <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled >
-                                                        <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
-                                                        <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
-                                                        <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 表列5 說明 -->
-                                            <div class="row">
-                                                <div class="col-12 col-md-12 py-2 px-2">
-                      
-                                                </div>
-                                                <hr>
-                                                <div class="col-12 py-1">
-                                                    <b>備註：</b>
-                                                    </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                                    </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>
+                        <!-- 3.申請單成立 -->
+                        <div class="bg-white rounded" id="nav-review" >
+                            <div class="col-12 py-3 px-5">
+                                <!-- 表列0 說明 -->
+                                <div class="row">
+                                    <div class="col-6 col-md-6">
+                                        申請人相關資料：
+                                        <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
+                                    <div class="col-6 col-md-6 text-end">
+                                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
+                                            <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
+                                        <?php }?>
+                                    </div>
+                                    <hr>
+                                    <div class="col-12 py-0" id="info_table"> 
+                                                    
+                                        <!-- 表列2 申請人 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-6 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="in_user_id" id="in_user_id" class="form-control" required placeholder="工號" value="" readonly >
+                                                    <label for="in_user_id" class="form-label">in_user_id/工號：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-6 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="cname_i" id="cname_i" class="form-control" required placeholder="申請人姓名" value="" readonly >
+                                                    <label for="cname_i" class="form-label">cname_i/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 表列3 領用站點 -->
+                                        <div class="row">
+                                            <div class="col-12 col-md-6 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <select name="in_local" id="in_local" class="form-select" required disabled>
+                                                        <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
+                                                        <?php foreach($allLocals as $allLocal){ ?>
+                                                                <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
+                                                                    <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                    <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6 py-1 px-2">
+                                                <div style="display: flex;">
+                                                    <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                    <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
+                                                    <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
+                                                    <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled >
+                                                    <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
+                                                    <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
+                                                    <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                    <!-- 表列4 購物車 -->
-                                    <div class="row">
-                                        <div class="col-12 border rounded bg-info">
-                                            <label class="form-label">器材用品/數量單位：&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></label>
-                                            <div class=" rounded border bg-light" id="shopping_cart">
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>select</th>
-                                                            <th>SN</th>
-                                                            <th>品名</th>
-                                                            <th>型號</th>
-                                                            <th>尺寸</th>
-                                                            <th>數量</th>
-                                                            <th>單位</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="shopping_cart_tbody">
-                                                    </tbody>
-                                                </table>
+                                        <!-- 表列5 說明 -->
+                                        <div class="row">
+                                            <div class="col-12 col-md-12 py-2 px-2">
+                    
+                                            </div>
+                                            <hr>
+                                            <div class="col-12 py-1">
+                                                <b>備註：</b>
+                                                </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
+                                                </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-12 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
-                                                <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
-                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                            <?php }else{ ?>
-                                                <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-
+                                    <hr>
                                 </div>
+
+                                <!-- 表列4 購物車 -->
+                                <div class="row">
+                                    <div class="col-12 border rounded bg-info">
+                                        <label class="form-label">器材用品/數量單位：&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></label>
+                                        <div class=" rounded border bg-light" id="shopping_cart">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>select</th>
+                                                        <th>SN</th>
+                                                        <th>品名</th>
+                                                        <th>型號</th>
+                                                        <th>尺寸</th>
+                                                        <th>數量</th>
+                                                        <th>單位</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="shopping_cart_tbody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-12 py-1 px-2 text-end">
+                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
+                                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
+                                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                        <?php }else{ ?>
+                                            <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 

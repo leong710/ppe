@@ -4,9 +4,16 @@
         copyright &copy; 2023 Design by inx tnESH.cop<br>
         <?php 
             echo "<br>您的IP為 : ".$_SERVER['REMOTE_ADDR']." => '".sha1(md5($_SERVER['REMOTE_ADDR']))."'</br>"; 
-            if(isset($_SESSION["AUTH"]) || $_SESSION["AUTH"]["role"] == 0 ){
+        ?>
+    </div>
+    <div class="mb-3 text-start">
+        <?php 
+            if(isset($_SESSION["AUTH"]) && $_SESSION["AUTH"]["role"] <= 1 ){
                 echo "session_id: ".session_id()."</br>";
+                echo "<pre>";
+                // print_r($_REQUEST);
                 print_r($_SESSION); 
+                echo "</pre>text-end";
             } 
         ?>
     </div>

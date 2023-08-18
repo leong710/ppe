@@ -31,8 +31,8 @@
         $issue_row = show_issue($_REQUEST);
         if(empty($issue_row)){
             echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
-            // header("refresh:0;url=index.php");
-            // exit;
+            header("refresh:0;url=index.php");
+            exit;
         }
         // logs紀錄鋪設前處理 
         $logs_dec = json_decode($issue_row["logs"]);
@@ -311,7 +311,7 @@
                                     </div>
     
                                     <!-- 表列1 請購需求單站點 -->
-                                    <div class="row block">
+                                    <div class="row unblock">
                                         <div class="col-12 col-md-6 py-3 px-2">
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
@@ -754,7 +754,7 @@
             // 排序
             // "order": [[ 4, "asc" ]],
             // 顯示長度
-            "pageLength": 25,
+            "pageLength": 20,
             // 中文化
             "language":{
                 url: "../../libs/dataTables/dataTable_zh.json"

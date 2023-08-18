@@ -25,32 +25,38 @@
         }
 
     // 組合查詢陣列
-    $list_trade_setting = array(
+    $trade_list_setting = array(
         'fab_id' => $trade_fab_id,
         'emp_id' => $trade_emp_id
     );
-    $trades = show_trade_list($list_trade_setting);
-    $sum_trades = show_sum_trade($list_trade_setting);              // 統計看板--上：表單核簽狀態
+    $trades = show_trade_list($trade_list_setting);
+    $sum_trades = show_sum_trade($trade_list_setting);              // 統計看板--上：表單核簽狀態
 
     // <!-- 20211215分頁工具 -->
-        //分頁設定
-        $per_total = count($trades);  //計算總筆數
-        $per = 20;  //每頁筆數
-        $pages = ceil($per_total/$per);  //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        if(!isset($_GET['page'])){  //!isset 判斷有沒有$_GET['page']這個變數
+        $per_total = count($trades);        //計算總筆數
+        $per = 25;                          //每頁筆數
+        $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+        if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  
         }else{
             $page = $_GET['page'];
         }
-        $start = ($page-1)*$per;  //每一頁開始的資料序號(資料庫序號是從0開始)
-        $trades = trade_page_div($start, $per, $list_trade_setting);
-        // $rs = page_div($start,$per);
-        $page_start = $start +1;  //選取頁的起始筆數
-        $page_end = $start + $per;  //選取頁的最後筆數
-        if($page_end>$per_total){  //最後頁的最後筆數=總筆數
+        $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+        // 合併嵌入分頁工具
+        $receive_page_div = array(
+            'start' => $start,
+            'per' => $per
+        );
+        array_push($trade_list_setting, $receive_page_div);
+
+        $trades = show_trade_list($trade_list_setting);
+        $page_start = $start +1;            //選取頁的起始筆數
+        $page_end = $start + $per;          //選取頁的最後筆數
+        if($page_end>$per_total){           //最後頁的最後筆數=總筆數
             $page_end = $per_total;
         }
     // <!-- 20211215分頁工具 -->
+    
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>

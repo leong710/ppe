@@ -217,7 +217,7 @@
                                             
                                             <!-- 表列3 領用站點 -->
                                             <div class="row">
-                                                <div class="col-12 col-md-6 py-1 px-2">
+                                                <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
                                                         <select name="local_id" id="local_id" class="form-select" required disabled>
                                                             <option value="" hidden>-- [請選擇 領用站點] --</option>
@@ -231,7 +231,7 @@
                                                         <label for="local_id" class="form-label">local_id/領用站點：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 col-md-6 py-1 px-2">
+                                                <div class="col-6 col-md-4 py-1 px-2">
                                                     <div style="display: flex;">
                                                         <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
                                                         <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled>
@@ -240,13 +240,21 @@
                                                         <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                                     </div>
                                                 </div>
+                                                <div class="col-6 col-md-4 py-1 px-2">
+                                                    <div class="form-floating">
+                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" required disabled placeholder="上層主管工號"
+                                                                data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號"
+                                                                onchange="search_fun(this.value);">
+                                                        <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup>&nbsp<span id="in_sign_badge" class="badge rounded-pill bg-primary"></span></label>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- 表列5 說明 -->
                                             <div class="row">
                                                 <div class="col-12 col-md-12 py-2 px-2">
                                                     <div class="form-floating">
-                                                        <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 90px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
+                                                        <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
                                                         <label for="receive_remark" class="form-label">receive_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
                                                     </div>
                                                 </div>
@@ -525,6 +533,7 @@
             "extp"           : "extp/分機",
             "local_id"       : "local_id/領用站點",
             "ppty"           : "** ppty/需求類別",
+            "in_sign"        : "in_sign/上層主管工號",
             "receive_remark" : "receive_remark/用途說明",
             // "created_emp_id" : "created_emp_id/開單人工號",
             // "created_cname"  : "created_cname/開單人姓名",

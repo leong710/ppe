@@ -1,6 +1,6 @@
 <?php
 // // // Trade index
-    // 20230724 在trad_list秀出所有Trad清單
+    // 20230724 在trad_list秀出所有Trad清單 // 20230818 嵌入分頁工具
     function show_trade_list($request){
         $pdo = pdo();
         extract($request);
@@ -26,7 +26,13 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY out_date DESC";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+            }
+
         try {
             if($emp_id != 'All'){
                 $stmt->execute([$emp_id, $emp_id, $fab_id, $fab_id]);       //處理 byUser
@@ -35,47 +41,9 @@
             }
             $trades = $stmt->fetchAll();
             return $trades;
+
         }catch(PDOException $e){
             echo $e->getMessage();
-        }
-    }
-    // 20230724 分頁工具
-    function trade_page_div($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _trade.*, users_o.cname as cname_o, users_i.cname as cname_i
-                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
-                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        , _fab_o.id as fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                        , _fab_i.id as fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
-                        , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
-                        , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
-                FROM `_trade`
-                LEFT JOIN _users users_o ON _trade.out_user_id = users_o.emp_id
-                LEFT JOIN _users users_i ON _trade.in_user_id = users_i.emp_id 
-                LEFT JOIN _local _local_o ON _trade.out_local = _local_o.id
-                LEFT JOIN _local _local_i ON _trade.in_local = _local_i.id
-                LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
-                ";
-        if($emp_id != 'All'){
-            $sql .= " WHERE _trade.out_user_id=? OR _trade.in_user_id=? OR _fab_o.id=? OR _fab_i.id=? ";      //處理 byUser
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY out_date DESC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id, $fab_id, $fab_id]);       //處理 byUser
-            }else{
-                $stmt->execute();               //處理 byAll
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
         }
     }
     // 20230724 在index表頭顯示各類別的數量：    // 統計看板--上：表單核簽狀態
@@ -173,7 +141,7 @@
                         , _l.local_title, _l.local_remark
                         , _f.id AS fab_id, _f.fab_title, _f.fab_remark
                         , _s.id as site_id, _s.site_title, _s.site_remark
-                        , _cata.pname, _cata.cata_remark, _cata.SN, _cata.unit, _cata.PIC, _cata.size
+                        , _cata.*
                         , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
                 FROM `_stock` _stk 
                 RIGHT JOIN _local _l ON _stk.local_id = _l.id 
@@ -255,7 +223,7 @@
         }
     }
     // 顯示被選定的Trade表單
-    function showTrade($request){
+    function show_trade($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _trade.*, users_o.cname as cname_o, users_i.cname as cname_i
@@ -289,7 +257,7 @@
         $pdo = pdo();
         extract($request);
         $trade_id = array('id' => $p_id);               // 指定trade_id
-        $trade = showTrade($trade_id);                  // 把trade表單叫近來處理
+        $trade = show_trade($trade_id);                  // 把trade表單叫近來處理
             $in_local = $trade['in_local'];                 // 指定收件區in_local
             $out_local = $trade['out_local'];               // 指定發貨區out_local
             $logs = $trade['logs'];                         // 指定表單記錄檔logs
@@ -382,7 +350,7 @@
         }
     }
     // 刪除單筆Trade紀錄
-    function deleteTrade($request){
+    function delete_trade($request){
         $pdo = pdo();
         extract($request);
         $sql = "DELETE FROM trade WHERE id = ?";

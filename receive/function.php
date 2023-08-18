@@ -83,12 +83,12 @@
 
         //// **** 儲存receive表單
             $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
-                        , cata_SN_amount, idty, logs, created_emp_id, created_cname, updated_user
-                        , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
+                        , cata_SN_amount, idty, logs, created_emp_id, created_cname, updated_user, in_sign
+                        , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
-                        , $cata_SN_amount_enc, $idty, $logs_enc, $created_emp_id, $created_cname, $created_cname]);
+                        , $cata_SN_amount_enc, $idty, $logs_enc, $created_emp_id, $created_cname, $created_cname, $in_sign]);
                 $swal_json = array(
                     "fun" => "store_receive",
                     "action" => "success",
@@ -169,11 +169,11 @@
         // 更新_receive表單
         $sql = "UPDATE _receive
                 SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
-                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ? , updated_at = now()
+                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ? ,in_sign=? ,updated_at = now()
                 WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty, $logs_enc, $updated_user, $uuid]);
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty, $logs_enc, $updated_user, $in_sign, $uuid]);
             $swal_json = array(
                 "fun" => "update_receive",
                 "action" => "success",

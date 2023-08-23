@@ -74,7 +74,7 @@
             /* transition: 3s; */
         }
         /*眼睛*/
-        #checkEye {
+        #checkEye , #in_sign_badge {
             position: absolute;
             top: 50%;
             right: 10px;
@@ -338,7 +338,8 @@
                                                 <input type="text" name="in_sign" id="in_sign" class="form-control" required placeholder="上層主管工號"
                                                         data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號"
                                                         onchange="search_fun(this.value);">
-                                                <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup>&nbsp<span id="in_sign_badge" class="badge rounded-pill bg-primary"></span></label>
+                                                <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup></label>
+                                                <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5>
                                             </div>
                                         </div>
                                     </div>
@@ -385,8 +386,8 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-5">
-                                        <label for="sin_comm" class="form-check-label" >command：</label>
-                                        <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                        <label for="sign_comm" class="form-check-label" >command：</label>
+                                        <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="created_emp_id" id="created_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
@@ -744,7 +745,7 @@
             // "idty"           : "idty",
             "uuid"           : "uuid",
             "cata_SN_amount" : "** cata_SN_amount"
-            // "sin_comm"       : "command/簽核comm",
+            // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
         Object.keys(receive_item).forEach(function(receive_key){

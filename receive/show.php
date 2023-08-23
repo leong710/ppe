@@ -11,7 +11,7 @@
         $action = 'review';                         // 沒有action就新開單
     }
 
-    if(isset($_REQUEST["uuid"])){
+    if(!empty($_REQUEST["uuid"])){
         $receive_row = show_receive($_REQUEST);
         if(empty($receive_row)){
             echo "<script>alert('uuid-error：{$_REQUEST["uuid"]}')</script>";
@@ -28,10 +28,18 @@
         $action = 'create';                         // 因為沒有uuid，列為新開單，防止action outOfspc
     }
 
-    $allLocals = show_allLocal();                   // 所有儲存站點
+    if(!empty($receive_row["local_id"])){                    // edit trade表單，get已選擇出庫廠區站點
+        $query_local = array(
+            'local_id' => $receive_row["local_id"]
+        );
+        $select_local = select_local($query_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
+
+    }else{
+        $select_local = array('id' => '');
+    }
+
+
     $catalogs = show_catalogs();                    // 器材=All
-    $categories = show_categories();                // 分類
-    $sum_categorys = show_sum_category();           // 統計分類與數量
 
 ?>
 
@@ -187,7 +195,7 @@
                                                 </div>
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" onblur="this.value = this.value.toUpperCase();" readonly >
+                                                        <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" readonly >
                                                         <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
@@ -197,13 +205,13 @@
                                             <div class="row">
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" readonly >
+                                                        <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $receive_row["emp_id"];?>" readonly >
                                                         <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>" readonly >
+                                                        <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $receive_row["cname"];?>" readonly >
                                                         <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
@@ -219,15 +227,9 @@
                                             <div class="row">
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <select name="local_id" id="local_id" class="form-select" required disabled>
-                                                            <option value="" hidden>-- [請選擇 領用站點] --</option>
-                                                            <?php foreach($allLocals as $allLocal){ ?>
-                                                                <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                                                    <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
-                                                                        <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                                <?php } ?>
-                                                            <?php } ?>
-                                                        </select>
+                                                        <input type="text" class="form-control" readonly
+                                                            value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                                echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                         <label for="local_id" class="form-label">local_id/領用站點：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
@@ -402,13 +404,13 @@
                 </div>
     
                 <!-- 尾段：duBug訊息 -->
-                <div class="row unblock">
+                <div class="row block">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
-                                    // print_r($_REQUEST);
+                                    print_r($_REQUEST);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -531,7 +533,7 @@
             "emp_id"         : "emp_id/工號",
             "cname"          : "cname/申請人姓名",
             "extp"           : "extp/分機",
-            "local_id"       : "local_id/領用站點",
+            // "local_id"       : "local_id/領用站點",              // 改由php echo產生
             "ppty"           : "** ppty/需求類別",
             "in_sign"        : "in_sign/上層主管工號",
             "receive_remark" : "receive_remark/用途說明",

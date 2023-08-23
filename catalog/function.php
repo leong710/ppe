@@ -568,12 +568,12 @@
     function select_local($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _local.*, _site.site_title, _site.site_remark, _fab.fab_title, _fab.fab_remark, _fab.buy_ty
-                FROM `_local`
-                LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN _site ON _fab.site_id = _site.id
-                WHERE _local.flag='On' AND _local.id=?
-                ORDER BY _fab.id, _local.id ASC";
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty 
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag='On' AND _l.id=?
+                ORDER BY _s.id, _f.id, _l.id ASC";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);

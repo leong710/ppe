@@ -77,7 +77,7 @@
                 $logs_request["cname"] = $created_cname;
                 $logs_request["step"] = "填單人";                   // 節點
                 $logs_request["logs"] = "";   
-                $logs_request["remark"] = $sin_comm;   
+                $logs_request["remark"] = $sign_comm;   
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -123,6 +123,7 @@
             return $receive_row;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
     // edit動作的_receive表單
@@ -263,6 +264,8 @@
             case "2":   $action = '駁回 (Disapprove)';    break;
             case "3":   $action = '作廢 (Abort)';         break;
             case "4":   $action = '編輯 (Edit)';          break;
+            case "5":   $action = '轉呈 (Transmit)';      break;
+            case "6":   $action = '暫存 (Save)';          break;
             case "10":  $action = '結案';                 break;
             case "11":  $action = '轉PR';                 break;
             case "12":  $action = '發貨/待收';            break;

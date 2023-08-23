@@ -1,54 +1,62 @@
 <?php
     require_once("../pdo.php");
     require_once("function.php");
-    extract($_REQUEST);
 
-        // 資料判斷 
-        if(empty($stock) || empty($amount)){
-            echo "<script>alert('參數錯誤_1 !!! (你沒有勾選項 或是 沒填數量)');</script>";
-            header("refresh:0;url=create.php");
-            return;
+    $swal_json = array();
+    switch($_REQUEST["action"]){
+        case "create":      // 開新表單
+            $swal_json = store_trade($_REQUEST);
+            break;
+        case "edit":        // 編輯
+            $swal_json = update_trade($_REQUEST);
+            break;
+        case "sign":        // 簽核
+            // $swal_json = sign_trade($_REQUEST);
+            break;
+        default:            // 預定失效 
+            echo "bg-light text-success"; 
+            break;
+    }
+?>
+<?php include("../template/header.php"); ?>
 
-        }else{
+<div class="col-12">store_trade...</div>
 
-            // 資料前處理
-            $stock = array_filter($stock);                              // 去除陣列中空白元素
-                if(is_object($stock)) { $stock = (array)$stock; }       // Obj轉Array
-            $amount = array_filter($amount);                            // 去除陣列中空白元素
-                if(is_object($amount)) { $amount = (array)$amount; }    // Obj轉Array
-                if(is_object($lot_num)) { $lot_num = (array)$lot_num; }    // Obj轉Array
-            // 建立新陣列群組
-            $n_item = [];
-            $n_amount = [];
-            $n_lot_num = [];
-            $n_po_no = [];
-            
-            foreach(array_keys($stock) as $st){
-                if(empty($amount[$st])){
-                    echo "<script>alert('參數錯誤_2 !!! (你的勾選項 沒填數量 或 不完整)');</script>";
-                    header("refresh:0;url=create.php");
-                    return;
-                }
-                // 趁機會把有勾選的數值繞出來
-                $n_item[$st] = $item[$st];
-                $n_amount[$st] = $amount[$st];
-                $n_lot_num[$st] = $lot_num[$st];
-                $n_po_no[$st] = $po_no[$st];
-            }
-            // 再把繞出來的陣列倒回去
-            $_REQUEST['amount'] = $n_amount;
-            $_REQUEST['lot_num'] = $n_lot_num;
-            $_REQUEST['po_no'] = $n_po_no;
-            $_REQUEST['item'] = $n_item;
-            // 倒入簽核紀錄
-            $_REQUEST['logs'] = toLog($_REQUEST);
 
-            store_trade($_REQUEST);
-            // echo "<script>alert('交易已新增');</script>";
-        }
+<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
+<script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
+<script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS -->
+<link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS -->
+<script>    
+    
+    $("body").mLoading({ icon: "../../libs/jquery/Wedges-3s-120px.gif", });             // 畫面載入時開啟loading
+    var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
+    var url = 'index.php';
+
+    if(swal_json.length != 0){
+        $("body").mLoading("hide");
+        // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});     // 3秒
+        // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});       // 關閉畫面
         
-        header("refresh:0;url=index.php");
+        if(swal_json['action'] == 'success'){
+            // location.href = this.url;
+            swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = this.url;});     // 關閉畫面
+            
+        }else if(swal_json['action'] == 'error'){
+            // history.back();
+            swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back();});     // 關閉畫面
+        }
 
+    }else{
+        // All resources finished loading! 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        location.href = this.url;
+    }
+    
+</script>
+        
 
 
 

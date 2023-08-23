@@ -169,25 +169,16 @@
         $pdo = pdo();
         extract($request);
         // item資料前處理
-            $stock = array_filter($stock);          // 去除陣列中空白元素
-            // $po_no = array_filter($po_no);        // 去除陣列中空白元素=因為很多都沒有資料，過濾會導致錯誤。
-            $item = array_filter($item);            // 去除陣列中空白元素
-            $amount = array_filter($amount);        // 去除陣列中空白元素
-            // 小陣列要先編碼才能塞進去大陣列
-                $stock_enc = json_encode($stock);
-                $po_no_enc = json_encode($po_no);
-                $item_enc = json_encode($item);
-                $amount_enc = json_encode($amount);
-                $lot_num_enc = json_encode($lot_num);
-                //陣列合併
-                $item_arr = [];
-                    $item_arr['stock'] = $stock_enc;
-                    $item_arr['po_no'] = $po_no_enc;
-                    $item_arr['item'] = $item_enc;
-                    $item_arr['amount'] = $amount_enc;
-                    $item_arr['lot_num'] = $lot_num_enc;
-                    // implode()把陣列元素組合為字串：
-                    $item_str = implode("_," , $item_arr);               // 陣列轉成字串進行儲存到mySQL
+            $item_enc = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
+
+            // 製作log紀錄前處理：塞進去製作元素
+                $logs_request["idty"] = $idty;
+                $logs_request["cname"] = $cname;
+                $logs_request["step"] = "填單人";                   // 節點
+                $logs_request["logs"] = "";   
+                $logs_request["remark"] = $sign_comm;   
+            // 呼叫toLog製作log檔
+                $logs_enc = toLog($logs_request);
 
             // 設定表單狀態idty=1待領
                 $idty = '1';
@@ -196,31 +187,44 @@
             $sql = "INSERT INTO _trade(out_date, item, out_user_id, out_local, in_local, idty, logs)VALUES(now(),?,?,?,?,?,?)";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$item_str, $out_user_id, $out_local, $in_local, $idty, $logs]);
+                $stmt->execute([$item_enc, $out_user_id, $out_local, $in_local, $idty, $logs_enc]);
+                $swal_json = array(
+                    "fun" => "store_trade",
+                    "action" => "success",
+                    "content" => '批量調撥申請--送出成功'
+                );
             }catch(PDOException $e){
                 echo $e->getMessage();
+                $swal_json = array(
+                    "fun" => "store_trade",
+                    "action" => "error",
+                    "content" => '批量調撥申請--送出失敗'
+                );
             }
 
         //// **** 預扣功能    
-        // StdObject轉換成Array
-        if(is_object($stock)) { $stock = (array)$stock; } 
-        if(is_object($po_no)) { $po_no = (array)$po_no; } 
-        if(is_object($item)) { $item = (array)$item; } 
-        if(is_object($amount)) { $amount = (array)$amount; } 
-        if(is_object($lot_num)) { $lot_num = (array)$lot_num; } 
-        // 逐筆呼叫處理
-        foreach(array_keys($stock) as $st){
-            $process = [];  // 清空預設值
-            $process = array('stock_id' => $st,
-                             'lot_num' => $lot_num[$st],
-                             'po_no' => $po_no[$st],
-                             'cata_SN' => $item[$st],
-                             'p_amount' => $amount[$st],
-                             'p_local' => $out_local,
-                             'idty' => $idty);
-            // 後續要加入預扣原本數量功能=呼叫process_trade($request)
-            process_trade($process);
-        }
+            // // StdObject轉換成Array
+            //     if(is_object($stock)) { $stock = (array)$stock; } 
+            //     if(is_object($po_no)) { $po_no = (array)$po_no; } 
+            //     if(is_object($item)) { $item = (array)$item; } 
+            //     if(is_object($amount)) { $amount = (array)$amount; } 
+            //     if(is_object($lot_num)) { $lot_num = (array)$lot_num; } 
+            // // 逐筆呼叫處理
+            //     foreach(array_keys($stock) as $st){
+            //         $process = [];  // 清空預設值
+            //         $process = array('stock_id' => $st,
+            //                         'lot_num' => $lot_num[$st],
+            //                         'po_no' => $po_no[$st],
+            //                         'cata_SN' => $item[$st],
+            //                         'p_amount' => $amount[$st],
+            //                         'p_local' => $out_local,
+            //                         'idty' => $idty);
+            //         // 後續要加入預扣原本數量功能=呼叫process_trade($request)
+            //         process_trade($process);
+            //     }
+
+        return $swal_json;
+
     }
     // 顯示被選定的Trade表單
     function show_trade($request){
@@ -250,6 +254,8 @@
             return $trade;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
+
         }
     }
     // 驗收動作的update表單
@@ -353,12 +359,14 @@
     function delete_trade($request){
         $pdo = pdo();
         extract($request);
-        $sql = "DELETE FROM trade WHERE id = ?";
+        $sql = "DELETE FROM _trade WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
+            return true;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
 // // // Trade CRUD -- end
@@ -540,12 +548,18 @@
         // log資料前處理
         // 交易狀態：0完成/1待收/2退貨/3取消
         switch($idty){
-            case "0" : $action = '核准 (Approve)'; break;
-            case "1" : $action = '送出 (Submit)'; break;
-            case "2" : $action = '駁回 (Disapprove)'; break;
-            case "3" : $action = '作廢 (Abort)'; break;
-            case "10": $action = '結案'; break;
-            default  : $action = '錯誤 (Error)'; return;
+            case "0":   $action = '核准 (Approve)';       break;
+            case "1":   $action = '送出 (Submit)';        break;
+            case "2":   $action = '駁回 (Disapprove)';    break;
+            case "3":   $action = '作廢 (Abort)';         break;
+            case "4":   $action = '編輯 (Edit)';          break;
+            case "5":   $action = '轉呈 (Transmit)';      break;
+            case "6":   $action = '暫存 (Save)';          break;
+            case "10":  $action = '結案';                 break;
+            case "11":  $action = '轉PR';                 break;
+            case "12":  $action = '發貨/待收';            break;
+            case "13":  $action = 'PR請購進貨';           break;
+            default  :  $action = '錯誤 (Error)';         return;
         }
 
         if(!isset($logs)){
@@ -559,10 +573,11 @@
         $app = [];                                  // 定義app陣列
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
         $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
-        $app = array("cname" => $cname,
-                    "datetime" => date('Y-m-d H:i:s'), 
-                    "action" => $action,
-                    "remark" => $log_remark);
+        $app = array(   "step"      => $step,
+                        "cname"     => $cname,
+                        "datetime"  => date('Y-m-d H:i:s'), 
+                        "action"    => $action,
+                        "remark"    => $log_remark);
         array_push($logs_arr, $app);
         $logs = json_encode($logs_arr);
 
@@ -573,9 +588,9 @@
     function showLogs($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT trade.*
-                FROM `trade`
-                WHERE trade.id = ?";
+        $sql = "SELECT _trade.*
+                FROM `_trade`
+                WHERE _trade.id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
@@ -600,7 +615,7 @@
         array_splice($logs_arr, $log_id, 1);  // 用這個不會產生index
 
         $logs = json_encode($logs_arr);
-        $sql = "UPDATE trade 
+        $sql = "UPDATE _trade 
                 SET logs=? 
                 WHERE id=?";
         $stmt = $pdo->prepare($sql);

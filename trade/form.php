@@ -28,36 +28,37 @@
         $action = 'create';                         // 沒有action就新開單
     }
 
-    if(!empty($_REQUEST["id"])){
-        $issue_row = show_issue($_REQUEST);
-        if(empty($issue_row)){
+    if(!empty($_REQUEST["id"])){                    // 編輯 或 閱讀時
+        $trade_row = show_trade($_REQUEST);
+        if(empty($trade_row)){                      // 防呆
             echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             header("refresh:0;url=index.php");
             exit;
         }
         // logs紀錄鋪設前處理 
-        $logs_dec = json_decode($issue_row["logs"]);
+        $logs_dec = json_decode($trade_row["logs"]);
         $logs_arr = (array) $logs_dec;
 
     }else{
-        $issue_row = array( "id" => "" );           // 預設issue_row[id]=空array
+        $trade_row = array( "id" => "" );           // 預設trade_row[id]=空array
         $logs_arr = [];                             // 預設logs_arr=空array
         $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-    if(!empty($_POST["local_id"])){
-        $_REQUEST["local_id"] = $_POST["local_id"];
-        $select_local = select_local($_REQUEST);
+    if(!empty($_POST["local_id"])){                 // create時，送出已選擇出庫廠區站點
+        // $_REQUEST["local_id"] = $_POST["local_id"];
+        $select_local = select_local($_REQUEST);    // 讀出已被選擇出庫廠區站點的器材存量限制buy_ty
         $buy_ty = $select_local["buy_ty"];
         $catalogs = show_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
     
-    }else if(!empty($issue_row["in_local"])){
+    }else if(!empty($trade_row["out_local"])){       // edit trade表單，get已選擇出庫廠區站點
         $query_local = array(
-            'local_id' => $issue_row["in_local"]
+            'local_id' => $trade_row["out_local"]
         );
         $select_local = select_local($query_local);
         $buy_ty = $select_local["buy_ty"];
-        $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        // $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $catalogs = show_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
 
     }else{
         $select_local = array(
@@ -156,14 +157,15 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <a href="index.php" class="btn btn-danger" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        調撥單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
-                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
+                        調撥單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
+                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
+                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇出庫廠區 -->
@@ -178,14 +180,14 @@
                                         <?php } ?>
                                     <?php } ?>
                                 </select>
-                                <label for="select_local_id" class="form-label">出庫廠區：</label>
+                                <label for="select_local_id" class="form-label">out_local/出庫廠區：<sup class="text-danger"> *</sup></label>
                             </div>
                         </form>
 
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
+                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
                             <form action="" method="post">
-                                <input type="hidden" name="id" value="<?php echo $issue_row["id"];?>">
-                                <input type="submit" name="delete_issue" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
+                                <input type="hidden" name="id" value="<?php echo $trade_row["id"];?>">
+                                <input type="submit" name="delete_trade" value="刪除" title="刪除調撥單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
                     </div>
@@ -201,7 +203,7 @@
                             <button class="nav-link" id="nav-shopping_cart-tab" data-bs-toggle="tab" data-bs-target="#nav-shopping_cart" type="button" role="tab" 
                                 aria-controls="nav-shopping_cart" aria-selected="false">2.購物車&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></button>
                             <button class="nav-link disabled" id="nav-review-tab" data-bs-toggle="tab" data-bs-target="#nav-review" type="button" role="tab" 
-                                aria-controls="nav-review" aria-selected="false">3.申請單成立</button>
+                                aria-controls="nav-review" aria-selected="false">3.調撥單成立</button>
                         </div>
                     </nav>
                     <!-- 內頁 -->
@@ -260,7 +262,7 @@
                                                             placeholder="上限： <?php echo $catalog['amount']."&nbsp/&nbsp".$catalog["unit"]; $buy_qty = $catalog['amount'];?>" 
                                                             min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
                                                             oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                            onblur="if(value>this.max)value = this.max; add_cart_btn(this.id, this.value);" >
+                                                            onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
                                                     </td>
                                                     <td>
                                                         <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
@@ -308,52 +310,31 @@
                                     </div>
     
                                     <!-- 表列1 請購需求單站點 -->
-                                    <div class="row unblock">
+                                    <div class="row block">
                                         <div class="col-12 col-md-6 py-3 px-2">
+                                            
+                                            <!-- 表頭：右側上=選擇出庫廠區 -->
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" readonly
+                                                    value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                            echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
+                                                <label for="out_local" class="form-label">out_local/出庫廠區：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 py-3 px-2">
+                                            <!-- 表頭：右側下=選擇入庫廠區 -->
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
-                                                    <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
+                                                    <option value="" hidden>--請選擇 入庫 儲存點--</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                                            <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
-                                                                <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                        <?php } ?>
+                                                        <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["site_title"];?>" >
+                                                            <?php echo $allLocal["id"];?>:<?php echo $allLocal["site_title"];?>&nbsp<?php echo $allLocal["fab_title"];?>_<?php echo $allLocal["local_title"];?><?php if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
+                                                <label for="in_local" class="form-label">in_local/入庫廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <!-- 表列2 申請人 -->
-                                    <div class="row">
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="in_user_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                                <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
-                                                <button type="button" onclick="search_fun();"><i id="checkEye" class="fa-solid fa-paint-roller" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div style="display: flex;">
-                                                <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled>
-                                                <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
-                                                <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked>
-                                                <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
-                                                <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required>
-                                                <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-
                                     
                                     <!-- 表列5 說明 -->
                                     <div class="row">
@@ -386,20 +367,23 @@
                             <div class="modal-dialog modal-dialog-scrollable">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">請購需求單</h5>
+                                        <h5 class="modal-title">批量調撥單</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-5">
-                                        <label for="sin_comm" class="form-check-label" >command：</label>
-                                        <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                        <label for="sign_comm" class="form-check-label" >command：</label>
+                                        <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="id" id="id" value="">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="idty" id="idty" value="1">
+                                        <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
+                                        <input type="hidden" name="out_user_id"                     value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">  <!-- out_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="out_local"                       value="<?php echo $select_local["id"];?>">          <!-- out_local/出庫廠區 -->    
+                                        <input type="hidden" name="action"      id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty"        id="idty"           value="1">
+                                        <input type="hidden" name="id"          id="id"             value="">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                            <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                            <button type="submit" value="1" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                                     </div>
@@ -439,13 +423,13 @@
                 </div>
     
                 <!-- 尾段：衛材訊息 -->
-                <div class="row unblock">
+                <div class="row block">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
-                                    // print_r($_REQUEST);
+                                    print_r($_REQUEST);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -694,40 +678,40 @@
 // // // Edit選染
     var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
-        var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
-        var issue_item = {
-            "in_user_id"     : "in_user_id/工號",
+        var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
+        var trade_item = {
+            "in_user_id"     : "in_user_id/收貨人工號",
             "cname_i"        : "cname_i/申請人姓名",
-            "in_local"       : "in_local/領用站點",
+            "in_local"       : "in_local/收貨站點",
             "ppty"           : "** ppty/需求類別",
             "id"             : "id",
             "item"           : "** item"
-            // "sin_comm"       : "command/簽核comm",
+            // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
-        Object.keys(issue_item).forEach(function(issue_key){
-            if(issue_key == 'ppty'){      // ppty/需求類別
-                var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
+        Object.keys(trade_item).forEach(function(trade_key){
+            if(trade_key == 'ppty'){      // ppty/需求類別
+                var ppty = document.querySelector('#'+trade_key+'_'+trade_row[trade_key]);
                 if(ppty){
-                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                    document.querySelector('#'+trade_key+'_'+trade_row[trade_key]).checked = true;
                 }
                 
-            }else if(issue_key == 'item'){      //item 購物車
-                var issue_row_cart = JSON.parse(issue_row[issue_key]);
-                Object.keys(issue_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, issue_row_cart[cart_key], 'off');
+            }else if(trade_key == 'item'){      //item 購物車
+                var trade_row_cart = JSON.parse(trade_row[trade_key]);
+                Object.keys(trade_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, trade_row_cart[cart_key], 'off');
                 })
             }else{
-                var row_key = document.querySelector('#'+issue_key);
+                var row_key = document.querySelector('#'+trade_key);
                 if(row_key){
-                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
+                    document.querySelector('#'+trade_key).value = trade_row[trade_key]; 
                 }
             }
         })
 
         // 鋪設logs紀錄
         var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        var id = '<?=$issue_row["id"]?>';
+        var id = '<?=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
@@ -751,7 +735,7 @@
             // 排序
             // "order": [[ 4, "asc" ]],
             // 顯示長度
-            "pageLength": 20,
+            "pageLength": 25,
             // 中文化
             "language":{
                 url: "../../libs/dataTables/dataTable_zh.json"

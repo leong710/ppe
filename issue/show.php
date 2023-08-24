@@ -40,8 +40,19 @@
         $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-    $allLocals = show_allLocal();                   // 所有儲存站點
+    if(!empty($issue_row["in_local"])){                    // edit issue表單，get已選擇出庫廠區站點
+        $query_in_local = array(
+            'local_id' => $issue_row["in_local"]
+        );
+        $select_in_local = select_local($query_in_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
+
+    }else{
+        $select_local = array('id' => '');
+        $select_in_local = array('id' => '');
+    }
+
     $catalogs = show_catalogs();                    // 器材=All
+    // $allLocals = show_allLocal();                   // 所有儲存站點
     // $categories = show_categories();                // 分類
     // $sum_categorys = show_sum_category();           // 統計分類與數量
 
@@ -205,13 +216,9 @@
                                         <div class="row">
                                             <div class="col-12 col-md-6 py-1 px-2">
                                                 <div class="form-floating">
-                                                    <select name="in_local" id="in_local" class="form-select" required disabled>
-                                                        <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
-                                                        <?php foreach($allLocals as $allLocal){ ?>
-                                                                <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
-                                                                    <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                        <?php } ?>
-                                                    </select>
+                                                <input type="text" class="form-control" readonly
+                                                        value="<?php echo $select_in_local['id'].'：'.$select_in_local['site_title'].' '.$select_in_local['fab_title'].'_'.$select_in_local['local_title']; 
+                                                            echo ($select_in_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                     <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                                 </div>
                                             </div>

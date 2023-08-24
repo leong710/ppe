@@ -29,7 +29,8 @@
 
     if(!empty($_REQUEST["id"])){
         $issue_row = show_issue($_REQUEST);
-        if(empty($issue_row)){
+        // 防呆+防止已結案、或簽核中被竄改
+        if(empty($issue_row) || ($issue_row["idty"] != 4)){
             echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             header("refresh:0;url=index.php");
             exit;
@@ -754,7 +755,7 @@
             // 排序
             // "order": [[ 4, "asc" ]],
             // 顯示長度
-            "pageLength": 20,
+            "pageLength": 25,
             // 中文化
             "language":{
                 url: "../../libs/dataTables/dataTable_zh.json"

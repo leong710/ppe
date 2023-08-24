@@ -794,7 +794,7 @@
             // 排序
             // "order": [[ 4, "asc" ]],
             // 顯示長度
-            "pageLength": 20,
+            "pageLength": 25,
             // 中文化
             "language":{
                 url: "../../libs/dataTables/dataTable_zh.json"

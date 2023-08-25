@@ -61,13 +61,6 @@
             display: none;
             /* transition: 3s; */
         }
-        /*眼睛*/
-        #checkEye , #in_sign_badge {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }
         .tag{
             display: inline-block;
             /* 粉紅 */
@@ -262,8 +255,9 @@
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
                                                         <input type="text" name="in_sign" id="in_sign" class="form-control" required disabled placeholder="上層主管工號"
-                                                                data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號" >
-                                                        <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup></label>
+                                                                data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號"
+                                                                onchange="search_fun(this.value);">
+                                                        <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup>&nbsp<span id="in_sign_badge" class="badge rounded-pill bg-primary"></span></label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -336,14 +330,26 @@
                                         
                                         <div class="modal-body px-5">
                                             <div class="row unblock" id="forwarded">
-                                                <div class="col-12" id="searchUser_table">
+                                                <div class="col-12">
+                                                    <div class="input-group" id="select_inSign_Form">
+                                                        <button type="button" id="searchUser_btn" class="btn btn-primary" value="searchUser" onclick="op_tab(this.value)" >加簽&nbsp<i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                                        <!-- 第一排的功能 : 顯示已加入名單+input -->
+                                                        &nbsp&nbsp<div id="selected_inSign"></div>
+                                                        <input type="hidden" class="form-control" name="in_sign" id="in_sign" placeholder="加簽人工號">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 border rounder" id="searchUser_table">
                                                     <!-- 第二排的功能 : 搜尋功能 -->
                                                     <div class="input-group search" id="select_inSign_Form">
+                                                        <span class="input-group-text form-label">篩選</span>
+                                                        <input type="text" class="form-control" style="height: auto;" id="key_word" placeholder="請輸入工號、姓名或NT帳號" aria-label="請輸入查詢對象">
+                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="search_fun();">查詢</button>
                                                         <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button>
-                                                        <span class="input-group-text form-label">轉呈</span>
-                                                        <input type="text" name="in_sign" id="key_word" class="form-control" style="height: auto;" placeholder="請輸入工號、姓名或NT帳號"
-                                                             aria-label="請輸入查詢對象" onchange="search_fun(this.value);">
-                                                            <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5>
+                                                    </div>
+                                                    <!-- 第三排的功能 : 放查詢結果-->
+                                                    <div class="result" id="result">
+                                                        <table id="result_table" class="table table-striped table-hover"></table>
                                                     </div>
                                                 </div>
                                             <hr>
@@ -421,7 +427,6 @@
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
         </div>
-
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
@@ -523,65 +528,6 @@
             forwarded_div.classList.add('unblock');              // 按下其他 = 隱藏
         }
     }
-
-// // // searchUser function 
-    // 第一-階段：search Key_word
-    function search_fun(search){
-        mloading("show");                       // 啟用mLoading
-
-        var fun = 'in_sign_badge';
-        search = search.trim();
-        $('#in_sign_badge').empty();
-
-        if(!search || (search.length < 8)){
-            alert("查詢工號字數最少 8 個字以上!!");
-            $("body").mLoading("hide");
-            return false;
-        } 
-
-        $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',
-            url:'http://localhost/hrdb/api/index.php',
-            method:'get',
-            dataType:'json',
-            data:{
-                functionname: 'search',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                              // 查詢對象key_word
-            },
-            success: function(res){
-                var res_r = res["result"];
-                // 將結果進行渲染
-                if (res_r !== '') {
-                    var obj_val = res_r[0];                                         // 取Object物件0
-
-                    if(fun == 'in_sign_badge'){     // 搜尋申請人上層主管emp_id
-                        
-                        if(obj_val){                            
-                            $('#in_sign_badge').append(obj_val.cname);
-                        }else{
-                            // alert("查無工號["+search+"]!!");
-                            document.getElementById('key_word').value = '';                         // 將欄位cname清除
-                            alert('查無工號：'+ search +' !!');
-                        }
-                    }
-                }
-            },
-            error (){
-                console.log("search error");
-            }
-        })
-        $("body").mLoading("hide");
-    }
-
-    function resetMain(){
-        document.getElementById('key_word').value = '';                         // 將欄位cname清除
-        $('#in_sign_badge').empty();
-
-    }
-
-// // // searchUser function 
-
 // // // Edit選染
     // 引入action資料
     var action = '<?=$action;?>';
@@ -641,6 +587,8 @@
             tab_table.style.display = "none";
         }
     }
+
+
 
 
     $(document).ready(function () {

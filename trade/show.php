@@ -176,9 +176,9 @@
                     <div class="col-12 col-md-8 text-end">
                         <?php if($_SESSION[$sys_id]["role"] <= 2 && $trade_row['idty'] == 1){ ?>
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                             <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
-                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                            <!-- <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button> -->
                         <?php } ?>
                     </div>
                 </div>
@@ -197,7 +197,8 @@
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
-                                            <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
+                                            <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
+                                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                         <?php }?>
                                     </div>
                                     <hr>

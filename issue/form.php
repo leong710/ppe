@@ -30,7 +30,8 @@
     if(!empty($_REQUEST["id"])){
         $issue_row = show_issue($_REQUEST);
         // 防呆+防止已結案、或簽核中被竄改
-        if(empty($issue_row) || ($issue_row["idty"] != 4)){
+        // if(empty($issue_row) || ($issue_row["idty"] != 4)){
+        if(empty($issue_row)){
             echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             header("refresh:0;url=index.php");
             exit;
@@ -152,10 +153,11 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>請購需求單</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
+                        <a href="index.php" class="btn btn-danger" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
 
@@ -178,7 +180,7 @@
                                         <?php } ?>
                                     <?php } ?>
                                 </select>
-                                <label for="select_local_id" class="form-label">需求廠區：</label>
+                                <label for="select_local_id" class="form-label">in_local/需求廠區：</label>
                             </div>
                         </form>
 
@@ -264,7 +266,7 @@
                                                                                     echo "&nbsp/&nbsp".$catalog["unit"];?>" 
                                                             min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
                                                             oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                            onblur="if(value>this.max)value = this.max; add_cart_btn(this.id, this.value);" >
+                                                            onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
                                                     </td>
                                                     <td>
                                                         <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
@@ -312,39 +314,18 @@
                                     </div>
     
                                     <!-- 表列1 請購需求單站點 -->
-                                    <div class="row unblock">
+                                    <div class="row">
+                                        <!-- 表頭：右側下=選擇入庫廠區 -->
                                         <div class="col-12 col-md-6 py-3 px-2">
                                             <div class="form-floating">
-                                                <select name="in_local" id="in_local" class="form-select" required >
-                                                    <option value="" hidden>-- 請選擇 需求廠區 儲存點 --</option>
-                                                    <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                                            <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
-                                                                <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                        <?php } ?>
-                                                    <?php } ?>
-                                                </select>
+                                                <input type="text" class="form-control" readonly
+                                                    value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                            echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                 <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- 表列2 申請人 -->
-                                    <div class="row">
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="in_user_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                                <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
-                                                <button type="button" onclick="search_fun();"><i id="checkEye" class="fa-solid fa-paint-roller" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
+                                        <!-- 表頭：右側下=選擇入庫廠區 -->
+                                        <div class="col-12 col-md-6 py-3 px-2">
                                             <div style="display: flex;">
                                                 <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
                                                 <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled>
@@ -398,10 +379,13 @@
                                         <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="id" id="id" value="">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="idty" id="idty" value="1">
+                                        <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
+                                        <input type="hidden" name="in_user_id"                      value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">  <!-- in_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="in_local"                        value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
+                                        <input type="hidden" name="action"      id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty"        id="idty"           value="1">
+                                        <input type="hidden" name="id"          id="id"             value="">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                             <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>

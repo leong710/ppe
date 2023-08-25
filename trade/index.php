@@ -1,7 +1,6 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    require_once("../catalog/function.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -263,15 +262,22 @@
                                                                 case "1"    : echo $fab_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽"; break;
                                                                 case "2"    : echo "退件";                  break;
                                                                 case "3"    : echo "取消";                  break;
+                                                                case "4"    : echo "編輯";                  break;
                                                                 case "10"   : echo "pr進貨";                break;
                                                                 default     : echo $trade['idty']."na";     break;
                                                             }?></td>
                                                         <td>
-                                                            <?php if(($trade['fab_i_id'] === $_SESSION[$sys_id]['fab_id']) && ($trade['idty'] === '1')){ ?> 
+                                                            <!-- Action功能欄 -->
+                                                            <?php if((($trade['fab_i_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"]))) 
+                                                                    && ($trade['idty'] == '1')){ ?> 
+                                                                <!-- 待簽：in_local對應人員 -->
                                                                 <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>
-                                                            <?php }else if(($trade['fab_o_id'] === $_SESSION[$sys_id]['fab_id']) && ($trade['idty'] === '2')){ ?>
+                                                            <?php }else if((($trade['fab_o_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"])))
+                                                                    && ($trade['idty'] == '2')){ ?>
+                                                                <!-- 待簽：out_local對應人員 -->
                                                                 <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-danger">驗退</a>
                                                             <?php }else{ ?>
+                                                                <!-- siteUser功能 -->
                                                                 <a href="show.php?id=<?php echo $trade['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                             <?php }?>
                                                         </td>

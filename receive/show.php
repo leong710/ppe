@@ -144,7 +144,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
@@ -152,15 +152,18 @@
                 </div>
 
                 <div class="row px-2">
-                    <div class="col-12 col-md-6">
-                        需求單號：<?php echo ($action != 'review') ? "(尚未給號)": "aid_".$receive_row['id']; ?></br>
-                        開單日期：<?php echo ($action != 'review') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
-                        填單人員：<?php echo ($action != 'review') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
+                    <div class="col-12 col-md-4">
+                        需求單號：<?php echo ($receive_row['id'])             ? "aid_".$receive_row['id'] : "(尚未給號)";?></br>
+                        開單日期：<?php echo ($receive_row['created_at'])     ? $receive_row['created_at'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
+                        填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
-                    <div class="col-12 col-md-6 text-end">
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
-                            <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯</a>
-                        <?php }?>
+                    <div class="col-12 col-md-8 text-end">
+                        <?php if($_SESSION[$sys_id]["role"] <= 2 && $receive_row['idty'] == 1){ ?>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">核准 (Approve)</button>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
+                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                        <?php } ?>
                     </div>
                 </div>
     
@@ -171,14 +174,20 @@
                             <!-- 3.申請單成立 -->
                             <div class="tab-pane bg-white fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
                                 <div class="col-12 py-3 px-5">
-                                    <!-- 表列0 說明 -->
                                     <div class="row">
-                                        <div class="col-12">
-                                            申請人相關資料：
+                                        <!-- 表頭 -->
+                                        <div class="col-6 col-md-6">
+                                            <b>申請人相關資訊：</b>
                                             <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                         </div>
+                                        <div class="col-6 col-md-6 text-end">
+                                            <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
+                                                <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯</a>
+                                            <?php }?>
+                                        </div>
                                         <hr>
-                                        <div class="col-12 py-0" id="info_table"> 
+                                        <!-- 相關資訊說明 -->
+                                        <div class="col-12 py-1" id="info_table"> 
                                             <!-- 表列1 申請單位 -->
                                             <div class="row">
                                                 <div class="col-6 col-md-4 py-1 px-2">
@@ -298,17 +307,8 @@
                                     </div>
                                     
                                     <div class="row">
-                                        <div class="col-6 col-md-2 py-1 px-2">
-                                        </div>
-                                        <div class="col-6 col-md-10 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">核准 (Approve)</button>
-                                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
-                                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
-                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                            <?php }else{ ?>
-                                                <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
-                                            <?php } ?>
+                                        <div style="font-size: 6px;" class="py-2 text-end">
+                                            
                                         </div>
                                     </div>
 
@@ -410,7 +410,8 @@
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
-                                    print_r($_REQUEST);
+                                    // print_r($_REQUEST);
+                                    print_r($receive_row);
                                     echo "</pre>text-end";
                                 }
                             ?>

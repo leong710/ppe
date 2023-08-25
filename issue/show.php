@@ -159,7 +159,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>請購需求單</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
@@ -167,12 +167,18 @@
                 </div>
 
                 <div class="row px-2">
-                    <div class="col-12 col-md-6">
-                        需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$issue_row['id']; ?></br>
-                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
+                    <div class="col-12 col-md-4">
+                        需求單號：<?php echo ($issue_row['id'])          ? "aid_".$issue_row['id'] : "(尚未給號)"; ?></br>
+                        開單日期：<?php echo ($issue_row['create_date']) ? $issue_row['create_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)"; ?></br>
+                        填單人員：<?php echo ($issue_row["in_user_id"])  ? $issue_row["in_user_id"]." / ".$issue_row["cname_i"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
-                    <div class="col-12 col-md-6 text-end">
-
+                    <div class="col-12 col-md-8 text-end">
+                        <?php if($_SESSION[$sys_id]["role"] <= 2 && $issue_row['idty'] == 1){ ?>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
+                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
+                            <!-- <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button> -->
+                        <?php } ?>
                     </div>
                 </div>
     
@@ -182,36 +188,21 @@
                         <!-- 3.申請單成立 -->
                         <div class="bg-white rounded" id="nav-review" >
                             <div class="col-12 py-3 px-5">
-                                <!-- 表列0 說明 -->
                                 <div class="row">
+                                    <!-- 表頭 -->
                                     <div class="col-6 col-md-6">
-                                        申請人相關資料：
+                                        <b>請購相關資訊：</b>
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
-                                            <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯</a>
+                                            <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
+                                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                         <?php }?>
                                     </div>
                                     <hr>
-                                    <div class="col-12 py-0" id="info_table"> 
-                                                    
-                                        <!-- 表列2 申請人 -->
-                                        <div class="row">
-                                            <div class="col-6 col-md-6 py-1 px-2">
-                                                <div class="form-floating">
-                                                    <input type="text" name="in_user_id" id="in_user_id" class="form-control" required placeholder="工號" value="" readonly >
-                                                    <label for="in_user_id" class="form-label">in_user_id/工號：<sup class="text-danger"> *</sup></label>
-                                                </div>
-                                            </div>
-                                            <div class="col-6 col-md-6 py-1 px-2">
-                                                <div class="form-floating">
-                                                    <input type="text" name="cname_i" id="cname_i" class="form-control" required placeholder="申請人姓名" value="" readonly >
-                                                    <label for="cname_i" class="form-label">cname_i/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
+                                    <!-- 相關資訊說明 -->
+                                    <div class="col-12 py-1" id="info_table"> 
                                         <!-- 表列3 領用站點 -->
                                         <div class="row">
                                             <div class="col-12 col-md-6 py-1 px-2">
@@ -276,15 +267,8 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div class="col-12 py-1 px-2 text-end">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
-                                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
-                                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                        <?php }else{ ?>
-                                            <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
-                                        <?php } ?>
+                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                        
                                     </div>
                                 </div>
 
@@ -298,7 +282,7 @@
 
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title">請購需求單：&nbsp<span id="idty_title"></span></h5>
+                                            <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         
@@ -312,9 +296,9 @@
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                                <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </form>
@@ -354,14 +338,14 @@
                 </div>
     
                 <!-- 尾段：deBug訊息 -->
-                <div class="row unblock">
+                <div class="row block">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($issue_row){
                                     echo "<pre>";
                                     // print_r($_REQUEST);
-                                    // print_r($issue_row);
+                                    print_r($issue_row);
                                     echo "</pre>text-end";
                                 }
                             ?>

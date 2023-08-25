@@ -1,7 +1,6 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    require_once("../catalog/function.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -153,10 +152,10 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
                         <a href="index.php" class="btn btn-danger" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
@@ -310,10 +309,9 @@
                                     </div>
     
                                     <!-- 表列1 請購需求單站點 -->
-                                    <div class="row block">
+                                    <div class="row">
+                                        <!-- 表頭：右側上=選擇出庫廠區 -->
                                         <div class="col-12 col-md-6 py-3 px-2">
-                                            
-                                            <!-- 表頭：右側上=選擇出庫廠區 -->
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" readonly
                                                     value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
@@ -321,14 +319,16 @@
                                                 <label for="out_local" class="form-label">out_local/出庫廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
+                                        <!-- 表頭：右側下=選擇入庫廠區 -->
                                         <div class="col-12 col-md-6 py-3 px-2">
-                                            <!-- 表頭：右側下=選擇入庫廠區 -->
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
                                                     <option value="" hidden>--請選擇 入庫 儲存點--</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["site_title"];?>" >
-                                                            <?php echo $allLocal["id"];?>:<?php echo $allLocal["site_title"];?>&nbsp<?php echo $allLocal["fab_title"];?>_<?php echo $allLocal["local_title"];?><?php if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                                        <?php if($allLocal["id"] != $select_local["id"]){?>
+                                                            <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["site_title"];?>" >
+                                                                <?php echo $allLocal["id"];?>:<?php echo $allLocal["site_title"];?>&nbsp<?php echo $allLocal["fab_title"];?>_<?php echo $allLocal["local_title"];?><?php if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                                        <?php } ?>
                                                     <?php } ?>
                                                 </select>
                                                 <label for="in_local" class="form-label">in_local/入庫廠區：<sup class="text-danger"> *</sup></label>

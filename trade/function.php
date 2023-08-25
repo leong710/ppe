@@ -106,61 +106,6 @@
             echo $e->getMessage();
         }
     }
-    // 20230724 在index秀出所有的衛材清單
-    function show_Sub_stock($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _stk.*
-                        , _l.local_title, _l.local_remark
-                        , _f.id AS fab_id, _f.fab_title, _f.fab_remark
-                        , _s.id as site_id, _s.site_title, _s.site_remark
-                        , _cata.pname, _cata.cata_remark, _cata.SN, _cata.unit as cata_unit
-                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
-                FROM `_stock` _stk 
-                LEFT JOIN _local _l ON _stk.local_id = _l.id 
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-                LEFT JOIN _site _s ON _f.site_id = _s.id 
-                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                WHERE _f.id=? AND cata_SN IS NOT null
-                ORDER BY site_id, fab_id, local_id, cata_SN, lot_num ASC ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$site_id]);
-            $stocks = $stmt->fetchAll();
-            return $stocks;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 20230724 在index秀出所有的衛材清單
-    function show_local_stock($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _stk.*
-                        , _l.local_title, _l.local_remark
-                        , _f.id AS fab_id, _f.fab_title, _f.fab_remark
-                        , _s.id as site_id, _s.site_title, _s.site_remark
-                        , _cata.*
-                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
-                FROM `_stock` _stk 
-                RIGHT JOIN _local _l ON _stk.local_id = _l.id 
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-                LEFT JOIN _site _s ON _f.site_id = _s.id 
-                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                WHERE _l.id=? AND cata_SN IS NOT null
-                -- ORDER BY catalog_id, lot_num ASC
-                ORDER BY cata_SN ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id]);
-            $stocks = $stmt->fetchAll();
-            return $stocks;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
 // // // Trade index -- end
 
 // // // Trade CRUD
@@ -370,6 +315,105 @@
         }
     }
 // // // Trade CRUD -- end
+
+// // // Create表單會用到
+    // 20230825 單選出貨區域
+    function select_local($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty 
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag='On' AND _l.id=?
+                ORDER BY _s.id, _f.id, _l.id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $local = $stmt->fetch();
+            return $local;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    
+    // 20230719 create、撥補時用全區域
+    function show_allLocal(){
+        $pdo = pdo();
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag='On'
+                ORDER BY _s.id, _f.id, _l.id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $locals = $stmt->fetchAll();
+            return $locals;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // 20230724 在index秀出所有的衛材清單
+    function show_local_stock($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _stk.*
+                        , _l.local_title, _l.local_remark
+                        , _f.id AS fab_id, _f.fab_title, _f.fab_remark
+                        , _s.id as site_id, _s.site_title, _s.site_remark
+                        , _cata.*
+                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
+                FROM `_stock` _stk 
+                RIGHT JOIN _local _l ON _stk.local_id = _l.id 
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
+                LEFT JOIN _site _s ON _f.site_id = _s.id 
+                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                WHERE _l.id=? AND cata_SN IS NOT null
+                -- ORDER BY catalog_id, lot_num ASC
+                ORDER BY cata_SN ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $stocks = $stmt->fetchAll();
+            return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // 20230724 在index秀出所有的衛材清單
+    function show_Sub_stock($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _stk.*
+                        , _l.local_title, _l.local_remark
+                        , _f.id AS fab_id, _f.fab_title, _f.fab_remark
+                        , _s.id as site_id, _s.site_title, _s.site_remark
+                        , _cata.pname, _cata.cata_remark, _cata.SN, _cata.unit as cata_unit
+                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
+                FROM `_stock` _stk 
+                LEFT JOIN _local _l ON _stk.local_id = _l.id 
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
+                LEFT JOIN _site _s ON _f.site_id = _s.id 
+                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                WHERE _f.id=? AND cata_SN IS NOT null
+                ORDER BY site_id, fab_id, local_id, cata_SN, lot_num ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$site_id]);
+            $stocks = $stmt->fetchAll();
+            return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+// // // Create表單會用到 -- end
 
 // // // process fun
     // 儲存交易表單-PR請購進貨
@@ -626,6 +670,9 @@
         }
     }
 // // // Log tools -- end
+
+
+
 
     // 20230724 找出自己的資料 
     function showMe($request){

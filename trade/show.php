@@ -1,7 +1,6 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    require_once("../catalog/function.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -161,7 +160,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
@@ -169,13 +168,18 @@
                 </div>
 
                 <div class="row px-2">
-                    <div class="col-12 col-md-6">
-                        調撥單號：<?php echo ($action != 'review') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
-                        開單日期：<?php echo ($action != 'review') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
-                        填單人員：<?php echo ($action != 'review') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
+                    <div class="col-12 col-md-4">
+                        調撥單號：<?php echo ($trade_row['id'])          ? "aid_".$trade_row['id'] : "(尚未給號)";?></br>
+                        開單日期：<?php echo ($trade_row['out_date'])    ? $trade_row['out_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
+                        填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
-                    <div class="col-12 col-md-6 text-end">
-
+                    <div class="col-12 col-md-8 text-end">
+                        <?php if($_SESSION[$sys_id]["role"] <= 2 && $trade_row['idty'] == 1){ ?>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
+                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
+                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                        <?php } ?>
                     </div>
                 </div>
     
@@ -185,10 +189,10 @@
                         <!-- 3.申請單成立 -->
                         <div class="bg-white rounded" id="nav-review" >
                             <div class="col-12 py-3 px-5">
-                                <!-- 表列0 說明 -->
                                 <div class="row">
+                                    <!-- 表頭 -->
                                     <div class="col-6 col-md-6">
-                                        批量調撥相關資料：
+                                        <b>批量調撥相關資訊：</b>
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
@@ -197,12 +201,12 @@
                                         <?php }?>
                                     </div>
                                     <hr>
-                                    <div class="col-12 py-0" id="info_table"> 
-                                                    
-                                        <!-- 表列3 領用站點 -->
+                                    <!-- 相關資訊說明 -->
+                                    <div class="col-12 py-1" id="info_table"> 
+                                        <!-- 表列1 站點 -->
                                         <div class="row">
-                                            <div class="col-12 col-md-6 py-3 px-2">
-                                                <!-- 表頭：右側上=選擇出庫廠區 -->
+                                            <!-- 左側：out_local/出庫廠區 -->
+                                            <div class="col-12 col-md-6 py-1 px-2">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" readonly
                                                         value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
@@ -210,7 +214,8 @@
                                                     <label for="out_local" class="form-label">out_local/出庫廠區：<sup class="text-danger"> *</sup></label>
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-md-6 py-3 px-2">
+                                            <!-- 表頭：in_local/需求廠區 -->
+                                            <div class="col-12 col-md-6 py-1 px-2">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" readonly
                                                         value="<?php echo $select_in_local['id'].'：'.$select_in_local['site_title'].' '.$select_in_local['fab_title'].'_'.$select_in_local['local_title']; 
@@ -218,10 +223,9 @@
                                                     <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                                 </div>
                                             </div>
-
                                         </div>
 
-                                        <!-- 表列5 說明 -->
+                                        <!-- 表列2 備註說明 -->
                                         <div class="row">
                                             <div class="col-12 col-md-12 py-2 px-2">
                     
@@ -230,11 +234,14 @@
                                             <div class="col-12 py-1">
                                                 <b>備註：</b>
                                                 </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                                </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
+                                                </br>&nbsp2.簽核：申請人(出貨人)=>收貨人=>驗收=>表單結案。 
                                             </div>
                                         </div>
+
                                     </div>
+
                                     <hr>
+
                                 </div>
 
                                 <!-- 表列4 購物車 -->
@@ -262,15 +269,8 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div class="col-12 py-1 px-2 text-end">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">駁回 (Disapprove)</button>
-                                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button> -->
-                                            <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                        <?php }else{ ?>
-                                            <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
-                                        <?php } ?>
+                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                        
                                     </div>
                                 </div>
 
@@ -284,7 +284,7 @@
 
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title">請購需求單：&nbsp<span id="idty_title"></span></h5>
+                                            <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         
@@ -298,9 +298,9 @@
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                                <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </form>
@@ -340,14 +340,14 @@
                 </div>
     
                 <!-- 尾段：deBug訊息 -->
-                <div class="row unblock">
+                <div class="row block">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
                                 if($trade_row){
                                     echo "<pre>";
                                     // print_r($_REQUEST);
-                                    // print_r($trade_row);
+                                    print_r($trade_row);
                                     echo "</pre>text-end";
                                 }
                             ?>

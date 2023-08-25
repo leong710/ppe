@@ -70,7 +70,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求單總表</b></h3>
+                            <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b></h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">
@@ -88,7 +88,7 @@
                     <div class="col-12 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="form.php" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求單</a>
+                                <a href="form.php" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
@@ -122,7 +122,7 @@
                                                             if($sum_issue['ppty'] == '3'){ echo "緊急";}
                                                         ?></td>
                                                     <td><?php switch($sum_issue['idty']){
-                                                            case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                                            case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待轉</span>'; break;
                                                             case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
                                                             case "2" : echo "退件"; break;
                                                             case "3" : echo "取消"; break;
@@ -172,7 +172,7 @@
                             <div class="col-12">
                                 <div class="col-12 rounded bg-success text-white">
                                     <div>
-                                        <span><b>簡易表單流程：</b>1.(user)填寫需求單+送出 =>  2.待簽/(pm)簽核 =>  3.待轉/(pm)待轉PR總表+PR開單確認  4.轉PR => 表單結案~</span>
+                                        <span><b>簡易表單流程：</br></b>1.填寫：(user)填寫需求單+送出 =>  2.待簽：(pm)簽核 =>  3.待轉：(pm)待轉PR總表+PR開單確認  4.轉PR => 表單結案~</span>
                                     </div>
                                     <div>
                                         <span class="text-end">** pm簽核時若退件，表單即結束流程。請user重新開單。</span>
@@ -271,16 +271,17 @@
                                                 <td style="font-size: 6px;"><?php echo substr($issue['in_date'],0,10); ?></td>
                                                 <td><?php echo $issue['ppty'];
                                                         switch($issue['ppty']){
-                                                            case "0":   echo '.臨時';  break;
-                                                            case "1":   echo '.定期';  break;
-                                                            case "3":   echo '.緊急';  break;
-                                                            // default:    echo '錯誤';   break;
+                                                            case "0": echo '.臨時'; break;
+                                                            case "1": echo '.定期'; break;
+                                                            case "3": echo '.緊急'; break;
+                                                            default:  echo '錯誤' ; break;
                                                         };?></td>
                                                 <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
-                                                        echo ($issue['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"";
+                                                        echo ($issue['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待轉</span>':"";
                                                         echo ($issue['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger">待簽</span>':"";
                                                         echo ($issue['idty'] == '2')  ? "退件":"";
                                                         echo ($issue['idty'] == '3')  ? "取消":"";
+                                                        echo ($issue['idty'] == '4')  ? "編輯":"";
                                                         echo ($issue['idty'] == '10') ? "結案":"";
                                                         echo ($issue['idty'] == '11') ? "轉PR":"";
                                                         echo ($issue['idty'] == '12') ? "<span class='badge rounded-pill bg-success'>待收</span>":""; ?>
@@ -292,10 +293,10 @@
                                                 <td>
                                                     <!-- Action功能欄 -->
                                                     <?php if(($issue['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
-                                                    <!-- 待簽：PM+管理員功能 -->
+                                                        <!-- 待簽：PM+管理員功能 -->
                                                         <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
-                                                    <!-- siteUser功能 -->
+                                                        <!-- siteUser功能 -->
                                                         <a href="show.php?id=<?php echo $issue['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>

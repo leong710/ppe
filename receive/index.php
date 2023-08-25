@@ -278,18 +278,20 @@
                                                             switch($receive['idty']){
                                                                 case "0"    : echo $sys_role ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
                                                                 case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";                 break;
-                                                                case "2"    : echo "退件";          break;
-                                                                case "3"    : echo "取消";          break;
-                                                                case "10"   : echo "結案";          break;
-                                                                case "11"   : echo "轉PR";          break;
+                                                                case "2"    : echo "退件";                  break;
+                                                                case "3"    : echo "取消";                  break;
+                                                                case "4"    : echo "編輯";                  break;
+                                                                case "10"   : echo "結案";                  break;
+                                                                case "11"   : echo "轉PR";                  break;
                                                                 case "12"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";        break;
-                                                                default     : echo $receive['idty'];  break;
+                                                                default     : echo $receive['idty']."na";   break;
                                                             }; ?>
                                                 </td>
                                                 <td>
                                                     <!-- Action功能欄 -->
-                                                    <?php if(($receive['idty'] == '1') && $sys_role){ ?> 
-                                                        <!-- 待簽：PM+管理員功能 -->
+                                                    <?php if((($receive['local_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($receive['local_id'], $_SESSION[$sys_id]["sfab_id"]))) 
+                                                            && ($receive['idty'] == '1') && $sys_role){ ?> 
+                                                        <!-- 待簽：in_local對應人員 -->
                                                         <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                     <?php } else { ?>
                                                         <!-- siteUser功能 -->

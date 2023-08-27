@@ -357,9 +357,9 @@
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                                <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                                <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
                                     </div>
                                 </form>

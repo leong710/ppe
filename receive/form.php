@@ -80,6 +80,28 @@
             right: 10px;
             transform: translateY(-50%);
         }
+        .tag{
+            display: inline-block;
+            /* 粉紅 */
+            /* background-color: #fa0e7e; */
+            /* 粉藍 */
+            background-color: #0e7efa;
+            font: 14px;
+            color: white;
+            border-radius: 5px;
+            padding: 0px 3px 0px 7px;
+            margin-right: 5px;
+            margin-bottom:5px;
+            /* 粉紅 */
+            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
+            /* 粉藍 */
+            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
+        }
+        .tag .remove {
+            margin: 0 7px 3px;
+            display: inline-block;
+            cursor: pointer;
+        }
         #catalog_list img {
             max-width: 100px;
             /* max-height: 100px; */
@@ -340,7 +362,8 @@
                                                         data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號"
                                                         onchange="search_fun(this.value);">
                                                 <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup></label>
-                                                <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5>
+                                                <!-- <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5> -->
+                                                <div id="in_sign_badge"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -696,7 +719,8 @@
                     }else{                    // 搜尋申請人上層主管emp_id
                         
                         if(obj_val){                            
-                            $('#in_sign_badge').append(obj_val.cname);
+                            // $('#in_sign_badge').append(obj_val.cname);
+                            $('#in_sign_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入上層主管資訊...完成!!';
                             inside_toast(sinn);
     
@@ -725,6 +749,12 @@
         toast.show();
 
     }
+    // 第二階段：移除單項模組
+    $('#in_sign_badge').on('click', '.remove', function() {
+        $(this).closest('.tag').remove();   // 自畫面中移除
+        document.getElementById('in_sign').value = '';                         // 將欄位cname清除
+        // $('#in_sign_badge').empty();
+    });
 // // // searchUser function 
     
 // // // Edit選染

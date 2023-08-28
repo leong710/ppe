@@ -520,6 +520,29 @@
         
         edit_item();        // 啟動鋪設畫面
 
+        // 20230817 禁用Enter鍵表單自動提交 
+        document.onkeydown = function(event) { 
+            var target, code, tag; 
+            if (!event) { 
+                event = window.event;       //針對ie瀏覽器 
+                target = event.srcElement; 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "TEXTAREA") { return true; } 
+                    else { return false; } 
+                } 
+            } else { 
+                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "INPUT") { return false; } 
+                    else { return true; } 
+                } 
+            } 
+        };
+
         window.addEventListener("load", function(event) {
             $("body").mLoading("hide");
         });

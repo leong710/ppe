@@ -339,11 +339,12 @@
                                                 <div class="col-12" id="searchUser_table">
                                                     <!-- 第二排的功能 : 搜尋功能 -->
                                                     <div class="input-group search" id="select_inSign_Form">
-                                                        <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button>
+                                                        <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
                                                         <span class="input-group-text form-label">轉呈</span>
                                                         <input type="text" name="in_sign" id="key_word" class="form-control" style="height: auto;" placeholder="請輸入工號、姓名或NT帳號"
                                                              aria-label="請輸入查詢對象" onchange="search_fun(this.value);">
-                                                            <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5>
+                                                            <!-- <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5> -->
+                                                            <div id="in_sign_badge"></div>
                                                     </div>
                                                 </div>
                                             <hr>
@@ -556,9 +557,8 @@
                     var obj_val = res_r[0];                                         // 取Object物件0
 
                     if(fun == 'in_sign_badge'){     // 搜尋申請人上層主管emp_id
-                        
                         if(obj_val){                            
-                            $('#in_sign_badge').append(obj_val.cname);
+                            $('#in_sign_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                         }else{
                             // alert("查無工號["+search+"]!!");
                             document.getElementById('key_word').value = '';                         // 將欄位cname清除
@@ -573,13 +573,13 @@
         })
         $("body").mLoading("hide");
     }
-
-    function resetMain(){
+    
+    // 第二階段：移除單項模組
+    $('#in_sign_badge').on('click', '.remove', function() {
+        $(this).closest('.tag').remove();   // 自畫面中移除
         document.getElementById('key_word').value = '';                         // 將欄位cname清除
-        $('#in_sign_badge').empty();
-
-    }
-
+        // $('#in_sign_badge').empty();
+    });
 // // // searchUser function 
 
 // // // Edit選染
@@ -651,6 +651,29 @@
         
         edit_item();        // 啟動鋪設畫面
 
+        // 20230817 禁用Enter鍵表單自動提交 
+        document.onkeydown = function(event) { 
+            var target, code, tag; 
+            if (!event) { 
+                event = window.event;       //針對ie瀏覽器 
+                target = event.srcElement; 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "TEXTAREA") { return true; } 
+                    else { return false; } 
+                } 
+            } else { 
+                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "INPUT") { return false; } 
+                    else { return true; } 
+                } 
+            } 
+        };
+        
         window.addEventListener("load", function(event) {
             $("body").mLoading("hide");
         });

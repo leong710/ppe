@@ -349,7 +349,7 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div style="display: flex;">
-                                                <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                <label for="" class="form-label">ppty/需求類別：</label></br>&nbsp
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked>
                                                 <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required>
@@ -818,6 +818,13 @@
 
     }
 
+
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
+
     $(document).ready(function () {
         
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
@@ -848,47 +855,41 @@
             }
         }
 
-        
-        // 20230817 禁用Enter鍵表單自動提交 
-        document.onkeydown = function(event) { 
-            var target, code, tag; 
-            if (!event) { 
-                event = window.event;       //針對ie瀏覽器 
-                target = event.srcElement; 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "TEXTAREA") { return true; } 
-                    else { return false; } 
-                } 
-            } else { 
-                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "INPUT") { return false; } 
-                    else { return true; } 
-                } 
-            } 
-        };
-
-        // 在任何地方啟用工具提示框
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        })
-        
-        // 確認action不是新表單，就進行Edit模式渲染
-        if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
-            edit_item();
-            $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
-        }
-
-        window.addEventListener("load", function(event) {
-            // All resources finished loading! // 關閉mLoading提示
-            $("body").mLoading("hide");
-        });
-
     })
+
+    // 20230817 禁用Enter鍵表單自動提交 
+    document.onkeydown = function(event) { 
+        var target, code, tag; 
+        if (!event) { 
+            event = window.event;       //針對ie瀏覽器 
+            target = event.srcElement; 
+            code = event.keyCode; 
+            if (code == 13) { 
+                tag = target.tagName; 
+                if (tag == "TEXTAREA") { return true; } 
+                else { return false; } 
+            } 
+        } else { 
+            target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+            code = event.keyCode; 
+            if (code == 13) { 
+                tag = target.tagName; 
+                if (tag == "INPUT") { return false; } 
+                else { return true; } 
+            } 
+        } 
+    };
+
+    // 在任何地方啟用工具提示框
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+    
+    // 確認action不是新表單，就進行Edit模式渲染
+    if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
+        edit_item();
+        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+    }
 
 </script>
 

@@ -727,6 +727,11 @@
 
     }
 
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
     $(document).ready(function () {
         
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
@@ -791,11 +796,6 @@
             edit_item();
             $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
         }
-
-        window.addEventListener("load", function(event) {
-            // All resources finished loading! // 關閉mLoading提示
-            $("body").mLoading("hide");
-        });
 
     })
 

@@ -515,6 +515,11 @@
         }
     }
 
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
     $(document).ready(function () {
 
         $(function () {
@@ -545,10 +550,6 @@
                 } 
             } 
         };
-
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
 
     })
 

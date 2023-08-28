@@ -167,9 +167,8 @@
                     <div class="col-12 col-md-8 text-end">
                         <?php if($_SESSION[$sys_id]["role"] <= 2 && $receive_row['idty'] == 1){ ?>
                             <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">核准 (Approve)</button>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
-                            <!-- <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button> -->
                         <?php } ?>
                     </div>
                 </div>
@@ -188,10 +187,14 @@
                                             <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                         </div>
                                         <div class="col-6 col-md-6 text-end">
-                                            <?php if(($_SESSION[$sys_id]["role"] <= 1 ) || (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
-                                                <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
-                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                            <?php }?>
+                                            <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($receive_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
+                                                <?php if(($receive_row['idty'] == 2) || ($receive_row['idty'] == 4) || ($receive_row['idty'] == 6)){ ?>
+                                                    <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
+                                                <?php ;} ?>
+                                                <?php if(($receive_row['idty'] != 0) && ($receive_row['idty'] != 3)){ ?>
+                                                    <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                                <?php ;} ?>
+                                            <?php ;} ?>
                                         </div>
                                         <hr>
                                         <!-- 相關資訊說明 -->

@@ -338,7 +338,8 @@
                                                 <select name="local_id" id="local_id" class="form-select" required>
                                                     <option value="" hidden>-- [請選擇 領用站點] --</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                        <!-- <php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
+                                                        <?php if($allLocal["flag"] != "off"){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
                                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                                         <?php } ?>

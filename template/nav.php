@@ -169,7 +169,7 @@
                         <ul class="navbar-nav">
                             <li class="nav-item dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <?php if($_SESSION["AUTH"]["pass"] == "ldap"){?>
+                                <?php if(isset($_SESSION["AUTH"]["pass"]) && $_SESSION["AUTH"]["pass"] == "ldap"){?>
                                     <i class="fa fa-user" aria-hidden="true"></i>
                                 <?php } else {?>
                                     <i class="fa fa-user-secret" aria-hidden="true"></i>

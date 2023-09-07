@@ -43,6 +43,10 @@
                     header("location:../auth/register.php?user=$user");     // 沒有local資料，帶入註冊頁面
                     exit;
                 }
+                
+                // 20230906_set this point to log logs
+                header("refresh:0;url={$url}tnESH_SSO/autoLog.php?sys_id={$sys_id}");
+                exit;
             }
         }else{                                                              // 確認AUTH/pass => false
             header("refresh:0;url={$url}tnESH_SSO/login.php?sys_id={$sys_id}");

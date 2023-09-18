@@ -123,7 +123,7 @@
 <!-- <div class="container"> -->
 <div class="col-12">
     <div class="row justify-content-center">
-        <div class="col-xl-12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .9);">
+        <div class="col-xl-12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
             <div class="row">
                 <div class="col-md-6 py-0">
                     <h5>Catalog/目錄管理</h5>
@@ -138,23 +138,23 @@
                         <!-- <a href="#" target="_blank" title="查詢分類" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#query_category"> <i class="fa fa-search" aria-hidden="true"></i> 查詢分類</a> -->
                     <?php } ?>
                 </div>
+            </div>
                 
-                <!-- NAV分頁標籤與統計 -->
-                <div class="col-12 pb-0">
-                    <ul class="nav nav-tabs">
+            <!-- NAV分頁標籤與統計 -->
+            <div class="col-12 pb-0 px-0">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?cate_no=All">
+                            All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                    </li>
+                    <?php foreach($sum_categorys as $sum_cate){ ?>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?cate_no=All">
-                                All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                            <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?cate_no=<?php echo $sum_cate["cate_no"];?>">
+                                <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
+                                <span class="badge bg-secondary"><?php echo $sum_cate["catalog_count"];?></span></a>
                         </li>
-                        <?php foreach($sum_categorys as $sum_cate){ ?>
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?cate_no=<?php echo $sum_cate["cate_no"];?>">
-                                    <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
-                                    <span class="badge bg-secondary"><?php echo $sum_cate["catalog_count"];?></span></a>
-                            </li>
-                        <?php  } ?>
-                    </ul>
-                </div>
+                    <?php  } ?>
+                </ul>
             </div>
             <div class="col-12 bg-white">
                 <!-- 20211215分頁工具 -->  
@@ -251,7 +251,6 @@
                                             <?php } ?>
                                         </div>
                                     </div>
-
                                 </td>
                                 <td><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
                                                             case "1": echo "bg-primary"; break;

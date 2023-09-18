@@ -29,24 +29,46 @@
         if(isset($_REQUEST["_year"])){
             $_year = $_REQUEST["_year"];
         }else{
-            // $_year = date('Y');              // 今年
-            $_year = "All";                     // 全部
+            $_year = date('Y');                 // 今年
+            // $_year = "All";                     // 全部
         }
         $sort_PNO_year = array(
             '_year' => $_year
         );
     $pnos = show_pno($sort_PNO_year);
-        
 
-    $count_pno = count($pnos);
-
-            // 新增料號時，需提供對應的器材選項
-            $sort_category = array(
-                'cate_no' => "all"                        // 預設全部器材類別
+    // <!-- 20211215分頁工具 -->
+        $per_total = count($pnos);        //計算總筆數
+        $per = 25;                          //每頁筆數
+        $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+        if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
+            $page = 1;	  
+        }else{
+            $page = $_GET['page'];
+        }
+        $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+        // 合併嵌入分頁工具
+            $receive_page_div = array(
+                '_year' => $_year,
+                'start' => $start,
+                'per' => $per
             );
-            $catalogs = show_catalogs($sort_category);    // 讀取器材清單 by all
-            // 取出PNO年份清單 => 供Part_NO料號頁面篩選
-            $pno_years = show_PNO_GB_year();
+            // array_push($sort_PNO_year, $receive_page_div);
+        $pnos_div = show_pno($receive_page_div);
+        $page_start = $start +1;            //選取頁的起始筆數
+        $page_end = $start + $per;          //選取頁的最後筆數
+            if($page_end>$per_total){       //最後頁的最後筆數=總筆數
+                $page_end = $per_total;
+            }
+    // <!-- 20211215分頁工具 -->
+
+        // 新增料號時，需提供對應的器材選項
+        $sort_category = array(
+            'cate_no' => "all"                        // 預設全部器材類別
+        );
+        $catalogs = show_catalogs($sort_category);    // 讀取器材清單 by all
+        // 取出PNO年份清單 => 供Part_NO料號頁面篩選
+        $pno_years = show_PNO_GB_year();
     
     $thisYear = date('Y');                      // 取今年值 for 新增料號預設年度
     $url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
@@ -59,6 +81,12 @@
 <head>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
         .unblock{
             display: none;
@@ -81,102 +109,216 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_11 col-11 bg-light rounded my-0 p-3" >
-                <!-- NAV title -->
+            <div class="col_xl_11 col-11 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);" >
+                    
                 <div class="row">
-                    <!-- 分頁標籤 -->
-                    <div class="col-12">
-                        <nav>
-                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                <button class="nav-link" id="nav-PNO-tab" data-bs-toggle="tab" data-bs-target="#nav-PNO_table" type="button" role="tab" aria-controls="nav-PNO" aria-selected="false">
-                                    料號&nbsp<span class="badge bg-secondary"><?php echo $count_pno;?></span></button>
+                    <div class="col-12 col-md-4 py-0">
+                        <h5>Part_NO料號管理</h5>
+                    </div>
+                    <div class="col-12 col-md-4 py-0">
+                        <form action="<?php echo $url;?>" method="post">
+                            <input type="hidden" name="activeTab" value="0">
+                            <div class="input-group">
+                                <span class="input-group-text">篩選</span>
+                                <select name="_year" id="groupBy_cate" class="form-select">
+                                    <option value="All" selected >-- 年度 / All --</option>
+                                    <?php foreach($pno_years as $pno_year){ ?>
+                                        <option value="<?php echo $pno_year["_year"];?>" <?php if($pno_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                            <?php echo $pno_year["_year"];?></option>
+                                    <?php } ?>
+                                </select>
+                                <button type="submit" class="btn btn-outline-secondary">查詢</button>
                             </div>
-                        </nav>
+                        </form>
+                    </div>
+                    <div class="col-12 col-md-4 py-0 text-end">
+                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                            <a href="#" target="_blank" title="新增Part_NO料號" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_pno"> <i class="fa fa-plus"></i> 新增Part_NO料號</a>
+                        <?php } ?>
                     </div>
                 </div>
-                <!-- 內頁 -->
-                <!-- <div id="table"> -->
-                <div class="tab-content" id="nav-tabContent">
-                    
-                    <!-- _PNO -->
-                    <div id="nav-PNO_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-PNO-tab">
+
+                <!-- NAV分頁標籤與統計 -->
+                <div class="col-12 pb-0 px-0">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="?_year=All">
+                                料號&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-12 bg-white">
+                    <div class="col-12 p-0">
+                        <!-- 20211215分頁工具 -->               
                         <div class="row">
-                            <div class="col-12 col-md-4 py-0">
-                                <h3>Part_NO料號管理</h3>
+                            <div class="col-12 col-md-6">	
+                                <?php
+                                    //每頁顯示筆數明細
+                                    echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                ?>
                             </div>
-                            <div class="col-12 col-md-4 py-0">
-                                <form action="<?php echo $url;?>" method="post">
-                                    <input type="hidden" name="activeTab" value="0">
-                                    <div class="input-group">
-                                        <span class="input-group-text">篩選</span>
-                                        <select name="_year" id="groupBy_cate" class="form-select">
-                                            <option value="All" selected >-- 年度 / All --</option>
-                                            <?php foreach($pno_years as $pno_year){ ?>
-                                                <option value="<?php echo $pno_year["_year"];?>" <?php if($pno_year["_year"] == $_year){ ?>selected<?php } ?>>
-                                                    <?php echo $pno_year["_year"];?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-outline-secondary">查詢</button>
-                                    </div>
-                                </form>
+                            <div class="col-12 col-md-6 text-end">
+                                <?php
+                                    if($pages>1){  //總頁數>1才顯示分頁選單
+            
+                                        //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                        if($page=='1'){
+                                            echo "首頁 ";
+                                            echo "上一頁 ";		
+                                        }else if(isset($_year)){
+                                            echo "<a href=?_year=".$_year."&page=1>首頁 </a> ";
+                                            echo "<a href=?_year=".$_year."&page=".($page-1).">上一頁 </a> ";
+                                        }else{
+                                            echo "<a href=?page=1>首頁 </a> ";
+                                            echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                        }
+            
+                                        //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                        for($i=1 ; $i<=$pages ;$i++){ 
+                                            $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                            $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+            
+                                            //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                            if($page <= $lnum){
+                                                $rnum = $rnum + ($lnum-$page+1);
+                                            }
+            
+                                            if($page+$rnum > $pages){
+                                                $lnum = $lnum + ($rnum - ($pages-$page));
+                                            }
+                                            //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                            if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                if($i==$page){
+                                                    echo '<u><b>'.$i.'</b></u> ';
+                                                }else{
+                                                    echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                }
+                                            }
+                                        }
+                                        //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                        if($page==$pages){
+                                            echo " 下一頁";
+                                            echo " 末頁";
+                                        }else if(isset($_year)){
+                                            echo "<a href=?_year=".$_year."&page=".($page+1)."> 下一頁</a>";
+                                            echo "<a href=?_year=".$_year."&page=".$pages."> 末頁</a>";
+                                        }else{
+                                            echo "<a href=?page=".($page+1)."> 下一頁</a>";
+                                            echo "<a href=?page=".$pages."> 末頁</a>";		
+                                        }
+                                    }
+                                ?>
                             </div>
-                            <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增Part_NO料號" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_pno"> <i class="fa fa-plus"></i> 新增Part_NO料號</a>
+                        </div>
+                        <!-- 20211215分頁工具 -->
+                        <table>
+                            <thead>
+                                <tr class="">
+                                    <th>ai</th>
+                                    <th>_year</br>年度</th>
+                                    <th>part_no</br>料號</th>
+                                    <th>size</br>尺寸</th>
+                                    <th>cate_no</br>器材分類</th>
+                                    <th>cata_SN</br>器材編號(名稱)</th>
+                                    <th>part_remark</br>註解說明</th>
+                                    <th>flag</th>
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                        <th>action</th>
+                                    <?php } ?>
+                                </tr>
+                            </thead>
+                            <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
+                            <tbody>
+                                <?php foreach($pnos_div as $pno){ ?>
+                                    <tr>
+                                        <td style="font-size: 6px;"><?php echo $pno["id"]; ?></td>
+                                        <td><?php echo $pno["_year"]; ?></td>
+                                        <td style="text-align:left;"><?php echo $pno["part_no"];?></td>
+                                        <td><?php echo $pno["size"]; ?></td>
+                                        <td><?php echo $pno["cate_no"] ? $pno["cate_no"].".".$pno["cate_remark"]:""; ?></td>
+                                        <td style="width: 25%" class="word_bk"><?php echo $pno["cata_SN"] ? $pno["cata_SN"]."-".$pno["pname"]:"-- 無 --";
+                                                                            echo $pno["model"] ? "</br>[".$pno["model"]."]" :""; 
+                                                                            echo ($pno["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
+                                        <td style="width: 25%" class="word_bk"><?php echo $pno["pno_remark"];?></td>
+                                        <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <button type="button" name="pno" id="<?php echo $pno['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $pno['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $pno['flag'];?>"><?php echo $pno['flag'];?></button>
+                                            <?php }else{ ?>
+                                                <span class="btn btn-sm btn-xs <?php echo $pno["flag"] == "On" ? "btn-success":"btn-warning";?>">
+                                                    <?php echo $pno["flag"] == "On" ? "On":"Off";?></span>
+                                            <?php } ?></td>
+                                        <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <button type="button" id="edit_pno_btn" value="<?php echo $pno["id"];?>" class="btn btn-sm btn-xs btn-info" 
+                                                data-bs-toggle="modal" data-bs-target="#edit_pno" onclick="edit_module('pno',this.value)" >編輯</button>
+                                        <?php } ?></td>
+                                    </tr>
                                 <?php } ?>
+                            </tbody>
+                        </table>
+                        <!-- 20211215分頁工具 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6">	
+                                <?php
+                                    //每頁顯示筆數明細
+                                    echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                ?>
                             </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="col-12 p-0">
-                                <table>
-                                    <thead>
-                                        <tr class="">
-                                            <th>ai</th>
-                                            <th>_year</br>年度</th>
-                                            <th>part_no</br>料號</th>
-                                            <th>size</br>尺寸</th>
-                                            <th>cate_no</br>器材分類</th>
-                                            <th>cata_SN</br>器材編號(名稱)</th>
-                                            <th>part_remark</br>註解說明</th>
-                                            <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
-                                                <th>action</th>
-                                            <?php } ?>
-                                        </tr>
-                                    </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
-                                    <tbody>
-                                        <?php foreach($pnos as $pno){ ?>
-                                            <tr>
-                                                <td style="font-size: 6px;"><?php echo $pno["id"]; ?></td>
-                                                <td><?php echo $pno["_year"]; ?></td>
-                                                <td style="text-align:left;"><?php echo $pno["part_no"];?></td>
-                                                <td><?php echo $pno["size"]; ?></td>
-                                                <td><?php echo $pno["cate_no"] ? $pno["cate_no"].".".$pno["cate_remark"]:""; ?></td>
-                                                <td style="width: 25%" class="word_bk"><?php echo $pno["cata_SN"] ? $pno["cata_SN"]."-".$pno["pname"]:"-- 無 --";
-                                                                                   echo $pno["model"] ? "</br>[".$pno["model"]."]" :""; 
-                                                                                   echo ($pno["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
-                                                <td style="width: 25%" class="word_bk"><?php echo $pno["pno_remark"];?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                                        <button type="button" name="pno" id="<?php echo $pno['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $pno['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $pno['flag'];?>"><?php echo $pno['flag'];?></button>
-                                                    <?php }else{ ?>
-                                                        <span class="btn btn-sm btn-xs <?php echo $pno["flag"] == "On" ? "btn-success":"btn-warning";?>">
-                                                            <?php echo $pno["flag"] == "On" ? "On":"Off";?></span>
-                                                    <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
-                                                    <button type="button" id="edit_pno_btn" value="<?php echo $pno["id"];?>" class="btn btn-sm btn-xs btn-info" 
-                                                        data-bs-toggle="modal" data-bs-target="#edit_pno" onclick="edit_module('pno',this.value)" >編輯</button>
-                                                <?php } ?></td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
+                            <div class="col-12 col-md-6 text-end">
+                                <?php
+                                    if($pages>1){  //總頁數>1才顯示分頁選單
+            
+                                        //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                        if($page=='1'){
+                                            echo "首頁 ";
+                                            echo "上一頁 ";		
+                                        }else if(isset($_year)){
+                                            echo "<a href=?_year=".$_year."&page=1>首頁 </a> ";
+                                            echo "<a href=?_year=".$_year."&page=".($page-1).">上一頁 </a> ";
+                                        }else{
+                                            echo "<a href=?page=1>首頁 </a> ";
+                                            echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                        }
+            
+                                        //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                        for($i=1 ; $i<=$pages ;$i++){ 
+                                            $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                            $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+            
+                                            //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                            if($page <= $lnum){
+                                                $rnum = $rnum + ($lnum-$page+1);
+                                            }
+            
+                                            if($page+$rnum > $pages){
+                                                $lnum = $lnum + ($rnum - ($pages-$page));
+                                            }
+                                            //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                            if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                if($i==$page){
+                                                    echo '<u><b>'.$i.'</b></u> ';
+                                                }else{
+                                                    echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                }
+                                            }
+                                        }
+                                        //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                        if($page==$pages){
+                                            echo " 下一頁";
+                                            echo " 末頁";
+                                        }else if(isset($_year)){
+                                            echo "<a href=?_year=".$_year."&page=".($page+1)."> 下一頁</a>";
+                                            echo "<a href=?_year=".$_year."&page=".$pages."> 末頁</a>";
+                                        }else{
+                                            echo "<a href=?page=".($page+1)."> 下一頁</a>";
+                                            echo "<a href=?page=".$pages."> 末頁</a>";		
+                                        }
+                                    }
+                                ?>
                             </div>
-                        </div>
+                        </div>             
+                        <!-- 20211215分頁工具 -->               
                     </div>
-                    
-                    <hr>
                 </div>
+
             </div>
         </div>
     </div>
@@ -379,7 +521,6 @@
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
@@ -387,14 +528,24 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
+    // 在任何地方啟用工具提示框
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
         document.querySelector('#key_word').value = '';
     }
 
-    var pno        = <?=json_encode($pnos);?>;                                 // 引入pnos資料
-    var pno_item        = ['id','_year','part_no','size','cata_SN','pno_remark','flag'];                         // 交給其他功能帶入 delete_pno_id
+    var pno      = <?=json_encode($pnos);?>;                                            // 引入pnos資料
+    var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','flag'];       // 交給其他功能帶入 delete_pno_id
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
@@ -472,18 +623,7 @@
         }
     }
 
-    // 在任何地方啟用工具提示框
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    })
 
-    $(document).ready(function(){
-        // 切換指定NAV分頁
-            //设置要自动选中的选项卡的索引（从0开始）
-            var activeTab = '<?=$activeTab;?>';
-            //激活选项卡
-            $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
-    });
 
 </script>
 

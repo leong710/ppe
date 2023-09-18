@@ -154,7 +154,7 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .9);">
+            <div class="col_xl_12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
                 <div class="row">
                     <div class="col-md-4 py-0">
                         <h5><?php echo isset($sortFab["id"]) ? $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>_庫存管理： </h5>
@@ -186,23 +186,23 @@
                             <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i> 下載CSV</button>
                         <?php } ?>
                     </div>
+                </div>
 
-                    <!-- NAV分頁標籤與統計 -->
-                    <div class="col-12 pb-0">
-                        <ul class="nav nav-tabs">
+                <!-- NAV分頁標籤與統計 -->
+                <div class="col-12 pb-0 px-0">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=All">
+                                All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                        </li>
+                        <?php foreach($sum_categorys as $sum_cate){ ?>
                             <li class="nav-item">
-                                <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=All">
-                                    All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                                <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=<?php echo $sum_cate["cate_no"];?>">
+                                    <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
+                                    <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
-                            <?php foreach($sum_categorys as $sum_cate){ ?>
-                                <li class="nav-item">
-                                    <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=<?php echo $sum_cate["cate_no"];?>">
-                                        <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
-                                        <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
-                                </li>
-                            <?php  } ?>
-                        </ul>
-                    </div>
+                        <?php  } ?>
+                    </ul>
                 </div>
                 <!-- by各Local儲存點： -->
                 <div class="col-12 bg-white">

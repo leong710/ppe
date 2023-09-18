@@ -84,15 +84,15 @@
         }
     }
 
-    function show_pno($request){
+    function show_pno($request){        // 202309018 嵌入分頁工具
         $pdo = pdo();
         extract($request);
         // 前段-初始查詢語法：全廠+全狀態
         $sql = "SELECT _pno.*, _cata.SN, _cata.pname, _cata.model, _cata.flag AS cata_flag, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no
                 FROM `_pno`
-                LEFT JOIN _cata ON _pno.cata_SN = _cata.SN
+                LEFT JOIN _cata ON _pno.cata_SN = _cata.SN 
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                -- WHERE _pno.flag = 'On'
+                -- WHERE _pno.flag = 'On' 
                 ";
 
         if($_year != 'All'){
@@ -100,7 +100,14 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY _pno.id DESC ";
-        $stmt = $pdo->prepare($sql);
+
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+        }
+         
         try {
             if($_year == 'All'){
                 $stmt->execute();               //處理 byAll
@@ -109,36 +116,9 @@
             }
             $pnos = $stmt->fetchAll();
             return $pnos;
+
         }catch(PDOException $e){
             echo $e->getMessage();
-        }
-    }
-    // 分頁工具
-    function page_div_pno($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _pno.*, _cata.SN, _cata.pname, _cata.model, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no
-        FROM `_pno`
-        LEFT JOIN _cata ON _pno.cata_SN = _cata.SN
-        LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                -- WHERE _pno.flag = 'On'
-                ";
-        if($_year != 'All'){
-            $sql .= " WHERE _pno._year=? ";
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _pno.id DESC ";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($_year -= 'All'){
-                $stmt->execute();
-            }else{
-                $stmt->execute([$_year]);
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
         }
     }
 // PNO

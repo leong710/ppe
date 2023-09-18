@@ -62,7 +62,12 @@
         .unblock{
             display: none;
             /* transition: 3s; */
-        }   
+        }
+        .page_title{
+            color: white;
+            /* text-shadow:3px 3px 9px gray; */
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
     </style>
 </head>
 <body>
@@ -72,7 +77,7 @@
             <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(255, 200, 100, .6);">
                 <!-- 表頭 -->
                 <div class="row">
-                    <div class="col-12 col-md-4 pb-1">
+                    <div class="col-12 col-md-4 pb-1 page_title">
                         <div style="display:inline-block;">
                             <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請單總表</b></h3>
                         </div>

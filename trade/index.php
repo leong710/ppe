@@ -70,19 +70,10 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .TOP {
-            background-image: URL('../images/trade.jpg');
-            width: 100%;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            background-attachment: fixed;
-            /* background-position: center top; */
-            background-position: left top;
-            background-repeat: no-repeat;
-            background-size: cover;
-            /* background-size: contain; */
-            padding-top: 100px;
+        .page_title{
+            color: white;
+            /* text-shadow:3px 3px 9px gray; */
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
         }
     </style>
     <script>    
@@ -102,7 +93,7 @@
             <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(200, 255, 100, .6);">
                 <!-- 表頭 -->
                 <div class="row">
-                    <div class="col-12 col-md-4 pb-1 ">
+                    <div class="col-12 col-md-4 pb-1 page_title">
                         <div style="display:inline-block;">
                             <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥作業</b></h3>
                         </div>

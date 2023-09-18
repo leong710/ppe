@@ -80,8 +80,8 @@
                                         
                                         <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-list-ol"></i>&nbsp領用清單</a></li>
-                                            <li><a class="dropdown-item" href="../receive/index.php">&nbsp領用分類管理</a></li>
+                                            <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp領用申請總表</a></li>
+                                            <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li>
                                             <li><a class="dropdown-item" href="../receive/edit.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li>
                                         <?php } ?>
                                     </ul>
@@ -104,12 +104,12 @@
                                             <li><a class="dropdown-item" href="#">x<i class="fa fa-check" aria-hidden="true"></i>&nbsp商品庫存</a></li>
                                             <li><a class="dropdown-item" href="#">x<i class="fa-solid fa-right-from-bracket"></i>&nbsp出庫單</a></li>
                                             <li><a class="dropdown-item" href="#">x<i class="fa-solid fa-right-to-bracket"></i>&nbsp入庫單</a></li>
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-truck"></i>&nbsp2調撥作業
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp調撥作業總表
                                                     <?php if($numTrade !=0){?>&nbsp<span class="badge rounded-pill bg-danger"><?php echo $numTrade; ?></span><?php }?></a>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/">
-                                                    <i class="fa-solid fa-list"></i>&nbsp1請購需求單總表
+                                                <i class="fa-solid fa-1"></i>&nbsp請購需求總表
                                                     <?php if($numIssue !=0){?>&nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span><?php }?>
                                                 </a>
                                             </li>

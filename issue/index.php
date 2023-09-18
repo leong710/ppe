@@ -64,7 +64,11 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-
+        .page_title{
+            color: white;
+            /* text-shadow:3px 3px 9px gray; */
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
     </style>
     <script>    
         // loading function
@@ -84,7 +88,7 @@
             <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表頭 -->
                 <div class="row">
-                    <div class="col-12 col-md-4 pb-1">
+                    <div class="col-12 col-md-4 pb-1 page_title">
                         <div style="display:inline-block;">
                             <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b></h3>
                         </div>

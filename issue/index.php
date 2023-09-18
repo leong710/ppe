@@ -82,10 +82,9 @@
     </script>
 </head>
 <body>
-    <!-- <div class="container"> -->
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(200, 255, 255, .6);">
+            <div class="col_xl_12 col-12 rounded mx-1 p-3 pt-0" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 page_title">
@@ -123,7 +122,7 @@
                     <div class="col-12 col-md-3 px-1">
                         <div class="row">
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded p-4" style="background-color: #D4D4D4;">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>表單狀態：</h5>
                                     <table class="table">
                                         <thead>
@@ -162,7 +161,7 @@
                                 </div>
                             </div>
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded p-4" style="background-color: #D4D4D4;">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>轉PR單：<sup class="text-danger"> * Limit 10</sup></h5>
                                     <table class="table">
                                         <thead>

@@ -71,10 +71,9 @@
     </style>
 </head>
 <body>
-    <!-- <div class="container"> -->
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(255, 200, 100, .6);">
+            <div class="col_xl_12 col-12 rounded mx-1 p-3 pt-0" style="background-color: rgba(255, 200, 100, .6);">
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 page_title">
@@ -97,7 +96,7 @@
                     <div class="col-12 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="form.php?action=create" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請單</a>
+                                <a href="form.php?action=create" title="管理員限定" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="show_receiveAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
@@ -112,7 +111,7 @@
                     <div class="col-12 col-md-3 px-1">
                         <div class="row">
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded p-4" style="background-color: #D4D4D4;">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>表單狀態：</h5>
                                     <table class="table">
                                         <thead>
@@ -149,7 +148,7 @@
                                 </div>
                             </div>
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded p-4" style="background-color: #D4D4D4;">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>轉PR單：<sup class="text-danger"> * Limit 10</sup></h5>
                                     <table class="table">
                                         <thead>

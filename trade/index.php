@@ -90,7 +90,7 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 rounded mx-1 p-3 py-0" style="background-color: rgba(200, 255, 100, .6);">
+            <div class="col_xl_12 col-12 rounded mx-1 p-3 pt-0" style="background-color: rgba(200, 255, 100, .6);">
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 page_title">
@@ -113,7 +113,7 @@
                     <div class="col-12 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="form.php" class="btn btn-primary"><i class="fa fa-upload" aria-hidden="true"></i> 批量調撥</a>
+                                <a href="form.php" class="btn btn-primary"><i class="fa fa-upload" aria-hidden="true"></i> 填寫批量調撥</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>
@@ -128,7 +128,7 @@
                     <div class="col-12 col-md-3 px-1">
                         <div class="row">
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded p-4" style="background-color: #D4D4D4;">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>表單狀態：</h5>
                                     <table class="table">
                                         <thead>

@@ -38,15 +38,15 @@
     $pnos = show_pno($sort_PNO_year);
 
     // <!-- 20211215分頁工具 -->
-        $per_total = count($pnos);        //計算總筆數
-        $per = 25;                          //每頁筆數
-        $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+        $per_total = count($pnos);      //計算總筆數
+        $per = 25;                      //每頁筆數
+        $pages = ceil($per_total/$per); //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  
         }else{
             $page = $_GET['page'];
         }
-        $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+        $start = ($page-1)*$per;        //每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
             $receive_page_div = array(
                 '_year' => $_year,
@@ -54,7 +54,7 @@
                 'per' => $per
             );
             // array_push($sort_PNO_year, $receive_page_div);
-        $pnos_div = show_pno($receive_page_div);
+        $pnos = show_pno($receive_page_div);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
             if($page_end>$per_total){       //最後頁的最後筆數=總筆數
@@ -142,8 +142,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link active" href="?_year=All">
-                                料號&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                            <a class="nav-link active" href="?_year=All">料號&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
                         </li>
                     </ul>
                 </div>
@@ -229,7 +228,7 @@
                             </thead>
                             <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                             <tbody>
-                                <?php foreach($pnos_div as $pno){ ?>
+                                <?php foreach($pnos as $pno){ ?>
                                     <tr>
                                         <td style="font-size: 6px;"><?php echo $pno["id"]; ?></td>
                                         <td><?php echo $pno["_year"]; ?></td>

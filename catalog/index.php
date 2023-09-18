@@ -28,17 +28,22 @@
     // <!-- 20211215分頁工具 -->
         //分頁設定
         $per_total = count($catalogs);  //計算總筆數
-        $per = 25;  //每頁筆數
-        $pages = ceil($per_total/$per);  //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        if(!isset($_GET['page'])){  //!isset 判斷有沒有$_GET['page']這個變數
+        $per = 25;                      //每頁筆數
+        $pages = ceil($per_total/$per); //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+        if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  
         }else{
             $page = $_GET['page'];
         }
-        $start = ($page-1)*$per;  //每一頁開始的資料序號(資料庫序號是從0開始)
-
-        $catalogs = page_div_catalogs($start, $per, $sort_category);
-        // $rs = page_div($start,$per);
+        $start = ($page-1)*$per;        //每一頁開始的資料序號(資料庫序號是從0開始)
+        // 合併嵌入分頁工具
+            $receive_page_div = array(
+                'cate_no' => $sort_cate_no,
+                'start' => $start,
+                'per' => $per
+            );
+            // array_push($sort_category, $receive_page_div);
+        $catalogs = show_catalogs($receive_page_div);
         $page_start = $start +1;  //選取頁的起始筆數
         $page_end = $start + $per;  //選取頁的最後筆數
         if($page_end>$per_total){  //最後頁的最後筆數=總筆數

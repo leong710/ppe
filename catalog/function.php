@@ -117,7 +117,7 @@
         }
     }
 
-    function show_catalogs($request){
+    function show_catalogs($request){        // 202309018 嵌入分頁工具
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
@@ -132,7 +132,14 @@
         $sql .= " ORDER BY _cata.cate_no, _cata.id ASC";       // <=就是這個造成BUG
         // $sql .= " ORDER BY _cata.id ASC";
         // 20230327 BUG FIX：調撥單選39手套變成36驅血帶，主因是ORDER BY時多加上了_cata.cate_no
-        $stmt = $pdo->prepare($sql);
+
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+        }
+        
         try {
             if($cate_no != "All"){
                 $stmt->execute([$cate_no]);
@@ -141,37 +148,12 @@
             }
             $catalogs = $stmt->fetchAll();
             return $catalogs;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-    // catalog 分頁工具
-    function page_div_catalogs($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
-                FROM _cata 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no ";
 
-        if($cate_no != "All"){
-            $sql .= " WHERE _cata.cate_no = ? ";
-        }
-
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _cata.cate_no, _cata.id ASC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($cate_no != "All"){
-                $stmt->execute([$cate_no]);
-            }else{
-                $stmt->execute();
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
-        }
-    }
     // 秀出單一品項器材庫存量for repo
     function show_catalogStock($request){
         $pdo = pdo();

@@ -95,7 +95,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 page_title">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥作業</b></h3>
+                            <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥作業總表</b></h3>
                         </div>
                     </div>
                     <div class="col-12 col-md-4 pb-1">

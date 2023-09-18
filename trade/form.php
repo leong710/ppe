@@ -216,9 +216,8 @@
                                             <tr>
                                                 <th class="unblock">cate_no</th>
                                                 <th>PIC</th>
-                                                <th>SN</th>
                                                 <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
-                                                <th>分類</th>
+                                                <th>分類/PO no/批號</th>
                                                 <th>尺寸</th>
                                                 <th>需求</th>
                                                 <th><i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
@@ -229,22 +228,31 @@
                                                 <tr>
                                                     <td class="unblock"><?php echo $catalog["cate_no"];?></td>
                                                     <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
-                                                    <td><?php echo $catalog["SN"];?></td>
                                                     <td style="text-align: left;">
                                                         <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog['SN'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
-                                                            class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
-                                                        <?php echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?></td>
-                                                    <td><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
-                                                                                case "1": echo "bg-primary"; break;
-                                                                                case "2": echo "bg-success"; break;
-                                                                                case "3": echo "bg-warning text-dark"; break;
-                                                                                case "4": echo "bg-danger"; break;
-                                                                                case "5": echo "bg-info text-dark"; break;
-                                                                                case "6": echo "bg-dark"; break;
-                                                                                case "7": echo "bg-secondary"; break;
-                                                                                default: echo "bg-light text-success"; break;
-                                                                            }?>">
-                                                                <?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span></td>
+                                                                class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
+                                                        <?php 
+                                                            echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
+                                                            echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';
+                                                        ?>
+                                                    </td>
+                                                    <td style="text-align: left; word-break: break-all;">
+                                                        <span class="badge rounded-pill 
+                                                            <?php switch($catalog["cate_id"]){
+                                                                    case "1": echo "bg-primary"; break;
+                                                                    case "2": echo "bg-success"; break;
+                                                                    case "3": echo "bg-warning text-dark"; break;
+                                                                    case "4": echo "bg-danger"; break;
+                                                                    case "5": echo "bg-info text-dark"; break;
+                                                                    case "6": echo "bg-dark"; break;
+                                                                    case "7": echo "bg-secondary"; break;
+                                                                    default: echo "bg-light text-success"; break;
+                                                                }?>"><?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span>
+                                                        <?php
+                                                            echo $catalog["po_no"] ? "</br>po_no：".$catalog["po_no"]:"--";
+                                                            echo $catalog["lot_num"] ? "</br>批號/效期：".$catalog["lot_num"]:"--";
+                                                        ?>
+                                                    </td>
                                                     <td style="text-align: left; word-break: break-all;">
                                                         <?php 
                                                             echo $catalog["size"] ? "尺寸：".$catalog["size"]:"--";

@@ -172,7 +172,7 @@
                         <form action="" method="post">
                             <div class="form-floating">
                                 <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
-                                    <option value="" hidden>--請選擇 收貨 儲存點--</option>
+                                    <option value="" hidden>--請選擇 需求 儲存點--</option>
                                     <?php foreach($allLocals as $allLocal){ ?>
                                         <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
@@ -328,11 +328,11 @@
                                         <div class="col-12 col-md-6 py-3 px-2">
                                             <div style="display: flex;">
                                                 <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled>
+                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required >
                                                 <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
-                                                <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked>
+                                                <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
                                                 <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
-                                                <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required>
+                                                <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
                                                 <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                             </div>
                                         </div>

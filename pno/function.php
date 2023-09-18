@@ -5,10 +5,10 @@
     function store_pno($request){
         $pdo = pdo();
         extract($request);
-        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, price, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $flag, $updated_user]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price, $flag, $updated_user]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -32,11 +32,11 @@
         $pdo = pdo();
         extract($request);
         $sql = "UPDATE _pno
-                SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, flag=?, updated_user=?, updated_at=now()
+                SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $flag, $updated_user, $id]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }

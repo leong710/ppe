@@ -119,7 +119,7 @@
                         <form action="<?php echo $url;?>" method="post">
                             <input type="hidden" name="activeTab" value="0">
                             <div class="input-group">
-                                <span class="input-group-text">篩選</span>
+                                <span class="input-group-text">篩選年度</span>
                                 <select name="_year" id="groupBy_cate" class="form-select">
                                     <option value="All" selected >-- 年度 / All --</option>
                                     <?php foreach($pno_years as $pno_year){ ?>
@@ -331,29 +331,28 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="post">
-                    <div class="modal-body px-5">
+                    <div class="modal-body px-4">
                         <div class="row">
-
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="_year" id="_year" class="form-control" required placeholder="_year年度" value="<?php echo $thisYear;?>">
                                     <label for="_year" class="form-label">_year/年度：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="part_no" id="part_no" class="form-control" required placeholder="part_no料號">
                                     <label for="part_no" class="form-label">part_no/料號：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="size" id="size" class="form-control" required placeholder="size尺寸">
                                     <label for="size" class="form-label">size/尺寸：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <select name="cata_SN" id="cata_SN" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
                                         <option value="" hidden>-- 請選擇對應品項 --</option>
@@ -370,14 +369,20 @@
                                 </div>
                             </div>
    
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <textarea name="pno_remark" id="pno_remark" class="form-control" style="height: 100px" placeholder="註解說明"></textarea>
                                     <label for="pno_remark" class="form-label">pno_remark/備註說明：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="number" name="price" id="price" class="form-control" required placeholder="price單價" min="0" value="0">
+                                    <label for="price" class="form-label">price/單價：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
@@ -429,29 +434,29 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="post">
-                    <div class="modal-body px-5">
+                    <div class="modal-body px-4">
                         <div class="row">
 
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="_year" id="edit__year" class="form-control" required placeholder="_year年度" value="">
                                     <label for="edit__year" class="form-label">_year/年度：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="part_no" id="edit_part_no" class="form-control" required placeholder="part_no料號">
                                     <label for="edit_part_no" class="form-label">part_no/料號：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="size" id="edit_size" class="form-control" placeholder="size尺寸">
                                     <label for="edit_size" class="form-label">size/尺寸：</label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <select name="cata_SN" id="edit_cata_SN" class="form-select">
                                         <option value="" >-- 請選擇對應品項 --</option>
@@ -468,14 +473,20 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <textarea name="pno_remark" id="edit_pno_remark" class="form-control" style="height: 100px" placeholder="註解說明"></textarea>
                                     <label for="edit_pno_remark" class="form-label">pno_remark/備註說明：</label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="number" name="price" id="edit_price" class="form-control" required placeholder="price單價" min="0">
+                                    <label for="edit_price" class="form-label">price/單價：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
@@ -543,8 +554,8 @@
         document.querySelector('#key_word').value = '';
     }
 
-    var pno      = <?=json_encode($pnos);?>;                                            // 引入pnos資料
-    var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','flag'];       // 交給其他功能帶入 delete_pno_id
+    var pno      = <?=json_encode($pnos);?>;                                                   // 引入pnos資料
+    var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','flag'];      // 交給其他功能帶入 delete_pno_id
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){

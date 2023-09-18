@@ -53,8 +53,13 @@
 <head>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-
         .unblock{
             display: none;
             /* transition: 3s; */
@@ -104,6 +109,16 @@
             vertical-align: middle; 
         }
     </style>
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                icon: "../../libs/jquery/loading.gif",
+            }); 
+        }
+        mloading();    // 畫面載入時開啟loading
+    </script>
 </head>
 <!-- <div class="container"> -->
 <div class="col-12">
@@ -123,31 +138,25 @@
                         <!-- <a href="#" target="_blank" title="查詢分類" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#query_category"> <i class="fa fa-search" aria-hidden="true"></i> 查詢分類</a> -->
                     <?php } ?>
                 </div>
-                <!-- 分類 -->
-                <div class="col-12 pb-1 text-center">
-                    <a href="?cate_no=All">
-                        <span class="badge <?php echo $sort_cate_no == "All" ? "rounded-pill":""; ?> bg-dark">All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></span></a>&nbsp&nbsp
-                    <?php foreach($sum_categorys as $sum_cate){ ?>
-                        <div class="py-1" style="display: inline-block;">
-                            <a href="?cate_no=<?php echo $sum_cate["cate_no"];?>">
-                                <span class="badge <?php echo $sum_cate["cate_no"] == $sort_cate_no ? "rounded-pill":""; ?> 
-                                <?php switch($sum_cate["cate_id"]){
-                                        case "1": echo "bg-primary"; break;
-                                        case "2": echo "bg-success"; break;
-                                        case "3": echo "bg-warning text-dark"; break;
-                                        case "4": echo "bg-danger"; break;
-                                        case "5": echo "bg-info text-dark"; break;
-                                        case "6": echo "bg-dark"; break;
-                                        case "7": echo "bg-secondary"; break;
-                                        default: echo "bg-light text-success"; break;
-                                    }?>"><?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
-                                <span class="badge bg-secondary"><?php echo $sum_cate["catalog_count"];?></span>
-                            </span></a>&nbsp&nbsp</div>
-                    <?php  } ?>
+                
+                <!-- NAV分頁標籤與統計 -->
+                <div class="col-12 pb-0">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?cate_no=All">
+                                All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
+                        </li>
+                        <?php foreach($sum_categorys as $sum_cate){ ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?cate_no=<?php echo $sum_cate["cate_no"];?>">
+                                    <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
+                                    <span class="badge bg-secondary"><?php echo $sum_cate["catalog_count"];?></span></a>
+                            </li>
+                        <?php  } ?>
+                    </ul>
                 </div>
             </div>
-            <hr>
-            <div class="px-2">
+            <div class="col-12 bg-white">
                 <!-- 20211215分頁工具 -->  
                 <div class="row">
                     <div class="col-12 col-md-6">	
@@ -347,7 +356,6 @@
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
@@ -355,6 +363,11 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
     // catalog 切換上架/下架開關 20230712
     let flagBtns = [...document.querySelectorAll('.flagBtn')];
     for(let flagBtn of flagBtns){

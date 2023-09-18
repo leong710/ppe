@@ -57,9 +57,25 @@
 <head>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
 
     </style>
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                icon: "../../libs/jquery/loading.gif",
+            }); 
+        }
+        mloading();    // 畫面載入時開啟loading
+    </script>
 </head>
 <body>
     <!-- <div class="container"> -->
@@ -403,7 +419,6 @@
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
@@ -413,6 +428,9 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
 </script>
-
 <?php include("../template/footer.php"); ?>

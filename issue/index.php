@@ -124,7 +124,7 @@
                         <div class="row">
                             <div class="col-6 col-md-12 pt-0">
                                 <div class="border rounded p-4" style="background-color: #D4D4D4;">
-                                    <h4>表單狀態：</h4>
+                                    <h5>表單狀態：</h5>
                                     <table class="table">
                                         <thead>
                                             <tr class="table-dark">
@@ -163,7 +163,7 @@
                             </div>
                             <div class="col-6 col-md-12 pt-0">
                                 <div class="border rounded p-4" style="background-color: #D4D4D4;">
-                                    <h4>轉PR單：<sup class="text-danger"> * Limit 10</sup></h4>
+                                    <h5>轉PR單：<sup class="text-danger"> * Limit 10</sup></h5>
                                     <table class="table">
                                         <thead>
                                             <tr class="table-dark">
@@ -411,7 +411,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-5" style="text-align:center;" >
-                    <img src="role.png" style="width: 100%;" class="img-thumbnail">
+                    <!-- <img src="role.png" style="width: 100%;" class="img-thumbnail"> -->
                 </div>
             </div>
         </div>

@@ -287,6 +287,7 @@
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-l">
                                 <form action="store.php" method="post">
+                                <!-- <form action="#" method="post"> -->
 
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -299,10 +300,10 @@
                                             <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                            <input type="hidden" name="id" id="id" value="">
-                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                            <input type="hidden" name="idty" id="idty" value="">
+                                            <input type="text" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="text" name="id" id="id" value="">
+                                            <input type="text" name="action" id="action" value="<?php echo $action;?>">
+                                            <input type="text" name="idty" id="idty" value="">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                                 <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
@@ -353,7 +354,9 @@
                                 if($trade_row){
                                     echo "<pre>";
                                     // print_r($_REQUEST);
-                                    print_r($trade_row);
+                                        print_r($trade_row);
+                                        echo "</br>";
+                                        print_r($_REQUEST);
                                     echo "</pre>text-end";
                                 }
                             ?>

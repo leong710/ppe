@@ -207,6 +207,7 @@
                     </nav>
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
+                    <!-- <form action="#" method="post"> -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">

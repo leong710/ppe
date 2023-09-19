@@ -92,7 +92,7 @@
                             <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b></h3>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4 pb-1">
+                    <div class="col-6 col-md-4 pb-1">
                         <form action="" method="get">
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
@@ -104,7 +104,7 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-12 col-md-4 pb-1 text-end">
+                    <div class="col-6 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                 <a href="form.php" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>

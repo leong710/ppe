@@ -227,14 +227,13 @@
                                             <?php foreach($catalogs as $catalog){ ?>
                                                 <tr>
                                                     <td class="unblock"><?php echo $catalog["cate_no"];?></td>
-                                                    <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
+                                                    <td title="<?php echo 'stk_id:'.$catalog["stk_id"];?>"><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
                                                     <td style="text-align: left;">
-                                                        <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog['SN'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
+                                                        <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog["SN"].'_'.$catalog['stk_id'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
                                                                 class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
                                                         <?php 
                                                             echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
-                                                            echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';
-                                                        ?>
+                                                            echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';?>
                                                     </td>
                                                     <td style="text-align: left; word-break: break-all;">
                                                         <span class="badge rounded-pill 
@@ -250,8 +249,7 @@
                                                                 }?>"><?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span>
                                                         <?php
                                                             echo $catalog["po_no"] ? "</br>po_no：".$catalog["po_no"]:"--";
-                                                            echo $catalog["lot_num"] ? "</br>批號/效期：".$catalog["lot_num"]:"--";
-                                                        ?>
+                                                            echo $catalog["lot_num"] ? "</br>批號/效期：".$catalog["lot_num"]:"--";?>
                                                     </td>
                                                     <td style="text-align: left; word-break: break-all;">
                                                         <?php 
@@ -265,14 +263,15 @@
                                                                 <b><?php echo "安全: "; echo (!empty($catalog["standard_lv"])) ? $catalog["standard_lv"]:"0";
                                                                          echo " / 存量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"]:"0"; ?></b>
                                                         </div>
-                                                        <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
+                                                        <input type="number" id="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" class="form-control amount t-center"
                                                             placeholder="上限： <?php echo $catalog['amount']."&nbsp/&nbsp".$catalog["unit"]; $buy_qty = $catalog['amount'];?>" 
                                                             min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
                                                             oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
                                                             onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
                                                     </td>
                                                     <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <button type="button" name="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" id="<?php echo 'add_'.$catalog['SN'].'_'.$catalog['stk_id'];?>" 
+                                                                class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -296,6 +295,8 @@
                                                     <th>尺寸</th>
                                                     <th>數量</th>
                                                     <th>單位</th>
+                                                    <th>PO no</th>
+                                                    <th>批號/效期</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="shopping_cart_tbody">
@@ -504,6 +505,9 @@
             "size"          : "size/尺寸",
             "unit"          : "unit/單位",
             "SPEC"          : "SPEC/規格"
+            // "po_no"         : "PO no",
+            // "lot_num"       : "批號/效期",
+            // "stk_id"        : "stk_id"
             // "scomp_no"      : "scomp_no/供應商"
         };    // 定義要抓的key=>value
 
@@ -512,7 +516,7 @@
         // step1.將原排程陣列逐筆繞出來
         $('#info_append, #pic_append').empty();
         Object(window[to_module]).forEach(function(row){          
-            if(row['SN'] === row_SN){
+            if(row['SN']+'_'+row['stk_id'] === row_SN){
                 // step2.鋪畫面到module
                 Object.keys(window[to_module+'_item']).forEach(function(item_key){
                     if(item_key === 'cate_no'){
@@ -558,9 +562,10 @@
         }else{
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalog).forEach(function(cata){          
-                if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
+                    // var input_cb = '<input type="checkbox" name="item['+cata['stk_id']+'_'+cata['SN']+']" id="'+cata['stk_id']+'_'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'&nbsp'+cata['stk_id']+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td><td>'+cata['po_no']+'</td><td>'+cata['lot_num']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -601,10 +606,10 @@
                         var swal_content = ' 移除成功';
                         var swal_action = 'warning';
                         swal_time = swal_time * 1000;
-                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});         // swal自動關閉
                     }
                     check_shopping_count();
-                    return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
+                    return true;                    // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
                 }
             }
         }

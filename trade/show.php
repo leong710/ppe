@@ -49,7 +49,8 @@
             'local_id' => $trade_row["in_local"]
         );
         $select_in_local = select_local($query_in_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
-        $catalogs = show_local_stock($query_local);         // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        // $catalogs = show_local_stock($query_local);         // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $catalogs = show_catalogs();                        // 後來改用這個讀取catalog清單，作為需求首頁目錄
 
     }else{
         $select_local = array('id' => '');
@@ -255,13 +256,15 @@
                                             <table>
                                                 <thead>
                                                     <tr>
-                                                        <th>select</th>
+                                                        <th>select_id</th>
                                                         <th>SN</th>
                                                         <th>品名</th>
                                                         <th>型號</th>
                                                         <th>尺寸</th>
                                                         <th>數量</th>
                                                         <th>單位</th>
+                                                        <th>PO no</th>
+                                                        <th>批號/效期</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="shopping_cart_tbody">
@@ -373,10 +376,24 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+    
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
+
     // 引入catalogs資料
     var catalogs = <?=json_encode($catalogs);?>;
+    // 引入action資料
+    var action = '<?=$action;?>';
+    // 引入trade_row資料作為Edit
+    var trade_row = <?=json_encode($trade_row);?>;
+
     // 加入購物車清單
-    function add_item(cata_SN, add_amount, swal_flag){
+    function add_item(cata_SN_unity, add_amount_unity, swal_flag){
         var swal_title = '加入購物車清單';
         // swal_flag=off不顯示swal、其他是預設1秒
         if(swal_flag == 'off'){
@@ -384,18 +401,29 @@
         }else{
             var swal_time = 1 * 1000;
         }
+        
+        var cata_SN_arr = cata_SN_unity.split(',');
+            // arr[0]=cata_SN, arr[1]=stk_id
+            var cata_SN  = cata_SN_arr[0];
+            var stk_id   = cata_SN_arr[1];
 
-        if(add_amount <= 0 ){
+        var add_amount_arr = add_amount_unity.split(',');
+            // arr[0]=amount, arr[1]=po_no, arr[2]=lot_num
+            var arr_amount  = add_amount_arr[0];
+            var arr_po_no   = add_amount_arr[1];
+            var arr_lot_num = add_amount_arr[2];
+
+        if(arr_amount <= 0 ){
             var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
             var swal_action = 'error';
             swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
 
         }else{
-            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+            var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)" disabled>';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+','+cata['stk_id']+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" disabled>';
+                    var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -416,9 +444,8 @@
         }
         check_shopping_count();
     }
-
     // 查找購物車清單已存在的項目，並予以清除
-    function check_item(cata_SN, swal_time) {
+    function check_item(cata_SN_unity, swal_time) {
         // swal_time = 是否啟動swal提示 ： 0 = 不啟動
         if(!swal_time){
             swal_time = 1;
@@ -428,7 +455,7 @@
             // 使用for迴圈遍歷NodeList，而不是Object.keys()
             for (var i = 0; i < shopping_cart_list.length; i++) {
                 var trElement = shopping_cart_list[i];
-                if (trElement.id === 'item_' + cata_SN) {
+                if (trElement.id === 'item_' + cata_SN_unity) {
                     // 從父節點中移除指定的<tr>元素
                     trElement.parentNode.removeChild(trElement);
                     if(swal_time != 0){
@@ -444,7 +471,6 @@
         }
         return false;       // false = 沒找到數值
     }
-    
     // 清算購物車件數，顯示件數，切換申請單按鈕
     function check_shopping_count(){
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
@@ -461,11 +487,7 @@
         $('#idty_title').append(idty_title);
     }
 // // // Edit選染
-    // 引入action資料
-    var action = '<?=$action;?>';
     function edit_item(){
-        // 引入trade_row資料作為Edit
-        var trade_row = <?=json_encode($trade_row);?>;
         var trade_item = {
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
@@ -477,13 +499,13 @@
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來
         Object.keys(trade_item).forEach(function(trade_key){
-            if(trade_key == 'ppty' && trade_row[trade_key]){                      // ppty/需求類別
+            if(trade_key == 'ppty' && trade_row[trade_key]){                        // ppty/需求類別
                 var ppty = document.querySelector('#'+trade_key+'_'+trade_row[trade_key]);
                 if(ppty){
                     document.querySelector('#'+trade_key+'_'+trade_row[trade_key]).checked = true;
                 }
                 
-            }else if(trade_key == 'item' && trade_row[trade_key]){      //item 購物車
+            }else if(trade_key == 'item' && trade_row[trade_key]){                  //item 購物車
                 var trade_row_cart = JSON.parse(trade_row[trade_key]);
                 Object.keys(trade_row_cart).forEach(function(cart_key){
                     add_item(cart_key, trade_row_cart[cart_key], 'off');
@@ -517,16 +539,8 @@
         }
     }
 
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
 
     $(document).ready(function () {
-
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        })
         
         edit_item();        // 啟動鋪設畫面
 

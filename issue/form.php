@@ -217,7 +217,6 @@
                                             <tr>
                                                 <th class="unblock">cate_no</th>
                                                 <th>PIC</th>
-                                                <th>SN</th>
                                                 <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                                 <th>分類</th>
                                                 <th>尺寸</th>
@@ -230,11 +229,12 @@
                                                 <tr>
                                                     <td class="unblock"><?php echo $catalog["cate_no"];?></td>
                                                     <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
-                                                    <td><?php echo $catalog["SN"];?></td>
                                                     <td style="text-align: left;">
                                                         <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog['SN'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
                                                             class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
-                                                        <?php echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?></td>
+                                                        <?php 
+                                                            echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
+                                                            echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';?></td>
                                                     <td><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
                                                                                 case "1": echo "bg-primary"; break;
                                                                                 case "2": echo "bg-success"; break;

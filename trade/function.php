@@ -360,21 +360,21 @@
     function show_local_stock($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _stk.*
+        $sql = "SELECT _stk.*, _stk.id AS stk_id
                         , _l.local_title, _l.local_remark
                         , _f.id AS fab_id, _f.fab_title, _f.fab_remark
-                        , _s.id as site_id, _s.site_title, _s.site_remark
+                        , _s.id AS site_id, _s.site_title, _s.site_remark
                         , _cata.*
                         , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
                 FROM `_stock` _stk 
-                RIGHT JOIN _local _l ON _stk.local_id = _l.id 
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-                LEFT JOIN _site _s ON _f.site_id = _s.id 
-                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                WHERE _l.id=? AND cata_SN IS NOT null
+                LEFT JOIN _local _l ON _stk.local_id = _l.id 
+                LEFT JOIN _fab _f   ON _l.fab_id = _f.id 
+                LEFT JOIN _site _s  ON _f.site_id = _s.id 
+                LEFT JOIN _cata     ON _stk.cata_SN = _cata.SN 
+                LEFT JOIN _cate     ON _cata.cate_no = _cate.cate_no 
+                WHERE _l.id=? AND cata_SN IS NOT null 
                 -- ORDER BY catalog_id, lot_num ASC
-                ORDER BY cata_SN ASC";
+                ORDER BY _stk.cata_SN ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
@@ -412,7 +412,23 @@
             echo $e->getMessage();
         }
     }
-
+    // 秀出catalog全部
+    // 20230721 開啟需求單時，先讀取local衛材存量，供填表單時參考
+    function show_catalogs(){
+        $pdo = pdo();
+        $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id
+                FROM _cata
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
+                ORDER BY _cata.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $catalogs = $stmt->fetchAll();
+            return $catalogs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // // // Create表單會用到 -- end
 
 // // // process fun

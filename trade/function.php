@@ -671,25 +671,6 @@
     function sign_trade($request){
         $pdo = pdo();
         extract($request);
-        // idty 同意0(入賬)、退回2(不處理)、作廢3(回補)
-        if($action == "sign"){
-            switch($idty){
-                case "0":        // 0同意(入賬)
-                    $swal_json = store_trade($_REQUEST);
-                    break;
-                case "2":        // 2退回(不處理)
-                    $swal_json = update_trade($_REQUEST);
-                    break;
-                case "3":        // 3作廢(回補)
-                    // $swal_json = sign_trade($_REQUEST);
-                    $swal_json = deBug($_REQUEST);
-                    break;
-                default:            // 預定失效 
-                    echo "bg-light text-success"; 
-                    break;
-            }
-
-        }
 
         $trade = show_trade($request);                  // 把trade表單叫近來處理 入賬或回補
 
@@ -707,6 +688,31 @@
                     if($item_value_arr[0]){ $amount  = $item_value_arr[0]; } else { $amount  = ""; }
                     if($item_value_arr[1]){ $po_no   = $item_value_arr[1]; } else { $po_no   = ""; }
                     if($item_value_arr[2]){ $lot_num = $item_value_arr[2]; } else { $lot_num = ""; }
+
+                // idty 同意0(入賬)、退回2(不處理)、作廢3(回補) 進行選擇性套用!!!!
+                if($action == "sign"){
+                    switch($idty){
+                        case "0":        // 0同意(入賬)
+                            $p_local  =  $trade["in_local"];
+
+                            break;
+                        case "2":        // 2退回(不處理)
+
+                            break;
+                        case "3":        // 3作廢(回補)
+                            $p_local  =  $trade["out_local"];
+
+                            break;
+                        default:         // 預定失效 
+                            echo "bg-light text-success"; 
+                            break;
+                    }
+        
+                }
+
+
+
+
 
                 $process = [];              // 清空預設值
                 $process = array('stock_id' => $stk_id,

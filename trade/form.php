@@ -66,6 +66,7 @@
         $catalogs = [];
     }
 
+    $allcatalogs = show_catalogs();                 // 後來改用這個讀取catalog清單，作為需求首頁目錄 for Edit時，假如原儲存項目已消失
     $allLocals = show_allLocal();                   // 所有儲存站點
 
 ?>
@@ -183,7 +184,8 @@
                             </div>
                         </form>
 
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
+                        <!-- 表單狀態限制在'3作廢'才可以刪除 -->
+                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] === 3)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $trade_row["id"];?>">
                                 <input type="submit" name="delete_trade" value="刪除" title="刪除調撥單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
@@ -266,7 +268,7 @@
                                                         </div>
                                                         <input type="number" id="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" class="form-control amount t-center"
                                                             placeholder="上限： <?php echo $catalog['amount']."&nbsp/&nbsp".$catalog["unit"]; $buy_qty = $catalog['amount'];?>" 
-                                                            min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
+                                                            min="<?php echo $buy_qty == 0 ? '0':'1';?>" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
                                                             oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
                                                             onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
                                                     </td>
@@ -280,7 +282,7 @@
                                     </table>
                                 </div>
                             </div>
-    
+                            
                             <!-- 2.購物車 -->
                             <div class="tab-pane fade" id="nav-shopping_cart" role="tabpanel" aria-labelledby="nav-shopping_cart-tab">
                                 <div class="col-12 px-4">
@@ -370,8 +372,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
                         <!-- 彈出畫面模組 saveSubmit-->
                         <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable">
@@ -400,6 +402,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </form>
                     <hr>
                     <!-- 尾段logs訊息 -->
@@ -440,6 +443,7 @@
                                 if($_REQUEST){
                                     echo "<pre>";
                                     print_r($_REQUEST);
+                                    print_r($trade_row);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -494,8 +498,19 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
+    // 在任何地方啟用工具提示框
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+    
+    // All resources finished loading! // 關閉mLoading提示
+    window.addEventListener("load", function(event) {
+        $("body").mLoading("hide");
+    });
 // // // info modal function
-    var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
+    var action = '<?=$action;?>';                        // 引入action資料
+    var catalogs = <?=json_encode($catalogs);?>;         // 引入catalogs資料
+    var allcatalogs = <?=json_encode($allcatalogs);?>;   // 引入allcatalogs資料
     var catalog_item = {
             "SN"            : "SN/編號", 
             "cate_no"       : "category/分類", 
@@ -537,7 +552,7 @@
     function add_cart_btn(cata_SN, add_amount){
         let add_btn = document.getElementById('add_'+ cata_SN);
         if(add_btn){
-            if(add_amount == ''){
+            if(add_amount == '' || add_amount == 0){
                 add_btn.value = '';
             } else {
                 add_btn.value = add_amount;
@@ -555,18 +570,25 @@
             var swal_time = 1 * 1000;
         }
 
-        if(add_amount <= 0 ){
-            var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
-            var swal_action = 'error';
-            swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
+        if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染，編輯狀態下參數需要分割
 
-        }else{
-            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
-            Object(catalog).forEach(function(cata){          
-                if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
-                    // var input_cb = '<input type="checkbox" name="item['+cata['stk_id']+'_'+cata['SN']+']" id="'+cata['stk_id']+'_'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'&nbsp'+cata['stk_id']+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td><td>'+cata['po_no']+'</td><td>'+cata['lot_num']+'</td></tr>';
+            var cata_SN_unity       = cata_SN;
+            var add_amount_unity    = add_amount;
+
+            var cata_SN_arr = cata_SN_unity.split(',');           // arr[0]=cata_SN, arr[1]=stk_id
+                var cata_SN  = cata_SN_arr[0];
+                var stk_id   = cata_SN_arr[1];
+    
+            var add_amount_arr = add_amount_unity.split(',');     // arr[0]=amount, arr[1]=po_no, arr[2]=lot_num
+                var arr_amount  = add_amount_arr[0];
+                var arr_po_no   = add_amount_arr[1];
+                var arr_lot_num = add_amount_arr[2];
+                var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
+                
+            Object(allcatalogs).forEach(function(cata){          
+                if(cata['SN'] === cata_SN){
+                    var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
+                    var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -583,8 +605,42 @@
             if(swal_time > 0){
                 swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
             }
-            
+
+        }else{                  // 非編輯狀態下，參數可直接引用
+
+            if(add_amount <= 0 ){
+                var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
+                var swal_action = 'error';
+                swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
+    
+            }else{
+                var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+                Object(catalogs).forEach(function(cata){          
+                    if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
+                        // var input_cb = '<input type="checkbox" name="item['+cata['stk_id']+'_'+cata['SN']+']" id="'+cata['stk_id']+'_'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                        var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
+                        var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'&nbsp'+cata['stk_id']+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td><td>'+cata['po_no']+'</td><td>'+cata['lot_num']+'</td></tr>';
+                        $('#shopping_cart_tbody').append(add_cata_item);
+                        return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
+                    }
+                })
+                // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
+                if(check_item_return){
+                    var swal_content = ' 更新成功';
+                    var swal_action = 'info';
+                }else{
+                    var swal_content = ' 加入成功';
+                    var swal_action = 'success';
+                }
+                // swal_time>0才顯示swal，主要過濾edit時的渲染導入
+                if(swal_time > 0){
+                    swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+                }
+                
+            }
+
         }
+
         check_shopping_count();        // 清算購物車件數
     }
 
@@ -690,7 +746,6 @@
 // // // searchUser function 
     
 // // // Edit選染
-    var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
         var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
         var trade_item = {
@@ -739,12 +794,10 @@
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
 
+        action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
+
     }
 
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
 
     $(document).ready(function () {
         
@@ -760,22 +813,6 @@
                 url: "../../libs/dataTables/dataTable_zh.json"
             }
         });
-
-        // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
-        // let amounts = [...document.querySelectorAll('.amount')];
-        // for(let amount of amounts){
-        //     amount.onchange = e => {
-        //     // amount.onblur = e => {
-        //         let amount_id = e.target.id;
-        //         if(amount.value == ''){
-        //             // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
-        //             document.getElementById('add_'+ amount_id).value = '';
-        //         } else {
-        //             // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
-        //             document.getElementById('add_'+ amount_id).value = amount.value;
-        //         }
-        //     }
-        // }
 
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
@@ -799,11 +836,6 @@
                 } 
             } 
         };
-
-        // 在任何地方啟用工具提示框
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        })
         
         // 確認action不是新表單，就進行Edit模式渲染
         if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染

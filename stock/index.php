@@ -167,7 +167,7 @@
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
-                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $fab["id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($fab["id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                        <?php if($_SESSION[$sys_id]["role"] <= 2 || (($fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($fab["id"], $_SESSION[$sys_id]["sfab_id"]))) ){ ?>  
                                             <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
@@ -179,8 +179,8 @@
                     </div>
                     <!-- 表頭按鈕 -->
                     <div class="col-md-4 py-0 text-end">
-                        <?php if(isset($_SESSION[$sys_id])){ ?>
-                            <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && ($_SESSION[$sys_id]["fab_id"] == $sortFab["id"] || in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ){ ?>
+                        <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
+                            <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
                                 <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_stock"><i class="fa fa-plus"></i> 新增</button>
                             <?php } ?>
                             <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i> 下載CSV</button>

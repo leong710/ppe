@@ -143,16 +143,16 @@
         // **** 預扣功能 end   
 
         if($process_result){
-            echo "<script>alert('預扣功能：success')</script>";
+            // echo "<script>alert('預扣功能：success')</script>";
 
             // item資料前處理
                 $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
     
                 // 製作log紀錄前處理：塞進去製作元素
-                    $logs_request["idty"] = $idty;                     // 表單狀態
-                    $logs_request["cname"] = $cname;                   // 開單人
-                    $logs_request["step"] = "填單人";                   // 節點
-                    $logs_request["logs"] = "";   
+                    $logs_request["idty"]   = $idty;                   // 表單狀態
+                    $logs_request["cname"]  = $cname;                  // 開單人
+                    $logs_request["step"]   = "填單人";                 // 節點-簽單人角色
+                    $logs_request["logs"]   = "";   
                     $logs_request["remark"] = $sign_comm;   
                 // 呼叫toLog製作log檔
                     $logs_enc = toLog($logs_request);
@@ -180,7 +180,7 @@
                 }
 
         }else{
-            echo "<script>alert('預扣功能：error')</script>";
+            // echo "<script>alert('預扣功能：error')</script>";
             $swal_json = array(
                 "fun" => "store_trade",
                 "action" => "error",
@@ -325,11 +325,67 @@
         $pdo = pdo();
         extract($request);
 
+        // $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
+
+        // // **** 預扣回補功能    
+        //     // StdObject轉換成Array
+        //     if(is_object($item)) { $item = (array)$trade["item"]; } 
+        //     // 逐筆呼叫處理
+        //     foreach(array_keys($item) as $item_key){
+        //         $item_key_arr = explode(",", $item_key);
+        //             if($item_key_arr[0]){ $cata_SN = $item_key_arr[0]; } else { $cata_SN = ""; }
+        //             if($item_key_arr[1]){ $stk_id  = $item_key_arr[1]; } else { $stk_id  = ""; }
+
+        //         $item_value = $item[$item_key];
+        //         $item_value_arr = explode(",", $item_value);
+        //             if($item_value_arr[0]){ $amount  = $item_value_arr[0]; } else { $amount  = ""; }
+        //             if($item_value_arr[1]){ $po_no   = $item_value_arr[1]; } else { $po_no   = ""; }
+        //             if($item_value_arr[2]){ $lot_num = $item_value_arr[2]; } else { $lot_num = ""; }
+
+        //         $process = [];              // 清空預設值
+        //         $process = array('stock_id' => $stk_id,
+        //                          'lot_num'  => $lot_num,
+        //                          'po_no'    => $po_no,
+        //                          'cata_SN'  => $cata_SN,
+        //                          'p_amount' => $amount,
+        //                          'p_local'  => $trade["out_local"],
+        //                          'idty'     => '3' );   // idty:3 = 取消
+        //         // 後續要加入預扣原本數量功能=呼叫process_trade($request)
+        //         $process_result = process_trade($process);
+        //     }
+        // // **** 預扣回補功能 end   
+            $process_result = true; // 預設已完持
+
+        if($process_result){    // 預扣回補:success
+            // echo "<script>alert('預扣回補功能：success')</script>";
+            // 執行刪除表單
+            $sql = "DELETE FROM _trade WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$id]);
+                return true;
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                return false;
+            }
+        }else{                  // 預扣回補:error
+            // echo "<script>alert('預扣回補功能：error')</script>";
+            return false;
+        }
+    }
+    // 編輯Trade表單 20230920 edition
+    function edit_trade($request){
+        $pdo = pdo();
+        extract($request);
+
         $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
+        $item = json_decode($trade["item"]);  
+            // StdObject轉換成Array
+            if(is_object($item)) { $item = (array)$item; } 
+        // 指向入賬、回補local_id
+        $t_local  = $trade["out_local"];       // 退回2(回補)出庫廠區
 
         // **** 預扣回補功能    
-            // StdObject轉換成Array
-            if(is_object($item)) { $item = (array)$trade["item"]; } 
             // 逐筆呼叫處理
             foreach(array_keys($item) as $item_key){
                 $item_key_arr = explode(",", $item_key);
@@ -348,27 +404,45 @@
                                  'po_no'    => $po_no,
                                  'cata_SN'  => $cata_SN,
                                  'p_amount' => $amount,
-                                 'p_local'  => $trade["out_local"],
-                                 'idty'     => '3' );   // idty:3 = 取消
+                                 'p_local'  => $t_local,
+                                 'idty'     => '3' );   // 必須使用idty:3 = 取消上一張狀態，先回補到原位
                 // 後續要加入預扣原本數量功能=呼叫process_trade($request)
                 $process_result = process_trade($process);
             }
         // **** 預扣回補功能 end   
 
         if($process_result){    // 預扣回補:success
-            echo "<script>alert('預扣回補功能：success')</script>";
-            // 執行刪除表單
-            $sql = "DELETE FROM _trade WHERE id = ?";
+            // echo "<script>alert('預扣回補功能：success')</script>";
+            // 梳理表單資料製作logs前處理
+                // $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
+
+                // 表單簽單人角色
+                if($trade["out_user_id"] == $_SESSION["AUTH"]["emp_id"]){ $step_role = "填單人";}
+                if($trade["in_local"] == $_SESSION[$sys_id]["fab_id"] || (in_array($trade["in_local"], $_SESSION[$sys_id]["sfab_id"])) ){ $step_role = "收貨人";}
+                if(!isset($step_role) && ($_SESSION[$sys_id]["role"] <= 1)){ $step_role = "管你圓";}
+            // 製作log紀錄前處理：塞進去製作元素
+                $logs_request["idty"]   = $idty;                    // 表單狀態 4編輯
+                $logs_request["cname"]  = $updated_user;            // 簽單人
+                $logs_request["step"]   = $step_role;               // 節點-簽單人角色
+                $logs_request["logs"]   = $trade["logs"];           // 帶入舊logs
+                $logs_request["remark"] = $sign_comm;               // 簽核command
+            // 呼叫toLog製作log檔
+                $logs_enc = toLog($logs_request);
+
+            // 執行更新表單
+            // $p_idty = '4';    // 返回退回-編輯狀態
+            $p_idty = $idty;    // 返回退回-編輯狀態
+            $sql = "UPDATE _trade SET idty=?, logs=? WHERE id=?";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$id]);
+                $stmt->execute([$p_idty, $logs_enc, $id]);
                 return true;
             }catch(PDOException $e){
                 echo $e->getMessage();
                 return false;
             }
         }else{                  // 預扣回補:error
-            echo "<script>alert('預扣回補功能：error')</script>";
+            // echo "<script>alert('預扣回補功能：error')</script>";
             return false;
         }
     }
@@ -579,7 +653,7 @@
     function process_trade($process){
         $pdo = pdo();
         extract($process);
-        // 先把舊資料叫出來，進行加扣數量
+        // 先把舊資料叫出來，進行加扣數量參考基準
         $sql_check = "SELECT _stk.* , _l.low_level , _l.id AS local_id , _f.id AS fab_id , _s.id AS site_id
                         FROM `_stock` _stk
                         LEFT JOIN _local _l ON _stk.local_id = _l.id 
@@ -588,13 +662,15 @@
                         WHERE _stk.local_id = ? AND cata_SN = ? AND lot_num = ? AND po_no=? ";          
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$p_local, $cata_SN, $lot_num, $po_no]);
+
         if($stmt_check -> rowCount() >0){       // 已有紀錄
             // echo "<script>alert('process_trade:已有紀錄~')</script>";            // deBug
             $row = $stmt_check -> fetch();
             // 交易狀態：0完成/1待收/2退貨/3取消
             switch($idty){
                 case "0":       // 0完成
-                    // echo "<script>alert('0完成')</script>";                      // deBug
+                case "3":       // 3取消/入帳
+                    // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
                     $row['amount'] += $p_amount; 
                     break;
                 case "1":       // 1送出/待收
@@ -602,17 +678,8 @@
                     $row['amount'] -= $p_amount; 
                     break;
                 case "2":       // 2退貨/待收
-                    // echo "<script>alert('2退貨:$p_amount')</script>";            // deBug
-                    $row['amount'] += $p_amount; 
-                    break;
-                case "3":       // 3取消/入帳
-                    // echo "<script>alert('3取消:$p_amount')</script>";            // deBug
-                    $row['amount'] += $p_amount; 
-                    break;
                 default:
-                    echo "<script>alert('請使用正確的交易狀態')</script>";
-                    $msg = "請使用正確的交易狀態";
-                    return $msg;
+                    return;
             }
             $sql = "UPDATE _stock SET amount=?, updated_at=now()
                     WHERE id=?";
@@ -657,7 +724,7 @@
             $stmt = $pdo->prepare($sql);
             try {
                 // $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '       ',         , $po_no, $lot_num, $user_id]);
-                $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '', '', $po_no, $lot_num, $cname]);
+                $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '', '', $po_no, $lot_num, $updated_user]);
                 $process_result = true;
             }catch(PDOException $e){
                 echo $e->getMessage();
@@ -671,69 +738,162 @@
     function sign_trade($request){
         $pdo = pdo();
         extract($request);
+        $sys_id = "ppe";
 
         $trade = show_trade($request);                  // 把trade表單叫近來處理 入賬或回補
 
-        // **** 入賬或回補功能    
+        // **** 入賬、回補功能
+            $item = json_decode($trade["item"]);  
             // StdObject轉換成Array
-            if(is_object($item)) { $item = (array)$trade["item"]; } 
-            // 逐筆呼叫處理
-            foreach(array_keys($item) as $item_key){
-                $item_key_arr = explode(",", $item_key);
-                    if($item_key_arr[0]){ $cata_SN = $item_key_arr[0]; } else { $cata_SN = ""; }
-                    if($item_key_arr[1]){ $stk_id  = $item_key_arr[1]; } else { $stk_id  = ""; }
+            if(is_object($item)) { $item = (array)$item; } 
 
-                $item_value = $item[$item_key];
-                $item_value_arr = explode(",", $item_value);
-                    if($item_value_arr[0]){ $amount  = $item_value_arr[0]; } else { $amount  = ""; }
-                    if($item_value_arr[1]){ $po_no   = $item_value_arr[1]; } else { $po_no   = ""; }
-                    if($item_value_arr[2]){ $lot_num = $item_value_arr[2]; } else { $lot_num = ""; }
+            // 指向入賬、回補local_id
+            switch($idty){      // idty 同意0(入賬)、退回2(回補)、作廢3(回補) 進行選擇性套用!!!!
+                case "0":       // 0同意(入賬)
+                    $t_local  = $trade["in_local"];        // 入庫廠區
+                    break;
+                case "3":       // 3作廢(回補)
+                    $t_local  = $trade["out_local"];       // 出庫廠區
+                    break;
+                case "2":       // 2退回(不處理)
+                default:        // 預定失效 
+                    $t_local  = "";                        // 不處理
+                    break;
+            }
+            
+            if($idty != 2){    // 排除簽核2退件，暫時無須處理!
+                // 逐筆呼叫處理
+                foreach(array_keys($item) as $item_key){
+                    $item_key_arr = explode(",", $item_key);
+                        if($item_key_arr[0]){ $t_cata_SN = $item_key_arr[0]; } else { $t_cata_SN = ""; }            // cata_SN
+                        if($item_key_arr[1]){ $t_stk_id  = $item_key_arr[1]; } else { $t_stk_id  = ""; }            // stock_id
+    
+                    $item_value = $item[$item_key];
+                    $item_value_arr = explode(",", $item_value);
+                        if($item_value_arr[0]){ $t_amount  = $item_value_arr[0]; } else { $t_amount  = ""; }        // amount        
+                        if($item_value_arr[1]){ $t_po_no   = $item_value_arr[1]; } else { $t_po_no   = ""; }        // po_no
+                        if($item_value_arr[2]){ $t_lot_num = $item_value_arr[2]; } else { $t_lot_num = ""; }        // lot_num
+    
+                    $process = [];              // 清空預設值
+                    // 打包處理訊息process
+                    $process = array('stock_id' => $t_stk_id,
+                                     'updated_user' => $updated_user,
+                                     'lot_num'  => $t_lot_num,
+                                     'po_no'    => $t_po_no,
+                                     'cata_SN'  => $t_cata_SN,
+                                     'p_amount' => $t_amount,
+                                     'p_local'  => $t_local,
+                                     'idty'     => $idty );   // idty:3 = 取消
+                    // 後續要加入預扣原本數量功能=呼叫process_trade($request)
+                    $process_result = process_trade($process);
+                }
+            } else {
+                $process_result = true; // 因為排除簽核2退件，暫時無須處理! 但需標示處理已完成
 
-                // idty 同意0(入賬)、退回2(不處理)、作廢3(回補) 進行選擇性套用!!!!
-                if($action == "sign"){
-                    switch($idty){
-                        case "0":        // 0同意(入賬)
-                            $p_local  =  $trade["in_local"];
+            }
+        // **** 入賬、回補功能 end  
 
-                            break;
-                        case "2":        // 2退回(不處理)
+        if($process_result){
+            // echo "<script>alert('入賬、回補功能：success')</script>";
 
-                            break;
-                        case "3":        // 3作廢(回補)
-                            $p_local  =  $trade["out_local"];
+            // 梳理表單資料製作logs前處理
+                // $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
 
-                            break;
-                        default:         // 預定失效 
-                            echo "bg-light text-success"; 
-                            break;
-                    }
-        
+                // 表單簽單人角色
+                    if($trade["out_user_id"] == $_SESSION["AUTH"]["emp_id"]){ $step_role = "填單人";}
+                    if($trade["in_local"] == $_SESSION[$sys_id]["fab_id"] || (in_array($trade["in_local"], $_SESSION[$sys_id]["sfab_id"])) ){ $step_role = "收貨人";}
+                    if(!isset($step_role) && ($_SESSION[$sys_id]["role"] <= 1)){ $step_role = "管你圓";}
+                // 製作log紀錄前處理：塞進去製作元素
+                    $logs_request["idty"]   = $idty;                    // 表單狀態
+                    $logs_request["cname"]  = $updated_user;            // 簽單人
+                    $logs_request["step"]   = $step_role;               // 節點-簽單人角色
+                    $logs_request["logs"]   = $trade["logs"];           // 帶入舊logs
+                    $logs_request["remark"] = $sign_comm;               // 簽核command
+                // 呼叫toLog製作log檔
+                    $logs_enc = toLog($logs_request);
+    
+            // 儲存更新trade表單
+                // 決定表單儲存時的狀態
+                switch($idty){      // idty 同意0(入賬)、退回2(不處理)、作廢3(回補) 進行選擇性套用!!!!
+                    case "0":       // 0同意(入賬)
+                        $p_idty = '10';    // 指定結案狀態
+                        $p_in_user_id = $_SESSION["AUTH"]["emp_id"];
+                        $sql = "UPDATE _trade 
+                                SET in_user_id=?, idty=?, logs=?, in_date=now() 
+                                WHERE id=?";
+                        $stmt = $pdo->prepare($sql);
+                        try {
+                            $stmt->execute([$p_in_user_id, $p_idty, $logs_enc, $id]);
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "success",
+                                "content" => '批量調撥簽核--同意成功'
+                            );
+                        }catch(PDOException $e){
+                            echo $e->getMessage();
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "error",
+                                "content" => '批量調撥簽核--同意失敗'
+                            );
+                        }
+                        break;
+
+                    case "2":       // 2退回(回補)
+                        $p_idty = '2';    // 返回退回狀態
+                        $sql = "UPDATE _trade SET idty=?, logs=? WHERE id=?";
+                        $stmt = $pdo->prepare($sql);
+                        try {
+                            $stmt->execute([$p_idty, $logs_enc, $id]);
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "success",
+                                "content" => '批量調撥簽核--退回成功'
+                            );
+                        }catch(PDOException $e){
+                            echo $e->getMessage();
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "error",
+                                "content" => '批量調撥簽核--退回失敗'
+                            );
+                        }
+                        break;
+
+                    case "3":       // 3作廢(回補)
+                        $p_idty = '3';    // 指定作廢狀態
+                        $sql = "UPDATE _trade SET idty=?, logs=? WHERE id=?";
+                        $stmt = $pdo->prepare($sql);
+                        try {
+                            $stmt->execute([$p_idty, $logs_enc, $id]);
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "success",
+                                "content" => '批量調撥簽核--作廢成功'
+                            );
+                        }catch(PDOException $e){
+                            echo $e->getMessage();
+                            $swal_json = array(
+                                "fun" => "sign_trade",
+                                "action" => "error",
+                                "content" => '批量調撥簽核--作廢失敗'
+                            );
+                        }
+                        break;
+
+                    default:        // 預定失效 -- 不處理
+                        break;
                 }
 
-
-
-
-
-                $process = [];              // 清空預設值
-                $process = array('stock_id' => $stk_id,
-                                 'lot_num'  => $lot_num,
-                                 'po_no'    => $po_no,
-                                 'cata_SN'  => $cata_SN,
-                                 'p_amount' => $amount,
-                                 'p_local'  => $trade["out_local"],
-                                 'idty'     => '3' );   // idty:3 = 取消
-                // 後續要加入預扣原本數量功能=呼叫process_trade($request)
-                $process_result = process_trade($process);
-            }
-        // **** 入賬或回補功能 end   
-
-
-
-
-
-
-
-
+        }else{
+            // echo "<script>alert('入賬、回補功能：error')</script>";
+            $swal_json = array(
+                "fun" => "store_trade",
+                "action" => "error",
+                "content" => '批量調撥簽核--入賬、回補功能失敗'
+            );
+        }
+        return $swal_json;
 
     }
 // // // process fun -- end
@@ -745,9 +905,11 @@
         // log資料前處理
         // 交易狀態：0完成/1待收/2退貨/3取消
         switch($idty){
-            case "0":   $action = '核准 (Approve)';       break;
+            // case "0":   $action = '核准 (Approve)';       break;
+            // case "2":   $action = '駁回 (Disapprove)';    break;
+            case "0":   $action = '同意 (Approve)';       break;
             case "1":   $action = '送出 (Submit)';        break;
-            case "2":   $action = '駁回 (Disapprove)';    break;
+            case "2":   $action = '退回 (Reject)';        break;
             case "3":   $action = '作廢 (Abort)';         break;
             case "4":   $action = '編輯 (Edit)';          break;
             case "5":   $action = '轉呈 (Transmit)';      break;
@@ -848,4 +1010,14 @@
         echo "<pre>";
         print_r($request);
         echo '</pre><hr>';
+
+        // $trade = show_trade($request);                  // 把trade表單叫近來處理 入賬或回補
+
+        // // **** 入賬、回補功能
+        //     $item = json_decode($trade["item"]);
+        //     if(is_object($item)) { $item = (array)$item; } 
+
+        //     echo "<pre>";
+        //     print_r($item);
+        //     echo '</pre><hr>';
     }

@@ -16,6 +16,12 @@
     //     exit;
     // }
 
+    if(isset($_POST["edit_trade_submit"])){            // 編輯 => 10
+        edit_trade($_REQUEST);
+        header("refresh:0;url=form.php?id={$_REQUEST['id']}&action=edit");
+        exit;
+    }
+
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
         $action = $_REQUEST["action"];              // 有action就帶action
@@ -175,10 +181,13 @@
                         填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($_SESSION[$sys_id]["role"] <= 2 && $trade_row['idty'] == 1){ ?>
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
-                        <?php } ?>
+                        <?php if(isset($_SESSION[$sys_id])){ 
+                            if($_SESSION[$sys_id]["role"] <= 1 || 
+                                ( $_SESSION[$sys_id]["role"] <= 2 && ( ($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ 
+                                if($trade_row['idty'] == 1){ ?>
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
+                        <?php } } } ?>
                     </div>
                 </div>
     
@@ -194,12 +203,20 @@
                                         <b>批量調撥相關資訊：</b>
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
-                                    <div class="col-6 col-md-6 text-end">
-                                        <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($trade_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
+                                    <div class="col-6 col-md-6 text-end" style="display: flex;">
+                                        <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($trade_row['out_user_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
                                             <?php if(($trade_row['idty'] == 2) || ($trade_row['idty'] == 4) || ($trade_row['idty'] == 6)){ ?>
-                                                <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
+                                                <form action="store.php" method="post">
+                                                    <input type="hidden" name="updated_user"        value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                                    <input type="hidden" name="id"                  value="<?php echo $trade_row['id'];?>">
+                                                    <input type="hidden" name="action"              value="edit">
+                                                    <input type="hidden" name="idty"                value="4">
+                                                    <input type="submit" name="edit_trade_submit"   value="編輯 (Edit)" class="btn btn-primary">
+                                                </form>&nbsp
+                                                <!-- <button type="button" value="Submit" name="edit_trade_submit" class="btn btn-primary inline" >編輯 (Edit)b</button> -->
+                                                <!-- <a href="form.php?id=<php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a> -->
                                             <?php ;} ?>
-                                            <?php if(($trade_row['idty'] != 0) && ($trade_row['idty'] != 3)){ ?>
+                                            <?php if(($trade_row['idty'] != 10) && ($trade_row['idty'] != 3)){ ?>
                                                 <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
@@ -296,14 +313,14 @@
                                         </div>
                                         
                                         <div class="modal-body px-5">
-                                            <label for="sin_comm" class="form-check-label" >command：</label>
-                                            <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                            <label for="sign_comm" class="form-check-label" >command：</label>
+                                            <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="text" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                            <input type="text" name="id" id="id" value="">
-                                            <input type="text" name="action" id="action" value="<?php echo $action;?>">
-                                            <input type="text" name="idty" id="idty" value="">
+                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="id" id="id" value="">
+                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                            <input type="hidden" name="idty" id="idty" value="">
                                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                                 <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
@@ -379,6 +396,7 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
+    // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })

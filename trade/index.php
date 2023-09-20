@@ -268,7 +268,8 @@
                                                         case "2"    : echo "退件";                  break;
                                                         case "3"    : echo "取消";                  break;
                                                         case "4"    : echo "編輯";                  break;
-                                                        case "10"   : echo "pr進貨";                break;
+                                                        // case "10"   : echo "pr進貨";                break;
+                                                        case "10"   : echo "結案";                  break;
                                                         default     : echo $trade['idty']."na";     break;
                                                     }?></td>
                                                 <td>
@@ -381,6 +382,7 @@
     window.addEventListener("load", function(event) {
         $("body").mLoading("hide");
     });
+    
 </script>
 
 <?php include("../template/footer.php"); ?>

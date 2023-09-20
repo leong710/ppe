@@ -8,7 +8,7 @@
     </div>
     <div class="mb-3 text-start">
         <?php 
-            if(isset($_SESSION["AUTH"]) && $_SESSION["AUTH"]["role"] <= 1 ){
+            if(isset($_SESSION["AUTH"]) && $_SESSION["AUTH"]["role"] <= 2 ){
                 echo "session_id: ".session_id()."</br>";
                 echo "<pre>";
                 // print_r($_REQUEST);

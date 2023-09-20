@@ -78,7 +78,7 @@
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                         
-                                        <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                                        <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp領用申請總表</a></li>
                                             <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li>
@@ -98,7 +98,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         <!-- <li><a class="dropdown-item" href="#">&nbsp庫存</a></li> -->
                                         <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/stock/byCatalog.php"><i class="fa-solid fa-cart-shopping"></i><i class="fa-solid fa-suitcase"></i>器材存量管理</a></li> -->
-                                        <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                                        <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp倉庫庫存</a></li>
                                             <li><a class="dropdown-item" href="#">x<i class="fa fa-check" aria-hidden="true"></i>&nbsp商品庫存</a></li>

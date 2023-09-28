@@ -377,7 +377,8 @@
     function edit_trade($request){
         $pdo = pdo();
         extract($request);
-
+        $sys_id = "ppe";
+        
         $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
         $item = json_decode($trade["item"]);  
             // StdObject轉換成Array

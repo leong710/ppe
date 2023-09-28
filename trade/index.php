@@ -282,6 +282,10 @@
                                                             && ($trade['idty'] == '2')){ ?>
                                                         <!-- 待簽：out_local對應人員 -->
                                                         <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-danger">驗退</a>
+                                                    <?php }else if((($trade['fab_o_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_o_id'], $_SESSION[$sys_id]["sfab_id"])))
+                                                            && ($trade['idty'] == '4')){ ?>
+                                                        <!-- 待簽：out_local對應人員 -->
+                                                        <a href="form.php?id=<?php echo $trade['id'];?>&action=edit" class="btn btn-sm btn-xs btn-success">編輯</a>
                                                     <?php }else{ ?>
                                                         <!-- siteUser功能 -->
                                                         <a href="show.php?id=<?php echo $trade['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
@@ -382,7 +386,7 @@
     window.addEventListener("load", function(event) {
         $("body").mLoading("hide");
     });
-    
+
 </script>
 
 <?php include("../template/footer.php"); ?>

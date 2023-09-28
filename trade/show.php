@@ -206,7 +206,8 @@
                                     <div class="col-6 col-md-6 text-end" style="display: flex;">
                                         <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($trade_row['out_user_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
                                             <?php if(($trade_row['idty'] == 2) || ($trade_row['idty'] == 4) || ($trade_row['idty'] == 6)){ ?>
-                                                <form action="store.php" method="post">
+                                                <!-- <form action="store.php" method="post"> -->
+                                                <form action="#" method="post">
                                                     <input type="hidden" name="updated_user"        value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                                     <input type="hidden" name="id"                  value="<?php echo $trade_row['id'];?>">
                                                     <input type="hidden" name="action"              value="edit">

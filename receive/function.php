@@ -112,10 +112,11 @@
             $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
             
             // 製作log紀錄前處理：塞進去製作元素
-                $logs_request["idty"] = $idty;
-                $logs_request["cname"] = $created_cname;
-                $logs_request["step"] = "填單人";                   // 節點
-                $logs_request["logs"] = "";   
+                $logs_request["action"] = $action;
+                $logs_request["step"]   = $step;                   // 節點
+                $logs_request["idty"]   = $idty;
+                $logs_request["cname"]  = $created_cname;
+                $logs_request["logs"]   = "";   
                 $logs_request["remark"] = $sign_comm;   
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
@@ -180,10 +181,10 @@
             }
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
-            $logs_request["step"] = '填單人';
-            $logs_request["idty"] = $idty;
-            $logs_request["cname"] = $created_cname;
-            $logs_request["logs"] = $receive_logs["logs"];   
+            $logs_request["step"]   = $step;
+            $logs_request["idty"]   = $idty;
+            $logs_request["cname"]  = $created_cname;
+            $logs_request["logs"]   = $receive_logs["logs"];   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
@@ -437,9 +438,9 @@
         // log資料前處理
         // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
         switch($idty){
-            case "0":   $action = '核准 (Approve)';       break;
+            case "0":   $action = '同意 (Approve)';       break;
             case "1":   $action = '送出 (Submit)';        break;
-            case "2":   $action = '駁回 (Disapprove)';    break;
+            case "2":   $action = '退回 (Reject)';        break;
             case "3":   $action = '作廢 (Abort)';         break;
             case "4":   $action = '編輯 (Edit)';          break;
             case "5":   $action = '轉呈 (Transmit)';      break;

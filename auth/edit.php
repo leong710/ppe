@@ -40,7 +40,7 @@
         <div class="col-8 bg-light border p-4 rounded">
             <div class="row">
                 <div class="col-12 col-md-6 py-0">
-                    <h4>Edit local user info&role</h4>
+                    <h4>Edit local user role</h4>
                 </div>
                 <div class="col-12 col-md-6 py-0 text-end">
                     <?php if($user["role"] == "" && ($_SESSION[$sys_id]["role"] <= 1)){ ?>
@@ -156,7 +156,7 @@
                 <div class="text-end">
                     <input type="hidden" value="<?php echo $user["id"];?>" name="id">
                     <input type="submit" value="儲存" name="submit" class="btn btn-primary">
-                    <input type="button" value="取消" class="btn btn-danger" onclick="history.back()">
+                    <input type="button" value="取消" class="btn btn-secondary" onclick="history.back()">
                 </div>
             </form>
         </div>

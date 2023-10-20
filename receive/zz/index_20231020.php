@@ -18,20 +18,27 @@
         $is_fab_id = "allMy";                                   // 其他預設值=allMy
         if(isset($_REQUEST["fab_id"])){
             $is_fab_id = $_REQUEST["fab_id"];                   // 有帶查詢fab_id，套查詢參數
+        }else if($_SESSION[$sys_id]["role"] == 0){
+            $is_fab_id = "All";                                 // 0管理員 = 套用All
         }
 
     // 組合查詢陣列
-        $basic_query_arr = array(
+        $receive_list_setting = array(
             'sys_id' => $sys_id,
             'role' => $_SESSION[$sys_id]["role"],
             'fab_id' => $is_fab_id,
             'emp_id' => $is_emp_id
         );
-        // $receives = show_receive_list($basic_query_arr);
-        // $sum_receives = show_sum_receive($basic_query_arr);              // 左統計看板--上：表單核簽狀態
-        // $sum_receives_ship = show_sum_receive_ship($basic_query_arr);    // 左統計看板--下：轉PR單
+        // $receives = show_receive_list($receive_list_setting);
+        $sum_receives = show_sum_receive($receive_list_setting);              // 左統計看板--上：表單核簽狀態
+        // $sum_receives_ship = show_sum_receive_ship($receive_list_setting);    // 左統計看板--下：轉PR單
 
-        $basic_query_arr["emp_id"] = $_SESSION["AUTH"]["emp_id"];
+
+        $basic_query_arr = array(
+            'sys_id' => $sys_id,
+            'role' => $_SESSION[$sys_id]["role"],
+            'emp_id' => $_SESSION["AUTH"]["emp_id"]
+        );
 
         // 篩選清單呈現方式，預設allMy
         if($is_fab_id == "allMy"){
@@ -46,7 +53,7 @@
         $my_inSign_lists = show_my_receive($basic_query_arr);
 
     //處理 $_3轄區申請單
-        $basic_query_arr["fun"] = "myFab" ;                                 // 指定fun = myFab ： fab_id = allMy => emp_id = my ； fab_id = All or fab.id => emp_id = All 
+        $basic_query_arr["fun"] = "myFab" ;                                 // 指定fun = myFab
         $myFab_receives_lists = show_my_receive($basic_query_arr);
 
     // <!-- 20211215分頁工具 -->
@@ -66,6 +73,10 @@
             );
             array_push($basic_query_arr, $receive_page_div);
 
+            // $basic_query_arr["start"] = $start;
+            // $basic_query_arr["per"] = $per;
+
+        // $myFab_receives_lists = show_receive_list($basic_query_arr);
         $myFab_receives_lists = show_my_receive($basic_query_arr);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
@@ -148,36 +159,76 @@
                             <!-- 上 -->
                             <div class="col-6 col-md-12 pt-0">
                                 <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
+                                    <div class="row">
+                                        <div class="col-6 col-md-6 py-0">
+                                            <h5>表單狀態：</h5>
+                                        </div>
+                                        <div class="col-6 col-md-6 py-0">
+
+                                        </div>
+                                    </div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr class="table-dark">
+                                                <th>類別</th>
+                                                <th>狀態</th>
+                                                <th>count</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach($sum_receives as $sum_receive){ ?>
+                                                <tr>
+                                                    <td><?php 
+                                                            if($sum_receive['ppty'] == '1'){ echo "定期";}
+                                                            if($sum_receive['ppty'] == '3'){ echo "緊急";}
+                                                        ?></td>
+                                                    <td><?php switch($sum_receive['idty']){
+                                                            case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                                            case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                                            case "2" : echo "退件"; break;
+                                                            case "3" : echo "取消"; break;
+                                                            case "10": echo "結案"; break;
+                                                            case "11": echo "轉PR"; break;
+                                                            case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                                            default: echo $sum_receive['idty'].".na"; break;
+                                                            // return; 
+                                                            }?></td>
+                                                    <td><?php echo $sum_receive['idty_count']."&nbsp件";?></td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                    <span style="font-size: 14px;">交易狀態：0完成/1待簽/2退件/3取消</span>
+                                </div>
+                            </div>
+                            <!-- 下 -->
+                            <div class="col-6 col-md-12 pt-0">
+                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <h5>我的待簽清單：<?php echo count($my_inSign_lists) >0 ? "<sup class='text-danger'> +".count($my_inSign_lists)."</sup>" :"" ;?></h5>
                                     <table class="table">
                                         <thead>
                                             <tr class="table-dark">
                                                 <th>開單日期</th>
-                                                <th>申請單位</th>
+                                                <th>申請單位/提貨廠區</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach($my_inSign_lists as $my_inSign){ ?>
                                                 <tr>
-                                                    <td><?php echo substr($my_inSign['created_at'],0,10)."</br>".$my_inSign['fab_title'];?></td>
+                                                    <td><?php echo substr($my_inSign['created_at'],0,10);?></td>
                                                     <td style="word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign">
-                                                        <?php echo $my_inSign['dept']." -</br>".$my_inSign["cname"];?></a></td>
+                                                        <?php echo $my_inSign['dept']." / ".$my_inSign["cname"]."</br>".$my_inSign["fab_title"];?></a></td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-
-                            <!-- 下 -->
                             <div class="col-6 col-md-12 pt-0">
-                                <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
-                                    <?php
-                                        echo "is_emp_id:".$is_emp_id."</br>";
-                                        echo "is_fab_id:".$is_fab_id."</br>";
-                                    ?>
-                                    <span style="font-size: 14px;">測試訊息讀取</span>
-                                </div>
+                                <?php
+                                    echo "is_emp_id:".$is_emp_id."</br>";
+                                    echo "is_fab_id:".$is_fab_id."</br>";
+                                ?>
                             </div>
                         </div>
                     </div>

@@ -77,15 +77,17 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
+                                        <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp領用申請總表</a></li>
                                         
                                         <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp領用申請總表</a></li>
                                             <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li>
                                             <li><a class="dropdown-item" href="../receive/edit.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li>
                                         <?php } ?>
                                     </ul>
                                 </li>
+
+                                <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -124,6 +126,8 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <?php } ?>
+                                <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -146,6 +150,8 @@
                                         <?php } ?>
                                     </ul>
                                 </li>
+
+                                <?php } ?>
 
                             </ul>
                         </div>

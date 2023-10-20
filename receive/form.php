@@ -23,10 +23,9 @@
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
         $action = $_REQUEST["action"];              // 有action就帶action
-        $step = "--";
     }else{
         $action = 'create';                         // 沒有action就新開單
-        $step = "填單人";
+        
     }
 
     if(isset($_REQUEST["uuid"])){
@@ -50,15 +49,48 @@
     $catalogs = show_catalogs();                    // 器材=All
     $categories = show_categories();                // 分類
     $sum_categorys = show_sum_category();           // 統計分類與數量
+    
+    // function select_step(){
+        // 身份陣列
+        $step_arr = [
+            '0' => '填單人',
+            '1' => '申請人',
+            '2' => '申請人主管',
+            '3' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '環安業務',
+            '5' => '環安主管',
 
-    $step_arr = [
-        '0' => '填單人',
-        '1' => '申請人主管',
-        '2' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
-        '3' => '環安業務',
-        '4' => '環安課長'
-    ];
-    print_r($step_arr);
+            '6' => 'noBody',
+            '7' => 'ppe site user',
+            '8' => 'ppe pm',
+            '9' => '系統管理員',
+        ];
+
+        // 決定表單開啟 $step身份
+        if(isset($receive_row["created_emp_id"]) && ($receive_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+            $step_index = '0';}             // 填單人
+        if(isset($receive_row["emp_id"]) && ($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+            $step_index = '1';}             // 申請人
+        if(isset($receive_row["omager"]) && ($receive_row["omager"] == $_SESSION["AUTH"]["emp_id"])){
+            $step_index = '2';}             // 申請人主管
+        
+        if(empty($step_index)){
+            if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
+                $step_index = '6';}         // noBody
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
+                $step_index = '7';}         // ppe site user
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 1){
+                $step_index = '8';}         // ppe pm
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 0){
+                $step_index = '9';}         // 系統管理員
+            if($action = 'create'){
+                $step_index = '0';}         // 填單人
+        }
+        
+        // $step套用身份
+        $step = $step_arr[$step_index];
+    // }
+
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -84,7 +116,7 @@
             /* transition: 3s; */
         }
         /*眼睛*/
-        #checkEye , #in_sign_badge {
+        #checkEye , #omager_badge {
             position: absolute;
             top: 50%;
             right: 10px;
@@ -163,7 +195,12 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
-        mloading();    // 畫面載入時開啟loading
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        // 畫面載入時開啟loading
+        mloading();    
     </script>
 </head>
 
@@ -178,7 +215,7 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
-                        <a href="index.php" class="btn btn-danger" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="index.php" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
 
@@ -187,6 +224,7 @@
                         領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$receive_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
+                        </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
@@ -379,12 +417,12 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="in_sign" id="in_sign" class="form-control" required placeholder="上層主管工號"
-                                                        data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號"
+                                                <input type="text" name="omager" id="omager" class="form-control" required placeholder="主管工號"
+                                                        data-toggle="tooltip" data-placement="bottom" title="輸入主管工號"
                                                         onchange="search_fun(this.value);">
-                                                <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup></label>
-                                                <!-- <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5> -->
-                                                <div id="in_sign_badge"></div>
+                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> *</sup></label>
+                                                <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
+                                                <div id="omager_badge"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -412,10 +450,10 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
-                                            <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                                            <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
                                         </div>
                                     </div>
                                 </div>
@@ -442,7 +480,7 @@
                                         <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
                                         <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                         <input type="hidden" name="idty" id="idty" value="1">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                        <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
                                             <!-- <input type="submit" value="Submit" name="receive_submit" class="btn btn-primary"> -->
                                             <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
@@ -553,6 +591,6 @@
 
 </script>
 
-<script src="receive_form.js"></script>
+<script src="receive_form.js?v=<?=time();?>"></script>
 
 <?php include("../template/footer.php"); ?>

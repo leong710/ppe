@@ -21,7 +21,6 @@
         // logs紀錄鋪設前處理 
         $logs_dec = json_decode($receive_row["logs"]);
         $logs_arr = (array) $logs_dec;
-
     }else{
         $receive_row = array( "uuid" => "" );       // 預設receive_row[uuid]=空array
         $logs_arr = [];                             // 預設logs_arr=空array
@@ -41,9 +40,44 @@
 
     $catalogs = show_catalogs();                    // 器材=All
 
-    $step;
+    // function select_step(){
+        // 身份陣列
+        $step_arr = [
+            '0' => '填單人',
+            '1' => '申請人',
+            '2' => '申請人主管',
+            '3' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '環安業務',
+            '5' => '環安主管',
 
+            '6' => 'noBody',
+            '7' => 'ppe site user',
+            '8' => 'ppe pm',
+            '9' => '系統管理員',
+        ];
+        
+        // 決定表單開啟 $step身份
+        if($receive_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"]){
+            $step_index = '0';}      // 填單人
+        if($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"]){
+            $step_index = '1';}      // 申請人
+        if($receive_row["omager"] == $_SESSION["AUTH"]["emp_id"]){
+            $step_index = '2';}      // 申請人主管
 
+        if(empty($step_index)){
+            if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
+                $step_index = '6';}      // noBody
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
+                $step_index = '7';}      // ppe site user
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 1){
+                $step_index = '8';}      // ppe pm
+            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 0){
+                $step_index = '9';}      // 系統管理員
+        }
+        
+        // $step套用身份
+        $step = $step_arr[$step_index];
+    // }
 
 ?>
 
@@ -66,7 +100,7 @@
             /* transition: 3s; */
         }
         /*眼睛*/
-        #checkEye , #in_sign_badge {
+        #checkEye , #omager_badge , #in_sign_badge {
             position: absolute;
             top: 50%;
             right: 10px;
@@ -154,11 +188,27 @@
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
-                    <div class="col-12 col-md-6 py-0">
+                    <div class="col-12 col-md-4 py-0">
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
-                    <div class="col-12 col-md-6 py-0 text-end">
-                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                    <div class="col-12 col-md-4 py-0 t-center">
+                        <?php 
+                            echo "身分: ".$step." / idty:".$receive_row['idty']." ";
+                            switch($receive_row['idty']){
+                                case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                case "2" : echo "退件"; break;
+                                case "3" : echo "取消"; break;
+                                case "10": echo "結案"; break;
+                                case "11": echo "轉PR"; break;
+                                case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                default  : echo "na"; break; }
+
+                            echo " / wait: ".$receive_row['in_sign']." ";
+                        ?>
+                    </div>
+                    <div class="col-12 col-md-4 py-0 text-end">
+                        <a href="index.php" class="btn btn-secondary"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
                     </div>
                 </div>
 
@@ -169,11 +219,13 @@
                         填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($_SESSION[$sys_id]["role"] <= 2 && $receive_row['idty'] == 1){ ?>
-                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="1" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                        <?php if($receive_row['idty'] == 1){ ?>
+                        <?php if( ($receive_row['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || $_SESSION[$sys_id]["role"] == 0 ){ ?>
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                        <?php } if( ($receive_row['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || $_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
-                        <?php } ?>
+                        <?php } } ?>
                     </div>
                 </div>
     
@@ -191,11 +243,16 @@
                                             <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                         </div>
                                         <div class="col-6 col-md-6 text-end">
-                                            <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($receive_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
-                                                <?php if(($receive_row['idty'] == 2) || ($receive_row['idty'] == 4) || ($receive_row['idty'] == 6)){ ?>
+                                            <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
+                                            <?php if( ($receive_row['created_emp_id'] == $_SESSION["AUTH"]["emp_id"]) ||
+                                                    ($receive_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]) || ($_SESSION[$sys_id]["role"] <= 1) ){ ?>
+                                                <!-- <php if(($receive_row['idty'] == 2) || ($receive_row['idty'] == 4) || ($receive_row['idty'] == 6)){ ?> -->
+                                                <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                                <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
                                                     <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                                 <?php ;} ?>
-                                                <?php if(($receive_row['idty'] != 0) && ($receive_row['idty'] != 3)){ ?>
+                                                <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
+                                                <?php if(in_array($receive_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
                                                     <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
@@ -269,9 +326,8 @@
                                                 </div>
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" required disabled placeholder="上層主管工號"
-                                                                data-toggle="tooltip" data-placement="bottom" title="輸入上層主管工號" >
-                                                        <label for="in_sign" class="form-label">in_sign/上層主管工號：<sup class="text-danger"> *</sup></label>
+                                                        <input type="text" name="omager" id="omager" class="form-control" required disabled placeholder="主管工號">
+                                                        <label for="omager" class="form-label">omager/主管工號：<sup class="text-danger"> *</sup></label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -362,10 +418,11 @@
                                         </div>
                                         <div class="modal-footer">
                                             <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                            <input type="hidden" name="uuid" id="uuid" value="">
+                                            <input type="hidden" name="uuid" id="uuid" value="<?php echo $receive_row['uuid'];?>">
                                             <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                            <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
                                             <input type="hidden" name="idty" id="idty" value="">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
                                                 <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -445,6 +502,6 @@
     var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
 </script>
 
-<script src="receive_show.js"></script>
+<script src="receive_show.js?v=<?=time();?>"></script>
 
 <?php include("../template/footer.php"); ?>

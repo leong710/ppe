@@ -131,9 +131,9 @@
 
         // 查詢上層主管工號
         }else{
-            var fun = 'in_sign_badge';
+            var fun = 'omager_badge';
             search = search.trim();
-            $('#in_sign_badge').empty();
+            $('#omager_badge').empty();
         }
 
         if(!search || (search.length < 8)){
@@ -165,7 +165,7 @@
                         var input_dept = document.getElementById('dept');               // 部門名稱
                         var input_sign_code = document.getElementById('sign_code');     // 部門代號
                         var input_extp = document.getElementById('extp');               // 分機
-                        var input_in_sign = document.getElementById('in_sign');         // 上層主管
+                        var input_omager = document.getElementById('omager');         // 上層主管
 
                         if(obj_val){
 
@@ -189,15 +189,15 @@
                             input_sign_code.value = obj_val.dept_no;                    // 部門代號 = dept_no 部門代號
 
                             if(obj_val.omager){
-                                $('#in_sign_badge').closest('.tag').remove();           // 泡泡自畫面中移除
-                                $('#in_sign_badge').empty();
-                                input_in_sign.value = obj_val.omager;                   // 將欄位帶入數值 = in_sign/omager 上層主管
-                                $('#in_sign_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
+                                $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
+                                $('#omager_badge').empty();
+                                input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
+                                $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
 
                             }else{
-                                input_in_sign.value = '';
+                                input_omager.value = '';
                             }
-                            $("#cname, #plant, #dept, #sign_code, #in_sign").addClass("autoinput");
+                            $("#cname, #plant, #dept, #sign_code, #omager").addClass("autoinput");
 
                             var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
                             inside_toast(sinn);
@@ -216,13 +216,13 @@
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
                         if(obj_val){                            
-                            $('#in_sign_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
-                            $("#in_sign").addClass("autoinput");
+                            $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                            $("#omager").addClass("autoinput");
                             var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入上層主管資訊...完成!!';
                             inside_toast(sinn);
 
                         }else{
-                            document.getElementById('in_sign').value = '';                         // 將欄位cname清除
+                            document.getElementById('omager').value = '';                         // 將欄位cname清除
                             var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
                             inside_toast(sinn);
                         }
@@ -236,12 +236,12 @@
         $("body").mLoading("hide");
     }
 
-    // fun3-2：in_sign上層主管：移除單項模組
-    $('#in_sign_badge').on('click', '.remove', function() {
+    // fun3-2：omager上層主管：移除單項模組
+    $('#omager_badge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
-        document.getElementById('in_sign').value = '';          // 將欄位cname清除
-        $('#in_sign').removeClass('autoinput');                 // 移除外框提示
-        // $('#in_sign_badge').empty();
+        document.getElementById('omager').value = '';          // 將欄位cname清除
+        $('#omager').removeClass('autoinput');                 // 移除外框提示
+        // $('#omager_badge').empty();
     });
 
     // fun3-3：吐司顯示字條 // init toast
@@ -268,7 +268,7 @@
             "extp"           : "extp/分機",
             "local_id"       : "local_id/領用站點",
             "ppty"           : "** ppty/需求類別",
-            "in_sign"        : "** in_sign/上層主管工號",
+            "omager"         : "** omager/上層主管工號",
             "receive_remark" : "receive_remark/用途說明",
             "created_emp_id" : "created_emp_id/開單人工號",
             "created_cname"  : "created_cname/開單人姓名",
@@ -288,8 +288,8 @@
                     add_item(cart_key, receive_row_cart[cart_key], 'off');
                 })
 
-            }else if(receive_key == 'in_sign'){             //in_sign 上層主管工號
-                document.getElementById('in_sign').value = receive_row[receive_key];
+            }else if(receive_key == 'omager'){             //omager 上層主管工號
+                document.getElementById('omager').value = receive_row[receive_key];
                 search_fun(receive_row[receive_key]);
 
             }else{
@@ -320,14 +320,9 @@
         $('[data-toggle="tooltip"]').tooltip();
 
         // 監聽表單內 input 變更事件
-        $('#cname, #plant, #dept, #sign_code, #in_sign, #extp').change(function() {
+        $('#cname, #plant, #dept, #sign_code, #omager, #extp').change(function() {
             // 當有變更時，對該input加上指定的class
             $(this).removeClass('autoinput');
-        });
-
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
         });
 
         // 20230817 禁用Enter鍵表單自動提交 

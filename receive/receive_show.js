@@ -152,7 +152,7 @@
             "extp"           : "extp/分機",
             // "local_id"       : "local_id/領用站點",              // 改由php echo產生
             "ppty"           : "** ppty/需求類別",
-            "in_sign"        : "in_sign/上層主管工號",
+            "omager"         : "omager/上層主管工號",
             "receive_remark" : "receive_remark/用途說明",
             // "created_emp_id" : "created_emp_id/開單人工號",
             // "created_cname"  : "created_cname/開單人姓名",
@@ -193,7 +193,7 @@
         document.getElementById('idty').value = idty;
         $('#idty_title').append(idty_title);
         var forwarded_div = document.getElementById('forwarded');
-        if(forwarded_div && (idty == 1)){
+        if(forwarded_div && (idty == 5)){
             forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
         }else{
             forwarded_div.classList.add('unblock');              // 按下其他 = 隱藏

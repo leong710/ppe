@@ -11,7 +11,15 @@
             $swal_json = update_receive($_REQUEST);
             break;
         case "sign":        // 簽核
-            $swal_json = sign_receive($_REQUEST);
+            if($_REQUEST["idty"] == 5 && empty($_REQUEST["in_sign"])){
+                $swal_json = array(
+                    "fun" => "sign_receive",
+                    "action" => "error",
+                    "content" => '領用申請--轉呈失敗'
+                );
+            }else{
+                $swal_json = sign_receive($_REQUEST);
+            }
             break;
         default:            // 預定失效 
             echo "bg-light text-success"; 
@@ -27,11 +35,14 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
 <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS -->
 <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS -->
+
 <script>    
     
-    $("body").mLoading({ icon: "../../libs/jquery/Wedges-3s-120px.gif", });             // 畫面載入時開啟loading
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
     var url = 'index.php';
+
+    $("body").mLoading({ icon: "../../libs/jquery/Wedges-3s-120px.gif", });             // 畫面載入時開啟loading
+    window.addEventListener("load", function(event) {  $("body").mLoading("hide"); });   // All resources finished loading! 關閉mLoading提示
 
     if(swal_json.length != 0){
         $("body").mLoading("hide");
@@ -48,10 +59,7 @@
         }
 
     }else{
-        // All resources finished loading! 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
+
         location.href = this.url;
     }
     

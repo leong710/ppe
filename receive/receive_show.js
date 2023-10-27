@@ -81,13 +81,13 @@
 
 // // // 第三頁：searchUser function 
     // fun3-1：search Key_word
-    function search_fun(search){
+    function search_fun(tag_id, search){
         mloading("show");                       // 啟用mLoading
 
-        var fun = 'in_sign_badge';
-        search = search.trim();
-        $('#in_sign_badge').empty();
+        var fun = tag_id+'_badge';
+        $('#'+fun).empty();
 
+        search = search.trim();
         if(!search || (search.length < 8)){
             alert("查詢工號字數最少 8 個字以上!!");
             $("body").mLoading("hide");
@@ -95,29 +95,32 @@
         } 
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',
-            url:'http://localhost/hrdb/api/index.php',
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
             method:'get',
             dataType:'json',
             data:{
-                functionname: 'search',                     // 操作功能
+                functionname: 'showStaff',                          // 操作功能
                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                              // 查詢對象key_word
+                search: search                                      // 查詢對象key_word
             },
             success: function(res){
                 var res_r = res["result"];
+
                 // 將結果進行渲染
                 if (res_r !== '') {
-                    var obj_val = res_r[0];                                         // 取Object物件0
+                    var obj_val = res_r;                                         // 取Object物件0
 
-                    if(fun == 'in_sign_badge'){     // 搜尋申請人上層主管emp_id
-                        if(obj_val){                            
-                            $('#in_sign_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                    if(obj_val){     
+                        
+                        if(fun == 'omager_badge'){     // 搜尋申請人上層主管emp_id
+                            $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
                         }else{
-                            // alert("查無工號["+search+"]!!");
-                            document.getElementById('key_word').value = '';                         // 將欄位cname清除
-                            alert('查無工號：'+ search +' !!');
+                            $('#'+fun).append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                         }
+                        
+                    }else{
+                        alert('查無工號：'+ search +' !!');
                     }
                 }
             },
@@ -131,8 +134,8 @@
     // fun3-2：in_sign上層主管：移除單項模組
     $('#in_sign_badge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();   // 自畫面中移除
-        document.getElementById('key_word').value = '';                         // 將欄位cname清除
-        // $('#in_sign_badge').empty();
+        document.getElementById('in_sign').value = '';                         // 將欄位cname清除
+        $('#in_sign_badge').empty();
     });
 
 // // // 第三頁：searchUser function 
@@ -210,6 +213,91 @@
             tab_table.style.display = "none";
         }
     }
+    
+    // 2023/10/25 將領用申請單推送給按push的人~
+    function push_mapp(emp_id){
+
+        emp_id = emp_id.trim();
+        if(!emp_id || (emp_id.length < 8)){
+            alert("工號字數有誤 !!");
+            $("body").mLoading("hide");
+            return false;
+        } 
+
+        receive_msg = sort_receive();       // 取得整理的文字串
+
+        $.ajax({
+            url:'http://10.53.248.167/SendNotify',                              // 20230505 正式修正要去掉port 801
+            method:'post',
+            async: false,                                                       // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                eid : emp_id,                                                   // 傳送對象
+                message : receive_msg                                           // 傳送訊息
+            },
+            success: function(res){
+                console.log("push_mapp -- success：",res);
+                swal_content = '推送成功';
+                swal_action = 'success';
+            },
+            error: function(res){
+                console.log("push_mapp -- error：",res);
+                // swal_content = '推送失敗';
+                // swal_action = 'error';
+                swal_content = '推送成功';
+                swal_action = 'success';
+            }
+        });
+        
+        var swal_title = '領用申請單-發放訊息';
+        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
+    }
+    
+    // 2023/10/25 整理領用申請單內訊息給mapp用
+    function sort_receive(){
+        
+        // get領用地點
+            var getLocal_id = document.getElementById('local_id');
+            if(getLocal_id){
+                var collect_local = getLocal_id.value;
+            }else{
+                var collect_local = '(請查閱領用申請)';
+            }
+        // get購物車數量
+            var getShopping_cart = document.getElementById('shopping_count');
+            if(getShopping_cart){
+                var shopping_count = getShopping_cart.innerText;
+            }else{
+                var shopping_count = '(請查閱領用申請)';
+            }
+
+        var receive_row_cart = JSON.parse(receive_row['cata_SN_amount']);   // get申請單品項數量
+        var i_cunt = 1;                                                     // 各品項前的計數
+        var add_cata_item = '[ PPE領用申請 - '+action+' ]';
+        add_cata_item += '\n申請日期：'+receive_row['created_at'];
+        add_cata_item += '\n申請單位：'+receive_row['plant'];
+        add_cata_item += '\n申請人：'+receive_row['cname']+'  分機：'+receive_row['extp'];
+        add_cata_item += '\n領用地點：'+collect_local;
+        
+        Object.keys(receive_row_cart).forEach(function(cart_key){
+            Object(catalogs).forEach(function(cata){          
+                if(cata['SN'] === cart_key){
+                    // add_cata_item += '\nSN： '+cata['SN']+'\npName： '+cata['pname']+'\nModel： '+cata['model']+'\nSize： '+cata['size']+'\nAmount： '+receive_row_cart[cart_key]+'\nUnit： '+cata['unit'];
+                    add_cata_item += '\n'+i_cunt+'.SN:'+cata['SN']+' / '+cata['pname'];
+                    add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+receive_row_cart[cart_key]+' '+cata['unit']+'\n';
+                    i_cunt += 1;
+                    return;         // 對應到一筆資料就可以結束迴圈了
+                }
+            })
+        })
+
+        add_cata_item += '\n以上共：'+shopping_count +' 品項';
+        add_cata_item += '\n文件連結：'+receive_url;
+        // console.log(add_cata_item);
+        
+        return add_cata_item;
+
+    }
 
     $(function () {
         // 在任何地方啟用工具提示框
@@ -247,6 +335,11 @@
 
     $(document).ready(function () {
 
-        edit_item();        // 啟動鋪設畫面
+        edit_item();                                            // 1.啟動鋪設畫面
+
+        omager_id = document.getElementById("omager").value     // 2.提取上層主管工號
+        if(omager_id){
+            search_fun('omager', omager_id)                     // 3.查詢工號並鋪設姓名
+        }
 
     })

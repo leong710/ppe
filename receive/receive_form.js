@@ -349,11 +349,6 @@
         };
     })
 
-    // 確認action不是新表單，就進行Edit模式渲染
-    if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
-        edit_item();
-        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
-    }
 
     $(document).ready(function () {
         
@@ -383,6 +378,12 @@
                     document.getElementById('add_'+ amount_id).value = amount.value;
                 }
             }
+        }
+
+        // 確認action不是新表單，就進行Edit模式渲染
+        if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
+            edit_item();
+            $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
         }
 
     })

@@ -84,33 +84,24 @@
         }
     }
 
-    function show_site(){
+    function show_site($request){       // 已加入分頁功能
         $pdo = pdo();
+            extract($request);
         $sql = "SELECT _site.*
                 FROM _site
                 ORDER BY _site.id ASC";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+            }
         try {
             $stmt->execute();
             $sites = $stmt->fetchAll();
             return $sites;
         }catch(PDOException $e){
             echo $e->getMessage();
-        }
-    }
-    //分頁工具
-    function page_div_site($start, $per){
-        $pdo = pdo();
-        $sql = "SELECT _site.*
-                FROM _site
-                ORDER BY _site.id ASC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            $stmt->execute();
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
         }
     }
 // site
@@ -120,10 +111,10 @@
     function store_fab($request){
         $pdo = pdo();
         extract($request);
-        $sql = "INSERT INTO _fab(site_id, fab_title, fab_remark, buy_ty, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO _fab(site_id, fab_title, fab_remark, buy_ty, sign_code, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $flag, $updated_user]);
+            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $sign_code, $flag, $updated_user]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -147,11 +138,11 @@
         $pdo = pdo();
         extract($request);
         $sql = "UPDATE _fab
-                SET site_id=?, fab_title=?, fab_remark=?, buy_ty=?, flag=?, updated_user=?, updated_at=now()
+                SET site_id=?, fab_title=?, fab_remark=?, buy_ty=?, sign_code=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $flag, $updated_user, $id]);
+            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $sign_code, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -199,35 +190,25 @@
         }
     }
 
-    function show_fab(){
+    function show_fab($request){       // 已加入分頁功能
         $pdo = pdo();
+            extract($request);
         $sql = "SELECT _fab.*, _site.site_title, _site.site_remark, _site.flag AS site_flag
                 FROM _fab
                 LEFT JOIN _site ON _site.id = _fab.site_id
                 ORDER BY _site.id, _fab.id ASC ";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+            if(isset($start) && isset($per)){
+                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+            }else{
+                $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+            }
         try {
             $stmt->execute();
             $fabs = $stmt->fetchAll();
             return $fabs;
         }catch(PDOException $e){
             echo $e->getMessage();
-        }
-    }
-    //分頁工具
-    function page_div_fab($start, $per){
-        $pdo = pdo();
-        $sql = "SELECT _fab.*, _site.site_title, _site.site_remark, _site.flag AS site_flag
-                FROM _fab
-                LEFT JOIN _site ON _site.id = _fab.site_id
-                ORDER BY _site.id, _fab.id ASC ";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            $stmt->execute();
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
         }
     }
 // _Fab
@@ -316,7 +297,7 @@
         }
     }
 
-    function show_local($request){
+    function show_local($request){      // 已加入分頁功能
         $pdo = pdo();
         extract($request);
         // 前段-初始查詢語法：全廠+全狀態
@@ -331,7 +312,12 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY _fab.id, _local.id ASC ";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
         try {
             if($fab_id == 'All'){
                 $stmt->execute();               //處理 byAll
@@ -342,34 +328,6 @@
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
-        }
-    }
-    // 分頁工具
-    function page_div_local($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _local.*, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag, u.cname
-                FROM `_local`
-                LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _local.fab_id
-                -- WHERE _local.flag = 'On'
-                ";
-        if($fab_id != 'All'){
-            $sql .= " WHERE _local.fab_id=? ";
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _fab.id, _local.id ASC ";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($fab_id -= 'All'){
-                $stmt->execute();
-            }else{
-                $stmt->execute([$fab_id]);
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
         }
     }
 // Local

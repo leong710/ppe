@@ -1,70 +1,80 @@
 <?php
 // // // index +統計數據
-    // 20231019 在index表頭顯示我的待簽清單：    // 統計看板--下：我的待簽清單 / 轄區申請單 
+    // 20231019 在index表頭顯示我的待簽清單：    // 統計看板--下：我的待簽清單 / 轄區申請單
+        // 參數說明：
+        //     1 $fun == 'myReceive'    => 我的申請單
+        //     2 $fun == 'inSign'       => 我的待簽清單     不考慮 $fab_id
+        //     3 $fun == 'myFab'        => 我的轄區申請單   需搭配 $fab_id
+        //          $fab_id == 'All'     就是show全部廠區
+        //          $fab_id == 'allMy'   我的所屬轄區 fab & sfab
+        //          $fab_id == 'fab_id'  指定單一廠區
+        // 
     function show_my_receive($request){
         $pdo = pdo();
         extract($request);
 
-        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark 
+        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark 
                 FROM `_receive` _r
                 LEFT JOIN _local _l ON _r.local_id = _l.id
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id ";
 
-        if($fun == 'inSign'){
-            $sql .= " WHERE _r.idty IN (1, 11) AND _r.in_sign = ? ";                            // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出
+        if($fun == 'myReceive'){                                            // 處理 $_1我申請單  
+            $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) ";
 
-        }else if($fun == 'myFab'){ 
-                                                                                                // 處理 $_3轄區申請單  
-            if($fab_id != "All"){                                                               // 處理 fab_id = All 就不用套用，反之進行二階
-                if($fab_id == "allMy"){
-                    $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id 
-                              LEFT JOIN _users _u2 ON FIND_IN_SET(_l.fab_id, _u2.sfab_id)
-                              WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ? OR _u2.emp_id = ?) ";
-                }else{
+        }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出
+            $sql .= " WHERE _r.idty IN (1, 11) AND _r.in_sign = ? ";
+
+        }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  
+            if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
+                if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
+                    $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                              WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ?) ";
+                }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
                     $sql .= " WHERE _l.fab_id = ? ";
                 }
-            }
+            }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
+
+        } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
+                // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
+                $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                          WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ('{$sfab_id}')) AND _u.emp_id = ? AND _r.idty = 0 ";
+                // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
         }
         
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY _r.created_at DESC";
 
         // 決定是否採用 page_div 20230803
-        if(!empty($start) && !empty($per)){
-            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   //讀取選取頁的資料=分頁
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
         }else{
             $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         }
         try {
-
-            // if($fun == 'myFab'){
-                //     if($fab_id != "All"){                                   // 處理 fab_id = All 就不用套用，反之進行二階
-                //         if($fab_id == "allMy"){
-                //             $stmt->execute([$emp_id]);                      //處理 byUser.emp_id
-                //         }else{
-                //             $stmt->execute([$fab_id]); 
-                //         }
-                //     }
-                // }else{
-                //     $stmt->execute([$emp_id]);                              //處理 byUser.emp_id
-                // }
-            if($fun == 'inSign'){
+            // if($fun == 'inSign' || $fun == 'myReceive'){                       // 處理 $_2我待簽清單 $_1我申請單
+            if(in_array( $fun , ['inSign', 'myReceive', 'myCollect'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myReceive、$_5我的待領清單myCollect
                 $stmt->execute([$emp_id]);
 
             }else if ($fun == 'myFab' && $fab_id != 'All') {
                 if($fab_id == 'allMy'){
-                    $stmt->execute([$emp_id, $emp_id]);
+                    $stmt->execute([$emp_id]);
                 }else{
                     $stmt->execute([$fab_id]);
                 }
                 // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
+
+            // }else if ($fun == 'myCollect') {
+            //         $stmt->execute([$sfab_id]);
+                
             } else {
                 $stmt->execute();
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            // echo "</br>{$fun}/{$emp_id}：".$sql."</br><hr>";
+            if($fun == 'myCollect'){  
+                echo "</br>{$fun}/{$emp_id}：".$sql."</br><hr>";
+            }
             return $my_receive_lists;
 
         }catch(PDOException $e){
@@ -88,11 +98,33 @@
             echo $e->getMessage();
         }
     }
-    // 20231019 在index表頭顯示自己fab區域
+    // 20231026 在index表頭顯示my_coverFab區域
+    function show_coverFab_lists($request){
+        $pdo = pdo();
+        extract($request);
+
+            // $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+
+        $sql = "SELECT _f.*
+                FROM _fab AS _f 
+                WHERE _f.sign_code LIKE ?
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $allFab_lists = $stmt->fetchAll();
+            return $allFab_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20231019 在index表頭顯示自己fab區域      // 處理 4我的轄區
     function show_myFab_lists($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _f.* 
+        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag 
                 FROM _fab AS _f ";
             
         if($fab_id == "allMy"){
@@ -239,23 +271,24 @@
         $pdo = pdo();
         extract($request);
         // item資料前處理
-        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
+            $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
     
         // 把_receive表單logs叫近來處理
             $query = array('uuid'=> $uuid );
 
-                if($action == "edit"){
-                    $idty = 4;
-                }
+                // $sign_comm .= " // 編輯後送出";
+                $in_sign = $omager;
+                $flow = "主管簽核";
+                $idty_after = "1";                      // 由 5轉呈 存換成 1送出
 
             $receive_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
-            $logs_request["step"]   = $step;
+            $logs_request["step"]   = $step."-編輯";
             $logs_request["idty"]   = $idty;
             $logs_request["cname"]  = $created_cname;
             $logs_request["logs"]   = $receive_logs["logs"];   
-            $logs_request["remark"] = $sin_comm;   
+            $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
         // back
@@ -280,11 +313,11 @@
         // 更新_receive表單
         $sql = "UPDATE _receive
                 SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
-                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ? ,in_sign=? ,updated_at = now()
+                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ?, omager=?, in_sign=?, flow=?, updated_at = now()
                 WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty, $logs_enc, $updated_user, $in_sign, $uuid]);
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty_after, $logs_enc, $updated_user, $omager, $in_sign, $flow, $uuid]);
             $swal_json = array(
                 "fun" => "update_receive",
                 "action" => "success",
@@ -322,11 +355,11 @@
         // 把_receive表單logs叫近來處理
             $query = array('uuid'=> $uuid );
 
-                if($idty == 5 && !empty($in_sign)){
-                    $receive_row = show_receive($query);
-                    $sin_comm .= " // 原待簽 ".$receive_row["in_sign"]." 轉呈 ".$in_sign;
-                    $flow = "轉呈簽核";
-                }
+            if($idty == 5 && !empty($in_sign)){
+                $receive_row = show_receive($query);
+                $sign_comm .= " // 原待簽 ".$receive_row["in_sign"]." 轉呈 ".$in_sign;
+                $flow = "轉呈簽核";
+            }
 
             $receive_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
@@ -335,23 +368,35 @@
             $logs_request["idty"]   = $idty;   
             $logs_request["cname"]  = $updated_user;
             $logs_request["logs"]   = $receive_logs["logs"];   
-            $logs_request["remark"] = $sin_comm;   
+            $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
 
         // 更新_receive表單
         $sql = "UPDATE _receive 
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
-            if($idty == 5){
+            if($idty == 5){                             // case = 5轉呈
                 $sql .= " , in_sign = ? , flow = ? ";
                 $idty_after = "1";                      // 由 5轉呈 存換成 1送出
+            }else if($idty == 3 || $idty == 0){                       // case = 3取消/作廢 , case = 0完成
+                $sql .= " , in_sign = ? , flow = ? ";
+                $in_sign = NULL;                        // 由 存換成 NULL
+                $idty == 0 ? $flow = 'collect' : $flow = NULL ;     // 由 存換成 NULL
+                $idty_after = $idty;                    // 由 換成 3送出
+            }else if($idty == 4){                       // case = 4編輯/作廢
+                $sql .= " , in_sign = ? , flow = ? ";
+                $in_sign = NULL;                        // 由 存換成 NULL
+                $flow = NULL;                           // 由 存換成 NULL
+                $idty_after = "1";                      // 由 4編輯 存換成 1送出
             }else{
+                // *** 2023/10/24 這裏要想一下，主管簽完同意後，要清除in_sign和flow
                 $idty_after = $idty;                    // 由 5轉呈 存換成 1送出
             }
         $sql .= " WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            if($idty == 5){
+            // if($idty == 5 || $idty == 3){
+            if((in_array($idty, [ 0, 3, 4, 5]))){             // case = 3取消/作廢、case = 5轉呈 4編輯(送出)
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
             }else{
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $uuid]);
@@ -378,7 +423,7 @@
     function select_local($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty 
+        $sql = "SELECT _l.*, _s.site_title, _s.site_remark, _f.fab_title, _f.fab_remark, _f.buy_ty , _f.sign_code AS fab_signCode
                 FROM `_local` _l
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id
@@ -532,7 +577,7 @@
             case "2":   $action = '退回 (Reject)';        break;
             case "3":   $action = '作廢 (Abort)';         break;
             case "4":   $action = '編輯 (Edit)';          break;
-            case "5":   $action = '轉呈 (Transmit)';      break;
+            case "5":   $action = '轉呈 (Forwarded)';      break;
             case "6":   $action = '暫存 (Save)';          break;
             case "10":  $action = '結案';                 break;
             case "11":  $action = '轉PR';                 break;
@@ -608,6 +653,12 @@
     }
 // // // CSV & Log tools -- end
 
+    // deBug專用
+    function deBug($request){
+        extract($request);
+        print_r($request);echo '<br>';
+        echo '<hr>';
+    }
 // ---------
 
 // // // process_issue處理交易事件

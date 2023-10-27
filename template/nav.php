@@ -3,7 +3,7 @@
 
     $webroot = "..";
 
-    if(isset($_SESSION[$sys_id])){
+    if(isset($_SESSION[$sys_id]) && $_SESSION[$sys_id]["role"] <= 2){
         //// 2調撥
             $fab_id = $_SESSION[$sys_id]["fab_id"];        // 先給預設值
             $myTrade = show_myTrade($fab_id);              // 查詢器材調撥
@@ -77,8 +77,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
-                                        <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp領用申請總表</a></li>
-                                        
+                                        <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp我的申請文件</a></li>
                                         <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li>

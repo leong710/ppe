@@ -39,8 +39,11 @@
                         echo "<script>alert('{$sys_local_row["cname"]} Local帳號停用，請洽管理員')</script>";
                     }
                 }else{                                                      // 沒有sys_id的人員權限資料
-                    echo "<script>alert('{$user} local無資料，請洽管理員')</script>";
-                    header("location:../auth/register.php?user=$user");     // 沒有local資料，帶入註冊頁面
+                    // echo "<script>alert('{$user} local無資料，請洽管理員')</script>";
+                    // header("location:../auth/register.php?user=$user");     // 沒有local資料，帶入註冊頁面
+                    $_SESSION[$sys_id]["role"] = 3;
+                    $_SESSION[$sys_id]["fab_id"] = 0;
+                    $_SESSION[$sys_id]["sfab_id"] = [];
                     exit;
                 }
                 

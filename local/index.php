@@ -2,6 +2,7 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
+    require_once("function_dept.php");
     accessDenied($sys_id);
     
     // 新增
@@ -52,8 +53,15 @@
         $activeTab = "2";       // 2 = local
     }
 
-    $fabs = show_fab();
-    $sites = show_site();
+        // 3.組合查詢陣列
+        $basic_query_arr = array(
+            'sys_id' => $sys_id
+        );
+
+    $fabs = show_fab($basic_query_arr);
+    $sites = show_site($basic_query_arr);
+
+    $dept_lists = show_dept();
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -175,6 +183,7 @@
                                             <th>fab_title</th>
                                             <th>fab_remark</th>
                                             <th>buy_ty</th>
+                                            <th>sign_code</th>
                                             <th>flag</th>
                                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
                                                 <th>action</th>
@@ -190,6 +199,7 @@
                                                 <td style="text-align:left;"><?php echo $fab['fab_title']; ?></td>
                                                 <td style="text-align:left;"><?php echo $fab['fab_remark']; ?></td>
                                                 <td <?php echo $fab['buy_ty'] !='a' ? 'style="background-color: yellow;"':'';?>><?php echo $fab['buy_ty']; ?></td>
+                                                <td style="text-align:center;"><?php echo $fab['sign_code']; ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
                                                         <button type="button" name="fab" id="<?php echo $fab['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $fab['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $fab['flag'];?>"><?php echo $fab['flag'];?></button>
                                                     <?php }else{ ?>
@@ -243,7 +253,7 @@
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $local['id']; ?></td>
                                                 <td style="text-align:left;"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                                <td><?php echo $local['local_title']; ?></td>
+                                                <td style="text-align:left;"><?php echo $local['local_title']; ?></td>
                                                 <td style="text-align:left;"><?php echo $local['local_remark'];?></td>
                                                 <td><?php echo $local['cname'];?></td>
                                                 <td><a href="low_level.php?local_id=<?php echo $local['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($local['low_level']) ? "btn-success":"btn-warning";?>">
@@ -344,7 +354,7 @@
                 <form action="" method="post">
                     <div class="modal-body px-5">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <select name="site_id" id="site_id" class="form-select" required>
                                         <option value="" selected hidden>-- 請選擇site級別 --</option>
@@ -358,17 +368,30 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="fab_title" class="form-control" id="fab_title" required placeholder="Fab名稱">
                                     <label for="fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="fab_remark" class="form-control" id="fab_remark" required placeholder="註解說明">
                                     <label for="fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 py-1">
+                                <div class="form-floating">
+                                    <select name="sign_code" id="sign_code" class="form-select" required>
+                                        <option value="" hidden selected>-- 選擇管理單位 --</option>
+                                        <?php foreach($dept_lists as $dept_li){ ?>
+                                            <option value="<?php echo $dept_li['sign_code'];?>" <?php echo ($dept_li['up_dep'] == '') ? "selected":"";?> >
+                                                <?php echo $dept_li['up_sign_dept'] != "" ? $dept_li['up_sign_dept']." / ":""; echo $dept_li['sign_dept']." (".$dept_li['sign_code'].") ".$dept_li['dept_sir'];?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <label for="sign_code" class="form-label">sign_code/上層組織：<sup class='text-danger'> *</sup></label>
                                 </div>
                             </div>
 
@@ -587,7 +610,7 @@
                 <form action="" method="post">
                     <div class="modal-body px-5">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <select name="site_id" id="edit_site_id" class="form-select" required>
                                         <option value="" selected hidden>-- 請選擇site級別 --</option>
@@ -600,21 +623,34 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="fab_title" class="form-control" id="edit_fab_title" required placeholder="Fab名稱">
                                     <label for="edit_fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="fab_remark" class="form-control" id="edit_fab_remark" required placeholder="註解說明">
                                     <label for="edit_fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-12 py-1">
+                                <div class="form-floating">
+                                    <select name="sign_code" id="edit_sign_code" class="form-select" required>
+                                        <option value="" hidden selected>-- 選擇管理單位 --</option>
+                                        <?php foreach($dept_lists as $dept_li){ ?>
+                                            <option value="<?php echo $dept_li['sign_code'];?>" <?php echo ($dept_li['up_dep'] == '') ? "selected":"";?> >
+                                                <?php echo $dept_li['up_sign_dept'] != "" ? $dept_li['up_sign_dept']." / ":""; echo $dept_li['sign_dept']." (".$dept_li['sign_code'].") ".$dept_li['dept_sir'];?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <label for="edit_sign_code" class="form-label">sign_code/上層組織：<sup class='text-danger'> *</sup></label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
@@ -771,12 +807,12 @@
         document.querySelector('#key_word').value = '';
     }
 
-    var site   = <?=json_encode($sites);?>;                                // 引入sites資料
-    var fab    = <?=json_encode($fabs);?>;                                 // 引入fabs資料
-    var local  = <?=json_encode($locals);?>;                               // 引入locals資料
-    var site_item   = ['id','site_title','site_remark','flag'];                     // 交給其他功能帶入 delete_site_id
-    var fab_item    = ['id','site_id','fab_title','fab_remark','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
-    var local_item  = ['id','fab_id','local_title','local_remark','flag'];          // 交給其他功能帶入 delete_local_id
+    var site   = <?=json_encode($sites);?>;                                                     // 引入sites資料
+    var fab    = <?=json_encode($fabs);?>;                                                      // 引入fabs資料
+    var local  = <?=json_encode($locals);?>;                                                    // 引入locals資料
+    var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
+    var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
+    var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){

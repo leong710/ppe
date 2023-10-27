@@ -37,6 +37,11 @@
     }else{
         $login_AUTH = FALSE;
     }
+    // 讓一般nobody用戶帶到 我的申請文件
+    if($login_AUTH && $_SESSION[$sys_id]["role"] == 3){
+        header("refresh:0;url=../receive/");
+        exit;
+    }
 ?>
 
 <?php include("../template/header.php"); ?>

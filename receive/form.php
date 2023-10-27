@@ -90,6 +90,7 @@
         // $step套用身份
         $step = $step_arr[$step_index];
     // }
+        $up_href = $_SERVER["HTTP_REFERER"];    // 回上頁
 
 ?>
 
@@ -215,7 +216,7 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
-                        <a href="index.php" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
 

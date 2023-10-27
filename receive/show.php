@@ -4,6 +4,13 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = $receive_url;                        // 回本頁
+    }
+
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
         $action = $_REQUEST["action"];              // 有action就帶action
@@ -15,7 +22,7 @@
         $receive_row = show_receive($_REQUEST);
         if(empty($receive_row)){
             echo "<script>alert('uuid-error：{$_REQUEST["uuid"]}')</script>";
-            header("refresh:0;url=index.php");
+            header("refresh:0;url={$up_href}");
             exit;
         }
         // logs紀錄鋪設前處理 
@@ -27,11 +34,11 @@
         $action = 'create';                         // 因為沒有uuid，列為新開單，防止action outOfspc
     }
 
-    if(!empty($receive_row["local_id"])){                    // edit trade表單，get已選擇出庫廠區站點
+    if(!empty($receive_row["local_id"])){           // edit trade表單，get已選擇出庫廠區站點
         $query_local = array(
             'local_id' => $receive_row["local_id"]
         );
-        $select_local = select_local($query_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
+        $select_local = select_local($query_local);   // 讀出已被選擇出庫廠區站點
 
     }else{
         $select_local = array('id' => '');
@@ -54,17 +61,23 @@
             '7' => 'ppe site user',
             '8' => 'ppe pm',
             '9' => '系統管理員',
+            '10'=> '轉呈簽核'
         ];
         
         // 決定表單開啟 $step身份
         if($receive_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '0';}      // 填單人
-        if($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '1';}      // 申請人
+            $step_index = '0';  // 填單人
+        } else if($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"]){
+            $step_index = '1';  // 申請人
+        }      
         if($receive_row["omager"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '2';}      // 申請人主管
+            $step_index = '2';  // 申請人主管
+        } else if($receive_row["in_sign"] == $_SESSION["AUTH"]["emp_id"]){
+            $step_index = '10';  // 轉呈簽核
+        }
 
-        if(empty($step_index)){
+        // if(empty($step_index)){
+        if(!isset($step_index)){
             if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
                 $step_index = '6';}      // noBody
             if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
@@ -105,6 +118,7 @@
             top: 50%;
             right: 10px;
             transform: translateY(-50%);
+            z-index: 999;
         }
         .tag{
             display: inline-block;
@@ -204,11 +218,12 @@
                                 case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
                                 default  : echo "na"; break; }
 
-                            echo " / wait: ".$receive_row['in_sign']." ";
+                            echo !empty($receive_row['in_sign']) ? " / wait: ".$receive_row['in_sign']." " :"";
+                            echo !empty($receive_row['flow']) ? " / flow: ".$receive_row['flow']." " :"";
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <a href="index.php" class="btn btn-secondary"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <button class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -226,6 +241,7 @@
                             <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
+
                     </div>
                 </div>
     
@@ -256,6 +272,9 @@
                                                     <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
+                                            <?php if($receive_row['idty'] == 0){ ?>
+                                                <button class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="發給正在看此單的人"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                            <?php } ?>
                                         </div>
                                         <hr>
                                         <!-- 相關資訊說明 -->
@@ -309,8 +328,8 @@
                                             <div class="row">
                                                 <div class="col-6 col-md-4 py-1 px-2">
                                                     <div class="form-floating">
-                                                        <input type="text" class="form-control" readonly
-                                                            value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                        <input type="text" class="form-control" id="local_id" readonly
+                                                            value="<?php echo $select_local['id'].'：'.$select_local['fab_title'].'_'.$select_local['local_title']; 
                                                                 echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                         <label for="local_id" class="form-label">local_id/領用站點：<sup class="text-danger"> *</sup></label>
                                                     </div>
@@ -328,6 +347,7 @@
                                                     <div class="form-floating">
                                                         <input type="text" name="omager" id="omager" class="form-control" required disabled placeholder="主管工號">
                                                         <label for="omager" class="form-label">omager/主管工號：<sup class="text-danger"> *</sup></label>
+                                                        <div id="omager_badge"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -344,7 +364,7 @@
                                                 <div class="col-12 py-1">
                                                     <b>備註：</b>
                                                     </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
-                                                    </br>&nbsp2.簽核：申請人=>申請部門三級主管=>環安單位承辦人=>環安單位(課)主管=>發放人及領用人=>各廠環安單位存查3年。 
+                                                    </br>&nbsp2.簽核：申請人(送出)=>申請部門三級主管=>發放人及領用人(發放)=>環安單位承辦人=>環安單位(課)主管=>各廠環安單位存查3年(結案)。 
                                                     </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
                                                     </br>&nbsp4.以上若有填報不實，將於以退件。 
                                                 </div>
@@ -405,16 +425,17 @@
                                                     <div class="input-group search" id="select_inSign_Form">
                                                         <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
                                                         <span class="input-group-text form-label">轉呈</span>
-                                                        <input type="text" name="in_sign" id="key_word" class="form-control" style="height: auto;" placeholder="請輸入工號、姓名或NT帳號"
-                                                             aria-label="請輸入查詢對象" onchange="search_fun(this.value);">
+                                                        <!-- <input type="text" name="in_sign" id="in_sign" class="form-control" style="height: auto;" placeholder="請輸入工號、姓名或NT帳號" -->
+                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                                             aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
                                                             <!-- <h5><span id="in_sign_badge" class="badge pill bg-primary"></span></h5> -->
-                                                            <div id="in_sign_badge"></div>
+                                                        <div id="in_sign_badge"></div>
                                                     </div>
                                                 </div>
                                             <hr>
                                             </div>
-                                            <label for="sin_comm" class="form-check-label" >command：</label>
-                                            <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                            <label for="sign_comm" class="form-check-label" >command：</label>
+                                            <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
                                             <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
@@ -457,8 +478,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 6px;" class="text-end">
-                                logs訊息text-end
+                            <div style="font-size: 10px;" class="text-end">
+                                logs-end
                             </div>
                         </div>
                     </div>
@@ -467,14 +488,15 @@
                 <!-- 尾段：duBug訊息 -->
                 <div class="row block">
                     <div class="col-12 mb-0">
-                        <div style="font-size: 6px;">
+                        <div style="font-size: 14px;">
                             <?php
-                                if($_REQUEST){
+                                // if($_REQUEST){
                                     echo "<pre>";
+                                    print_r($select_local);
                                     // print_r($_REQUEST);
-                                    print_r($receive_row);
+                                    // print_r($receive_row);
                                     echo "</pre>text-end";
-                                }
+                                // }
                             ?>
                         </div>
                     </div>
@@ -500,6 +522,7 @@
     var action = '<?=$action;?>';                                   // Edit選染 // 引入action資料
     var receive_row = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
     var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
+    var receive_url = '<?=$receive_url;?>';                         // push訊息 // 本文件網址
 </script>
 
 <script src="receive_show.js?v=<?=time();?>"></script>

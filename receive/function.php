@@ -1,6 +1,6 @@
 <?php
 // // // index +統計數據
-    // 20231019 在index表頭顯示我的待簽清單：    // 統計看板--下：我的待簽清單 / 轄區申請單
+    // 20231019 在index表頭顯示我的待簽清單：    // 統計看板--左上：我的待簽清單 / 轄區申請單
         // 參數說明：
         //     1 $fun == 'myReceive'    => 我的申請單
         //     2 $fun == 'inSign'       => 我的待簽清單     不考慮 $fab_id
@@ -34,6 +34,14 @@
                     $sql .= " WHERE _l.fab_id = ? ";
                 }
             }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
+
+            if($is_emp_id != "All"){                                        // 處理過濾 is_emp_id != All  
+                if($fab_id != "All"){                                       // 處理 fab_id != All 進行二階                  
+                    $sql .= " AND ( '{$is_emp_id}' IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
+                }else{
+                    $sql .= " WHERE ( '{$is_emp_id}' IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
+                }
+            }
 
         } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
                 // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
@@ -72,17 +80,17 @@
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            // if($fun == 'myCollect'){  
-            //     echo "</br>{$fun}/{$emp_id}：".$sql."</br><hr>";
+            // if($fun == 'myFab'){  
+            //     echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
             // }
             return $my_receive_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            echo "</br>err:{$fun}/{$emp_id}：".$sql."</br><hr>";
+            echo "</br>err:{$fun}/{$is_emp_id}：".$sql."</br><hr>";
         }
     }
-    // 20231019 在index表頭顯示allFab區域
+    // 20231019 在index表頭顯示allFab區域       // 已包在 4 我的轄區中的fab_id中
     function show_allFab_lists(){
         $pdo = pdo();
         $sql = "SELECT _f.*
@@ -103,7 +111,7 @@
         $pdo = pdo();
         extract($request);
 
-            // $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
             $sign_code = "%".$sign_code."%";            // 加上模糊包裝
 
         $sql = "SELECT _f.*
@@ -127,18 +135,28 @@
         $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag 
                 FROM _fab AS _f ";
             
-        if($fab_id == "allMy"){
+        if($fab_id != "All"){
             $sql .= " LEFT JOIN _users AS _u ON _f.id = _u.fab_id OR FIND_IN_SET(_f.id, _u.sfab_id) 
-                WHERE _u.emp_id = ? ";
+                      WHERE _u.emp_id = ? ";
+            if($fab_id != "allMy"){
+                $sql .= " UNION 
+                          SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag 
+                          FROM _fab AS _f
+                          WHERE _f.id = ? ";
+            }
         }
 
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _f.id ASC ";
+        // $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
                 
         try {
-            if($fab_id == "allMy"){
-                $stmt->execute([$emp_id]);
+            if($fab_id != "All"){
+                if($fab_id != "allMy"){
+                    $stmt->execute([$emp_id, $fab_id]);
+                }else{
+                    $stmt->execute([$emp_id]);
+                }
             }else{
                 $stmt->execute();
             }

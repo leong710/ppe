@@ -6,20 +6,30 @@
 
     // 1.決定開啟表單的功能：
         if(isset($_REQUEST["fun"]) && $_REQUEST["fun"] != "myReceive"){
-            // $fun = $_REQUEST["fun"];                         // 有帶查詢fun，套查詢參數
-            $fun = "myFab";                                     // 有帶查詢fun，套查詢參數 套用是 myFab  3轄區申請單
+            // $fun = $_REQUEST["fun"];                         // 有帶fun，套查詢參數
+            $fun = "myFab";                                     // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
         }else{
-            $fun = "myReceive";                                 // fun預設值 = myReceive  2我的申請單
+            $fun = "myReceive";                                 // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
         }
 
     // 2-1.身分選擇功能：定義user進來要看到的項目
-        if($_SESSION[$sys_id]["role"] <= 1 ){                     
-            $is_emp_id = "All";                                 // 預設值：管理員、大PM = All   => 看全部的申請單
-            if(isset($_REQUEST["emp_id"])){         
-                $is_emp_id = $_REQUEST["emp_id"];               // 有帶查詢emp_id，套查詢參數
-            } 
-        }else{
-            $is_emp_id = $_SESSION["AUTH"]["emp_id"];           // 其他人、site_user含2以上 = 套自身主emp_id   => 只看關於自己的申請單
+        // if($_SESSION[$sys_id]["role"] <= 1 ){                     
+        //     if(isset($_REQUEST["emp_id"])){         
+        //         $is_emp_id = $_REQUEST["emp_id"];               // pm、管理員 有帶emp_id，套查詢參數
+        //     } else{
+        //         $is_emp_id = "All";                             // pm、管理員 沒帶emp_id，套用 emp_id = All   => 看全部的申請單
+        //     }
+        // }else{
+        //     $is_emp_id = $_SESSION["AUTH"]["emp_id"];           // 其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
+        // }
+        if(isset($_REQUEST["emp_id"])){         
+            $is_emp_id = $_REQUEST["emp_id"];                   // 有帶emp_id，套查詢參數
+        } else{
+            if($_SESSION[$sys_id]["role"] <= 1 ){                     
+                $is_emp_id = "All";                             // 沒帶emp_id，pm、管理員 套用 emp_id = All   => 看全部的申請單
+            }else{
+                $is_emp_id = $_SESSION["AUTH"]["emp_id"];       // 沒帶emp_id，其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
+            }
         }
         
     // 2-2.檢視廠區內表單
@@ -31,36 +41,33 @@
 
     // 3.組合查詢陣列
         $basic_query_arr = array(
-            'sys_id' => $sys_id,
-            'role' => $_SESSION[$sys_id]["role"],
+            'sys_id'    => $sys_id,
+            'role'      => $_SESSION[$sys_id]["role"],
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
-            'fab_id' => $is_fab_id,
-            'emp_id' => $is_emp_id
+            'fab_id'    => $is_fab_id,
+            'emp_id'    => $_SESSION["AUTH"]["emp_id"],
+            'is_emp_id' => $is_emp_id
         );
-                    // $receives = show_receive_list($basic_query_arr);
-                    // $sum_receives = show_sum_receive($basic_query_arr);              // 左統計看板--上：表單核簽狀態
-                    // $sum_receives_ship = show_sum_receive_ship($basic_query_arr);    // 左統計看板--下：轉PR單
-
-        $basic_query_arr["emp_id"] = $_SESSION["AUTH"]["emp_id"];
+            // $receives = show_receive_list($basic_query_arr);
+            // $sum_receives = show_sum_receive($basic_query_arr);              // 左統計看板--上：表單核簽狀態
+            // $sum_receives_ship = show_sum_receive_ship($basic_query_arr);    // 左統計看板--下：轉PR單
+            //$basic_query_arr["emp_id"] = $_SESSION["AUTH"]["emp_id"];
 
     // 4.篩選清單呈現方式，預設allMy
-        if($is_fab_id == "All" && $_SESSION[$sys_id]["fab_id"] == 0){
-            $myFab_lists = show_allFab_lists();                             // All
-            echo "All";
-
-        }else if($_SESSION[$sys_id]["fab_id"] == 0){
-            $myFab_lists = show_coverFab_lists($basic_query_arr);           // myCover
-            // 當noBody登入，把她所屬的部門代號廠區套入sfab
-            if(count($myFab_lists) > 0 && count($_SESSION[$sys_id]["sfab_id"]) == 0 ){
+        // if($is_fab_id == "All" && $_SESSION[$sys_id]["role"] == 0){
+        //     $myFab_lists = show_allFab_lists();                              // All
+        //     echo "All";
+        // }else 
+        if($_SESSION[$sys_id]["fab_id"] == 0){                                          // 一般user、主管
+            $myFab_lists = show_coverFab_lists($basic_query_arr);                       // myCover show_coverFab_lists用$sign_code模糊搜尋
+            if(count($myFab_lists) > 0 && count($_SESSION[$sys_id]["sfab_id"]) == 0 ){  // 當noBody登入，把她所屬的部門代號廠區套入sfab
                 foreach($myFab_lists as $myFab){ 
                     array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
                 }
                 $_SESSION[$sys_id]["fab_id"] = NULL;
             }
         }else{
-            $myFab_lists = show_myFab_lists($basic_query_arr);              // allMy
-            echo "allMy";
-
+            $myFab_lists = show_myFab_lists($basic_query_arr);                  // allMy
         }
 
     // 5-L1.處理 $_1我待簽清單 
@@ -79,8 +86,8 @@
         $basic_query_arr["sfab_id"] = $sfab_id;
         $my_collect_lists = show_my_receive($basic_query_arr);
         
-    // 5-2.處理 $_2我的申請單 fun = myReceive
-    // 5-3.處理 $_3轄區申請單 fun = myFab ： fab_id = allMy => emp_id = my ； fab_id = All or fab.id => emp_id = All 
+    // 5-2.處理 fun = myReceive $_2我的申請單
+    // 5-3.處理 fun = myFab $_3轄區申請單： fab_id=allMy => emp_id=my ； fab_id = All or fab.id => emp_id = All or is_emp_id
         //  ** 有分頁的要擺在分頁工具前!!
         $basic_query_arr["fun"] = $fun ;                                    // 指定fun = $fun = myReceive / myFab
         $receive_lists = show_my_receive($basic_query_arr);

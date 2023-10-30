@@ -241,8 +241,8 @@
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
-                        <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'){ // 12.待領、待收 ?>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">確認發放 (Delivery)</button>
+                        <?php if($receive_row['idty'] == 0){ // 0.待領、待收 ?>
+                            
                         <?php } ?>
                     </div>
                 </div>
@@ -250,9 +250,6 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <!-- <form action="store.php" method="post"> -->
-                    <form action="debug.php" method="post">
-                                            
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 3.申請單成立 -->
                             <div class="tab-pane bg-white fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -277,8 +274,8 @@
                                                     <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
-                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'){ // 12.待領、待收 ?>
-                                                <button class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                            <?php if($receive_row['idty'] == 0){ ?>
+                                                <button class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="發給正在看此單的人"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                             <?php } ?>
                                         </div>
                                         <hr>
@@ -387,10 +384,11 @@
                                                     <thead>
                                                         <tr>
                                                             <th>select</th>
-                                                            <th style="text-align: left;">SN / 品名</th>
+                                                            <th>SN / 品名</th>
                                                             <th>型號</th>
                                                             <th>尺寸</th>
-                                                            <th>申請量 / 單位</th>
+                                                            <th>數量</th>
+                                                            <th>單位</th>
                                                             <th>實發量</th>
                                                         </tr>
                                                     </thead>
@@ -411,48 +409,49 @@
                             </div>
                         </div>
 
-
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable ">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <div class="modal-body px-5">
-                                        <div class="row unblock" id="forwarded">
-                                            <div class="col-12" id="searchUser_table">
-                                                <!-- 第二排的功能 : 搜尋功能 -->
-                                                <div class="input-group search" id="select_inSign_Form">
-                                                    <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
-                                                    <span class="input-group-text form-label">轉呈</span>
-                                                    <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
-                                                            aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
-                                                    <div id="in_sign_badge"></div>
-                                                </div>
-                                            </div>
-                                        <hr>
+                                <form action="store.php" method="post">
+
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <label for="sign_comm" class="form-check-label" >command：</label>
-                                        <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                        
+                                        <div class="modal-body px-5">
+                                            <div class="row unblock" id="forwarded">
+                                                <div class="col-12" id="searchUser_table">
+                                                    <!-- 第二排的功能 : 搜尋功能 -->
+                                                    <div class="input-group search" id="select_inSign_Form">
+                                                        <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
+                                                        <span class="input-group-text form-label">轉呈</span>
+                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                                             aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
+                                                        <div id="in_sign_badge"></div>
+                                                    </div>
+                                                </div>
+                                            <hr>
+                                            </div>
+                                            <label for="sign_comm" class="form-check-label" >command：</label>
+                                            <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="uuid" id="uuid" value="<?php echo $receive_row['uuid'];?>">
+                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                            <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
+                                            <input type="hidden" name="idty" id="idty" value="">
+                                            <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
+                                                <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="uuid" id="uuid" value="<?php echo $receive_row['uuid'];?>">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
-                                        <input type="hidden" name="idty" id="idty" value="">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
-                                            <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
-                                        <?php } ?>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
-                    </form>
                     <hr>
                     <!-- 尾段logs訊息 -->
                     <div class="col-12 pt-0 rounded bg-light" id="logs_div">
@@ -472,7 +471,7 @@
                                             <th>Signer</th>
                                             <th>Time Signed</th>
                                             <th>Status</th>
-                                            <th>Comment</th>
+                                            <th >Comment</th>
                                         </tr>
                                     </thead>
                                     <tbody>

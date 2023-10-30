@@ -47,7 +47,7 @@
                 // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
                 // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
                 $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
-                          WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ('{$sfab_id}')) AND _u.emp_id = ? AND _r.idty = 0 ";
+                          WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ('{$sfab_id}')) AND _u.emp_id = ? AND _r.idty = 12 ";
         }
         
         // 後段-堆疊查詢語法：加入排序
@@ -393,22 +393,31 @@
         // 更新_receive表單
         $sql = "UPDATE _receive 
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
-            if($idty == 5){                             // case = 5轉呈
+            if($idty == 5){                                         // case = 5轉呈
                 $sql .= " , in_sign = ? , flow = ? ";
-                $idty_after = "1";                      // 由 5轉呈 存換成 1送出
-            }else if($idty == 3 || $idty == 0){                       // case = 3取消/作廢 , case = 0完成
+                $idty_after = "1";                                      // 由 5轉呈 存換成 1送出
+
+            }else if($idty == 3){                                   // case = 3取消/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
-                $in_sign = NULL;                        // 由 存換成 NULL
-                $idty == 0 ? $flow = 'collect' : $flow = NULL ;     // 由 存換成 NULL
-                $idty_after = $idty;                    // 由 換成 3送出
-            }else if($idty == 4){                       // case = 4編輯/作廢
+                $in_sign = NULL;                                        // 由 存換成 NULL
+                $flow = NULL ;                                          // 由 存換成 NULL
+                $idty_after = $idty;                                    // 由 換成 3作廢
+
+            }else if($idty == 0){                                   // case = 0同意
                 $sql .= " , in_sign = ? , flow = ? ";
-                $in_sign = NULL;                        // 由 存換成 NULL
-                $flow = NULL;                           // 由 存換成 NULL
-                $idty_after = "1";                      // 由 4編輯 存換成 1送出
+                $in_sign = NULL;                                        // 由 存換成 NULL
+                $flow = 'collect';                                      // 由 存換成 collect
+                $idty_after = 12;                                       // 由 0同意 存換成 12帶領/待收
+
+            }else if($idty == 4){                                   // case = 4編輯/作廢
+                $sql .= " , in_sign = ? , flow = ? ";
+                $in_sign = NULL;                                        // 由 存換成 NULL
+                $flow = NULL;                                           // 由 存換成 NULL
+                $idty_after = "1";                                      // 由 4編輯 存換成 1送出
+
             }else{
                 // *** 2023/10/24 這裏要想一下，主管簽完同意後，要清除in_sign和flow
-                $idty_after = $idty;                    // 由 5轉呈 存換成 1送出
+                $idty_after = $idty;                                // 由 5轉呈 存換成 1送出
             }
         $sql .= " WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
@@ -599,7 +608,7 @@
             case "6":   $action = '暫存 (Save)';          break;
             case "10":  $action = '結案';                 break;
             case "11":  $action = '轉PR';                 break;
-            case "12":  $action = '發貨/待收';            break;
+            case "12":  $action = '待收發貨';             break;
             case "13":  $action = 'PR請購進貨';           break;
             default:    $action = '錯誤 (Error)';         return;
         }

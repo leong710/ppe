@@ -191,7 +191,7 @@
                                     <thead>
                                         <tr class="table-dark">
                                             <th>開單日期</th>
-                                            <th>申請單位</th>
+                                            <th>提貨廠區 / 申請單位 / 申請人</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -199,7 +199,7 @@
                                             <tr>
                                                 <td title="<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10)." <sup>".$my_inSign['id']."</sup>";?></td>
                                                 <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
-                                                    <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." ".$my_inSign["cname"];?></a></td>
+                                                    <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>
@@ -235,7 +235,7 @@
                                     <thead>
                                         <tr class="table-dark">
                                             <th>開單日期</th>
-                                            <th>申請單位</th>
+                                            <th>提貨廠區 / 申請單位 / 申請人</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -243,7 +243,7 @@
                                             <tr>
                                                 <td title="<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10)." <sup>".$my_collect['id']."</sup>";?></td>
                                                 <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
-                                                    <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." ".$my_collect["cname"];?></a></td>
+                                                    <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"];?></a></td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>
@@ -264,14 +264,14 @@
                                     <!-- 功能1 -->
                                     <div class="col-12 col-md-12 pb-0">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                            <a href="?fun=myFab" class="btn btn-warning"><i class="fa-solid fa-right-left"></i></a>
+                                            <a href="?fun=myFab" class="btn btn-warning" data-toggle="tooltip" data-placement="bottom" title="切換到-轄區文件"><i class="fa-solid fa-right-left"></i></a>
                                         <?php } ?>
                                         <h5 style="display: inline;">我的申請文件：<sup>- myReceives </sup></h5>
                                     </div>
                                 <?php } else { ?>
                                     <!-- 功能2 -->
                                     <div class="col-12 col-md-5 pb-0">
-                                        <a href="?fun=myReceive" class="btn btn-info"><i class="fa-solid fa-right-left"></i></a>
+                                        <a href="?fun=myReceive" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="切換到-申請文件"><i class="fa-solid fa-right-left"></i></a>
                                         <h5 style="display: inline;">我的轄區文件：<sup>- myFab's Receive </sup></h5>
                                     </div>
                                     <!-- 篩選功能?? -->
@@ -427,16 +427,16 @@
                                                     } ;?></td>
                                             <td><?php $sys_role = (($receive['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || ($_SESSION[$sys_id]['role'] <= 1));
                                                         switch($receive['idty']){
-                                                            case "0"    : echo (in_array($_SESSION["AUTH"]["emp_id"], [$receive['emp_id'], $receive['created_emp_id']]) ||
-                                                            ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
-                                                                                 ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
-                                                            case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";                 break;
+                                                            case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
+                                                            case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";         break;
                                                             case "2"    : echo "退件";                  break;
                                                             case "3"    : echo "取消";                  break;
                                                             case "4"    : echo "編輯";                  break;
                                                             case "10"   : echo "結案";                  break;
                                                             case "11"   : echo "轉PR";                  break;
-                                                            case "12"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";        break;
+                                                            case "12"   : echo (in_array($_SESSION["AUTH"]["emp_id"], [$receive['emp_id'], $receive['created_emp_id']]) ||
+                                                            ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
+                                                                                 ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
                                                             default     : echo $receive['idty']."na";   break;
                                                         }; ?>
                                             </td>

@@ -44,8 +44,9 @@
         $basic_query_arr["emp_id"] = $_SESSION["AUTH"]["emp_id"];
 
     // 4.篩選清單呈現方式，預設allMy
-        if($is_fab_id == "allMy" && $_SESSION[$sys_id]["fab_id"] != 0){
-            $myFab_lists = show_myFab_lists($basic_query_arr);              // allMy
+        if($is_fab_id == "All" && $_SESSION[$sys_id]["fab_id"] == 0){
+            $myFab_lists = show_allFab_lists();                             // All
+            echo "All";
 
         }else if($_SESSION[$sys_id]["fab_id"] == 0){
             $myFab_lists = show_coverFab_lists($basic_query_arr);           // myCover
@@ -57,7 +58,9 @@
                 $_SESSION[$sys_id]["fab_id"] = NULL;
             }
         }else{
-            $myFab_lists = show_allFab_lists();                             // All
+            $myFab_lists = show_myFab_lists($basic_query_arr);              // allMy
+            echo "allMy";
+
         }
 
     // 5-L1.處理 $_1我待簽清單 
@@ -188,7 +191,7 @@
                                         <?php foreach($my_inSign_lists as $my_inSign){ ?>
                                             <tr>
                                                 <td title="<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10)." <sup>".$my_inSign['id']."</sup>";?></td>
-                                                <td style="word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
+                                                <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
                                                     <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." ".$my_inSign["cname"];?></a></td>
                                             </tr>
                                         <?php } ?>
@@ -209,7 +212,7 @@
                             <div class="col-12 px-0 pt-0 pb-1">
                                 <!-- <轄區清單> -->
                                 <div class="rounded bg-success text-white p-2">
-                                    <span><b>發放轄區清單：</b>
+                                    <span><b>轄區清單：</b>
                                     <button type="button" id="scope_remark_btn" class="op_tab_btn" value="scope_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     <div id="scope_remark">
                                         <ol>
@@ -232,7 +235,7 @@
                                         <?php foreach($my_collect_lists as $my_collect){ ?>
                                             <tr>
                                                 <td title="<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10)." <sup>".$my_collect['id']."</sup>";?></td>
-                                                <td style="word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
+                                                <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
                                                     <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." ".$my_collect["cname"];?></a></td>
                                             </tr>
                                         <?php } ?>
@@ -282,6 +285,7 @@
                                                         <option for="sort_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" <?php echo $is_emp_id == $_SESSION["AUTH"]["emp_id"] ? "selected":"";?>>
                                                             <?php echo $_SESSION["AUTH"]["emp_id"]."_".$_SESSION["AUTH"]["cname"];?></option>
                                                     </select>
+                                                    <input type="hidden" name="fun" id="fun" value="<?php echo $fun;?>">
                                                     <button type="submit" class="btn btn-secondary" ><i class="fa-solid fa-magnifying-glass"></i>&nbsp篩選</button>
                                                 </div>
                                             </form>

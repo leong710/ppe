@@ -37,13 +37,17 @@
 
         } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
                 // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
+                // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
                 $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
                           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ('{$sfab_id}')) AND _u.emp_id = ? AND _r.idty = 0 ";
-                // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
         }
         
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _r.created_at DESC";
+        if($fun == 'myCollect'){
+            $sql .= " ORDER BY _l.fab_id ASC, _r.created_at ASC";
+        }else{
+            $sql .= " ORDER BY _r.created_at DESC";
+        }
 
         // 決定是否採用 page_div 20230803
         if(isset($start) && isset($per)){
@@ -52,7 +56,6 @@
             $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         }
         try {
-            // if($fun == 'inSign' || $fun == 'myReceive'){                       // 處理 $_2我待簽清單 $_1我申請單
             if(in_array( $fun , ['inSign', 'myReceive', 'myCollect'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myReceive、$_5我的待領清單myCollect
                 $stmt->execute([$emp_id]);
 
@@ -63,18 +66,15 @@
                     $stmt->execute([$fab_id]);
                 }
                 // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
-
-            // }else if ($fun == 'myCollect') {
-            //         $stmt->execute([$sfab_id]);
                 
             } else {
                 $stmt->execute();
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            if($fun == 'myCollect'){  
-                echo "</br>{$fun}/{$emp_id}：".$sql."</br><hr>";
-            }
+            // if($fun == 'myCollect'){  
+            //     echo "</br>{$fun}/{$emp_id}：".$sql."</br><hr>";
+            // }
             return $my_receive_lists;
 
         }catch(PDOException $e){

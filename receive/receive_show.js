@@ -10,7 +10,7 @@
             var swal_time = 1 * 1000;
         }
 
-        if(add_amount <= 0 ){
+        if(add_amount['need'] <= 0 ){
             var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
             var swal_action = 'error';
             swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
@@ -19,9 +19,14 @@
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td>';
-                    add_cata_item += '<td><input type="number" name="collect_amount['+cata['SN']+']" id="re_'+cata['SN']+'" class="form-control amount t-center" placeholder="數量" min="0" max="9999" maxlength="4" value="'+add_amount+'" oninput="if(value.length>4)value=value.slice(0,4)">'+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled >';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
+                    if(receive_collect_role){
+                        add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="form-control amount t-center" disabled placeholder="數量" min="0" max="9999" maxlength="4" value="'+add_amount['pay']+'" oninput="if(value.length>4)value=value.slice(0,4)" >'+'</td></tr>';
+                        add_cata_item = add_cata_item.replaceAll('disabled', '')
+                    }else{
+                        add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
+                    }
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -155,15 +160,15 @@
             "emp_id"         : "emp_id/工號",
             "cname"          : "cname/申請人姓名",
             "extp"           : "extp/分機",
-            // "local_id"       : "local_id/領用站點",              // 改由php echo產生
             "ppty"           : "** ppty/需求類別",
             "omager"         : "omager/上層主管工號",
             "receive_remark" : "receive_remark/用途說明",
+            "uuid"           : "uuid",
+            "cata_SN_amount" : "** cata_SN_amount"
+            // "local_id"       : "local_id/領用站點",              // 改由php echo產生
             // "created_emp_id" : "created_emp_id/開單人工號",
             // "created_cname"  : "created_cname/開單人姓名",
             // "idty"           : "idty",
-            "uuid"           : "uuid",
-            "cata_SN_amount" : "** cata_SN_amount"
             // "sin_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來

@@ -251,6 +251,7 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
+                    <!-- <form action="debug.php" method="post"> -->
                     <form action="store.php" method="post">
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
@@ -541,7 +542,8 @@
     </div>
     <!-- toast -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-            <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
+            <!-- <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000"> -->
+            <div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
                 <div class="d-flex">
                     <div class="toast-body" id="toast-body">
                     </div>

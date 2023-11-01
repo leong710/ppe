@@ -241,8 +241,10 @@
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
-                        <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'){ // 12.待領、待收 ?>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">確認發放 (Delivery)</button>
+                        <?php 
+                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); // 12.待領、待收
+                            if($receive_collect_role){ ?>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -250,8 +252,8 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <!-- <form action="store.php" method="post"> -->
-                    <form action="debug.php" method="post">
+                    <form action="store.php" method="post">
+                    <!-- <form action="debug.php" method="post"> -->
                                             
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 3.申請單成立 -->
@@ -277,7 +279,8 @@
                                                     <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
-                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'){ // 12.待領、待收 ?>
+                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
+                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($_SESSION["AUTH"]["emp_id"], [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
                                                 <button class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                             <?php } ?>
                                         </div>
@@ -493,9 +496,9 @@
                             <?php
                                 // if($_REQUEST){
                                     echo "<pre>";
-                                    print_r($select_local);
+                                    // print_r($select_local);
                                     // print_r($_REQUEST);
-                                    // print_r($receive_row);
+                                    print_r($receive_row);
                                     echo "</pre>text-end";
                                 // }
                             ?>
@@ -522,6 +525,7 @@
     var catalogs = <?=json_encode($catalogs);?>;                    // 第一頁：info modal function 引入catalogs資料
     var action = '<?=$action;?>';                                   // Edit選染 // 引入action資料
     var receive_row = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
+    var receive_collect_role = '<?=$receive_collect_role?>';        // collect選染 // 引入receive_row_發放人權限作為渲染標記
     var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
     var receive_url = '<?=$receive_url;?>';                         // push訊息 // 本文件網址
 </script>

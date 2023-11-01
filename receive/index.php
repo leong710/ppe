@@ -428,7 +428,7 @@
                                             <td><?php $sys_role = (($receive['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || ($_SESSION[$sys_id]['role'] <= 1));
                                                         switch($receive['idty']){
                                                             case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
-                                                            case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";         break;
+                                                            case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
                                                             case "2"    : echo "退件";                  break;
                                                             case "3"    : echo "取消";                  break;
                                                             case "4"    : echo "編輯";                  break;

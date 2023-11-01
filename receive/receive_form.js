@@ -71,6 +71,9 @@
             // swal_time>0才顯示swal，主要過濾edit時的渲染導入
             if(swal_time > 0){
                 swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            }else{
+                var sinn = cata_SN+' 數量:&nbsp<b>'+ add_amount +'</b>&nbsp加入購物車清單~';
+                inside_toast(sinn);
             }
             
         }

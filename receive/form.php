@@ -543,7 +543,7 @@
     <!-- toast -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
             <!-- <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000"> -->
-            <div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000">
+            <div id="liveToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
                 <div class="d-flex">
                     <div class="toast-body" id="toast-body">
                     </div>

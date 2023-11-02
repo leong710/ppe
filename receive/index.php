@@ -58,34 +58,46 @@
         //     $myFab_lists = show_allFab_lists();                              // All
         //     echo "All";
         // }else 
-        if($_SESSION[$sys_id]["fab_id"] == 0){                                          // 一般user、主管
-            $myFab_lists = show_coverFab_lists($basic_query_arr);                       // myCover show_coverFab_lists用$sign_code模糊搜尋
-            if(count($myFab_lists) > 0 && count($_SESSION[$sys_id]["sfab_id"]) == 0 ){  // 當noBody登入，把她所屬的部門代號廠區套入sfab
-                foreach($myFab_lists as $myFab){ 
-                    array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
-                }
-                $_SESSION[$sys_id]["fab_id"] = NULL;
+        // if($_SESSION[$sys_id]["fab_id"] == 0 && $_SESSION["AUTH"]["role"] >= 3){                                          // 一般user、主管
+        //     $myFab_lists = show_coverFab_lists($basic_query_arr);                       // myCover show_coverFab_lists用$sign_code模糊搜尋
+        //     if(count($myFab_lists) > 0 && empty($_SESSION[$sys_id]["sfab_id"])){         // 當noBody登入，把她所屬的部門代號廠區套入sfab
+        //         foreach($myFab_lists as $myFab){ 
+        //             array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
+        //         }
+        //         $_SESSION[$sys_id]["fab_id"] = NULL;
+        //     }
+        // }else{
+        //     $myFab_lists = show_myFab_lists($basic_query_arr);                  // allMy
+        // }
+            $fab_id = $_SESSION[$sys_id]["fab_id"];                                 // 4-1.取fab_id
+            if(!in_array($fab_id, $_SESSION[$sys_id]["sfab_id"])){                  // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+                array_push($_SESSION[$sys_id]["sfab_id"], $fab_id);
             }
-        }else{
-            $myFab_lists = show_myFab_lists($basic_query_arr);                  // allMy
-        }
+    
+            $coverFab_lists = show_coverFab_lists($basic_query_arr);                // 4-2.呼叫fun 用$sign_code模糊搜尋
+            if(!empty($coverFab_lists)){                                            // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
+                foreach($coverFab_lists as $coverFab){ 
+                    if(!in_array($coverFab["id"], $_SESSION[$sys_id]["sfab_id"])){
+                        array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
+                    }
+                }
+            }
+
+            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                               // 4-3.取sfab_id
+                $sfab_id = implode(",",$sfab_id);                                   // 4-3.sfab_id是陣列，要儲存前要轉成字串
+        
+            $basic_query_arr["sfab_id"] = $sfab_id;                                 // 4-4.將字串sfab_id加入組合查詢陣列中
+            $basic_query_arr["fab_id"] = 'allMy';
+            $coverFab_lists = show_myFab_lists($basic_query_arr);                   // allMy
+            $basic_query_arr["fab_id"] = $is_fab_id;
+            $myFab_lists = show_myFab_lists($basic_query_arr);                      // allMy
 
     // 5-L1.處理 $_1我待簽清單 
         $basic_query_arr["fun"] = "inSign" ;                                // 指定fun = inSign
         $my_inSign_lists = show_my_receive($basic_query_arr);
     // 5-L2.處理 $_5我的待領清單
         $basic_query_arr["fun"] = 'myCollect';
-
-            $fab_id = $_SESSION[$sys_id]["fab_id"];
-            if(!empty($fab_id) && !in_array($fab_id, $_SESSION[$sys_id]["sfab_id"])){
-                array_push($_SESSION[$sys_id]["sfab_id"], $fab_id);
-            }
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];
-            $sfab_id = implode(",",$sfab_id);               //副pm是陣列，要儲存前要轉成字串
-
-        $basic_query_arr["sfab_id"] = $sfab_id;
         $my_collect_lists = show_my_receive($basic_query_arr);
-        
     // 5-2.處理 fun = myReceive $_2我的申請單
     // 5-3.處理 fun = myFab $_3轄區申請單： fab_id=allMy => emp_id=my ； fab_id = All or fab.id => emp_id = All or is_emp_id
         //  ** 有分頁的要擺在分頁工具前!!
@@ -223,8 +235,8 @@
                                     <button type="button" id="scope_remark_btn" class="op_tab_btn" value="scope_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     <div id="scope_remark">
                                         <ol>
-                                            <?php foreach($myFab_lists as $myFab){
-                                                echo "<li>".$myFab["id"].".".$myFab["fab_title"]." (".$myFab["fab_remark"].")</li>";
+                                            <?php foreach($coverFab_lists as $coverFab){
+                                                echo "<li>".$coverFab["id"].".".$coverFab["fab_title"]." (".$coverFab["fab_remark"].")</li>";
                                             }?>
                                         </ol>
                                     </div>
@@ -560,7 +572,7 @@
                                     echo "<hr>";
                                     
                                     echo "myFab_lists: ";
-                                    // print_r($myFab_lists);
+                                    print_r($myFab_lists);
                                     echo count($myFab_lists)." 件";
                                     echo "<hr>";
 

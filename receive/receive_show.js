@@ -231,7 +231,7 @@
             return false;
         } 
 
-        receive_msg = sort_receive();       // 取得整理的文字串
+        receive_msg = sort_receive();       // 呼叫fun 取得整理的文字串
 
         $.ajax({
             url:'http://10.53.248.167/SendNotify',                              // 20230505 正式修正要去掉port 801
@@ -244,20 +244,24 @@
             },
             success: function(res){
                 console.log("push_mapp -- success：",res);
-                swal_content = '推送成功';
-                swal_action = 'success';
+                // swal_content = '推送成功';
+                // swal_action = 'success';
             },
             error: function(res){
                 console.log("push_mapp -- error：",res);
                 // swal_content = '推送失敗';
                 // swal_action = 'error';
-                swal_content = '推送成功';
-                swal_action = 'success';
             }
         });
         
         var swal_title = '領用申請單-發放訊息';
+        var swal_content = '推送成功';
+        var swal_action = 'success';
         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
+        $("body").mLoading("hide");
+        
+        // console.log("i'm push_mapp");
+        return;
     }
     
     // 2023/10/25 整理領用申請單內訊息給mapp用
@@ -291,7 +295,7 @@
                 if(cata['SN'] === cart_key){
                     // add_cata_item += '\nSN： '+cata['SN']+'\npName： '+cata['pname']+'\nModel： '+cata['model']+'\nSize： '+cata['size']+'\nAmount： '+receive_row_cart[cart_key]+'\nUnit： '+cata['unit'];
                     add_cata_item += '\n'+i_cunt+'.SN:'+cata['SN']+' / '+cata['pname'];
-                    add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+receive_row_cart[cart_key]+' '+cata['unit']+'\n';
+                    add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+receive_row_cart[cart_key]['need']+' '+cata['unit']+'\n';
                     i_cunt += 1;
                     return;         // 對應到一筆資料就可以結束迴圈了
                 }
@@ -300,10 +304,9 @@
 
         add_cata_item += '\n以上共：'+shopping_count +' 品項';
         add_cata_item += '\n文件連結：'+receive_url;
-        // console.log(add_cata_item);
         
+        // console.log("i'm sort_receive");
         return add_cata_item;
-
     }
 
     $(function () {

@@ -10,28 +10,6 @@
 		accessDenied_sys($sys_id);                  // 套用sys_id權限
     }
 
-    // $stock_percentages = show_site_percentage();    // 各廠器材存量百分比(缺點：截長補短的問題) table-1 驗證用
-    // $catalog_stocks = show_stock_byCatalog();       // 器材存量的清單 table-2
-    // $stock_losts = show_stock_lost();               // 各廠有缺少的清單 table-3
-
-    // 今年年份
-    $today_year = date('Y');
-        // 半年分界線
-        if(date('m') <= 6 ){
-            $half = "H1";
-        }else{
-            $half = "H2";
-        }
-        // 建立查詢陣列for顯示今年點檢表
-        $check_yh = array(
-            'checked_year' => $today_year,
-            'half' => $half
-        );
-    // dashBoard-表頭數據用，秀出-site短缺/器材短缺 table-0 左
-    // $stock_db1 = show_stock_db1();
-    // dashBoard-表頭數據用，秀出-點檢達成率/未完成site數 table-0 右
-    // $stock_db2 = show_stock_db2($check_yh);
-
     if(isset($_SESSION[$sys_id])){
         $login_AUTH = TRUE;
     }else{
@@ -42,12 +20,37 @@
         header("refresh:0;url=../receive/");
         exit;
     }
+
+    // $stock_percentages = show_site_percentage();    // 各廠器材存量百分比(缺點：截長補短的問題) table-1 驗證用
+    // $catalog_stocks = show_stock_byCatalog();       // 器材存量的清單 table-2
+    // $stock_losts = show_stock_lost();               // 各廠有缺少的清單 table-3
+
+    // 今年年份
+    // $today_year = date('Y');
+    //     // 半年分界線
+    //     if(date('m') <= 6 ){
+    //         $half = "H1";
+    //     }else{
+    //         $half = "H2";
+    //     }
+    //     // 建立查詢陣列for顯示今年點檢表
+    //     $check_yh = array(
+    //         'checked_year' => $today_year,
+    //         'half' => $half
+    //     );
+    // dashBoard-表頭數據用，秀出-site短缺/器材短缺 table-0 左
+    // $stock_db1 = show_stock_db1();
+    // dashBoard-表頭數據用，秀出-點檢達成率/未完成site數 table-0 右
+    // $stock_db2 = show_stock_db2($check_yh);
+
 ?>
 
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 
 <head>
+    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.min.js" ></script>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
@@ -192,9 +195,7 @@
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
@@ -221,8 +222,8 @@
 </script>
 <!-- 警告視窗 -->
 <script>
-    var checkList = document.getElementById("checkList");   // 檢點表單
-    var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+    // var checkList = document.getElementById("checkList");                       // 檢點表單
+    // var alertPlaceholder = document.getElementById("liveAlertPlaceholder");     // Bootstrap Alarm
 
     // 神奇PHP變數帶入js方法
     // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
@@ -230,16 +231,19 @@
 
     // Bootstrap Alarm function
     function alert(message, type) {
-        var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<a href="#"  id="checkItem" class="alert-link">[打開點檢表]</a>' + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message + '<a href="#"  id="checkItem" class="alert-link">[打開點檢表]</a>' + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 
-        alertPlaceholder.append(wrapper)
+        alertPlaceholder.append(wrapper);
     }
     // 假如index找不到當下存在已完成的表單，而且user已經登入就alarm它!
     // if (login_AUTH && check_yh_list_num == '0') {
-    //     alert('*** <?php echo $today_year;?> 年 <?php echo $half;?> 年度 衛材儲存量確認開始了! 請務必在指定時間前完成確認~ ', 'danger')
+    //     alert('*** <php echo $today_year;?> 年 <php echo $half;?> 年度 衛材儲存量確認開始了! 請務必在指定時間前完成確認~ ', 'danger')
     // }
 
+    window.addEventListener("load", function(event) {
+        setInterval(5000);
+    });
 </script>
 
 <?php include("../template/footer.php"); ?>

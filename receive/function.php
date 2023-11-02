@@ -13,7 +13,7 @@
         $pdo = pdo();
         extract($request);
 
-        $sql = "SELECT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark 
+        $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _s.site_title , _s.site_remark 
                 FROM `_receive` _r
                 LEFT JOIN _local _l ON _r.local_id = _l.id
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
@@ -46,8 +46,12 @@
         } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
                 // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
                 // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
+                // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ({$sfab_id})) AND _u.emp_id = ? AND _r.idty = 12 ";
+                // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ({$sfab_id})) AND _r.idty = 12 ";
                 $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
-                          WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ('{$sfab_id}')) AND _u.emp_id = ? AND _r.idty = 12 ";
+                          WHERE _l.fab_id IN ({$sfab_id}) AND _r.idty = 12 ";
         }
         
         // 後段-堆疊查詢語法：加入排序
@@ -64,7 +68,7 @@
             $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         }
         try {
-            if(in_array( $fun , ['inSign', 'myReceive', 'myCollect'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myReceive、$_5我的待領清單myCollect
+            if(in_array( $fun , ['inSign', 'myReceive'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myReceive
                 $stmt->execute([$emp_id]);
 
             }else if ($fun == 'myFab' && $fab_id != 'All') {
@@ -75,19 +79,19 @@
                 }
                 // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
                 
-            } else {
+            } else {                                                // $_5我的待領清單myCollect 'myCollect'
                 $stmt->execute();
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            // if($fun == 'myFab'){  
-            //     echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
+            // if($fun == 'myCollect'){  
+                // echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
             // }
             return $my_receive_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            echo "</br>err:{$fun}/{$is_emp_id}：".$sql."</br><hr>";
+            // echo "</br>err:{$fun}/{$is_emp_id}：".$sql."</br><hr>";
         }
     }
     // 20231019 在index表頭顯示allFab區域       // 已包在 4 我的轄區中的fab_id中
@@ -106,7 +110,7 @@
             echo $e->getMessage();
         }
     }
-    // 20231026 在index表頭顯示my_coverFab區域
+    // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
     function show_coverFab_lists($request){
         $pdo = pdo();
         extract($request);
@@ -121,12 +125,15 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $allFab_lists = $stmt->fetchAll();
-            return $allFab_lists;
+            $coverFab_lists = $stmt->fetchAll();
+            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
+            return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
+            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
+
     }
     // 20231019 在index表頭顯示自己fab區域      // 處理 4我的轄區
     function show_myFab_lists($request){
@@ -136,26 +143,22 @@
                 FROM _fab AS _f ";
             
         if($fab_id != "All"){
-            $sql .= " LEFT JOIN _users AS _u ON _f.id = _u.fab_id OR FIND_IN_SET(_f.id, _u.sfab_id) 
-                      WHERE _u.emp_id = ? ";
+            $sql .= " WHERE _f.id IN ({$sfab_id}) ";
             if($fab_id != "allMy"){
-                $sql .= " UNION 
-                          SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag 
-                          FROM _fab AS _f
-                          WHERE _f.id = ? ";
+                $sql .= " OR _f.id = ? ";
             }
         }
 
         // 後段-堆疊查詢語法：加入排序
-        // $sql .= " ORDER BY _f.id ASC ";
+        $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
                 
         try {
             if($fab_id != "All"){
                 if($fab_id != "allMy"){
-                    $stmt->execute([$emp_id, $fab_id]);
+                    $stmt->execute([$fab_id]);
                 }else{
-                    $stmt->execute([$emp_id]);
+                    $stmt->execute();
                 }
             }else{
                 $stmt->execute();
@@ -706,11 +709,11 @@
         }
         // 先把舊資料叫出來，進行加扣數量參考基準
         $sql_check = "SELECT _stk.* , _l.low_level , _f.id AS fab_id 
-                        FROM `_stock` _stk
-                        LEFT JOIN _local _l ON _stk.local_id = _l.id 
-                        LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-                        WHERE _stk.local_id = ? AND cata_SN = ? 
-                        ORDER BY _stk.lot_num ASC ";          
+                      FROM `_stock` _stk
+                      LEFT JOIN _local _l ON _stk.local_id = _l.id 
+                      LEFT JOIN _fab _f ON _l.fab_id = _f.id 
+                      WHERE _stk.local_id = ? AND cata_SN = ? 
+                      ORDER BY _stk.lot_num ASC ";          
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$p_local, $cata_SN]);
 
@@ -719,7 +722,7 @@
             $stk_row_list = $stmt_check -> fetchAll();
             $stk_row_list_length = count($stk_row_list);                        // 取stock件數長度
 
-            $sql = "UPDATE _stock SET amount=?, updated_at=now() WHERE id=?";
+            $sql = "UPDATE _stock SET amount=?, updated_user=?, updated_at=now() WHERE id=? ";
 
             for($i = 0; $i < $stk_row_list_length ;$i++){
                 $stk_amount = $stk_row_list[$i]['amount'];
@@ -740,7 +743,7 @@
 
                     $stmt = $pdo->prepare($sql);
                     try {
-                        $stmt->execute([$stk_amount, $stk_row_list[$i]['id']]);
+                        $stmt->execute([$stk_amount, $stk_row_list[$i]['id'], $updated_user]);
                         $process_result['result'] = $stk_row_list[$i]['id']."-".$stk_amount;      // 回傳 True: id - amount
         
                     }catch(PDOException $e){
@@ -752,15 +755,15 @@
                     echo "<script>alert('case:3. stk現有筆數用完了，但還有需求餘額: {$p_amount}')</script>";              // deBug
                     // echo "</br>case:3. stk現有筆數用完了，但還有需求餘額: ".$p_amount;
                     $p_amount *= -1;                                            // 3.發放量餘額 轉負數
-                    $lot_num = "9999-12-31";                                    // 3.批號/效期
-                    $standard_lv = $stk_row_list[$i]['standard_lv'];            // 3.安全存量
+                    // $lot_num = "9999-12-31";                                    // 3.批號/效期
+                    $standard_lv = $stk_row_list[0]['standard_lv'];            // 3.安全存量
                     $stock_remark = "* 發放欠額";                                // 3.備註
 
-                    $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
-                            VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
+                    $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, updated_user, created_at, updated_at)
+                            VALUES(?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
                     $stmt = $pdo->prepare($sql);
                     try {
-                        $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $lot_num, $updated_user]);
+                        $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $updated_user]);
                         $process_result['result'] = "+".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
 
                     }catch(PDOException $e){

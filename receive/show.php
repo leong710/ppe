@@ -279,10 +279,10 @@
                                                     <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
-                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($_SESSION["AUTH"]["emp_id"], [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
-                                                <button class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
-                                            <?php } ?>
+                                            <!-- <php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
+                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($_SESSION["AUTH"]["emp_id"], [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?> -->
+                                                <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                            <!-- <php } ?> -->
                                         </div>
                                         <hr>
                                         <!-- 相關資訊說明 -->

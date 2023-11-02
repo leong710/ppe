@@ -32,7 +32,12 @@
     
                 if($sys_local_row){                                         // 有sys_id的人員權限資料
                     if($sys_local_row["role"] != ""){                       // 權限沒被禁用
-                        $sys_local_row["sfab_id"] = explode(",",$sys_local_row["sfab_id"]);       //資料表是字串，要炸成陣列
+                        if(!empty($sys_local_row["sfab_id"])){
+                            $sys_local_row["sfab_id"] = explode(",",$sys_local_row["sfab_id"]);       //資料表是字串，要炸成陣列
+                        }else{
+                            $sys_local_row["sfab_id"] = [];                 //資料表空陣列
+                        }
+                        $sys_local_row["sfab_id"] = array_diff($sys_local_row["sfab_id"], array("",null));  // 去除空陣列
                         $_SESSION[$sys_id] = $sys_local_row;                // 導入$sys_id指定權限
 
                     }else{                                                  // 權限被禁用
@@ -44,7 +49,7 @@
                     $_SESSION[$sys_id]["role"] = 3;
                     $_SESSION[$sys_id]["fab_id"] = 0;
                     $_SESSION[$sys_id]["sfab_id"] = [];
-                    exit;
+                    return;
                 }
                 
                 // 20230906_set this point to log logs

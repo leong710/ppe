@@ -78,14 +78,15 @@
             if(!empty($coverFab_lists)){                                            // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
                 foreach($coverFab_lists as $coverFab){ 
                     if(!in_array($coverFab["id"], $_SESSION[$sys_id]["sfab_id"])){
-                        array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
+                        array_push($_SESSION[$sys_id]["sfab_id"], $coverFab["id"]);
                     }
                 }
             }
 
             $sfab_id = $_SESSION[$sys_id]["sfab_id"];                               // 4-3.取sfab_id
+                // $sfab_id = array_filter($sfab_id);                                  // 4-3.去除空陣列 // 他會把0去掉
                 $sfab_id = implode(",",$sfab_id);                                   // 4-3.sfab_id是陣列，要儲存前要轉成字串
-        
+
             $basic_query_arr["sfab_id"] = $sfab_id;                                 // 4-4.將字串sfab_id加入組合查詢陣列中
             $basic_query_arr["fab_id"] = 'allMy';
             $coverFab_lists = show_myFab_lists($basic_query_arr);                   // allMy
@@ -225,7 +226,7 @@
                         <div class="border rounded px-3 py-2 my-2" style="background-color: #D4D4D4;">
                             <div class="col-12 px-0 pb-0">
                                 <h5><i class="fa-solid fa-restroom"></i> 廠區待領清單：<sup>- collect </sup>
-                                    <?php echo count($my_collect_lists) >0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
+                                    <?php echo count($my_collect_lists) != 0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
                                 </h5>
                             </div>
                             <div class="col-12 px-0 pt-0 pb-1">
@@ -261,7 +262,7 @@
                                     </tbody>
                                 </table>
                             <?php }else{ ?>
-                                <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待領取的文件! ] </div>
+                                <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待發放的文件! ] </div>
                             <?php } ?>
                         </div>
 

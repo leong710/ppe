@@ -236,7 +236,7 @@
                 $logs_request["action"] = $action;
                 $logs_request["step"]   = $step;                   // 節點
                 $logs_request["idty"]   = $idty;
-                $logs_request["cname"]  = $created_cname;
+                $logs_request["cname"]  = $created_cname." (".$created_emp_id.")";
                 $logs_request["logs"]   = "";   
                 $logs_request["remark"] = $sign_comm;   
             // 呼叫toLog製作log檔
@@ -307,7 +307,7 @@
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step."-編輯";
             $logs_request["idty"]   = $idty;
-            $logs_request["cname"]  = $created_cname;
+            $logs_request["cname"]  = $created_cname." (".$created_emp_id.")";
             $logs_request["logs"]   = $receive_logs["logs"];   
             $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
@@ -391,12 +391,11 @@
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;   
             $logs_request["idty"]   = $idty;   
-            $logs_request["cname"]  = $updated_user;
+            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
             $logs_request["logs"]   = $receive_logs["logs"];   
             $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
-
         // 更新_receive表單
         $sql = "UPDATE _receive 
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
@@ -422,10 +421,18 @@
                 $flow = NULL;                                           // 由 存換成 NULL
                 $idty_after = "1";                                      // 由 4編輯 存換成 1送出
 
-            }else if($idty == 11){                                   // case = 11交貨 (Delivery)
+            }else if($idty == 13){                                   // case = 13交貨 (Delivery)
                 $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
-                $in_sign = NULL;                                        // 由 存換成 NULL ==> 業務負責人/負責人主管
+                    $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
                 $flow = 'delivery';                                     // 由 存換成 delivery
+                $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
+                $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
+
+            }else if($idty == 11){                                   // case = 11承辦 (Undertake)
+                $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
+                    $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
+                $in_sign = $query_omager['omager_emp_id'];              // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $flow = 'undertake';                                    // 由 存換成 undertake
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
 
@@ -438,9 +445,10 @@
         try {
             if((in_array($idty, [ 0, 3, 4, 5]))){               // case = 3取消/作廢、case = 5轉呈 4編輯(送出) 11交貨
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
+
             }else if($idty == 11){                                  // case = 11交貨
+                $logs_enc = process_receive($request);                      // 呼叫處理fun 處理整張需求的交易事件(多筆)--stock扣帳事宜
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $cata_SN_amount_enc, $uuid]);
-                process_receive($request);                      // 呼叫處理fun 處理整張需求的交易事件(多筆)--stock扣帳事宜
 
             }else{
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $uuid]);
@@ -460,6 +468,25 @@
             );
         }
         return $swal_json;
+    }
+    // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
+    function query_omager($emp_id){
+        $pdo = pdo_hrdb();
+        // extract($request);
+        $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
+                FROM STAFF u
+                LEFT JOIN STAFF s ON u.omager = s.emp_id 
+                where u.emp_id = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$emp_id]);
+            $query_omager = $stmt->fetch();
+            return $query_omager;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
     }
 // // // 領用單 CRUD -- end
 
@@ -624,10 +651,10 @@
             case "4":   $action = '編輯 (Edit)';          break;
             case "5":   $action = '轉呈 (Forwarded)';     break;
             case "6":   $action = '暫存 (Save)';          break;
-            case "10":  $action = '結案';                 break;
-            case "11":  $action = '交貨 (Delivery)';      break;
+            case "10":  $action = '結案 (Close)';         break;
+            case "11":  $action = '承辦 (Undertake)';     break;
             case "12":  $action = '待收發貨 (Awaiting collection)';   break;
-            case "13":  $action = '請購進貨';             break;
+            case "13":  $action = '交貨 (Delivery)';      break;
             default:    $action = '錯誤 (Error)';         return;
         }
 
@@ -858,21 +885,21 @@
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;   
             $logs_request["idty"]   = $idty;   
-            $logs_request["cname"]  = $updated_user;
+            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
             $logs_request["logs"]   = $receive_logs["logs"];   
             $logs_request["remark"] = $process_remark;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
-        // 更新uuid的log檔，注入扣帳資訊
-            $log_sql = " UPDATE _receive SET logs = ? WHERE uuid = ? ";
-            $stmt = $pdo->prepare($log_sql);
-            try {
-                $stmt->execute([$logs_enc, $uuid]);
-            }catch(PDOException $e){
-                echo $e->getMessage();
-            }
+        // 更新uuid的log檔，注入扣帳資訊 ==> 返回給 11 
+            // $log_sql = " UPDATE _receive SET logs = ? WHERE uuid = ? ";
+            // $stmt = $pdo->prepare($log_sql);
+            // try {
+            //     $stmt->execute([$logs_enc, $uuid]);
+            // }catch(PDOException $e){
+            //     echo $e->getMessage();
+            // }
         
-        return $process_result;
+        return $logs_enc;
     }
     // // 刪除
     // function delete_stock($request){

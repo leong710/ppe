@@ -30,7 +30,7 @@
         $sql = "SELECT u.*
                 FROM [STAFF] u
                 LEFT JOIN [HCM_VW_DEPT08] d ON u.dept_no = d.OSHORT
-                where d.ODEPNO_30 = '9T040500' AND u.zjobcode2txt = 'M'";
+                where d.ODEPNO_30 = '9T040500' AND u.zjobcode2txt = 'M' ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

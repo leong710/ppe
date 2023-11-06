@@ -11,6 +11,9 @@
         $up_href = $receive_url;                        // 回本頁
     }
 
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
         $action = $_REQUEST["action"];              // 有action就帶action
@@ -53,38 +56,75 @@
             '0' => '填單人',
             '1' => '申請人',
             '2' => '申請人主管',
-            '3' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
             '4' => '環安業務',
             '5' => '環安主管',
 
-            '6' => 'noBody',
+            '6' => 'normal',
             '7' => 'ppe site user',
             '8' => 'ppe pm',
             '9' => '系統管理員',
             '10'=> '轉呈簽核'
         ];
-        
+
         // 決定表單開啟 $step身份
-        if($receive_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '0';  // 填單人
-        } else if($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '1';  // 申請人
+        if($receive_row["created_emp_id"] == $auth_emp_id){
+            $step_index = '0';      // 填單人
+        } else if($receive_row["emp_id"] == $auth_emp_id){
+            $step_index = '1';      // 申請人
         }      
-        if($receive_row["omager"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '2';  // 申請人主管
-        } else if($receive_row["in_sign"] == $_SESSION["AUTH"]["emp_id"]){
-            $step_index = '10';  // 轉呈簽核
+        if($receive_row["omager"] == $auth_emp_id){
+            $step_index = '2';      // 申請人主管
+        } else if($receive_row["in_sign"] == $auth_emp_id){
+            $step_index = '10';     // 轉呈簽核
         }
+
+            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($receive_row['idty']){
+                case "0":   // $act = '同意 (Approve)';
+                    break;
+                case "1":   // $act = '送出 (Submit)';
+                    break;
+                case "2":   // $act = '退回 (Reject)';
+                    break;
+                case "3":   // $act = '作廢 (Abort)'; 
+                    break;
+                case "4":   // $act = '編輯 (Edit)';  
+                    break;
+                case "5":   // $act = '轉呈 (Forwarded)';
+                    break;
+                case "6":   // $act = '暫存 (Save)';  
+                    break;
+                case "10":  // $act = '結案 (Close)'; 
+                    break;
+                case "11":  // $act = '承辦 (Undertake)';
+                    // if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
+                    if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
+                        $step_index = '4';      // 環安業務
+                    }else if($receive_row["in_sign"] == $auth_emp_id){
+                        $step_index = '5';      // 環安主管
+                    }
+                    break;
+                case "12":  // $act = '待收發貨 (Awaiting collection)'; 
+                    if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
+                        $step_index = '3';      // 發放人
+                    }    
+                    break;
+                case "13":  // $act = '交貨 (Delivery)';
+                    break;
+                default:    // $act = '錯誤 (Error)';         
+                    return;
+            }
 
         // if(empty($step_index)){
         if(!isset($step_index)){
-            if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
-                $step_index = '6';}      // noBody
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
+            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+                $step_index = '6';}      // normal
+            if(isset($sys_id_role) && ($sys_id_role) == 2){
                 $step_index = '7';}      // ppe site user
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 1){
+            if(isset($sys_id_role) && ($sys_id_role) == 1){
                 $step_index = '8';}      // ppe pm
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 0){
+            if(isset($sys_id_role) && ($sys_id_role) == 0){
                 $step_index = '9';}      // 系統管理員
         }
         
@@ -231,20 +271,25 @@
                     <div class="col-12 col-md-4">
                         需求單號：<?php echo ($receive_row['id'])             ? "aid_".$receive_row['id'] : "(尚未給號)";?></br>
                         開單日期：<?php echo ($receive_row['created_at'])     ? $receive_row['created_at'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
-                        填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($receive_row['idty'] == 1){ // 1.簽核中 ?>
-                            <?php if( ($receive_row['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || $_SESSION[$sys_id]["role"] == 0 ){ ?>
+                            <?php if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role == 0 ){ ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <?php } if( ($receive_row['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || $_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                            <?php } if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 1 ){ ?>
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php 
                             $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); // 12.待領、待收
                             if($receive_collect_role){ ?>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                        <?php } ?>
+                        <?php // 承辦+主管簽核選項
+                            $receive_collect_role = ($receive_row['idty'] == 13 && $receive_row['flow'] == 'undertake' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); // 12.待領、待收
+                            if($receive_collect_role){ ?>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (undertake)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -267,8 +312,8 @@
                                         </div>
                                         <div class="col-6 col-md-6 text-end">
                                             <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
-                                            <?php if( ($receive_row['created_emp_id'] == $_SESSION["AUTH"]["emp_id"]) ||
-                                                    ($receive_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]) || ($_SESSION[$sys_id]["role"] <= 1) ){ ?>
+                                            <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) ||
+                                                    ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
                                                 <!-- <php if(($receive_row['idty'] == 2) || ($receive_row['idty'] == 4) || ($receive_row['idty'] == 6)){ ?> -->
                                                 <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                                 <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
@@ -280,8 +325,8 @@
                                                 <?php ;} ?>
                                             <?php ;} ?>
                                             <!-- <php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($_SESSION["AUTH"]["emp_id"], [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?> -->
-                                                <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $_SESSION["AUTH"]["emp_id"];?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?> -->
+                                                <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                             <!-- <php } ?> -->
                                         </div>
                                         <hr>
@@ -443,11 +488,12 @@
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_emp_id" id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                         <input type="hidden" name="uuid" id="uuid" value="<?php echo $receive_row['uuid'];?>">
                                         <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
                                         <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
                                         <input type="hidden" name="idty" id="idty" value="">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
+                                        <?php if($sys_id_role <= 3){ ?>
                                             <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

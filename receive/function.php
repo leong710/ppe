@@ -23,7 +23,7 @@
             $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) ";
 
         }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出
-            $sql .= " WHERE _r.idty IN (1, 11) AND _r.in_sign = ? ";
+            $sql .= " WHERE _r.idty IN (1, 11, 13) AND _r.in_sign = ? ";
 
         }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  
             if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
@@ -386,6 +386,9 @@
                 $receive_logs = showLogs($query);               // 未調閱表單，另外開表單讀logs
 
             }
+            if(empty($receive_logs["logs"])){
+                $receive_logs["logs"] = "";
+            }
 
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
@@ -423,7 +426,9 @@
 
             }else if($idty == 13){                                   // case = 13交貨 (Delivery)
                 $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
-                    $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
+                    $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
+                $in_sign = $query_omager['omager_emp_id'];              // 由 存換成 NULL ==> 業務負責人/負責人主管
+                // $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
                 $flow = 'delivery';                                     // 由 存換成 delivery
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
@@ -433,6 +438,13 @@
                     $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
                 $in_sign = $query_omager['omager_emp_id'];              // 由 存換成 NULL ==> 業務負責人/負責人主管
                 $flow = 'undertake';                                    // 由 存換成 undertake
+                $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
+                $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
+            
+            }else if($idty == 10){                                   // case = 10結案 (close)
+                $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
+                $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
+                $flow = 'close';                                        // 由 存換成 close
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
 
@@ -446,9 +458,9 @@
             if((in_array($idty, [ 0, 3, 4, 5]))){               // case = 3取消/作廢、case = 5轉呈 4編輯(送出) 11交貨
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
 
-            }else if($idty == 11){                                  // case = 11交貨
-                $logs_enc = process_receive($request);                      // 呼叫處理fun 處理整張需求的交易事件(多筆)--stock扣帳事宜
+            }else if($idty == 13){                                  // case = 13交貨
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $cata_SN_amount_enc, $uuid]);
+                $logs_enc = process_receive($request);                      // 呼叫處理fun 處理整張需求的交易事件(多筆)--stock扣帳事宜
 
             }else{
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $uuid]);
@@ -732,8 +744,11 @@
         $pdo = pdo();
         extract($process);
         if(!isset($updated_user)){
-            $updated_user = $_SESSION["AUTH"]["cname"];
+            $updated_user = $_SESSION["AUTH"]["cname"];               // 0.預設更新人
         }
+        $lot_num        = "9999-12-31";                               // 0.批號/效期
+        $stock_remark   = "* 發放欠額";                                // 0.備註
+
         // 先把舊資料叫出來，進行加扣數量參考基準
         $sql_check = "SELECT _stk.* , _l.low_level , _f.id AS fab_id 
                       FROM `_stock` _stk
@@ -751,52 +766,53 @@
 
             $sql = "UPDATE _stock SET amount=?, updated_user=?, updated_at=now() WHERE id=? ";
 
-            for($i = 0; $i < $stk_row_list_length ;$i++){
-                $stk_amount = $stk_row_list[$i]['amount'];
-                echo "</br>stk_amount:".$stk_amount;
+            for($i = 0; $i < $stk_row_list_length; $i++ ){
+                $stk_amount = $stk_row_list[$i]['amount'];                      // $stk_amount=品項儲存量
                 
-                if($stk_amount >= $p_amount){                                   // 1.儲存量大於等於發放量
-                    echo "<script>alert('case:1.儲存量大於等於發放量: {$stk_amount} - {$p_amount}')</script>";          // deBug
-                    // echo "</br>case:1.儲存量大於等於發放量: ".$stk_amount." - ".$p_amount;
+                // if($stk_amount >= $p_amount){                                   // 1.儲存量大於等於發放量
+                //     echo "<script>alert('case:1.儲存量 >= 發放量: 儲存量({$stk_amount}) - 扣除量({$p_amount})')</script>";          // deBug
+                //     $stk_amount -= $p_amount;                                   // 1.儲存量餘額 = 儲存量 - 發放量
+                //     $p_amount = 0;                                              // 1.發放量餘額 = 0
+
+                // }else{                                                          // 2.儲存量小於發放量
+                //     echo "<script>alert('case:2.儲存量 < 發放量: 儲存量({$stk_amount}) - 扣除量({$p_amount})')</script>";              // deBug
+                //     $p_amount -= $stk_amount;                                   // 2.發放量餘額 = 發放量 - 儲存量
+                //     $stk_amount = 0;                                            // 2.儲存量餘額 = 0
+                // }
+
                     $stk_amount -= $p_amount;                                   // 1.儲存量餘額 = 儲存量 - 發放量
                     $p_amount = 0;                                              // 1.發放量餘額 = 0
 
-                }else{                                                          // 2.儲存量小於發放量
-                    echo "<script>alert('case:2.儲存量小於發放量: {$p_amount} - {$stk_amount}')</script>";              // deBug
-                    // echo "</br>case:2.儲存量小於發放量: ".$p_amount." - ".$stk_amount;
-                    $p_amount -= $stk_amount;                                   // 2.發放量餘額 = 發放量 - 儲存量
-                    $stk_amount = 0;                                            // 2.儲存量餘額 = 0
-                }
-
                     $stmt = $pdo->prepare($sql);
                     try {
-                        $stmt->execute([$stk_amount, $stk_row_list[$i]['id'], $updated_user]);
-                        $process_result['result'] = $stk_row_list[$i]['id']."-".$stk_amount;      // 回傳 True: id - amount
+                        $stmt->execute([$stk_amount, $updated_user, $stk_row_list[$i]['id']]);
+                            $process_result['result'] = "id:".$stk_row_list[$i]['id']."-".$stk_amount;      // 回傳 True: id - amount
         
                     }catch(PDOException $e){
                         echo $e->getMessage();
-                        $process_result['error'] = ($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
+                            $process_result['error'] = "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
                     }
                 
-                if(($i + 1) == $stk_row_list_length && $p_amount > 0){    // 3.stk現有筆數用完了，但還有需求餘額
-                    echo "<script>alert('case:3. stk現有筆數用完了，但還有需求餘額: {$p_amount}')</script>";              // deBug
-                    // echo "</br>case:3. stk現有筆數用完了，但還有需求餘額: ".$p_amount;
-                    $p_amount *= -1;                                            // 3.發放量餘額 轉負數
-                    // $lot_num = "9999-12-31";                                    // 3.批號/效期
-                    $standard_lv = $stk_row_list[0]['standard_lv'];            // 3.安全存量
-                    $stock_remark = "* 發放欠額";                                // 3.備註
+                if($p_amount <= 0){
+                    
+                    return $process_result;   // pay扣完了就離開
 
-                    $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, updated_user, created_at, updated_at)
-                            VALUES(?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
-                    $stmt = $pdo->prepare($sql);
-                    try {
-                        $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $updated_user]);
-                        $process_result['result'] = "+".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
+                // }else if(($i + 1) >= $stk_row_list_length && $p_amount > 0){    // 3.stk現有筆數用完了，但還有需求餘額
+                //     echo "<script>alert('case:3. stk現有筆數用完了，但還有需求餘額: {$p_amount}')</script>";              // deBug
+                //     $p_amount *= -1;                                            // 3.發放量餘額 轉負數
+                //     $standard_lv = $stk_row_list[0]['standard_lv'];             // 3.安全存量
 
-                    }catch(PDOException $e){
-                        echo $e->getMessage();
-                        $process_result['error'] = "-".$cata_SN."-".$p_amount;                   // 回傳 False: - id
-                    }
+                //     $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
+                //             VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
+                //     $stmt = $pdo->prepare($sql);
+                //     try {
+                //         $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $lot_num, $updated_user]);
+                //             $process_result['result'] = "++".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
+
+                //     }catch(PDOException $e){
+                //         echo $e->getMessage();
+                //             $process_result['error'] = "--".$cata_SN."-".$p_amount;                   // 回傳 False: - id
+                //     }
                 }
             }
 
@@ -829,19 +845,18 @@
             
             // step-2 建立新紀錄到資料庫
                 $p_amount *= -1;                                            // 2.發放量餘額 轉負數
-                $lot_num = "9999-12-31";                                    // 2.批號/效期
-                $stock_remark = "* 發放欠額";                                // 2.備註
+
 
                 $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
                         VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 2.建立新紀錄到資料庫
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                    $process_result['result'] = "+".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
+                        $process_result['result'] = "++".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
 
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                    $process_result['error']  = "-".$cata_SN."-".$p_amount;                   // 回傳 False: - id
+                        $process_result['error']  = "--".$cata_SN."-".$p_amount;                   // 回傳 False: - id
                 }
         }
         return $process_result;
@@ -891,14 +906,14 @@
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
         // 更新uuid的log檔，注入扣帳資訊 ==> 返回給 11 
-            // $log_sql = " UPDATE _receive SET logs = ? WHERE uuid = ? ";
-            // $stmt = $pdo->prepare($log_sql);
-            // try {
-            //     $stmt->execute([$logs_enc, $uuid]);
-            // }catch(PDOException $e){
-            //     echo $e->getMessage();
-            // }
-        
+                    $log_sql = " UPDATE _receive SET logs = ? WHERE uuid = ? ";
+                    $stmt = $pdo->prepare($log_sql);
+                    try {
+                        $stmt->execute([$logs_enc, $uuid]);
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                    }
+                
         return $logs_enc;
     }
     // // 刪除

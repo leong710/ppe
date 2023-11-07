@@ -446,10 +446,11 @@
                                                             case "3"    : echo "取消";                  break;
                                                             case "4"    : echo "編輯";                  break;
                                                             case "10"   : echo "結案";                  break;
-                                                            case "11"   : echo "轉PR";                  break;
+                                                            case "11"   : echo "業務承辦";              break;
                                                             case "12"   : echo (in_array($_SESSION["AUTH"]["emp_id"], [$receive['emp_id'], $receive['created_emp_id']]) ||
                                                             ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
                                                                                  ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
+                                                            case "13"   : echo "交貨";                  break;
                                                             default     : echo $receive['idty']."na";   break;
                                                         }; ?>
                                             </td>

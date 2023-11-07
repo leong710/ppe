@@ -67,8 +67,22 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+            }); 
+        }
+        // mloading();    // 畫面載入時開啟loading
+    </script>
     <style>
         .unblock{
             display: none;
@@ -80,6 +94,49 @@
         .nav-tabs .nav-link.active {
             /* color: #FFFFFF; */
             background-color: #84C1FF;
+        }
+        #result_table tr > th {
+            color: blue;
+            text-align: center;
+            /* vertical-align: top;  */
+            /* word-break: break-all;  */
+        }
+        #result_table tr > td {
+            text-align: center;
+            /* vertical-align: top;  */
+            /* word-break: break-all;  */
+        }
+        .tag{
+            display: inline-block;
+            /* 粉紅 */
+            /* background-color: #fa0e7e; */
+            /* 粉藍 */
+            background-color: #0e7efa;
+            font: 14px;
+            color: white;
+            border-radius: 5px;
+            padding: 0px 3px 0px 7px;
+            margin-right: 5px;
+            margin-bottom:5px;
+            /* 粉紅 */
+            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
+            /* 粉藍 */
+            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
+        }
+        .tag .remove {
+            margin: 0 7px 3px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .input-group {
+            /* height: auto; */
+            height: 100%;
+        }
+        .input-group .form-control,
+        .input-group .btn {
+            /* padding: 0.5rem; */
+            /* line-height: 1.5; */
+            height: 100%;
         }
     </style>
 </head>
@@ -344,7 +401,7 @@
     </div>
 <!-- 彈出畫面模組 新增fab廠處級-->
     <div class="modal fade" id="add_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">新增fab廠級分類</h4>
@@ -352,9 +409,10 @@
                 </div>
 
                 <form action="" method="post">
-                    <div class="modal-body px-5">
+                    <div class="modal-body px-4">
+                        <!-- 第一 -->
                         <div class="row">
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <select name="site_id" id="site_id" class="form-select" required>
                                         <option value="" selected hidden>-- 請選擇site級別 --</option>
@@ -368,21 +426,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="fab_title" class="form-control" id="fab_title" required placeholder="Fab名稱">
-                                    <label for="fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="fab_remark" class="form-control" id="fab_remark" required placeholder="註解說明">
-                                    <label for="fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <select name="sign_code" id="sign_code" class="form-select" required>
                                         <option value="" hidden selected>-- 選擇管理單位 --</option>
@@ -394,12 +438,30 @@
                                     <label for="sign_code" class="form-label">sign_code/上層組織：<sup class='text-danger'> *</sup></label>
                                 </div>
                             </div>
+                        </div>
+                        <!-- 第二 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="fab_title" class="form-control" id="fab_title" required placeholder="Fab名稱">
+                                    <label for="fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
 
-                            <div class="col-12">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="fab_remark" class="form-control" id="fab_remark" required placeholder="註解說明">
+                                    <label for="fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 第三 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
-                                            <label for="ppty" class="form-label">廠區規模(限購類別)：</label>
+                                            <label for="ppty" class="form-label">廠區規模(限購)：</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="a" id="buy_a" class="form-check-input" required checked>
@@ -410,6 +472,11 @@
                                             <label for="buy_b" class="form-check-label">&nbspb.3千人以上</label>
                                         </td>
                                     </tr>
+                                </table>
+                            </div>
+                                
+                            <div class="col-12 col-md-6 py-1">
+                                <table>
                                     <tr>
                                         <td style="text-align: right;">
                                             <label for="flag" class="form-label">flag/顯示開關：</label>
@@ -424,6 +491,12 @@
                                         </td>
                                     </tr>
                                 </table>
+                            </div>
+                        </div>
+                        <!-- 第四 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="" class="from-label text-danger">** fab PM管理員請在新增完Fab後再進行編輯新增/調整。</label>
                             </div>
                         </div>
                     </div>
@@ -593,7 +666,7 @@
     </div>
 <!-- 彈出畫面模組 編輯fab-->
     <div class="modal fade" id="edit_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">編輯fab資訊</h4>
@@ -608,9 +681,10 @@
                 </div>
 
                 <form action="" method="post">
-                    <div class="modal-body px-5">
+                    <div class="modal-body px-4">
+                        <!-- 第一 -->
                         <div class="row">
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <select name="site_id" id="edit_site_id" class="form-select" required>
                                         <option value="" selected hidden>-- 請選擇site級別 --</option>
@@ -623,21 +697,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="fab_title" class="form-control" id="edit_fab_title" required placeholder="Fab名稱">
-                                    <label for="edit_fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="fab_remark" class="form-control" id="edit_fab_remark" required placeholder="註解說明">
-                                    <label for="edit_fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <select name="sign_code" id="edit_sign_code" class="form-select" required>
                                         <option value="" hidden selected>-- 選擇管理單位 --</option>
@@ -649,12 +709,30 @@
                                     <label for="edit_sign_code" class="form-label">sign_code/上層組織：<sup class='text-danger'> *</sup></label>
                                 </div>
                             </div>
+                        </div>
+                        <!-- 第二 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="fab_title" class="form-control" id="edit_fab_title" required placeholder="Fab名稱">
+                                    <label for="edit_fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
 
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="fab_remark" class="form-control" id="edit_fab_remark" required placeholder="註解說明">
+                                    <label for="edit_fab_remark" class="form-label">fab_remark/註解說明：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 第三 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
-                                            <label for="edit_buy_ty" class="form-label">廠區規模(限購類別)：</label>
+                                            <label for="edit_buy_ty" class="form-label">廠區規模(限購)：</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="a" id="edit_buy_a" class="form-check-input" required >
@@ -665,6 +743,11 @@
                                             <label for="edit_buy_b" class="form-check-label">&nbspb.3千人以上</label>
                                         </td>
                                     </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-12 col-md-6 py-1">
+                                <table>
                                     <tr>
                                         <td style="text-align: right;">
                                             <label for="edit_flag" class="form-label">flag/顯示開關：</label>
@@ -680,9 +763,36 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
-                            <div class="col-12 text-end p-0" id="edit_fab_info"></div>
                         </div>
+                        <!-- 第四 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="" class="from-label">fab PM管理員：(-- 請選擇業務承辦 --)</label><br>
+                                <div class="col-12 p-3 border rounded" id="selectUser">
+                                    <div class="row">
+                                        <!-- 第一排的功能 : 顯示已加入名單+input -->
+                                        <div class="col-12 px-4 py-0">
+                                            <div id="selectUserItem"></div>
+                                            <input type="hidden" class="form-control" name="pm_emp_id[]" id="edit_pm_emp_id" placeholder="已加入的姓名">
+                                        </div>
+                                        <!-- 第二排的功能 : 搜尋功能 -->
+                                        <div class="col-12 px-4">
+                                            <div class="input-group search" id="selectUserForm">
+                                                <input type="text" class="form-control" id="key_word" placeholder="請輸入工號" aria-label="請輸入工號" aria-describedby="button-addon2" >
+                                                <button class="btn btn-outline-secondary" type="button" onclick="search_fun();">查詢</button>
+                                                <button class="btn btn-outline-secondary" type="button" onclick="resetMain();">清除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 第三排的功能 : 放查詢結果-->
+                                        <div class="result" id="result">
+                                            <table id="result_table" class="table table-striped table-hover"></table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 最後編輯資訊 -->
+                        <div class="col-12 text-end p-0" id="edit_fab_info"></div>
                     </div>
                     <div class="modal-footer">
                         <div class="text-end">
@@ -793,7 +903,6 @@
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
@@ -801,11 +910,6 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
-    function resetMain(){
-        $("#result").removeClass("border rounded bg-white");
-        $('#result_table').empty();
-        document.querySelector('#key_word').value = '';
-    }
 
     var site   = <?=json_encode($sites);?>;                                                     // 引入sites資料
     var fab    = <?=json_encode($fabs);?>;                                                      // 引入fabs資料
@@ -891,6 +995,81 @@
 
         }
     }
+
+
+
+// // // 第三頁：searchUser function 
+    // // fun3-1：search Key_word
+    var tags = [];
+    function search_fun(){
+        mloading("show");                       // 啟用mLoading
+        let search = $('.search > input').val().trim();
+        search = search.trim();
+        if(!search || (search.length < 8)){
+            alert("查詢工號字數最少 8 個字以上!!");
+            $("body").mLoading("hide");
+            return false;
+        } 
+
+        $.ajax({
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            method:'get',
+            dataType:'json',
+            data:{
+                functionname: 'showStaff',                          // 操作功能
+                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                search: search                                      // 查詢對象key_word
+            },
+            success: function(res){
+                var res_r = res["result"];
+                // 將結果進行渲染
+                if (res_r !== '') {
+                    var obj_val = res_r;                                         // 取Object物件0
+                    if(obj_val){     
+                        $('#selectUserItem').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                        tags.push(obj_val.emp_id);
+                        let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+                        if(edit_pm_emp_id){
+                            edit_pm_emp_id.value = tags;
+                        }
+                    }else{
+                        alert('查無工號：'+ search +' !!');
+                    }
+                }
+
+            },
+            error (){
+                console.log("search error");
+            }
+        })
+        document.querySelector('#key_word').value = '';
+        $("body").mLoading("hide");
+    }
+    // // fun3-2：移除單項模組
+    $('#selectUserItem').on('click', '.remove', function() {
+        var tagIndex = $(this).closest('.tag').index();
+        let tagg = tags[tagIndex];                       // 取得目標數值 emp_id,cname
+        let emp_id = tagg.substr(0, tagg.search(','));   // 指定 emp_id
+        let tag_user = document.getElementById(emp_id);
+        if(tag_user){
+            tag_user.value = tagg;
+        }
+        tags.splice(tagIndex, 1);           // 自陣列中移除
+        $(this).closest('.tag').remove();   // 自畫面中移除
+        let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+        if(edit_pm_emp_id){
+            edit_pm_emp_id.value = tags;
+        }
+    });
+    // // fun3-3：清除search keyWord
+    function resetMain(){
+        $("#result").removeClass("border rounded bg-white");
+        $('#result_table').empty();
+        document.querySelector('#key_word').value = '';
+    }
+
+// // // 第三頁：searchUser function 
+
 
     // 在任何地方啟用工具提示框
     $(function () {

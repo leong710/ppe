@@ -57,7 +57,7 @@
             '1' => '申請人',
             '2' => '申請人主管',
             '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
-            '4' => '環安業務',
+            '4' => '業務承辦',
             '5' => '環安主管',
 
             '6' => 'normal',
@@ -100,17 +100,20 @@
                 case "11":  // $act = '承辦 (Undertake)';
                     // if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
                     if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
-                        $step_index = '4';      // 環安業務
+                        $step_index = '4';      // 業務承辦
                     }else if($receive_row["in_sign"] == $auth_emp_id){
                         $step_index = '5';      // 環安主管
                     }
                     break;
                 case "12":  // $act = '待收發貨 (Awaiting collection)'; 
                     if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
-                        $step_index = '3';      // 發放人
+                        $step_index = '3';      // ppe發放人
                     }    
                     break;
                 case "13":  // $act = '交貨 (Delivery)';
+                    if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
+                        $step_index = '4';      // 業務承辦
+                    }  
                     break;
                 default:    // $act = '錯誤 (Error)';         
                     return;
@@ -224,6 +227,12 @@
         tr > td {
             vertical-align: middle; 
         }
+        .collect{
+            color: #fa0e7e;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0px 0px 1px #fff;
+        }
     </style>
     <script>    
         // loading function
@@ -281,15 +290,19 @@
                                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
-                        <?php 
-                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); // 12.待領、待收
+                        <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
+                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); 
                             if($receive_collect_role){ ?>
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
-                        <?php // 承辦+主管簽核選項
-                            $receive_collect_role = ($receive_row['idty'] == 13 && $receive_row['flow'] == 'undertake' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); // 12.待領、待收
-                            if($receive_collect_role){ ?>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (undertake)</button>
+                        <?php // 承辦+主管簽核選項 idty=13.交貨 => 11.承辦簽核 (Undertake)
+                            $receive_undertake_role = ($receive_row['flow'] == 'undertake' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]));
+                            if($receive_row['idty'] == 13 && $receive_undertake_role){ ?> 
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦簽核 (undertake)</button>
+                        <?php } ?>
+                        <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
+                            if($receive_row['idty'] == 11 && $receive_undertake_role ){ ?> 
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管簽核 (undertake)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -470,9 +483,9 @@
                                     </div>
                                     
                                     <div class="modal-body px-5">
+                                        <!-- 第二排的功能 : 搜尋功能 -->
                                         <div class="row unblock" id="forwarded">
                                             <div class="col-12" id="searchUser_table">
-                                                <!-- 第二排的功能 : 搜尋功能 -->
                                                 <div class="input-group search" id="select_inSign_Form">
                                                     <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
                                                     <span class="input-group-text form-label">轉呈</span>
@@ -487,14 +500,14 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="updated_emp_id" id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                                        <input type="hidden" name="uuid" id="uuid" value="<?php echo $receive_row['uuid'];?>">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
-                                        <input type="hidden" name="idty" id="idty" value="">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="uuid"            id="uuid"           value="<?php echo $receive_row['uuid'];?>">
+                                        <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="idty"            id="idty"           value="">
                                         <?php if($sys_id_role <= 3){ ?>
-                                            <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                                            <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
@@ -507,7 +520,7 @@
                     <div class="col-12 pt-0 rounded bg-light" id="logs_div">
                         <div class="row">
                             <div class="col-12 col-md-6">
-                                表單Log記錄：
+                                表單記錄：
                             </div>
                             <div class="col-12 col-md-6">
                             </div>

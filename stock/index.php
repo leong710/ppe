@@ -528,7 +528,7 @@
                     <h4 class="modal-title">編輯儲存品</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
+                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
                         <?php } ?>

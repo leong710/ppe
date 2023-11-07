@@ -324,8 +324,7 @@
                                                     <th>品名</th>
                                                     <th>型號</th>
                                                     <th>尺寸</th>
-                                                    <th>數量</th>
-                                                    <th>單位</th>
+                                                    <th>數量 / 單位</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="shopping_cart_tbody">

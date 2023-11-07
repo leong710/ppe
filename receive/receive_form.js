@@ -55,7 +55,7 @@
                 if(cata['SN'] === cata_SN){
                     var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
                     var collect_cb = '<input name="cata_SN_amount['+cata['SN']+'][pay]" class="unblock" value="'+add_amount+'">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+collect_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+collect_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -289,7 +289,7 @@
             }else if(receive_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
                 var receive_row_cart = JSON.parse(receive_row[receive_key]);
                 Object.keys(receive_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, receive_row_cart[cart_key], 'off');
+                    add_item(cart_key, receive_row_cart[cart_key]['need'], 'off');
                 })
 
             }else if(receive_key == 'omager'){             //omager 上層主管工號
@@ -308,13 +308,13 @@
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
-                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
-                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
+                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + 
+                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
                         `<input type="hidden" name="log_id" value="` + [i] + `";>` +
                         `<input type="hidden" name="uuid" value="` + uuid + `";>` +
                         `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    '</form>' + '</td><?php } ?>' +
-                '</tr>';
+                    '</form>' + '<?php } ?>' +
+                '</td>' +'</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
     }

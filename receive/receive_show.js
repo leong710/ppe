@@ -16,14 +16,14 @@
             swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
 
         }else{
-            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。form-control
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
                     var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled >';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
                     if(receive_collect_role){
-                        add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="form-control amount t-center" disabled placeholder="數量" min="0" max="9999" maxlength="4" value="'+add_amount['pay']+'" oninput="if(value.length>4)value=value.slice(0,4)" >'+'</td></tr>';
-                        add_cata_item = add_cata_item.replaceAll('disabled', '')
+                        add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" disabled placeholder="數量" min="0" max="9999" maxlength="4" value="'+add_amount['pay']+'" oninput="if(value.length>4)value=value.slice(0,4)" >'+'</td></tr>';
+                        add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
                     }else{
                         add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
                     }

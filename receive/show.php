@@ -272,7 +272,7 @@
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -285,24 +285,24 @@
                     <div class="col-12 col-md-8 text-end">
                         <?php if($receive_row['idty'] == 1){ // 1.簽核中 ?>
                             <?php if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role == 0 ){ ?>
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                             <?php } if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 1 ){ ?>
-                                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
-                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
+                                <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                                <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                             $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); 
                             if($receive_collect_role){ ?>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
                         <?php // 承辦+主管簽核選項 idty=13.交貨 => 11.承辦簽核 (Undertake)
                             $receive_undertake_role = ($receive_row['flow'] == 'undertake' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]));
                             if($receive_row['idty'] == 13 && $receive_undertake_role){ ?> 
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦簽核 (undertake)</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦簽核 (undertake)</button>
                         <?php } ?>
                         <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
                             if($receive_row['idty'] == 11 && $receive_undertake_role ){ ?> 
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管簽核 (undertake)</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管簽核 (undertake)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -325,22 +325,20 @@
                                         </div>
                                         <div class="col-6 col-md-6 text-end">
                                             <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
-                                            <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) ||
-                                                    ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
-                                                <!-- <php if(($receive_row['idty'] == 2) || ($receive_row['idty'] == 4) || ($receive_row['idty'] == 6)){ ?> -->
+                                            <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
                                                 <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                                 <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
                                                     <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                                 <?php ;} ?>
                                                 <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
                                                 <?php if(in_array($receive_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
-                                                    <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                                    <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                                 <?php ;} ?>
                                             <?php ;} ?>
-                                            <!-- <php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?> -->
+                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
+                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
                                                 <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
-                                            <!-- <php } ?> -->
+                                            <?php } ?>
                                         </div>
                                         <hr>
                                         <!-- 相關資訊說明 -->
@@ -494,7 +492,7 @@
                                                     <div id="in_sign_badge"></div>
                                                 </div>
                                             </div>
-                                        <hr>
+                                            <hr>
                                         </div>
                                         <label for="sign_comm" class="form-check-label" >command：</label>
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
@@ -558,6 +556,13 @@
                                     // print_r($select_local);
                                     // print_r($_REQUEST);
                                     print_r($receive_row);
+                                    echo "<hr>";
+                                    $pm_emp_id = $receive_row["pm_emp_id"];
+                                    $pm_emp_id = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
+                                    print_r($pm_emp_id);
+                                    echo "<hr>";
+                                    $pm_emp_id_0 = $pm_emp_id["0"];
+                                    echo $pm_emp_id_0;
                                     echo "</pre>text-end";
                                 // }
                             ?>

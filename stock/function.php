@@ -179,7 +179,12 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY fab_id, local_id, cata_SN, _stk.lot_num ASC ";
-        $stmt = $pdo->prepare($sql);
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
         try {
             if($cate_no != "All"){
                 $stmt->execute([$fab_id, $cate_no]);
@@ -192,39 +197,7 @@
             echo $e->getMessage();
         }
     }
-    // stock index分頁工具  20230713
-    function stock_page_div($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _stk.*, 
-                        _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark, 
-                        _cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no  
-                FROM `_stock` _stk 
-                LEFT JOIN _local _l ON _stk.local_id = _l.id 
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-                LEFT JOIN _site _s ON _f.site_id = _s.id 
-                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no ";
-        if($cate_no != "All"){
-            $sql .= " WHERE _f.id = ? AND _cate.cate_no = ? ";
-        }else{
-            $sql .= " WHERE _f.id = ? ";
-        }
-        // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY fab_id, local_id, cata_SN, _stk.lot_num ASC ";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            if($cate_no != "All"){
-                $stmt->execute([$fab_id, $cate_no]);
-            }else{
-                $stmt->execute([$fab_id]);
-            }
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
-        }
-    }
+
     // 依衛材名稱顯示   20230713 
     function show_stock_byCatalog($request){
         $pdo = pdo();
@@ -365,18 +338,25 @@
     function show_fab($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _f.*, _site.site_title 
+        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag, _site.site_title 
                 FROM _fab _f
                 LEFT JOIN _site ON _f.site_id = _site.id ";
         if($fab_id != 'All'){
             $sql .= " WHERE _f.id=? ";
+            if($fab_id == "allMy"){
+                $sql .= " OR _f.id IN ({$sfab_id}) AND _f.flag = 'On' ";
+            }
         }  
         $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             if($fab_id != 'All'){
                 $stmt->execute([$fab_id]);
-                $fabs = $stmt->fetch();
+                if($fab_id == "allMy"){
+                    $fabs = $stmt->fetchAll();
+                }else{
+                    $fabs = $stmt->fetch();
+                }
             }else{
                 $stmt->execute();
                 $fabs = $stmt->fetchAll();
@@ -386,7 +366,31 @@
             echo $e->getMessage();
         }
     }
+    // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
+    function show_coverFab_lists($request){
+        $pdo = pdo();
+        extract($request);
 
+            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+
+        $sql = "SELECT _f.*
+                FROM _fab AS _f 
+                WHERE _f.sign_code LIKE ?
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $coverFab_lists = $stmt->fetchAll();
+            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
+            return $coverFab_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
+        }
+
+    }
     // create時用自己區域
     function show_local($request){
         $pdo = pdo();

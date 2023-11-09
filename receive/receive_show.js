@@ -22,7 +22,12 @@
                     var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled >';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
                     if(receive_collect_role){
-                        add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" disabled placeholder="數量" min="0" max="9999" maxlength="4" value="'+add_amount['pay']+'" oninput="if(value.length>4)value=value.slice(0,4)" >'+'</td></tr>';
+                            var amount_need = add_amount['need'];               // 加工：取需求量
+                            var amount_need_length = amount_need.length;        // 加工：取需求量的長度
+                        console.log(add_amount['need'], amount_need_length);
+                        add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" disabled placeholder="數量" min="0" ';
+                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
+                        add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+')value='+amount_need+'" >'+'</td></tr>';
                         add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
                     }else{
                         add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';

@@ -40,20 +40,41 @@
         // $allLocals = show_local($list_issue_setting);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
-        $sort_fab_setting = array(
-            'fab_id' => "All"
-        );
-        $fabs = show_fab($sort_fab_setting);                // 篩選查詢清單用
+        // 1-1a 將fab_id加入sfab_id
+            if(isset($_SESSION[$sys_id]["fab_id"])){
+                $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
+            }else{
+                $fab_id = "0";
+            }
+            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
+            if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+                array_push($sfab_id, $fab_id);
+            }
+            // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
+            if(isset($_SESSION["AUTH"]["sign_code"])){
+                $sort_fab_setting["sign_code"] = $_SESSION["AUTH"]["sign_code"];
+                $coverFab_lists = show_coverFab_lists($sort_fab_setting);
+                if(!empty($coverFab_lists)){
+                    foreach($coverFab_lists as $coverFab){
+                        array_push($sfab_id, $coverFab["id"]);
+                    }
+                }
+            }
+            // 1-1c sfab_id是陣列，要轉成字串
+            $sfab_id_str = implode(",",$sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
+
+        // 1-2 組合查詢條件陣列
+            $sort_fab_setting = array(
+                'sfab_id'   => $sfab_id_str,                        // 1-2.將字串sfab_id加入組合查詢陣列中
+                'fab_id' => "All"
+            );
+            $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id
         if(isset($_REQUEST["fab_id"])){    // 有帶查詢，套查詢參數
             $sort_fab_id = $_REQUEST["fab_id"];
         }else{                          // 先給預設值
-            if(isset($_SESSION[$sys_id]["fab_id"])){
-                $sort_fab_id = $_SESSION[$sys_id]["fab_id"];
-            }else{
-                $sort_fab_id = "0";
-            }
+            $sort_fab_id = $fab_id;
         }
         // 查詢篩選條件：cate_no
         if(isset($_REQUEST["cate_no"])){
@@ -61,7 +82,7 @@
         }else{
             $sort_cate_no = "All";
         }
-        // 組合查詢條件陣列
+    // 組合查詢條件陣列
         $list_issue_setting = array(
             'fab_id' => $sort_fab_id,
             'cate_no' => $sort_cate_no
@@ -86,8 +107,13 @@
             }else{
                 $page = $_GET['page'];
             }
-        $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
-        $div_stocks = stock_page_div($start, $per, $list_issue_setting);
+            $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+            // 合併嵌入分頁工具
+            $list_issue_setting['start'] = $start;
+            $list_issue_setting['per'] = $per;
+
+        $div_stocks = show_stock($list_issue_setting);
+        // $div_stocks = stock_page_div($start, $per, $list_issue_setting);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
             if($page_end>$per_total){       //最後頁的最後筆數=總筆數
@@ -167,7 +193,7 @@
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2 || (($fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($fab["id"], $_SESSION[$sys_id]["sfab_id"]))) ){ ?>  
+                                        <?php if($_SESSION[$sys_id]["role"] <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
                                             <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>

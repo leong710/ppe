@@ -137,12 +137,19 @@
     function update_fab($request){
         $pdo = pdo();
         extract($request);
+
+        if(!empty($pm_emp_id)){
+            $pm_emp_id = implode(",", $pm_emp_id);       //管理權組是陣列，要儲存前要轉成字串
+        }else{
+            $pm_emp_id = "";
+        }
+
         $sql = "UPDATE _fab
-                SET site_id=?, fab_title=?, fab_remark=?, buy_ty=?, sign_code=?, flag=?, updated_user=?, updated_at=now()
+                SET site_id=?, fab_title=?, fab_remark=?, buy_ty=?, sign_code=?, pm_emp_id=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $sign_code, $flag, $updated_user, $id]);
+            $stmt->execute([$site_id, $fab_title, $fab_remark, $buy_ty, $sign_code, $pm_emp_id, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }

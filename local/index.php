@@ -237,10 +237,10 @@
                                         <tr class="">
                                             <th>ai</th>
                                             <th>site_id</th>
-                                            <th>fab_title</th>
-                                            <th>fab_remark</th>
+                                            <th>fab_title (remark)</th>
                                             <th>buy_ty</th>
                                             <th>sign_code</th>
+                                            <th>pm_emp_id</th>
                                             <th>flag</th>
                                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
                                                 <th>action</th>
@@ -253,10 +253,10 @@
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $fab['id']; ?></td>
                                                 <td style="text-align:left;"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
-                                                <td style="text-align:left;"><?php echo $fab['fab_title']; ?></td>
-                                                <td style="text-align:left;"><?php echo $fab['fab_remark']; ?></td>
+                                                <td style="text-align:left;"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
                                                 <td <?php echo $fab['buy_ty'] !='a' ? 'style="background-color: yellow;"':'';?>><?php echo $fab['buy_ty']; ?></td>
                                                 <td style="text-align:center;"><?php echo $fab['sign_code']; ?></td>
+                                                <td style="text-align:left; word-break: break-all;"><?php echo $fab['pm_emp_id']; ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
                                                         <button type="button" name="fab" id="<?php echo $fab['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $fab['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $fab['flag'];?>"><?php echo $fab['flag'];?></button>
                                                     <?php }else{ ?>
@@ -294,8 +294,7 @@
                                         <tr class="">
                                             <th>ai</th>
                                             <th>fab_id</th>
-                                            <th>local_title</th>
-                                            <th>local_remark</th>
+                                            <th>local_title (remark)</th>
                                             <th>儲存點聯絡人</th>
                                             <th>low_level</th>
                                             <th>flag</th>
@@ -310,8 +309,7 @@
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $local['id']; ?></td>
                                                 <td style="text-align:left;"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                                <td style="text-align:left;"><?php echo $local['local_title']; ?></td>
-                                                <td style="text-align:left;"><?php echo $local['local_remark'];?></td>
+                                                <td style="text-align:left;"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
                                                 <td><?php echo $local['cname'];?></td>
                                                 <td><a href="low_level.php?local_id=<?php echo $local['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($local['low_level']) ? "btn-success":"btn-warning";?>">
                                                     <?php echo !empty($local['low_level']) ? "已設定":"未設定";?></a></td>
@@ -776,16 +774,12 @@
                                             <input type="hidden" class="form-control" name="pm_emp_id[]" id="edit_pm_emp_id" placeholder="已加入的姓名">
                                         </div>
                                         <!-- 第二排的功能 : 搜尋功能 -->
-                                        <div class="col-12 px-4">
+                                        <div class="col-12 px-4 py-0">
                                             <div class="input-group search" id="selectUserForm">
                                                 <input type="text" class="form-control" id="key_word" placeholder="請輸入工號" aria-label="請輸入工號" aria-describedby="button-addon2" >
                                                 <button class="btn btn-outline-secondary" type="button" onclick="search_fun();">查詢</button>
                                                 <button class="btn btn-outline-secondary" type="button" onclick="resetMain();">清除</button>
                                             </div>
-                                        </div>
-                                        <!-- 第三排的功能 : 放查詢結果-->
-                                        <div class="result" id="result">
-                                            <table id="result_table" class="table table-striped table-hover"></table>
                                         </div>
                                     </div>
                                 </div>
@@ -915,12 +909,15 @@
     var fab    = <?=json_encode($fabs);?>;                                                      // 引入fabs資料
     var local  = <?=json_encode($locals);?>;                                                    // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
-    var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
+    var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
-        // remark: to_module = 來源與目的 site、fab、local
+        // 參數說明: to_module = 來源與目的 site、fab、local
+        $('#edit_pm_emp_id').value = '';
+        $('#selectUserItem').empty();
+        tags = [];                                                      // 清除tag名單陣列
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
             if(row['id'] == row_id){
@@ -931,6 +928,18 @@
                         document.querySelector('#'+to_module+'_edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form
                     }else if(item_key == 'flag'){
                         document.querySelector('#edit_'+to_module+' #edit_'+to_module+'_'+row[item_key]).checked = true;
+                    }else if(item_key == 'pm_emp_id'){                          // 20231108_pm_emp_id多名單
+                        // 第0階段：套用既有數據
+                        var intt_val_str = row['pm_emp_id'];                    // 引入PM資料
+                        var intt_val = [];
+                        // if(intt_val_str.length !== 0){                          // 過濾原本pm字串不能為空
+                        if(intt_val_str){                                       // 過濾原本pm字串不能為空
+                            intt_val = intt_val_str.split(',');                 // 直接使用 split 方法得到陣列
+                            for(let i=0; i < intt_val.length; i=i+2){   
+                                tagsInput_me(intt_val[i]+','+intt_val[i+1]);    // 利用合併帶入
+                            }
+                        }
+
                     }else if(item_key == 'buy_ty'){
                         document.querySelector('#edit_'+to_module+' #edit_buy_'+row[item_key]).checked = true;
                     }else{
@@ -1026,17 +1035,19 @@
                 if (res_r !== '') {
                     var obj_val = res_r;                                         // 取Object物件0
                     if(obj_val){     
-                        $('#selectUserItem').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
-                        tags.push(obj_val.emp_id);
-                        let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
-                        if(edit_pm_emp_id){
-                            edit_pm_emp_id.value = tags;
-                        }
+                        // $('#selectUserItem').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                        // tags.push(obj_val.emp_id, obj_val.cname);
+                        // let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+                        // if(edit_pm_emp_id){
+                        //     edit_pm_emp_id.value = tags;
+                        // }
+                        var com_val = obj_val.emp_id+','+obj_val.cname;
+                        tagsInput_me(com_val);
+
                     }else{
                         alert('查無工號：'+ search +' !!');
                     }
                 }
-
             },
             error (){
                 console.log("search error");
@@ -1067,13 +1078,52 @@
         $('#result_table').empty();
         document.querySelector('#key_word').value = '';
     }
-
+    // // fun3-3：選染功能
+    function tagsInput_me(val) {
+        let emp_id = val.substr(0, val.search(','));    // 取第1位 指定emp_id
+        let cname = val.substr(val.search(',',)+1);     // 取第2位 指定cname
+        if (val !== '') {
+            tags.push(val);
+            $('#selectUserItem').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+            let tag_user = document.getElementById(emp_id);
+            if(tag_user){
+                tag_user.value = '';
+            }
+            let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+            if(edit_pm_emp_id){
+                edit_pm_emp_id.value = tags;
+            }
+        }
+    }
 // // // 第三頁：searchUser function 
 
 
-    // 在任何地方啟用工具提示框
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
+
+        // 20230817 禁用Enter鍵表單自動提交 
+        document.onkeydown = function(event) { 
+            var target, code, tag; 
+            if (!event) { 
+                event = window.event;       //針對ie瀏覽器 
+                target = event.srcElement; 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "TEXTAREA") { return true; } 
+                    else { return false; } 
+                } 
+            } else { 
+                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "INPUT") { return false; } 
+                    else { return true; } 
+                } 
+            } 
+        };
     })
 
     $(document).ready(function(){

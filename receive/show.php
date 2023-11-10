@@ -46,7 +46,8 @@
     }else{
         $select_local = array('id' => '');
     }
-
+    $pm_emp_id = $receive_row["pm_emp_id"];
+    $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
 
     $catalogs = show_catalogs();                    // 器材=All
 
@@ -227,6 +228,9 @@
         tr > td {
             vertical-align: middle; 
         }
+        #logs_div tr > td {
+            text-align: left;
+        }
         .collect{
             color: #fa0e7e;
             font-weight: bold;
@@ -295,14 +299,15 @@
                             if($receive_collect_role){ ?>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
-                        <?php // 承辦+主管簽核選項 idty=13.交貨 => 11.承辦簽核 (Undertake)
-                            $receive_undertake_role = ($receive_row['flow'] == 'undertake' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]));
-                            if($receive_row['idty'] == 13 && $receive_undertake_role){ ?> 
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦簽核 (undertake)</button>
+
+                        <?php // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
+                            $receive_delivery_role = ($receive_row['flow'] == 'delivery' && in_array($auth_emp_id, $pm_emp_id_arr));
+                            if($receive_row['idty'] == 13 && $receive_delivery_role){ ?> 
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦同意 (Approve)</button>
                         <?php } ?>
                         <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
-                            if($receive_row['idty'] == 11 && $receive_undertake_role ){ ?> 
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管簽核 (undertake)</button>
+                            if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id OR $sys_id_role <= 0 )){ ?> 
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管同意 (Approve)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -501,6 +506,7 @@
                                         <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                         <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                         <input type="hidden" name="uuid"            id="uuid"           value="<?php echo $receive_row['uuid'];?>">
+                                        <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $receive_row['fab_sign_code'];?>">
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="">

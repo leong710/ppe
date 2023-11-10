@@ -28,9 +28,10 @@
     // deBug專用
         // extract($request);
         echo '<hr>';
-        echo ">> basic_query_arr： ";
+        echo ">> REQUEST： ";
+        // echo ">> basic_query_arr： ";
         echo "<pre>";
-        // print_r($_REQUEST);
-        print_r($query_fab_omager);
+        print_r($_REQUEST);
+        // print_r($query_fab_omager);
         echo "</pre>";
         echo '<hr>';

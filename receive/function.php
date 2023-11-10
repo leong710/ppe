@@ -22,9 +22,9 @@
         if($fun == 'myReceive'){                                            // 處理 $_1我申請單  
             $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) ";
 
-        }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出
-            $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
-            // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) OR (_r.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id) ";
+        }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+            // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
+            $sql .= " WHERE (_r.idty IN (1, 11) AND _r.in_sign = ? ) OR (_r.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
 
         }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  
             if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
@@ -417,7 +417,7 @@
 
             }else if($idty == 11){                                   // case = 11承辦 (Undertake)
                 $sql .= " , in_sign = ? , flow = ? ";
-                $query_fab_omager = query_fab_omager($receive_row["fab_sign_code"]);      // 尋找FAB的環安主管。
+                $query_fab_omager = query_fab_omager($fab_sign_code);   // 尋找FAB的環安主管。
                 $in_sign = $query_fab_omager['OMAGER'];                 // 由 存換成 NULL ==> 業務負責人/負責人主管
                 $flow = 'undertake';                                    // 由 存換成 undertake
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
@@ -512,7 +512,10 @@
             $pm_emp_id = $receive_row["pm_emp_id"];
             $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
                 // case != 13交貨 && 發貨人沒有在pm_emp_id名單中就返回
-                if($idty != 13 && !in_array($updated_emp_id, $pm_emp_id_arr)){ return;}
+                // if($idty != 13 && !in_array($updated_emp_id, $pm_emp_id_arr)){ return;}
+                if($idty != 13 || !in_array($updated_emp_id, $pm_emp_id_arr)){ 
+                    return;
+                }
             $receive_logs["logs"] = $receive_row["logs"];   // 已調閱表單，直接取用logs
             if(empty($receive_logs["logs"])){ $receive_logs["logs"] = ""; }
         // 製作log紀錄前處理：塞進去製作元素
@@ -715,8 +718,8 @@
             case "4":   $action = '編輯 (Edit)';          break;
             case "5":   $action = '轉呈 (Forwarded)';     break;
             case "6":   $action = '暫存 (Save)';          break;
-            case "10":  $action = '結案 (Close)';         break;
-            case "11":  $action = '承辦 (Undertake)';     break;
+            case "10":  $action = '同意 (Approve)';       break;    // 結案 (Close)
+            case "11":  $action = '同意 (Approve)';       break;    // 承辦 (Undertake)
             case "12":  $action = '待收發貨 (Awaiting collection)';   break;
             case "13":  $action = '交貨 (Delivery)';      break;
             case "14":  $action = '扣帳 (Debit)';         break;

@@ -12,6 +12,9 @@
             $fun = "myReceive";                                 // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
         }
 
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
     // 2-1.身分選擇功能：定義user進來要看到的項目
         // if($_SESSION[$sys_id]["role"] <= 1 ){                     
         //     if(isset($_REQUEST["emp_id"])){         
@@ -25,10 +28,10 @@
         if(isset($_REQUEST["emp_id"])){         
             $is_emp_id = $_REQUEST["emp_id"];                   // 有帶emp_id，套查詢參數
         } else{
-            if($_SESSION[$sys_id]["role"] <= 1 ){                     
+            if($sys_id_role <= 1 ){                     
                 $is_emp_id = "All";                             // 沒帶emp_id，pm、管理員 套用 emp_id = All   => 看全部的申請單
             }else{
-                $is_emp_id = $_SESSION["AUTH"]["emp_id"];       // 沒帶emp_id，其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
+                $is_emp_id = $auth_emp_id;       // 沒帶emp_id，其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
             }
         }
         
@@ -42,19 +45,19 @@
     // 3.組合查詢陣列
         $basic_query_arr = array(
             'sys_id'    => $sys_id,
-            'role'      => $_SESSION[$sys_id]["role"],
+            'role'      => $sys_id_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
             'fab_id'    => $is_fab_id,
-            'emp_id'    => $_SESSION["AUTH"]["emp_id"],
+            'emp_id'    => $auth_emp_id,
             'is_emp_id' => $is_emp_id
         );
             // $receives = show_receive_list($basic_query_arr);
             // $sum_receives = show_sum_receive($basic_query_arr);              // 左統計看板--上：表單核簽狀態
             // $sum_receives_ship = show_sum_receive_ship($basic_query_arr);    // 左統計看板--下：轉PR單
-            //$basic_query_arr["emp_id"] = $_SESSION["AUTH"]["emp_id"];
+            //$basic_query_arr["emp_id"] = $auth_emp_id;
 
     // 4.篩選清單呈現方式，預設allMy
-        // if($is_fab_id == "All" && $_SESSION[$sys_id]["role"] == 0){
+        // if($is_fab_id == "All" && $sys_id_role == 0){
         //     $myFab_lists = show_allFab_lists();                              // All
         //     echo "All";
         // }else 
@@ -169,7 +172,7 @@
                     <div class="col-6 col-md-6 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請</a>
-                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                            <?php if($sys_id_role <= 2){ ?>
                                 <!-- <a href="show_receiveAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a> -->
                             <?php } ?>
                         <?php } ?>
@@ -204,7 +207,8 @@
                                     <thead>
                                         <tr class="table-dark">
                                             <th>開單日期</th>
-                                            <th>提貨廠區 / 申請單位 / 申請人</th>
+                                            <th>提貨廠區/申請單位/申請人</th>
+                                            <th>表單狀態</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -213,6 +217,20 @@
                                                 <td title="<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10)." <sup>".$my_inSign['id']."</sup>";?></td>
                                                 <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
                                                     <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
+                                                <td><?php $sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
+                                                    switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+                                                        case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
+                                                        case "2"    : echo "退件";                  break;
+                                                        case "10"   : echo "結案";                  break;
+                                                        case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                        case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                        case "12"   : echo (in_array($auth_emp_id, [$my_inSign['emp_id'], $my_inSign['created_emp_id']]) ||
+                                                        ($my_inSign['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($my_inSign['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
+                                                                                ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
+                                                        case "13"   : echo "交貨";                  break;
+                                                        default     : echo $my_inSign['idty']."na";   break;
+                                                    }; ?>
+                                            </td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>
@@ -276,7 +294,7 @@
                                 <?php if($fun != 'myFab'){ ?>
                                     <!-- 功能1 -->
                                     <div class="col-12 col-md-12 pb-0">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                        <?php if($sys_id_role <= 2){ ?>
                                             <a href="?fun=myFab" class="btn btn-warning" data-toggle="tooltip" data-placement="bottom" title="切換到-轄區文件"><i class="fa-solid fa-right-left"></i></a>
                                         <?php } ?>
                                         <h5 style="display: inline;">我的申請文件：<sup>- myReceives </sup></h5>
@@ -289,11 +307,11 @@
                                     </div>
                                     <!-- 篩選功能?? -->
                                     <div class="col-12 col-md-7 pb-0">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
+                                        <?php if($sys_id_role <= 2 ){ ?>
                                             <form action="" method="get">
                                                 <div class="input-group">
                                                     <select name="fab_id" id="sort_fab_id" class="form-select" >$myFab_lists
-                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":""; echo $_SESSION[$sys_id]["role"] >= 2 ? "hidden":""; ?>>-- [ All fab ] --</option>
+                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":""; echo $sys_id_role >= 2 ? "hidden":""; ?>>-- [ All fab ] --</option>
                                                         <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- [ All my fab ] --</option>
                                                         <?php foreach($myFab_lists as $myFab){ ?>
                                                             <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="<?php echo $myFab["fab_title"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
@@ -302,8 +320,8 @@
                                                     </select>
                                                     <select name="emp_id" id="sort_emp_id" class="form-select">
                                                         <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
-                                                        <option for="sort_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" <?php echo $is_emp_id == $_SESSION["AUTH"]["emp_id"] ? "selected":"";?>>
-                                                            <?php echo $_SESSION["AUTH"]["emp_id"]."_".$_SESSION["AUTH"]["cname"];?></option>
+                                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
+                                                            <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
                                                     </select>
                                                     <input type="hidden" name="fun" id="fun" value="<?php echo $fun;?>">
                                                     <button type="submit" class="btn btn-secondary" ><i class="fa-solid fa-magnifying-glass"></i>&nbsp篩選</button>
@@ -438,7 +456,7 @@
                                                         case "3":   echo '.緊急';  break;
                                                         // default:    echo '錯誤';   break;
                                                     } ;?></td>
-                                            <td><?php $sys_role = (($receive['in_sign'] == $_SESSION["AUTH"]["emp_id"]) || ($_SESSION[$sys_id]['role'] <= 1));
+                                            <td><?php $sys_role = (($receive['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
                                                         switch($receive['idty']){
                                                             case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
                                                             case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
@@ -447,7 +465,7 @@
                                                             case "4"    : echo "編輯";                  break;
                                                             case "10"   : echo "結案";                  break;
                                                             case "11"   : echo "業務承辦";              break;
-                                                            case "12"   : echo (in_array($_SESSION["AUTH"]["emp_id"], [$receive['emp_id'], $receive['created_emp_id']]) ||
+                                                            case "12"   : echo (in_array($auth_emp_id, [$receive['emp_id'], $receive['created_emp_id']]) ||
                                                             ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
                                                                                  ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
                                                             case "13"   : echo "交貨";                  break;

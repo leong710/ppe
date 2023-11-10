@@ -16,6 +16,15 @@
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
     // 2-1.身分選擇功能：定義user進來要看到的項目
+        // if($_SESSION[$sys_id]["role"] <= 1 ){                     
+        //     if(isset($_REQUEST["emp_id"])){         
+        //         $is_emp_id = $_REQUEST["emp_id"];               // pm、管理員 有帶emp_id，套查詢參數
+        //     } else{
+        //         $is_emp_id = "All";                             // pm、管理員 沒帶emp_id，套用 emp_id = All   => 看全部的申請單
+        //     }
+        // }else{
+        //     $is_emp_id = $_SESSION["AUTH"]["emp_id"];           // 其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
+        // }
         if(isset($_REQUEST["emp_id"])){         
             $is_emp_id = $_REQUEST["emp_id"];                   // 有帶emp_id，套查詢參數
         } else{
@@ -42,8 +51,27 @@
             'emp_id'    => $auth_emp_id,
             'is_emp_id' => $is_emp_id
         );
+            // $receives = show_receive_list($basic_query_arr);
+            // $sum_receives = show_sum_receive($basic_query_arr);              // 左統計看板--上：表單核簽狀態
+            // $sum_receives_ship = show_sum_receive_ship($basic_query_arr);    // 左統計看板--下：轉PR單
+            //$basic_query_arr["emp_id"] = $auth_emp_id;
 
     // 4.篩選清單呈現方式，預設allMy
+        // if($is_fab_id == "All" && $sys_id_role == 0){
+        //     $myFab_lists = show_allFab_lists();                              // All
+        //     echo "All";
+        // }else 
+        // if($_SESSION[$sys_id]["fab_id"] == 0 && $_SESSION["AUTH"]["role"] >= 3){                                          // 一般user、主管
+        //     $myFab_lists = show_coverFab_lists($basic_query_arr);                       // myCover show_coverFab_lists用$sign_code模糊搜尋
+        //     if(count($myFab_lists) > 0 && empty($_SESSION[$sys_id]["sfab_id"])){         // 當noBody登入，把她所屬的部門代號廠區套入sfab
+        //         foreach($myFab_lists as $myFab){ 
+        //             array_push($_SESSION[$sys_id]["sfab_id"], $myFab["id"]);
+        //         }
+        //         $_SESSION[$sys_id]["fab_id"] = NULL;
+        //     }
+        // }else{
+        //     $myFab_lists = show_myFab_lists($basic_query_arr);                  // allMy
+        // }
             $fab_id = $_SESSION[$sys_id]["fab_id"];                                 // 4-1.取fab_id
             if(!in_array($fab_id, $_SESSION[$sys_id]["sfab_id"])){                  // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
                 array_push($_SESSION[$sys_id]["sfab_id"], $fab_id);
@@ -144,6 +172,9 @@
                     <div class="col-6 col-md-6 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請</a>
+                            <?php if($sys_id_role <= 2){ ?>
+                                <!-- <a href="show_receiveAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a> -->
+                            <?php } ?>
                         <?php } ?>
                     </div>
                 </div>
@@ -189,9 +220,15 @@
                                                 <td><?php $sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
                                                     switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
                                                         case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
+                                                        case "2"    : echo "退件";                  break;
+                                                        case "10"   : echo "結案";                  break;
                                                         case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
                                                         case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
-                                                        default     : echo $my_inSign['idty']."--";   break;
+                                                        case "12"   : echo (in_array($auth_emp_id, [$my_inSign['emp_id'], $my_inSign['created_emp_id']]) ||
+                                                        ($my_inSign['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($my_inSign['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
+                                                                                ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
+                                                        case "13"   : echo "交貨";                  break;
+                                                        default     : echo $my_inSign['idty']."na";   break;
                                                     }; ?>
                                             </td>
                                             </tr>
@@ -246,6 +283,7 @@
                                 <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待發放的文件! ] </div>
                             <?php } ?>
                         </div>
+
                     </div>
 
                     <!-- 右邊清單 -->
@@ -407,31 +445,32 @@
                                         <tr>
                                             <td title="<?php echo $receive['id'];?>"><?php echo substr($receive['created_at'],0,10)." <sup>".$receive['id']."</sup>"; ?></td>
                                             <td><?php echo $receive['fab_title'].' ('.$receive['fab_remark'].')';?></td>
+                                            <!-- <td style="font-size: 12px; word-break: break-all;"> -->
                                             <td><?php echo $receive["plant"]." / ".$receive["dept"];?></td>
                                             <td><?php echo $receive["cname"]; echo $receive["emp_id"] ? " (".$receive["emp_id"].")":"";?></td>
                                             <td><?php echo substr($receive["updated_at"],0,10); ?></td>
                                             <td><?php echo $receive['ppty'];
                                                     switch($receive['ppty']){
-                                                        case "0":   echo '.臨時';                   break;
-                                                        case "1":   echo '.定期';                   break;
-                                                        case "3":   echo '.緊急';                   break;
+                                                        case "0":   echo '.臨時';  break;
+                                                        case "1":   echo '.定期';  break;
+                                                        case "3":   echo '.緊急';  break;
                                                         // default:    echo '錯誤';   break;
                                                     } ;?></td>
                                             <td><?php $sys_role = (($receive['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
-                                                    switch($receive['idty']){
-                                                        case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
-                                                        case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
-                                                        case "2"    : echo "退件";                  break;
-                                                        case "3"    : echo "取消";                  break;
-                                                        case "4"    : echo "編輯";                  break;
-                                                        case "10"   : echo "結案";                  break;
-                                                        case "11"   : echo "環安主管";              break;
-                                                        case "12"   : echo (in_array($auth_emp_id, [$receive['emp_id'], $receive['created_emp_id']]) ||
+                                                        switch($receive['idty']){
+                                                            case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
+                                                            case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
+                                                            case "2"    : echo "退件";                  break;
+                                                            case "3"    : echo "取消";                  break;
+                                                            case "4"    : echo "編輯";                  break;
+                                                            case "10"   : echo "結案";                  break;
+                                                            case "11"   : echo "業務承辦";              break;
+                                                            case "12"   : echo (in_array($auth_emp_id, [$receive['emp_id'], $receive['created_emp_id']]) ||
                                                             ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
-                                                                                    ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
-                                                        case "13"   : echo "承辦簽核";                  break;
-                                                        default     : echo $receive['idty']."na";   break;
-                                                    }; ?>
+                                                                                 ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
+                                                            case "13"   : echo "交貨";                  break;
+                                                            default     : echo $receive['idty']."na";   break;
+                                                        }; ?>
                                             </td>
                                             <td>
                                                 <!-- Action功能欄 -->
@@ -451,13 +490,13 @@
                             <hr>
                             <!-- 20211215分頁工具 -->               
                             <div class="row">
-                                <div class="col-12 col-md-6 pt-0">	
+                                <div class="col-12 col-md-6">	
                                     <?php
                                         //每頁顯示筆數明細
                                         echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                     ?>
                                 </div>
-                                <div class="col-12 col-md-6 pt-0 text-end">
+                                <div class="col-12 col-md-6 text-end">
                                     <?php
                                         if($pages>1){  //總頁數>1才顯示分頁選單
         
@@ -544,6 +583,61 @@
                             </div>
                             <!-- 20211215分頁工具 -->
                         </div>
+                        <!-- DEBUG -->
+                        <div class="rounded px-3 py-2 my-2 bg-secondary text-white text-start">
+                            <pre>
+                                <?php
+                                    echo "basic_query_arr: ";
+                                    print_r($basic_query_arr);
+                                    echo "<hr>";
+                                    
+                                    echo "myFab_lists: ";
+                                    print_r($myFab_lists);
+                                    echo count($myFab_lists)." 件";
+                                    echo "<hr>";
+
+                                    echo "myFab_lists--sfab_id 加工: ";
+                                    $sfab_id = $_SESSION[$sys_id]["sfab_id"];
+                                    print_r($sfab_id);
+                                    echo count($sfab_id)." 件";
+                                    echo "<hr>";
+
+                                    $my_signCoed = $_SESSION["AUTH"]["sign_code"];
+                                    echo "我的部門代號：".$my_signCoed;
+                                    echo "<hr>";
+
+                                    $cover_signCoed = substr($my_signCoed, 0, -2);
+                                    echo "我的涵蓋：".$cover_signCoed;
+                                    if(preg_match('/'.$cover_signCoed.'/i' ,$my_signCoed)){
+                                        echo "</br>居然一樣!!";
+                                    }else{
+                                        echo "</br>可想而知~~~不一樣!!";
+                                    }
+                                    echo "<hr>";
+
+                                    $sfab_id = $_SESSION[$sys_id]["sfab_id"];
+                                    $sfab_id = implode(",",$sfab_id);       //副pm是陣列，要儲存前要轉成字串
+                                    echo $sfab_id." 串";
+
+                                    // php base64如何進行URL字串編碼和解碼？
+                                        // $string = "?page=3&fun=myFab&emp_id=All&fab_id=allMy";
+                                        // echo "string: ".$string;
+                                        // echo "</br>";
+                                        // // 編碼
+                                        // $data_en = base64_encode($string);
+                                        // $data_en = str_replace(array('+','/','='),array('-','_',''),$data_en);
+                                        // echo "encode: ".$data_en;
+                                        // echo "</br>";
+                                        // // 解碼
+                                        // $data_de = str_replace(array('-','_'),array('+','/'),$data_en);
+                                        // $mod4 = strlen($data_de) % 4;
+                                        // if ($mod4) {
+                                        //     $data_de .= substr('====', $mod4);
+                                        // }
+                                        // echo "decode: ". base64_decode($data_de);
+                                ?>
+                            </pre>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -559,6 +653,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-5" style="text-align:center;" >
+                    <!-- <img src="role.png" style="width: 100%;" class="img-thumbnail"> -->
                 </div>
             </div>
         </div>
@@ -593,7 +688,6 @@
 
     $(document).ready(function () {
         op_tab('sign_remark');
-        op_tab('scope_remark');
     })
 </script>
 

@@ -51,7 +51,6 @@
 
     $catalogs = show_catalogs();                    // 器材=All
 
-    // function select_step(){
         // 身份陣列
         $step_arr = [
             '0' => '填單人',
@@ -99,7 +98,6 @@
                 case "10":  // $act = '結案 (Close)'; 
                     break;
                 case "11":  // $act = '承辦 (Undertake)';
-                    // if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
                     if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
                         $step_index = '4';      // 業務承辦
                     }else if($receive_row["in_sign"] == $auth_emp_id){
@@ -120,7 +118,6 @@
                     return;
             }
 
-        // if(empty($step_index)){
         if(!isset($step_index)){
             if(!isset($sys_id_role) ||($sys_id_role) == 3){
                 $step_index = '6';}      // normal
@@ -134,7 +131,6 @@
         
         // $step套用身份
         $step = $step_arr[$step_index];
-    // }
 
 ?>
 
@@ -228,7 +224,7 @@
         tr > td {
             vertical-align: middle; 
         }
-        #logs_div tr > td {
+        #logs_div tr > td , #logs_div tr > th{
             text-align: left;
         }
         .collect{
@@ -548,30 +544,6 @@
                             <div style="font-size: 10px;" class="text-end">
                                 logs-end
                             </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <!-- 尾段：duBug訊息 -->
-                <div class="row block">
-                    <div class="col-12 mb-0">
-                        <div style="font-size: 14px;">
-                            <?php
-                                // if($_REQUEST){
-                                    echo "<pre>";
-                                    // print_r($select_local);
-                                    // print_r($_REQUEST);
-                                    print_r($receive_row);
-                                    echo "<hr>";
-                                    $pm_emp_id = $receive_row["pm_emp_id"];
-                                    $pm_emp_id = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
-                                    print_r($pm_emp_id);
-                                    echo "<hr>";
-                                    $pm_emp_id_0 = $pm_emp_id["0"];
-                                    echo $pm_emp_id_0;
-                                    echo "</pre>text-end";
-                                // }
-                            ?>
                         </div>
                     </div>
                 </div>

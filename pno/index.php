@@ -32,10 +32,10 @@
             $_year = date('Y');                 // 今年
             // $_year = "All";                     // 全部
         }
-        $sort_PNO_year = array(
+        $query_array = array(
             '_year' => $_year
         );
-    $pnos = show_pno($sort_PNO_year);
+    $pnos = show_pno($query_array);
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($pnos);      //計算總筆數
@@ -48,13 +48,10 @@
         }
         $start = ($page-1)*$per;        //每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
-            $receive_page_div = array(
-                '_year' => $_year,
-                'start' => $start,
-                'per' => $per
-            );
+            $query_array["start"] = $start;
+            $query_array["per"] = $per;
             // array_push($sort_PNO_year, $receive_page_div);
-        $pnos = show_pno($receive_page_div);
+        $pnos = show_pno($query_array);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
             if($page_end>$per_total){       //最後頁的最後筆數=總筆數
@@ -63,14 +60,11 @@
     // <!-- 20211215分頁工具 -->
 
         // 新增料號時，需提供對應的器材選項
-        $sort_category = array(
-            'cate_no' => "all"                        // 預設全部器材類別
-        );
-        $catalogs = show_catalogs($sort_category);    // 讀取器材清單 by all
-        // 取出PNO年份清單 => 供Part_NO料號頁面篩選
-        $pno_years = show_PNO_GB_year();
+        $query_array["cate_no"] = "all";                // 預設全部器材類別
+        $catalogs = show_catalogs($query_array);        // 讀取器材清單 by all
+        $pno_years = show_PNO_GB_year();                // 取出PNO年份清單 => 供Part_NO料號頁面篩選
     
-    $thisYear = date('Y');                      // 取今年值 for 新增料號預設年度
+    $thisYear = date('Y');                              // 取今年值 for 新增料號預設年度
     $url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
 
 
@@ -104,6 +98,17 @@
             vertical-align: top; 
             word-break: break-all;
         }
+        #fix_price tr > th {
+            color: blue;
+            text-align: center;
+            vertical-align: top; 
+            word-break: break-all; 
+            background-color: white;
+            font-size: 16px;
+        }
+        #fix_price tr > td {
+            vertical-align: middle; 
+        }
     </style>
 </head>
 <body>
@@ -133,8 +138,9 @@
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                            <a href="#" target="_blank" title="新增Part_NO料號" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_pno"> <i class="fa fa-plus"></i> 新增Part_NO料號</a>
+                            <button type="button" id="add_pno_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_pno" onclick="add_module('pno')" > <i class="fa fa-plus"></i> 新增Part_NO料號</button>
                         <?php } ?>
+                        <a href="#" target="_blank" title="編輯Price歷年報價" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#fix_price"> <i class="fa fa-plus"></i> 編輯Price歷年報價</a>
                     </div>
                 </div>
 
@@ -146,6 +152,7 @@
                         </li>
                     </ul>
                 </div>
+                <!-- 內頁 -->
                 <div class="col-12 bg-white">
                     <div class="col-12 p-0">
                         <!-- 20211215分頁工具 -->               
@@ -214,11 +221,12 @@
                             <thead>
                                 <tr class="">
                                     <th>ai</th>
-                                    <th>_year</br>年度</th>
-                                    <th>part_no</br>料號</th>
-                                    <th>size</br>尺寸</th>
                                     <th>cate_no</br>器材分類</th>
                                     <th>cata_SN</br>器材編號(名稱)</th>
+                                    <th>size</br>尺寸</th>
+                                    <th>part_no</br>料號</th>
+                                    <th>_year</br>建立年度</th>
+                                    <th>price</br>年度/單價</th>
                                     <th>part_remark</br>註解說明</th>
                                     <th>flag</th>
                                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
@@ -231,13 +239,30 @@
                                 <?php foreach($pnos as $pno){ ?>
                                     <tr>
                                         <td style="font-size: 6px;"><?php echo $pno["id"]; ?></td>
-                                        <td><?php echo $pno["_year"]; ?></td>
-                                        <td style="text-align:left;"><?php echo $pno["part_no"];?></td>
+                                        <td><span class="badge rounded-pill <?php switch($pno["cate_id"]){
+                                                            case "1": echo "bg-primary"; break;
+                                                            case "2": echo "bg-success"; break;
+                                                            case "3": echo "bg-warning text-dark"; break;
+                                                            case "4": echo "bg-danger"; break;
+                                                            case "5": echo "bg-info text-dark"; break;
+                                                            case "6": echo "bg-dark"; break;
+                                                            case "7": echo "bg-secondary"; break;
+                                                            default : echo "bg-light text-success"; break;
+                                                        }?>">
+                                            <?php echo $pno["cate_no"] ? $pno["cate_no"].".".$pno["cate_remark"]:""; ?></span>
+                                        </td>
+                                        <td style="width: 25%" class="word_bk">
+                                            <?php echo $pno["cata_SN"] ? "<b>".$pno["cata_SN"]."_".$pno["pname"]."</b>":"-- 無 --";
+                                                  echo $pno["model"] ? "</br>[".$pno["model"]."]" :""; 
+                                                  echo ($pno["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                         <td><?php echo $pno["size"]; ?></td>
-                                        <td><?php echo $pno["cate_no"] ? $pno["cate_no"].".".$pno["cate_remark"]:""; ?></td>
-                                        <td style="width: 25%" class="word_bk"><?php echo $pno["cata_SN"] ? $pno["cata_SN"]."-".$pno["pname"]:"-- 無 --";
-                                                                            echo $pno["model"] ? "</br>[".$pno["model"]."]" :""; 
-                                                                            echo ($pno["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
+                                        <td style="text-align:left;"><?php echo $pno["part_no"];?></td>
+                                        <td><?php echo $pno["_year"]; ?></td>
+                                        <td style="text-align: left;" class="fix_quote"><?php 
+                                            $price_arr = (array) json_decode($pno["price"]);
+                                            echo ($thisYear-1)."y : $"; echo isset($price_arr[$thisYear-1]) ? number_format($price_arr[$thisYear-1]) : "0";
+                                            echo "</br>".$thisYear."y : $"; echo isset($price_arr[$thisYear]) ? number_format($price_arr[$thisYear]) : "0";
+                                        ?></td>
                                         <td style="width: 25%" class="word_bk"><?php echo $pno["pno_remark"];?></td>
                                         <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                                 <button type="button" name="pno" id="<?php echo $pno['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $pno['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $pno['flag'];?>"><?php echo $pno['flag'];?></button>
@@ -253,6 +278,7 @@
                                 <?php } ?>
                             </tbody>
                         </table>
+                        <hr>
                         <!-- 20211215分頁工具 -->
                         <div class="row">
                             <div class="col-12 col-md-6">	
@@ -322,115 +348,21 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增PNO料號 -->
-    <div class="modal fade" id="add_pno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">新增Part_NO料號</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="post">
-                    <div class="modal-body px-4">
-                        <div class="row">
-                            <div class="col-12 col-md-4 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="_year" id="_year" class="form-control" required placeholder="_year年度" value="<?php echo $thisYear;?>">
-                                    <label for="_year" class="form-label">_year/年度：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="part_no" id="part_no" class="form-control" required placeholder="part_no料號">
-                                    <label for="part_no" class="form-label">part_no/料號：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="size" id="size" class="form-control" required placeholder="size尺寸">
-                                    <label for="size" class="form-label">size/尺寸：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <select name="cata_SN" id="cata_SN" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
-                                        <option value="" hidden>-- 請選擇對應品項 --</option>
-                                        <?php foreach($catalogs as $cata){ ?>
-                                            <option value="<?php echo $cata["SN"];?>" >
-                                                    <!-- <php if($cata["flag"] == "Off"){ ?> hidden <php } ?>> -->
-                                                <?php echo $cata["cate_no"].".".$cata["cate_remark"]."_".$cata["SN"]."_".$cata["pname"]; 
-                                                      echo $cata["model"] ? " [".$cata["model"]."]" :"";
-                                                      echo ($cata["flag"] == "Off") ? " -- 已關閉":"";?>
-                                            </option>
-                                        <?php } ?>
-                                    </select>
-                                    <label for="cata_SN" class="form-label">SN/對應品項：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] > 1) ? " - disabled":" *"; ?></sup></label>
-                                </div>
-                            </div>
-   
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <textarea name="pno_remark" id="pno_remark" class="form-control" style="height: 100px" placeholder="註解說明"></textarea>
-                                    <label for="pno_remark" class="form-label">pno_remark/備註說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
-                                    <input type="number" name="price" id="price" class="form-control" required placeholder="price單價" min="0" value="0">
-                                    <label for="price" class="form-label">price/單價：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 py-1">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" value="On" id="pno_On" class="form-check-input" checked>&nbsp
-                                            <label for="pno_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" value="Off" id="pno_Off" class="form-check-input">&nbsp
-                                            <label for="pno_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="0">
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="新增" name="local_submit" class="btn btn-primary">
-                            <?php } ?>
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>
-
-<!-- 彈出畫面模組 編輯PNO料號 -->
+<!-- 彈出畫面模組 新增、編輯PNO料號 -->
     <div class="modal fade" id="edit_pno" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯Part_NO料號</h4>
+                    <h4 class="modal-title"><span id="modal_action"></span>Part_NO料號</h4>
+
                     <form action="" method="post">
                         <input type="hidden" name="id" id="pno_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
+                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_pno" value="刪除pno料號" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                            <span id="modal_delect_btn"></span>
                         <?php } ?>
                     </form>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="post">
@@ -439,8 +371,8 @@
 
                             <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
-                                    <input type="text" name="_year" id="edit__year" class="form-control" required placeholder="_year年度" value="">
-                                    <label for="edit__year" class="form-label">_year/年度：<sup class="text-danger"> *</sup></label>
+                                    <input type="text" name="_year" id="edit__year" class="form-control" required placeholder="_year建立年度"  value="<?php echo $thisYear;?>">
+                                    <label for="edit__year" class="form-label">_year建立年度<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
                             <div class="col-12 col-md-4 py-1">
@@ -479,21 +411,26 @@
                                     <label for="edit_pno_remark" class="form-label">pno_remark/備註說明：</label>
                                 </div>
                             </div>
-
-                            <div class="col-12 col-md-6 py-1">
+                            <div class="col-12 col-md-4 py-1">
                                 <div class="form-floating">
-                                    <input type="number" name="price" id="edit_price" class="form-control" required placeholder="price單價" min="0">
-                                    <label for="edit_price" class="form-label">price/單價：<sup class="text-danger"> *</sup></label>
+                                    <input type="text" name="_quoteYear" id="edit_quoteYear" class="form-control" required placeholder="_quoteYear年度" value="<?php echo $thisYear;?>">
+                                    <label for="edit_quoteYear" class="form-label">_quoteYear/報價年度：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6 py-1">
+                            <div class="col-12 col-md-4 py-1">
+                                <div class="form-floating">
+                                    <input type="number" name="_price" id="edit_price" class="form-control" required placeholder="_price單價" min="0">
+                                    <label for="edit_price" class="form-label">_price/單價：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 py-1">
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
                                             <label for="flag" class="form-label">flag/顯示開關：</label>
                                         </td>
                                         <td>
-                                            <input type="radio" name="flag" value="On" id="edit_pno_On" class="form-check-input">&nbsp
+                                            <input type="radio" name="flag" value="On" id="edit_pno_On" class="form-check-input" checked>&nbsp
                                             <label for="edit_pno_On" class="form-check-label">On</label>
                                         </td>
                                         <td>
@@ -510,12 +447,56 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="0">
+                            <input type="hidden" name="page" value="<?php echo isset($_REQUEST['page']) ? $_REQUEST['page'] : '1' ;?>">
                             <input type="hidden" name="id" id="pno_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" name="edit_pno_submit" class="btn btn-primary" value="儲存">
+                                <span id="modal_button"></span>
                             <?php } ?>
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+    
+            </div>
+        </div>
+    </div>
+
+<!-- 彈出畫面模組 編輯Price歷年報價 -->
+    <div class="modal fade" id="fix_price" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯料號：<span id="fix_part_no">fix123</span>歷年報價</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body px-4">
+                        <div class="col-12 py-0">
+                            <table class="for-table logs table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>報價年度</th>
+                                        <th>單價</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-end">
+                            <input type="hidden" name="activeTab" value="0">
+                            <input type="hidden" name="page" value="<?php echo isset($_REQUEST['page']) ? $_REQUEST['page'] : '1' ;?>">
+                            <input type="hidden" name="id" id="pno_edit_id" >
+                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
+                                <span id="modal_button"></span>
+                            <?php } ?>
+                            <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
@@ -555,10 +536,24 @@
     }
 
     var pno      = <?=json_encode($pnos);?>;                                                   // 引入pnos資料
+    var thisYear    = String(<?=$thisYear;?>);                                                 // 引入$thisYear資料
     var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','flag'];      // 交給其他功能帶入 delete_pno_id
 
+    function add_module(to_module){     // 啟用新增模式
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_pno_info').empty();   // 清除model功能
+        $('#reset_btn').click();                                                        // reset清除表單
+        var add_btn = '<input type="submit" name="pno_submit" class="btn btn-primary" value="新增">';
+        $('#modal_action').append('新增');                      // model標題
+        $('#modal_button').append(add_btn);                     // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+    }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_pno_info').empty();   // 清除model功能
+        $('#reset_btn').click();                                                        // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
@@ -570,6 +565,18 @@
                         document.querySelector('#'+to_module+'_edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form
                     }else if(item_key == 'flag'){
                         document.querySelector('#edit_'+to_module+' #edit_'+to_module+'_'+row[item_key]).checked = true;
+                    }else if(item_key == 'price'){
+                        var price_json = row[item_key];
+                        if(!price_json || price_json == 0){
+                            var price_json_parse = {};
+                        }else{
+                            var price_json_parse = JSON.parse(price_json);
+                        }
+                        if(!price_json_parse[thisYear]){
+                            price_json_parse[thisYear] = 0;
+                        }
+                        document.querySelector('#edit_'+to_module+' #edit_quoteYear').value = thisYear; 
+                        document.querySelector('#edit_'+to_module+' #edit_price').value = price_json_parse[thisYear]; 
                     }else{
                         document.querySelector('#edit_'+to_module+' #edit_'+item_key).value = row[item_key]; 
                     }
@@ -581,6 +588,12 @@
 
                 // step3-3.開啟 彈出畫面模組 for user編輯
                 // edit_myTodo_btn.click();
+                var add_btn = '<input type="submit" name="edit_pno_submit" class="btn btn-primary" value="儲存">';
+                var del_btn = '<input type="submit" name="delete_pno" value="刪除pno料號" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                $('#modal_action').append('編輯');          // model標題
+                $('#modal_delect_btn').append(del_btn);     // 刪除鈕
+                $('#modal_button').append(add_btn);         // 儲存鈕
+                return;
             }
         })
     }
@@ -632,7 +645,54 @@
 
         }
     }
+    
+    // 呼叫編輯Price歷年報價
+    let fix_quotes = [...document.querySelectorAll('.fix_quote')];
+    for(let fix_quote of fix_quotes){
+        fix_quote.onclick = e => {
+            let swal_content = e.target.name+'_id:'+e.target.id+'=';
+            console.log('e:',e.target.name,e.target.id,e.target.value);
+            // $.ajax({
+            //     url:'api.php',
+            //     method:'post',
+            //     async: false,                                           // ajax取得數據包後，可以return的重要參數
+            //     dataType:'json',
+            //     data:{
+            //         function: 'cheng_flag',           // 操作功能
+            //         table: e.target.name,
+            //         id: e.target.id,
+            //         flag: e.target.value
+            //     },
+            //     success: function(res){
+            //         let res_r = res["result"];
+            //         let res_r_flag = res_r["flag"];
+            //         // console.log(res_r_flag);
+            //         if(res_r_flag == 'Off'){
+            //             e.target.classList.remove('btn-success');
+            //             e.target.classList.add('btn-warning');
+            //             e.target.value = 'Off';
+            //             e.target.innerText = 'Off';
+            //         }else{
+            //             e.target.classList.remove('btn-warning');
+            //             e.target.classList.add('btn-success');
+            //             e.target.value = 'On';
+            //             e.target.innerText = 'On';
+            //         }
+            //         swal_action = 'success';
+            //         swal_content += res_r_flag+' 套用成功';
+            //     },
+            //     error: function(e){
+            //         swal_action = 'error';
+            //         swal_content += res_r_flag+' 套用失敗';
+            //         console.log("error");
+            //     }
+            // });
 
+            // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
+            // swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
+
+        }
+    }
 
 
 </script>

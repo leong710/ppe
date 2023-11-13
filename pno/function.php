@@ -5,10 +5,30 @@
     function store_pno($request){
         $pdo = pdo();
         extract($request);
-        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, price, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $part_no = trim($part_no);
+
+        // 檢查part_no是否已經被註冊
+            $sql_check = "SELECT * FROM _pno WHERE part_no = ?";
+            $stmt_check = $pdo -> prepare($sql_check);
+            $stmt_check -> execute([$part_no]);
+            if($stmt_check -> rowCount() >0){     
+                // 確認料號是否已經被註冊掉，用rowCount最快~不要用fetch
+                echo "<script>alert('{$part_no} 料號已存在，請重新選擇料號~')</script>";
+                // header("refresh:0;url=register.php");
+                return;
+            }
+
+        // 組合price單價 = _quoteYear/報價年度 : _price/單價
+            $price_arr = array(
+                $_quoteYear => $_price
+            );
+            $price_json = json_encode($price_arr);
+
+        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, price, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price, $flag, $updated_user]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price_json, $flag, $updated_user]);
+            
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -31,12 +51,19 @@
     function update_pno($request){
         $pdo = pdo();
         extract($request);
+
+            $row_pno = edit_pno($request);  // 把舊紀錄讀進來取price
+            $row_pno_price_arr = (array) json_decode($row_pno["price"]);
+      // 組合price單價 = _quoteYear/報價年度 : _price/單價
+            $row_pno_price_arr[$_quoteYear] = $_price;
+            $row_pno_price_enc = json_encode($row_pno_price_arr);
+
         $sql = "UPDATE _pno
                 SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price, $flag, $updated_user, $id]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $row_pno_price_enc, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }

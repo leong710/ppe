@@ -6,8 +6,8 @@
     header('Access-Control-Allow-Origin: *');    // 添加這行，允許跨網域!!
     header('Content-Type: application/json');
     
-    if(!empty($_REQUEST)){      // 確認有帶數值才執行
-        $function = (isset($_POST['function'])) ? $_POST['function'] : $_GET['function'];     // 操作功能   
+    if(!empty($_REQUEST) && (isset($_REQUEST['function']))){
+        $function = $_REQUEST['function'];      // 操作功能
     }
 
     $aResult = array();         // 定義結果陣列
@@ -16,8 +16,6 @@
     if( !isset($aResult['error']) ) {
 
         $su = [];       // 宣告查詢陣列起始
-
-
         $aResult['success'] = 'Run function '.$function.'!';    // 預先定義回傳內容。
         switch($function) {
             // fun-1.cheng_flag myjob快速切換上架On/下架Off 
@@ -40,6 +38,20 @@
                         );
                     }
                     $aResult['result'] = $cheng_flag;
+                }
+                break;
+                
+            case 'update_price':
+                // 宣告查詢陣列內容
+                if(isset($_REQUEST['request'])){
+                    $su = (array) json_decode($_REQUEST['request']);                 // 操作功能
+                }
+                
+                if(empty($su['id']) || empty($su['price'])) {
+                    $aResult['error'] = $function.' - 參數錯誤!';
+                } else {
+                    // $cheng_flag = update_price($su);
+                    $aResult['result'] = $su;
                 }
                 break;
             case 'searchUser':

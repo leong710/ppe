@@ -80,7 +80,7 @@
             echo $e->getMessage();
         }
     }
-    // 隱藏或開啟
+    // API隱藏或開啟
     function changePno_flag($request){
         $pdo = pdo();
         extract($request);
@@ -109,6 +109,31 @@
         }catch(PDOException $e){
             echo $e->getMessage();
         }
+    }
+    // API更新報價
+    function update_price($request){
+        $pdo = pdo();
+        extract($request);
+
+        
+        print_r($price);
+
+    //         $row_pno = edit_pno($request);  // 把舊紀錄讀進來取price
+    //         $row_pno_price_arr = (array) json_decode($row_pno["price"]);
+    // // 組合price單價 = _quoteYear/報價年度 : _price/單價
+    //         $row_pno_price_arr[$_quoteYear] = $_price;
+    //         $row_pno_price_enc = json_encode($row_pno_price_arr);
+
+    //     $sql = "UPDATE _pno
+    //             SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, flag=?, updated_user=?, updated_at=now()
+    //             WHERE id=? ";
+    //     $stmt = $pdo->prepare($sql);
+    //     try {
+    //         $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $row_pno_price_enc, $flag, $updated_user, $id]);
+    //     }catch(PDOException $e){
+    //         echo $e->getMessage();
+    //     }
+
     }
 
     function show_pno($request){        // 202309018 嵌入分頁工具

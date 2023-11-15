@@ -43,15 +43,22 @@
                 
             case 'update_price':
                 // 宣告查詢陣列內容
-                if(isset($_REQUEST['request'])){
-                    $su = (array) json_decode($_REQUEST['request']);                 // 操作功能
-                }
-                
-                if(empty($su['id']) || empty($su['price'])) {
+                if(isset($_REQUEST['_id'])){
+                    $su['id'] = $_REQUEST['_id'];}                     // 操作功能
+                if(isset($_REQUEST['_quoteYear'])){
+                    $su['_quoteYear'] = $_REQUEST['_quoteYear'];}           // 操作功能
+                if(isset($_REQUEST['_price'])){
+                    $su['_price'] = $_REQUEST['_price'];}         // 操作功能
+                // if(isset($_REQUEST['json_request'])){
+                //     $su['json_request'] = (array) json_decode($_REQUEST['json_request']);} // 操作功能
+
+                if(!isset($su['id']) || !isset($su['_quoteYear']) || !isset($su['_price'])) {
+                    unset($aResult['success']);
                     $aResult['error'] = $function.' - 參數錯誤!';
-                } else {
-                    // $cheng_flag = update_price($su);
                     $aResult['result'] = $su;
+                } else {
+                    $update_price = update_price($su);
+                    $aResult['result'] = $update_price;
                 }
                 break;
             case 'searchUser':
@@ -72,7 +79,6 @@
         // 尋到物件行為進行記錄
         // toLog($_REQUEST);
     }
-    // echo json_encode($aResult);
     // 參數：JSON_UNESCAPED_UNICODE 中文不編碼
     echo json_encode($aResult , JSON_UNESCAPED_UNICODE );
 

@@ -269,14 +269,14 @@
                                 <tr>
                                     <td>2</td>
                                     <td>siteUser</td>
-                                    <td>廠區一般人員</td>
+                                    <td>廠區業務人員</td>
                                     <td>各site指定業務窗口</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
                                     <td>noBody</td>
-                                    <td>新註冊之人員</td>
-                                    <td>待審查賦予對應權限之使用者</td>
+                                    <td>一般使用者</td>
+                                    <td>一次性使用者</td>
                                 </tr>
                             </tbody>
                         </table>

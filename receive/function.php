@@ -85,9 +85,9 @@
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            if($fun == 'inSign'){  
-                echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
-            }
+            // if($fun == 'inSign'){  
+            //     echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
+            // }
             return $my_receive_lists;
 
         }catch(PDOException $e){

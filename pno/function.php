@@ -115,25 +115,24 @@
         $pdo = pdo();
         extract($request);
 
-        
-        print_r($price);
+    // 把舊紀錄讀進來取price
+        $row_pno = edit_pno($request);
+        $row_pno_price_arr = (array) json_decode($row_pno["price"]);
+    // 組合price單價 = _quoteYear/報價年度 : _price/單價
+        $row_pno_price_arr[$_quoteYear] = $_price;
+        $row_pno_price_enc = json_encode($row_pno_price_arr);
 
-    //         $row_pno = edit_pno($request);  // 把舊紀錄讀進來取price
-    //         $row_pno_price_arr = (array) json_decode($row_pno["price"]);
-    // // 組合price單價 = _quoteYear/報價年度 : _price/單價
-    //         $row_pno_price_arr[$_quoteYear] = $_price;
-    //         $row_pno_price_enc = json_encode($row_pno_price_arr);
-
-    //     $sql = "UPDATE _pno
-    //             SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, flag=?, updated_user=?, updated_at=now()
-    //             WHERE id=? ";
-    //     $stmt = $pdo->prepare($sql);
-    //     try {
-    //         $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $row_pno_price_enc, $flag, $updated_user, $id]);
-    //     }catch(PDOException $e){
-    //         echo $e->getMessage();
-    //     }
-
+        $sql = "UPDATE _pno
+                SET price=?, updated_at=now()
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$row_pno_price_enc, $id]);
+            return "mySQL寫入 - 成功";
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return "mySQL寫入 - 失敗";
+        }
     }
 
     function show_pno($request){        // 202309018 嵌入分頁工具

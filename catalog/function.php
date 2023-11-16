@@ -572,7 +572,7 @@
                 FROM `_local` _l
                 LEFT JOIN _fab _f ON  _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _l.flag='On'
+                -- WHERE _l.flag='On'
                 ORDER BY _s.id, _f.id, _l.id ASC";
         $stmt = $pdo->prepare($sql);
         try {

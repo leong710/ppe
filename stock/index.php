@@ -364,7 +364,7 @@
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_amount":"" ;?> " contenteditable="true">
                                         <?php echo $stock['amount'];?></td>
                                     <td style="width:20%;text-align: left;"><?php echo $stock['stock_remark'];?></td>
-                                    <td <?php if($stock["lot_num"] < $half_month){ ?> class="alert_lot_num" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
+                                    <td <?php if($stock["lot_num"] < $half_month){ ?> class="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
@@ -468,7 +468,6 @@
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
-
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

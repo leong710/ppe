@@ -165,6 +165,29 @@
         .rounded-pill {
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
         }
+        /* 凸顯可編輯欄位 */
+            .fix_amount:hover {
+                /* font-size: 1.05rem; */
+                font-weight: bold;
+                text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+            }
+        /* 新增與編輯 module表頭顏色 */
+            .add_mode_bgc {          
+                background-color: #ADD8E6;
+            }
+            .edit_mode_bgc {
+                background-color: #FFFACD;
+            }
+        /* 警示項目 amount、lot_num */
+            .alert_amount {
+                background-color: #FFBFFF;
+                color: red;
+                font-size: 1.2em;
+            }
+            .alert_lot_num {
+                background-color: #FFBFFF;
+                color: red;
+            }
     </style>
     <script>    
         // loading function
@@ -207,7 +230,7 @@
                     <div class="col-md-4 py-0 text-end">
                         <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
-                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_stock"><i class="fa fa-plus"></i> 新增</button>
+                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 新增</button>
                             <?php } ?>
                             <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i> 下載CSV</button>
                         <?php } ?>
@@ -310,7 +333,7 @@
                                 <th>分類</th>
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="相同儲區&相同品項將安全存量合併成一筆計算">安全</br>存量 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
-                                <th>現場</br>存量</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="編輯後按Enter才能儲存">現場</br>存量 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                 <th>備註說明</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                 <th>PO no</th>
@@ -338,10 +361,10 @@
                                         }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
                                     <td style="text-align: left;"><?php echo $stock["SN"]."_".$stock['pname'];?></td>
                                     <td><?php echo $stock['standard_lv'];?></td>
-                                    <td <?php if($stock["amount"] < $stock['standard_lv']){ ?> style="background-color:#FFBFFF;color:red;font-size:1.2em;"<?php }?>>
+                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_amount":"" ;?> " contenteditable="true">
                                         <?php echo $stock['amount'];?></td>
                                     <td style="width:20%;text-align: left;"><?php echo $stock['stock_remark'];?></td>
-                                    <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
+                                    <td <?php if($stock["lot_num"] < $half_month){ ?> class="alert_lot_num" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
@@ -433,130 +456,19 @@
         </div>
     </div>
    
-<!-- 彈出畫面模組 新增stock品項 -->
-    <div class="modal fade" id="add_stock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">新增儲存品</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="post">
-                    <div class="modal-body p-4 pb-0">
-                        <!-- 第一列 儲存區/器材名稱 -->
-                        <div class="col-12 rounded py-1" style="background-color: #D3FF93;">
-                            <div class="row" >
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating">
-                                        <select name="local_id" id="local_id" class="form-control" required onchange="select_local(this.value)">
-                                            <option value="" selected hidden>-- 請選擇儲存點 --</option>
-                                            <?php foreach($allLocals as $local){ ?>
-                                                <!-- <php if($_SESSION[$sys_id]["role"] <= 0 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
-                                                    <option value="<?php echo $local["id"];?>" <?php echo ($local["fab_id"] == $sortFab["id"]) ? "":"hidden"; ?>>
-                                                        <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                                <!-- <php } ?> -->
-                                            <?php } ?>
-                                        </select>
-                                        <label for="local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating">
-                                        <select name="cata_SN" id="cata_SN" class="form-control" required onchange="update_standard_lv(this.value)">
-                                            <option value="" selected hidden>-- 請選擇器材 --</option>
-                                            <?php foreach($catalogs as $catalog){ ?>
-                                                <option value="<?php echo $catalog["SN"];?>" title="<?php echo $catalog["cata_remark"];?>"><?php echo $catalog["SN"]."：".$catalog["pname"];?></option>
-                                            <?php } ?>
-                                        </select>
-                                        <label for="cata_SN" class="form-label">cata_SN/器材名稱：<sup class="text-danger">*</sup></label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <!-- 第二排數據 -->
-                        <div class="col-12 rounded bg-light">
-                            <div class="row">
-                                <!-- 左側-數量 -->
-                                <div class="col-12 col-md-6 py-0">
-                                    <div class="form-floating">
-                                        <input type="number" name="standard_lv" id="standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
-                                            <?php echo $_SESSION[$sys_id]["role"] <= 1 ? "":"readonly"; ?> >
-                                        <label for="standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] <= 1) ? " *":" - disabled";?></sup></label>
-                                    </div>
-                                </div>
-                                <!-- 右側-批號 -->
-                                <div class="col-12 col-md-6 py-0">
-                                    <div class="form-floating">
-                                        <input type="number" name="amount" id="amount" class="form-control t-center" required placeholder="正常數量" min="0" max="999">
-                                        <label for="amount" class="form-label">amount/現場存量：<sup class="text-danger">*</sup></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating">
-                                        <input type="text" name="po_no" id="po_no" class="form-control" placeholder="PO採購編號">
-                                        <label for="po_no" class="form-label">po_no/PO採購編號：</label>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating">
-                                        <input type="text" name="pno" id="pno" class="form-control" placeholder="料號">
-                                        <label for="pno" class="form-label">pno/料號：</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating">
-                                        <textarea name="stock_remark" id="stock_remark" class="form-control" style="height: 100px"></textarea>
-                                        <label for="stock_remark" class="form-label">stock_remark/備註說明：</label>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 py-1">
-                                    <div class="form-floating pb-0">
-                                        <input type="date" name="lot_num" id="add_lot_num" class="form-control" required>
-                                        <label for="add_lot_num" class="form-label">lot_num/批號/期限：<sup class="text-danger">*</sup></label>
-                                    </div>
-                                    <div class="col-12 pt-0 text-end">
-                                        <button type="button" id="add_toggle_btn" class="btn btn-sm btn-xs btn-warning text-dark" onclick="chenge_lot_num('add')">永久</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 第三排提示 -->
-                        <div class="col-12 rounded bg-light pt-0">
-                            *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="fab_id" value="<?php echo $select_local["fab_id"];?>">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <input type="submit" name="add_stock_submit" class="btn btn-primary" value="新增" >
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-<!-- 彈出畫面模組 編輯stock品項 -->
+<!-- 彈出畫面模組 新增、編輯stock品項 -->
     <div class="modal fade" id="edit_stock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯儲存品</h4>
+                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp儲存品</h4>
+
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                            <span id="modal_delect_btn"></span>
+
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -658,10 +570,14 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="hidden" name="id" id="stock_edit_id" >
-                            <input type="hidden" name="fab_id" value="<?php echo $select_local["fab_id"];?>">
+                            <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
+                            <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" >
-                            <input type="reset" value="清除" class="btn btn-info">
+                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>   
+                                <span id="modal_button"></span>
+                            <?php } ?>
+                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
+                            <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -709,6 +625,17 @@
             </div>
         </div>
     </div>
+
+<!-- toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-body"></div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
 <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -723,27 +650,31 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
-    // 在任何地方啟用工具提示框
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    })
-    // All resources finished loading! // 關閉mLoading提示
+// // // 開局導入設定檔
+    var allLocals = <?=json_encode($allLocals);?>;                      // 引入所有local的allLocals值
+    var low_level = [];                                                 // 宣告low_level變數
+    var stock = <?=json_encode($div_stocks);?>;                         // 引入div_stocks資料
+    var stock_item = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
+    var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+
+    // finished loading關閉mLoading提示
     window.addEventListener("load", function(event) {
         $("body").mLoading("hide");
     });
-    
-// // // swl function    
-    var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+    // swl function    
     if(swal_json.length != 0){
-        // console.log('swal_json:',swal_json);
         swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:1000});
     }
 
-
-// // // add mode function
-    var allLocals = <?=json_encode($allLocals);?>;                      // 引入所有local的allLocals值
-    var low_level = [];                                                 // 宣告low_level變數
-
+// // // utility fun
+    // fun3-3：吐司顯示字條 // init toast
+    function inside_toast(sinn){
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        var toast_body = document.getElementById('toast-body');
+        toast_body.innerHTML = sinn;
+        toast.show();
+    }
     // 選擇local時，取得該local的low_level
     function select_local(local_id){
         Object(allLocals).forEach(function(aLocal){
@@ -767,13 +698,70 @@
             standard_lv.value = low_level[catalog_SN];                  // 套用對應cata_SN的low_level值
         }
     }
+    // 變更lot_num數值
+    function chenge_lot_num(target){
+        var lot_num = document.getElementById(target+'_lot_num');
+        if(lot_num.value =='') {
+            lot_num.value = '9999-12-31';
+        }else{
+            lot_num.value = '';
+        }
+        change_btn(target);
+    };
+    // 變更按鈕樣態
+    function change_btn(target){
+        var toggle_btn = document.getElementById(target+'_toggle_btn');
+        var lot_num = document.getElementById(target+'_lot_num');
 
+        if (lot_num.value == '') {
+            // 输入字段为空
+            toggle_btn.innerText = '永久';
+            toggle_btn.classList.remove('btn-secondary');
+            toggle_btn.classList.add('btn-warning', 'text-dark');
+        } else {
+            // 输入字段有值
+            toggle_btn.innerText = '清除';
+            toggle_btn.classList.remove('btn-warning', 'text-dark');
+            toggle_btn.classList.add('btn-secondary');
+        }
+    }
+
+    $(function(){
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
+        // 監聽lot_num是否有輸入值，跟著改變樣態
+        $('#add_lot_num').on('input', function() {
+            change_btn('add');
+        });
+        $('#edit_lot_num').on('input', function() {
+            change_btn('edit');
+        });
+
+    });
+    
+// // // add mode function
+    function add_module(to_module){     // 啟用新增模式
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info').empty();     // 清除model功能
+        $('#reset_btn').click();                                                            // reset清除表單
+        var add_btn = '<input type="submit" name="add_stock_submit" class="btn btn-primary" value="新增">';
+        $('#modal_action').append('新增');                      // model標題
+        $('#modal_button').append(add_btn);                     // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        document.querySelector("#edit_stock .modal-header").classList.remove('edit_mode_bgc');
+        document.querySelector("#edit_stock .modal-header").classList.add('add_mode_bgc');
+    }
 // // // edit mode function
-    var stock = <?=json_encode($div_stocks);?>;                        // 引入div_stocks資料
-    var stock_item = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info').empty();     // 清除model功能
+        $('#reset_btn').click();                                                            // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        document.querySelector("#edit_stock .modal-header").classList.remove('add_mode_bgc');
+        document.querySelector("#edit_stock .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
@@ -794,117 +782,106 @@
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
 
+                var add_btn = '<input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存">';
+                var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                $('#modal_action').append('編輯');          // model標題
+                $('#modal_delect_btn').append(del_btn);     // 刪除鈕
+                $('#modal_button').append(add_btn);         // 儲存鈕
+                return;
             }
         })
     }
+// // // 20231114_綁定編輯完成事件    // contenteditable="true" table可編輯、儲存功能
+    var rows = document.getElementsByTagName("td");
+        Array.from(rows).forEach(function(row) {
+            row.addEventListener("blur", handleBlur);               // 監聽進入編輯狀態 或失焦
+            row.addEventListener("keydown", handleKeyDown);         // 監聽Enter => run失焦
+            row.addEventListener("click", handleCellClick);         // 監聽點擊時取得原始值
+        });
+    // tableFun_1.綁定失焦事件
+    function handleBlur(e) {                                    // 綁定失焦事件
+       if(e.sourceCapabilities){
+           var originalValue = parseFloat(this.getAttribute("data-original-value").replace(/[^\d.-]/g, ""));
+           this.innerHTML = originalValue;
+       } 
+    }
+    // tableFun_2.綁定按鍵事件
+    function handleKeyDown(e) {                                 // 綁定按鍵事件
+        if (e.keyCode == 13) {                                  // 如果按下的是 Enter 键
+            e.preventDefault();
 
-    // 變更按鈕樣態
-    function change_btn(target){
-        var toggle_btn = document.getElementById(target+'_toggle_btn');
-        var lot_num = document.getElementById(target+'_lot_num');
-
-        if (lot_num.value == '') {
-            // 输入字段为空
-            toggle_btn.innerText = '永久';
-            toggle_btn.classList.remove('btn-secondary');
-            toggle_btn.classList.add('btn-warning', 'text-dark');
-        } else {
-            // 输入字段有值
-            toggle_btn.innerText = '清除';
-            toggle_btn.classList.remove('btn-warning', 'text-dark');
-            toggle_btn.classList.add('btn-secondary');
+            var rowId = parseFloat(this.id);
+            var rowName = this.getAttribute("name");
+            var newValue = parseFloat(this.innerHTML.replace(/[^\d.-]/g, ""));
+            var originalValue = parseFloat(this.getAttribute("data-original-value").replace(/[^\d.-]/g, ""));
+ 
+            newValue = isNaN(newValue) ? 0 : newValue;
+            originalValue = isNaN(originalValue) ? 0 : originalValue;
+            
+            if (newValue !== originalValue) {
+                var request = {
+                    "rowId"     : rowId,
+                    "rowName"   : rowName,
+                    "newValue"  : newValue
+                }
+                updateCellValue(this, newValue, request);           // 呼叫 tableFun_4.API更新
+                this.blur();
+            }
+        } else if (e.keyCode == 27) {                           // 如果按下的是 Esc 键
+            var originalValue = parseFloat(this.getAttribute("data-original-value").replace(/[^\d.-]/g, ""));
+            this.innerHTML = originalValue;
+            this.blur();
         }
     }
-    // 變更lot_num數值
-    function chenge_lot_num(target){
-        var lot_num = document.getElementById(target+'_lot_num');
-        if(lot_num.value =='') {
-            lot_num.value = '9999-12-31';
-        }else{
-            lot_num.value = '';
-        }
-        change_btn(target);
-    };
+    // tableFun_3.綁定單元格編輯開始事件
+    function handleCellClick(e) {                               // 綁定單元格編輯開始事件
+        this.setAttribute("data-original-value", this.textContent.trim());      // 獲取當前單元格的原始值並設置到屬性中
+    }
+    // tableFun_4.API更新
+    function updateCellValue(cell, newValue, _request) {
+        cell.innerHTML = newValue;
+        // console.log("送API", _request);
 
-    // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
-    $(function(){
-
-        // 監聽lot_num是否有輸入值，跟著改變樣態
-        $('#add_lot_num').on('input', function() {
-            change_btn('add');
+        $.ajax({
+            url:'api.php',
+            method:'post',
+            async: false,                                           // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                function: 'update_amount',           // 操作功能
+                _id: _request['rowId'],
+                _rowName: _request['rowName'],
+                _amount: _request['newValue']
+            },
+            success: function(res){
+                // swal_content += res_r_flag+' 套用成功';
+                swal_action = 'success';
+                update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
+            },
+            error: function(e){
+                // swal_content += res_r_flag+' 套用失敗';
+                swal_action = 'error';
+                console.log("error");
+            }
         });
-        $('#edit_lot_num').on('input', function() {
-            change_btn('edit');
-        });
-
-    });
-
-    // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
-    // $(function(){
-    //     var toggle_btn = document.getElementById('toggle_btn');
-    //     var lot_num = document.getElementById('lot_num');
-    //     // 變更按鈕樣態
-    //     function change_btn(){
-    //         if (lot_num.value == '') {
-    //             // 输入字段为空
-    //             toggle_btn.innerText = '永久';
-    //             toggle_btn.classList.remove('btn-secondary');
-    //             toggle_btn.classList.add('btn-warning', 'text-dark');
-    //         } else {
-    //             // 输入字段有值
-    //             toggle_btn.innerText = '清除';
-    //             toggle_btn.classList.remove('btn-warning', 'text-dark');
-    //             toggle_btn.classList.add('btn-secondary');
-    //         }
-    //     }
-    //     // 監聽lot_num是否有輸入值，跟著改變樣態
-    //     $('#lot_num').on('input', function() {
-    //         change_btn();
-    //     });
-    //     // 永久按鈕點擊執行項，跟著改變樣態
-    //     $('#toggle_btn').click(function(){
-    //         if(lot_num.value =='') {
-    //             lot_num.value = '9999-12-31';
-    //         }else{
-    //             lot_num.value = '';
-    //         }
-    //         change_btn();
-    //     });
         
-    //     var edit_toggle_btn = document.getElementById('edit_toggle_btn');
-    //     var edit_lot_num = document.getElementById('edit_lot_num');
-    //     // 變更按鈕樣態
-    //     function edit_change_btn(){
-    //         if (edit_lot_num.value == '') {
-    //             // 输入字段为空
-    //             edit_toggle_btn.innerText = '永久';
-    //             edit_toggle_btn.classList.remove('btn-secondary');
-    //             edit_toggle_btn.classList.add('btn-warning', 'text-dark');
-    //         } else {
-    //             // 输入字段有值
-    //             edit_toggle_btn.innerText = '清除';
-    //             edit_toggle_btn.classList.remove('btn-warning', 'text-dark');
-    //             edit_toggle_btn.classList.add('btn-secondary');
-    //         }
-    //     }
-    //     // 監聽lot_num是否有輸入值，跟著改變樣態
-    //     $('#edit_lot_num').on('input', function() {
-    //         edit_change_btn();
-    //     });
-    //     // 永久按鈕點擊執行項，跟著改變樣態
-    //     $('#edit_toggle_btn').click(function(){
-    //         if(edit_lot_num.value =='') {
-    //             edit_lot_num.value = '9999-12-31';
-    //         }else{
-    //             edit_lot_num.value = '';
-    //         }
-    //         edit_change_btn();
-    //     });
-    //     // $('#local_id').select(function(){
-            
-    //     // });
-    // });
+        var sinn = 'mySQL寫入 - ( '+_request['rowName']+' : '+_request['newValue']+' ) <b>'+ swal_action +'</b>&nbsp!!';
+        inside_toast(sinn);
+
+    }
+    // tableFun_5.更新Catch中的數值
+    function update_catchValue(_request){
+        for(var i=0; i < stock.length ; i++){                             // stock array 採用迴圈繞出來
+            if(stock[i]['id'] == _request['rowId']){                      // 找到id = rowId
+                stock[i][_request['rowName']] = _request['newValue'];     // 覆蓋進stock中
+                return;                                                   // 找到+完成後=返回
+            }
+        }
+    }
+
 
 </script>
+
+<!-- <script src="stock.js?v=<=time();?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

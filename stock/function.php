@@ -310,6 +310,24 @@
     
 // // // doCSV -- end
 
+    // API更新amount
+    function update_amount($request){
+        $pdo = pdo();
+        extract($request);
+
+        $sql = "UPDATE _stock
+                SET amount=?, updated_at=now()
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$amount, $id]);
+            return "mySQL寫入 - 成功";
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return "mySQL寫入 - 失敗";
+        }
+    }
+
     function show_site($request){
         $pdo = pdo();
         extract($request);

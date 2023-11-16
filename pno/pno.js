@@ -15,6 +15,16 @@
         document.querySelector('#key_word').value = '';
     }
 
+    // fun3-3：吐司顯示字條 // init toast
+    function inside_toast(sinn){
+        var toastLiveExample = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastLiveExample);
+        var toast_body = document.getElementById('toast-body');
+        toast_body.innerHTML = sinn;
+        toast.show();
+    }
+
+
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_pno_info').empty();   // 清除model功能
         $('#reset_btn').click();                                                        // reset清除表單
@@ -23,6 +33,8 @@
         $('#modal_button').append(add_btn);                     // 儲存鈕
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
         reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        document.querySelector("#edit_pno .modal-header").classList.remove('edit_mode_bgc');
+        document.querySelector("#edit_pno .modal-header").classList.add('add_mode_bgc');
     }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
@@ -30,6 +42,8 @@
         $('#reset_btn').click();                                                        // reset清除表單
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
         reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        document.querySelector("#edit_pno .modal-header").classList.remove('add_mode_bgc');
+        document.querySelector("#edit_pno .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
@@ -220,14 +234,7 @@
             }
         }
     }
-    // fun3-3：吐司顯示字條 // init toast
-    function inside_toast(sinn){
-        var toastLiveExample = document.getElementById('liveToast');
-        var toast = new bootstrap.Toast(toastLiveExample);
-        var toast_body = document.getElementById('toast-body');
-        toast_body.innerHTML = sinn;
-        toast.show();
-    }
+
     // 精簡前語法
     // var rows = document.getElementsByTagName("td");
         // Array.from(rows).forEach(function(row) {

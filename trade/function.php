@@ -562,6 +562,33 @@
             echo $e->getMessage();
         }
     }
+    function show_categories(){
+        $pdo = pdo();
+        $sql = "SELECT * FROM _cate ORDER BY id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $categories = $stmt->fetchAll();
+            return $categories;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 在index表頭顯示各類別的數量：
+    function show_sum_category(){
+        $pdo = pdo();
+        $sql = "SELECT _cate.id AS cate_id, _cate.cate_no, _cate.cate_title, _cate.cate_remark  
+                        ,(SELECT COUNT(*) FROM `_cata` c WHERE c.cate_no = _cate.cate_no) AS 'catalog_count'
+                FROM _cate ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $sum_category = $stmt->fetchAll();
+            return $sum_category;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // // // Create表單會用到 -- end
 
 // // // process fun

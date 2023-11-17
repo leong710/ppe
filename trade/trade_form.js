@@ -1,5 +1,4 @@
 // // // 第一頁：info modal function
-    // var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
     var catalog_item = {
         "SN"            : "SN/編號", 
         "cate_no"       : "category/分類", 
@@ -10,6 +9,9 @@
         "size"          : "size/尺寸",
         "unit"          : "unit/單位",
         "SPEC"          : "SPEC/規格"
+        // "po_no"         : "PO no",
+        // "lot_num"       : "批號/效期",
+        // "stk_id"        : "stk_id"
         // "scomp_no"      : "scomp_no/供應商"
     };    // 定義要抓的key=>value
 
@@ -18,7 +20,7 @@
         // step1.將原排程陣列逐筆繞出來
         $('#info_append, #pic_append').empty();
         Object(window[to_module]).forEach(function(row){          
-            if(row['SN'] === row_SN){
+            if(row['SN']+'_'+row['stk_id'] === row_SN){
                 // step2.鋪畫面到module
                 Object.keys(window[to_module+'_item']).forEach(function(item_key){
                     if(item_key === 'cate_no'){
@@ -33,12 +35,25 @@
             }
         })
     }
+
+    // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value --> 20230816 修正手動輸入超過限購，add_btn的value會只吃最大值
+    function add_cart_btn(cata_SN, add_amount){
+        let add_btn = document.getElementById('add_'+ cata_SN);
+        if(add_btn){
+            if(add_amount == '' || add_amount == 0){
+                add_btn.value = '';
+            } else {
+                add_btn.value = add_amount;
+            }
+        }
+    }
+    
 // // // 第n頁：catalog_modal 篩選 function
     // 加入購物車清單
-    function add_item(cata_SN, add_amount, flag){
+    function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
-        // flag=off不顯示swal、其他是預設1秒
-        if(flag == 'off'){
+        // swal_flag=off不顯示swal、其他是預設1秒
+        if(swal_flag == 'off'){
             var swal_time = 0;
         }else{
             var swal_time = 1 * 1000;
@@ -86,16 +101,14 @@
                 var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
                 var swal_action = 'error';
                 swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
-
+    
             }else{
                 var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
-                Object(catalog).forEach(function(cata){          
-                    if(cata['SN'] === cata_SN){
-                        // var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                        // var collect_cb = '<input name="cata_SN_amount['+cata['SN']+'][pay]" class="unblock" value="'+add_amount+'">';
-                        // var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+collect_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
-                        var input_cb = '<input type="checkbox" name="item['+cata['SN']+',]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+',," checked onchange="check_item(this.id)">';
-                        var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
+                Object(catalogs).forEach(function(cata){          
+                    if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
+                        // var input_cb = '<input type="checkbox" name="item['+cata['stk_id']+'_'+cata['SN']+']" id="'+cata['stk_id']+'_'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                        var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
+                        var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'&nbsp'+cata['stk_id']+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td><td>'+cata['po_no']+'</td><td>'+cata['lot_num']+'</td></tr>';
                         $('#shopping_cart_tbody').append(add_cata_item);
                         return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                     }
@@ -117,6 +130,7 @@
                 }
                 
             }
+
         }
         check_shopping_count();        // 清算購物車件數
     }
@@ -140,10 +154,10 @@
                         var swal_content = ' 移除成功';
                         var swal_action = 'warning';
                         swal_time = swal_time * 1000;
-                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});         // swal自動關閉
                     }
                     check_shopping_count();
-                    return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
+                    return true;                    // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
                 }
             }
         }
@@ -165,153 +179,122 @@
     }
 
 // // // 第三頁：searchUser function 
-    // fun3-1：search Key_word
-    function search_fun(search){
+    // 第一-階段：search Key_word
+    function search_fun(){
         mloading("show");                       // 啟用mLoading
-        // 使用開單人工號查詢
-        if(search == 'emp_id'){
-            var fun = search;
-            search = $('#emp_id').val().trim();
-            $('#cname').empty();
-
-        // 查詢上層主管工號
-        }else{
-            var fun = 'omager_badge';
-            search = search.trim();
-            $('#omager_badge').empty();
-        }
+        let search = $('#emp_id').val().trim();
+        $('#cname').empty();
 
         if(!search || (search.length < 8)){
             alert("查詢工號字數最少 8 個字以上!!");
             $("body").mLoading("hide");
             return false;
         } 
-
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
-            // url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',
             method:'get',
             dataType:'json',
             data:{
-                // functionname: 'search',                          // 操作功能
-                functionname: 'showStaff',                          // 操作功能
+                functionname: 'search',                     // 操作功能
                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                                      // 查詢對象key_word
+                search: search                              // 查詢對象key_word
             },
             success: function(res){
-                var obj_val = res["result"];
-
+                var res_r = res["result"];
                 // 將結果進行渲染
-                if (obj_val !== '') {
-                    // 搜尋申請人emp_id
-                    if(fun == 'emp_id'){     
-                        var input_cname = document.getElementById('cname');             // 申請人姓名
-                        if(obj_val){
-                            input_cname.value = obj_val.cname;                          // 將欄位帶入數值 = cname
-                            $("#cname").addClass("autoinput");
-                            var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
-                            inside_toast(sinn);
-
-                        }else{
-                            // alert("查無工號["+search+"]!!");
-                            input_cname.value = '';                         // 將欄位cname清除
-                            var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
-                            inside_toast(sinn);
-                        }
-                    
+                if (res_r !== '') {
+                    let obj_val = res_r[0];                                         // 取Object物件0
+                    var input_cname = document.getElementById('cname');
+                    if(obj_val && input_cname){
+                        input_cname.value = obj_val.cname;              // 將欄位帶入數值 = cname
+                        var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
+                        inside_toast(sinn);
+                    }else{
+                        // alert("查無工號["+search+"]!!");
+                        input_cname.value = '';                         // 將欄位cname清除
+                        var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
+                        inside_toast(sinn);
                     }
                 }
+
             },
-            error(err){
-                console.log("search error:", err);
+            error (){
+                console.log("search error");
             }
         })
         $("body").mLoading("hide");
     }
-
+    
     // fun3-3：吐司顯示字條 // init toast
     function inside_toast(sinn){
+        // init toast
         var toastLiveExample = document.getElementById('liveToast');
         var toast = new bootstrap.Toast(toastLiveExample);
         var toast_body = document.getElementById('toast-body');
         toast_body.innerHTML = sinn;
         toast.show();
-    }
 
-// // // 第三頁：searchUser function 
+    }
+// // // searchUser function 
 
 // // // Edit選染
-    // var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
-        // var receive_row = <?=json_encode($receive_row);?>;                        // 引入receive_row資料作為Edit
-        var receive_item = {
-            "plant"          : "plant/申請單位", 
-            "dept"           : "dept/部門名稱", 
-            "sign_code"      : "sign_code/部門代號", 
-            "emp_id"         : "emp_id/工號",
-            "cname"          : "cname/申請人姓名",
-            "extp"           : "extp/分機",
-            "local_id"       : "local_id/領用站點",
+        // var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
+        var trade_item = {
+            "in_user_id"     : "in_user_id/收貨人工號",
+            "cname_i"        : "cname_i/申請人姓名",
+            "in_local"       : "in_local/收貨站點",
             "ppty"           : "** ppty/需求類別",
-            "omager"         : "** omager/上層主管工號",
-            "receive_remark" : "receive_remark/用途說明",
-            "created_emp_id" : "created_emp_id/開單人工號",
-            "created_cname"  : "created_cname/開單人姓名",
-            // "idty"           : "idty",
-            "uuid"           : "uuid",
-            "cata_SN_amount" : "** cata_SN_amount"
+            "id"             : "id",
+            "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
-        Object.keys(receive_item).forEach(function(receive_key){
-            if(receive_key == 'ppty'){      // ppty/需求類別
-                document.querySelector('#'+receive_key+'_'+receive_row[receive_key]).checked = true;
+        Object.keys(trade_item).forEach(function(trade_key){
+            if(trade_key == 'ppty'){      // ppty/需求類別
+                var ppty = document.querySelector('#'+trade_key+'_'+trade_row[trade_key]);
+                if(ppty){
+                    document.querySelector('#'+trade_key+'_'+trade_row[trade_key]).checked = true;
+                }
                 
-            }else if(receive_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
-                var receive_row_cart = JSON.parse(receive_row[receive_key]);
-                Object.keys(receive_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, receive_row_cart[cart_key]['need'], 'off');
+            }else if(trade_key == 'item'){      //item 購物車
+                var trade_row_cart = JSON.parse(trade_row[trade_key]);
+                Object.keys(trade_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, trade_row_cart[cart_key], 'off');
                 })
-
-            }else if(receive_key == 'omager'){             //omager 上層主管工號
-                document.getElementById('omager').value = receive_row[receive_key];
-                search_fun(receive_row[receive_key]);
-
             }else{
-                document.querySelector('#'+receive_key).value = receive_row[receive_key]; 
-
+                var row_key = document.querySelector('#'+trade_key);
+                if(row_key){
+                    document.querySelector('#'+trade_key).value = trade_row[trade_key]; 
+                }
             }
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var uuid = '<?=$receive_row["uuid"]?>';
+        var json = JSON.parse('<?=json_encode($logs_arr)?>');
+        var id = '<?=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
-                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + 
-                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
+                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
+                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
                         `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="uuid" value="` + uuid + `";>` +
+                        `<input type="hidden" name="id" value="` + id + `";>` +
                         `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    '</form>' + '<?php } ?>' +
-                '</td>' +'</tr>';
+                    '</form>' + '</td><?php } ?>' +
+                '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
+
+        action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
+
     }
 
     $(function () {
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
-        // 監聽表單內 input 變更事件
-        $('#cname, #plant, #dept, #sign_code, #omager, #extp').change(function() {
-            // 當有變更時，對該input加上指定的class
-            $(this).removeClass('autoinput');
-        });
-
     })
-
 
     $(document).ready(function () {
         
@@ -327,6 +310,7 @@
                 url: "../../libs/dataTables/dataTable_zh.json"
             }
         });
+
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 

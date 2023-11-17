@@ -120,14 +120,14 @@
             // 逐筆呼叫處理
             foreach(array_keys($item) as $item_key){
                 $item_key_arr = explode(",", $item_key);
-                    if($item_key_arr[0]){ $cata_SN = $item_key_arr[0]; } else { $cata_SN = ""; }
-                    if($item_key_arr[1]){ $stk_id  = $item_key_arr[1]; } else { $stk_id  = ""; }
+                    if($item_key_arr[0]){ $cata_SN = $item_key_arr[0]; } else { $cata_SN = ""; }        // 序號
+                    if($item_key_arr[1]){ $stk_id  = $item_key_arr[1]; } else { $stk_id  = ""; }        // 儲存id
 
                 $item_value = $item[$item_key];
                 $item_value_arr = explode(",", $item_value);
-                    if($item_value_arr[0]){ $amount  = $item_value_arr[0]; } else { $amount  = ""; }
-                    if($item_value_arr[1]){ $po_no   = $item_value_arr[1]; } else { $po_no   = ""; }
-                    if($item_value_arr[2]){ $lot_num = $item_value_arr[2]; } else { $lot_num = ""; }
+                    if($item_value_arr[0]){ $amount  = $item_value_arr[0]; } else { $amount  = ""; }    // 數量
+                    if($item_value_arr[1]){ $po_no   = $item_value_arr[1]; } else { $po_no   = ""; }    // pn號碼
+                    if($item_value_arr[2]){ $lot_num = $item_value_arr[2]; } else { $lot_num = ""; }    // 批號
 
                 $process = [];  // 清空預設值
                 $process = array('stock_id' => $stk_id,
@@ -161,21 +161,21 @@
                     $idty = '1';
     
             //// **** 儲存Trade表單
-                $sql = "INSERT INTO _trade(out_date, item, out_user_id, out_local, in_local, idty, logs)VALUES(now(),?,?,?,?,?,?)";
+                $sql = "INSERT INTO _trade(out_date, form_type, item, out_user_id, out_local, in_local, idty, logs)VALUES(now(),?,?,?,?,?,?,?)";
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute([$item_enc, $out_user_id, $out_local, $in_local, $idty, $logs_enc]);
+                    $stmt->execute([$form_type, $item_enc, $out_user_id, $out_local, $in_local, $idty, $logs_enc]);
                     $swal_json = array(
                         "fun" => "store_trade",
                         "action" => "success",
-                        "content" => '批量調撥申請--送出成功'
+                        "content" => '調撥出庫--送出成功'
                     );
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $swal_json = array(
                         "fun" => "store_trade",
                         "action" => "error",
-                        "content" => '批量調撥申請--送出失敗'
+                        "content" => '調撥出庫--送出失敗'
                     );
                 }
 
@@ -184,7 +184,7 @@
             $swal_json = array(
                 "fun" => "store_trade",
                 "action" => "error",
-                "content" => '批量調撥申請--預扣功能失敗'
+                "content" => '調撥出庫--預扣功能失敗'
             );
         }
 
@@ -592,7 +592,45 @@
 // // // Create表單會用到 -- end
 
 // // // process fun
-    // 儲存交易表單-PR請購進貨
+    // 儲存交易表單-PR請購進貨 20231117新版
+    function store_restock($request){
+        $pdo = pdo();
+        extract($request);
+
+        // item資料前處理
+            $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
+
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["action"] = $action;
+            $logs_request["step"]   = $step;                                // 節點
+            $logs_request["idty"]   = $idty;                                // 表單狀態
+            $logs_request["cname"]  = $cname." (".$out_user_id.")";         // 開單人
+            $logs_request["logs"]   = "";
+            $logs_request["remark"] = $remark."：".$sign_comm;   
+        // 呼叫toLog製作log檔
+            $logs_enc = toLog($logs_request);
+
+        //// **** 儲存Trade_restock表單
+            $sql = "INSERT INTO _trade(form_type, item, out_user_id, out_local, in_local, idty, logs, out_date)VALUES(?,?,?,?,?,?,?,now())";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$form_type, $item_enc, $out_user_id, $po_no, $in_local, $idty, $logs_enc]);
+                $swal_json = array(
+                    "fun" => "store_restock",
+                    "action" => "success",
+                    "content" => '請購入庫--送出成功'
+                );
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                $swal_json = array(
+                    "fun" => "store_restock",
+                    "action" => "error",
+                    "content" => '請購入庫--送出失敗'
+                );
+            }
+        return $swal_json;
+    }
+    // 儲存交易表單-PR請購進貨 202311前舊版
     function restock_store($request){
         $pdo = pdo();
         extract($request);
@@ -933,8 +971,6 @@
         // log資料前處理
         // 交易狀態：0完成/1待收/2退貨/3取消
         switch($idty){
-            // case "0":   $action = '核准 (Approve)';       break;
-            // case "2":   $action = '駁回 (Disapprove)';    break;
             case "0":   $action = '同意 (Approve)';       break;
             case "1":   $action = '送出 (Submit)';        break;
             case "2":   $action = '退回 (Reject)';        break;
@@ -942,10 +978,11 @@
             case "4":   $action = '編輯 (Edit)';          break;
             case "5":   $action = '轉呈 (Transmit)';      break;
             case "6":   $action = '暫存 (Save)';          break;
-            case "10":  $action = '結案';                 break;
+            case "10":  $action = '同意 (Approve)';       break;    // 結案 (Close)
             case "11":  $action = '轉PR';                 break;
-            case "12":  $action = '發貨/待收';            break;
-            case "13":  $action = 'PR請購進貨';           break;
+            case "12":  $action = '待收發貨 (Awaiting collection)';   break;
+            case "13":  $action = '交貨 (Delivery)';      break;
+            case "14":  $action = '扣帳 (Debit)';         break;
             default  :  $action = '錯誤 (Error)';         return;
         }
 
@@ -965,6 +1002,7 @@
                         "datetime"  => date('Y-m-d H:i:s'), 
                         "action"    => $action,
                         "remark"    => $log_remark);
+
         array_push($logs_arr, $app);
         $logs = json_encode($logs_arr);
 

@@ -95,7 +95,7 @@
                 <div class="row">
                     <div class="col-12 col-md-4 pb-1 page_title">
                         <div style="display:inline-block;">
-                            <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥作業總表</b></h3>
+                            <h3><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b></h3>
                         </div>
                     </div>
                     <div class="col-6 col-md-4 pb-1">
@@ -113,7 +113,7 @@
                     <div class="col-6 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="form.php" class="btn btn-primary"><i class="fa fa-upload" aria-hidden="true"></i> 填寫批量調撥</a>
+                                <a href="form.php" class="btn btn-primary"><i class="fa fa-upload" aria-hidden="true"></i> 填寫出庫調撥</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                 <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>

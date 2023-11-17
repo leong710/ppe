@@ -212,7 +212,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><b>PR請購進貨</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>請購入庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
@@ -251,8 +251,8 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
-                    <!-- <form action="debug.php" method="post"> -->
-                    <form action="restock_store.php" method="post">
+                    <form action="store_restock.php" method="post">
+                    <!-- <form action="./zz/debug.php" method="post"> -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -350,7 +350,7 @@
                                         <div class="col-6 col-md-6 px-2">
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-control" required>
-                                                    <option value="" selected hidden>--請選擇 收貨 儲存點--</option>
+                                                    <option value="" selected hidden>--請選擇 進貨 儲存點--</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
                                                         <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
@@ -358,7 +358,7 @@
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </select>
-                                                <label for="in_local" class="form-label">收貨廠區：<sup class="text-danger"> *</sup></label>
+                                                <label for="in_local" class="form-label">進貨廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
 
@@ -368,6 +368,12 @@
                                                 <label for="po_no" class="form-label">PO編號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
+
+                                        <div class="col-12 px-2">
+                                            <label for="out_remark" class="form-check-label">備註說明：</label>
+                                            <textarea name="remark" id="remark" class="form-control" rows="2">(請購入庫)</textarea>
+                                        </div>
+
                                     </div>
                                     
                                     <!-- 表列5 說明 -->
@@ -410,15 +416,16 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="idty" id="idty" value="1">
+                                        <input type="hidden" name="cname"       id="cname"      value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                         <input type="hidden" name="out_user_id" id="out_user_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                        <input type="hidden" name="cname" id="cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" value="(PO編號)" name="stock_remark">
-                                        <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
+                                        <input type="hidden" name="stock_remark"                value="(PO編號)">
+                                        <input type="hidden" name="form_type"   id="form_type"  value="import">
+                                        <input type="hidden" name="action"      id="action"     value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty"        id="idty"       value="1">
+                                        <input type="hidden" name="step"        id="step"       value="<?php echo $step;?>">
 
                                         <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="uuid" id="uuid" value="">
+                                        <input type="hidden" name="uuid"        id="uuid"       value="">
                                         <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                             <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
@@ -479,7 +486,7 @@
     <!-- toast -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
             <!-- <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000"> -->
-            <div id="liveToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
+            <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="500">
                 <div class="d-flex">
                     <div class="toast-body" id="toast-body">
                     </div>

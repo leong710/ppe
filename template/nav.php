@@ -77,7 +77,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
-                                        <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp我的領用申請</a></li>
+                                        <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
                                         <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <!-- <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li> -->
@@ -101,24 +101,25 @@
                                         <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/stock/byCatalog.php"><i class="fa-solid fa-cart-shopping"></i><i class="fa-solid fa-suitcase"></i>器材存量管理</a></li> -->
                                         <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp倉庫庫存</a></li>
-                                            <!-- <li><a class="dropdown-item" href="#">x<i class="fa fa-check" aria-hidden="true"></i>&nbsp商品庫存</a></li> -->
-                                            <!-- <li><a class="dropdown-item" href="#">x<i class="fa-solid fa-right-from-bracket"></i>&nbsp出庫單</a></li> -->
-                                            <li><a class="dropdown-item" href="#">x<i class="fa-solid fa-right-to-bracket"></i>&nbspPR入庫單</a></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b></a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp調撥作業總表
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-right-from-bracket"></i>&nbsp調撥出庫</a></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-right-to-bracket"></i>&nbsp請購入庫</a></li>
                                                     <?php if($numTrade !=0){?>&nbsp<span class="badge rounded-pill bg-danger"><?php echo $numTrade; ?></span><?php }?></a>
                                             </li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b></a></li>
                                             <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/form.php"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp請購需求</a></li>
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/">
-                                                <i class="fa-solid fa-1"></i>&nbsp請購需求總表
+                                                <i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b>
                                                     <?php if($numIssue !=0){?>&nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span><?php }?>
                                                 </a>
                                             </li>
 
                                         <?php } ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp半年檢紀錄
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa fa-check fa fa-edit" aria-hidden="true"></i>&nbsp檢點表</a></li>
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄</b>
                                                 <?php if($numChecked == 0){?>
                                                     <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
                                                 <?php }?>

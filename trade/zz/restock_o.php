@@ -63,6 +63,7 @@
             <!-- 本次create表單form開始 -->
             <!-- <form action="restock_store.php" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false"> -->
             <form action="restock_store.php" method="post" onsubmit="">
+            <!-- <form action="./zz/debug.php" method="post"> -->
                 <input type="hidden" value="1" name="idty">
                 <input type="hidden" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" name="out_user_id">
                 <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="cname"> 

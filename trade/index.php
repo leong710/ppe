@@ -113,10 +113,10 @@
                     <div class="col-6 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                <a href="form.php" class="btn btn-primary"><i class="fa fa-upload" aria-hidden="true"></i> 填寫出庫調撥</a>
+                                <a href="form.php" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
                             <?php } ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>
+                                <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-download"></i> 請購入庫</a>
                             <?php } ?>
                         <?php } ?>
                     </div>

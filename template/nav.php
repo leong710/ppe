@@ -103,8 +103,8 @@
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b></a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-right-from-bracket"></i>&nbsp調撥出庫</a></li>
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-right-to-bracket"></i>&nbsp請購入庫</a></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-download"></i>&nbsp請購入庫</a></li>
                                                     <?php if($numTrade !=0){?>&nbsp<span class="badge rounded-pill bg-danger"><?php echo $numTrade; ?></span><?php }?></a>
                                             </li>
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b></a></li>
@@ -118,7 +118,7 @@
 
                                         <?php } ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa fa-check fa fa-edit" aria-hidden="true"></i>&nbsp檢點表</a></li>
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-clipboard-list"></i>&nbsp檢點表</a></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄</b>
                                                 <?php if($numChecked == 0){?>
                                                     <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>

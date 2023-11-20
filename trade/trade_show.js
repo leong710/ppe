@@ -103,6 +103,7 @@
     // // // Edit選染
     function edit_item(){
         var trade_item = {
+            "form_type"     : "form_type/表單類別",
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
             "in_local"       : "in_local/領用站點",

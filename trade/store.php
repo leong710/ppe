@@ -3,24 +3,36 @@
     require_once("function.php");
 
     $swal_json = array();
-    switch($_REQUEST["action"]){
-        case "create":      // 開新表單
-            $swal_json = store_trade($_REQUEST);
-            // $swal_json = deBug($_REQUEST);
-            break;
-        case "edit":        // 編輯
-            $swal_json = edit_trade($_REQUEST);
-            // $swal_json = update_trade($_REQUEST);
-            // $swal_json = deBug($_REQUEST);
-            break;
-        case "sign":        // 簽核
-            $swal_json = sign_trade($_REQUEST);
-            // $swal_json = deBug($_REQUEST);
-            break;
-        default:            // 預定失效 
-            echo "bg-light text-success"; 
-            break;
-    }
+
+
+        switch($_REQUEST["action"]){
+            case "create":      // 開新表單
+                $swal_json = store_trade($_REQUEST);
+                break;
+
+            case "edit":        // 編輯
+                if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
+                    $swal_json = update_trade($_REQUEST);
+
+                }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
+                    $swal_json = update_restoc($_REQUEST);
+                }
+                break;
+
+            case "sign":        // 簽核
+                if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
+                    $swal_json = sign_trade($_REQUEST);
+
+                }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
+                    $swal_json = sign_restock($_REQUEST);
+                }
+                break;
+
+            default:            // 預定失效 
+                echo "bg-light text-success"; 
+                break;
+        }
+        
 ?>
 <?php include("../template/header.php"); ?>
 <head>
@@ -28,6 +40,11 @@
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS -->
+    <style>
+        body{
+            color: white;
+        }
+    </style>
     <script>    
         // loading function
         function mloading(){
@@ -35,20 +52,19 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         mloading();    // 畫面載入時開啟loading
     </script>
 </head>
 
 <body>
-    <div class="col-12">store_trade...</div>
-    
+    <div class="col-12">store_<?php echo ($_REQUEST["form_type"] == "import") ? "trade (請購入庫)":"restock (調撥出庫)" ?>...</div>
 </body>
 
 <script>    
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
     
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
     var url = 'index.php';

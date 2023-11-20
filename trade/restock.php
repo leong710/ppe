@@ -4,6 +4,16 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = $receive_url;                        // 回本頁
+    }
+
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
         // 刪除表單
         if(isset($_POST["delete_trade"])){
             $check_delete_result = delete_trade($_REQUEST);
@@ -28,10 +38,10 @@
         
     }
 
-    if(isset($_REQUEST["uuid"])){
+    if(isset($_REQUEST["id"])){
         $trade_row = show_trade($_REQUEST);
         if(empty($trade_row)){
-            echo "<script>alert('uuid-error：{$_REQUEST["uuid"]}')</script>";
+            echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             header("refresh:0;url=index.php");
             exit;
         }
@@ -40,9 +50,9 @@
         $logs_arr = (array) $logs_dec;
 
     }else{
-        $trade_row = array( "uuid" => "" );       // 預設trade_row[uuid]=空array
+        $trade_row = array( "id" => "" );           // 預設trade_row[id]=空array
         $logs_arr = [];                             // 預設logs_arr=空array
-        $action = 'create';                         // 因為沒有uuid，列為新開單，防止action outOfspc
+        $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
     $allLocals = show_allLocal();                   // 所有儲存站點
@@ -67,30 +77,30 @@
         ];
 
         // 決定表單開啟 $step身份
-        if(isset($trade_row["created_emp_id"]) && ($trade_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($trade_row["created_emp_id"]) && ($trade_row["created_emp_id"] == $auth_emp_id)){
             $step_index = '0';}             // 填單人
-        if(isset($trade_row["emp_id"]) && ($trade_row["emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($trade_row["emp_id"]) && ($trade_row["emp_id"] == $auth_emp_id)){
             $step_index = '1';}             // 申請人
-        if(isset($trade_row["omager"]) && ($trade_row["omager"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($trade_row["omager"]) && ($trade_row["omager"] == $auth_emp_id)){
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
+            if(!isset($sys_id_role) ||($sys_id_role) == 3){
                 $step_index = '6';}         // noBody
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
+            if(isset($sys_id_role) && ($sys_id_role) == 2){
                 $step_index = '7';}         // ppe site user
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 1){
+            if(isset($sys_id_role) && ($sys_id_role) == 1){
                 $step_index = '8';}         // ppe pm
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 0){
+            if(isset($sys_id_role) && ($sys_id_role) == 0){
                 $step_index = '9';}         // 系統管理員
-            if($action = 'create'){
+            if($action == 'create'){
                 $step_index = '0';}         // 填單人
         }
         
         // $step套用身份
         $step = $step_arr[$step_index];
     // }
-        $up_href = $_SERVER["HTTP_REFERER"];    // 回上頁
+    
 
 ?>
 
@@ -222,15 +232,15 @@
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        進貨單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
-                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['created_at']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $trade_row["created_emp_id"]." / ".$trade_row["created_cname"] ;?>
+                        出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
+                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"];?>
                         </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
+                        <?php if(($sys_id_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
                             <form action="" method="post">
-                                <input type="hidden" name="uuid" value="<?php echo $trade_row["uuid"];?>">
+                                <input type="hidden" name="id" value="<?php echo $trade_row["id"];?>">
                                 <input type="submit" name="delete_trade" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
@@ -251,7 +261,7 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
-                    <form action="store_restock.php" method="post">
+                    <form action="store.php" method="post">
                     <!-- <form action="./zz/debug.php" method="post"> -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
@@ -347,25 +357,26 @@
 
                                     <!-- 表列3 進貨站點 -->
                                     <div class="row p-1 rounded bg-warning">
+                                        
+                                        <div class="col-6 col-md-6 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="po_no" id="po_no" class="form-control t-center" placeholder="請填PO編號" maxlength="12" required>
+                                                <label for="po_no" class="form-label">PO編號：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+
                                         <div class="col-6 col-md-6 px-2">
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-control" required>
                                                     <option value="" selected hidden>--請選擇 進貨 儲存點--</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
                                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                                         <?php } ?>
                                                     <?php } ?>
                                                 </select>
                                                 <label for="in_local" class="form-label">進貨廠區：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6 col-md-6 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="po_no" id="po_no" class="form-control t-center" placeholder="請填PO編號" maxlength="12" required>
-                                                <label for="po_no" class="form-label">PO編號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
 
@@ -393,7 +404,7 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
+                                            <?php if($sys_id_role <= 3){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
@@ -417,7 +428,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="cname"       id="cname"      value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="out_user_id" id="out_user_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                                        <input type="hidden" name="out_user_id" id="out_user_id" value="<?php echo $auth_emp_id;?>">
                                         <input type="hidden" name="stock_remark"                value="(PO編號)">
                                         <input type="hidden" name="form_type"   id="form_type"  value="import">
                                         <input type="hidden" name="action"      id="action"     value="<?php echo $action;?>">
@@ -425,8 +436,8 @@
                                         <input type="hidden" name="step"        id="step"       value="<?php echo $step;?>">
 
                                         <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="uuid"        id="uuid"       value="">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                        <input type="hidden" name="id"          id="id"         value="">
+                                        <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -454,7 +465,7 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?><th>action</th><?php } ?>
+                                    <?php if($sys_id_role <= 1){ ?><th>action</th><?php } ?>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -467,13 +478,14 @@
                 </div>
     
                 <!-- 尾段：衛材訊息 -->
-                <div class="row unblock">
+                <div class="row block">
                     <div class="col-12 mb-0">
-                        <div style="font-size: 6px;">
+                        <div style="font-size: 12px;">
                             <?php
                                 if($_REQUEST){
                                     echo "<pre>";
                                     // print_r($_REQUEST);
+                                    print_r($trade_row);
                                     echo "</pre>text-end";
                                 }
                             ?>
@@ -529,11 +541,11 @@
 
 
 <script>
-    var catalog = <?=json_encode($catalogs);?>;                     // 第一頁：info modal function 引入catalogs資料
     var action = '<?=$action;?>';                                   // Edit選染 // 引入action資料
-    var trade_row = <?=json_encode($trade_row);?>;              // Edit選染 // 引入trade_row資料作為Edit
+    var catalogs = <?=json_encode($catalogs);?>;                     // 第一頁：info modal function 引入catalogs資料
+    var trade_row = <?=json_encode($trade_row);?>;                  // Edit選染 // 引入trade_row資料作為Edit
     var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
-    var uuid = '<?=$trade_row["uuid"]?>';                         // 鋪設logs紀錄
+    var id = '<?=$trade_row["id"]?>';                               // 鋪設logs紀錄
 
 </script>
 

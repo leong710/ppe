@@ -10,6 +10,10 @@
     }else{
         $up_href = $receive_url;                        // 回本頁
     }
+
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
     // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
     //     update_pr2fab($_REQUEST);
     //     header("refresh:0;url=index.php");
@@ -80,6 +84,82 @@
         $select_in_local = array('id' => '');
         $catalogs = [];
     }
+
+        // 身份陣列
+        $step_arr = [
+            '0' => '填單人',
+            '1' => '申請人',
+            '2' => '申請人主管',
+            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '業務承辦',
+            '5' => '環安主管',
+
+            '6' => 'normal',
+            '7' => 'ppe site user',
+            '8' => 'ppe pm',
+            '9' => '系統管理員',
+            '10'=> '轉呈簽核'
+        ];
+
+        // 決定表單開啟 $step身份
+        if($trade_row["out_user_id"] == $auth_emp_id){
+            $step_index = '0';      // 填單人
+        } else if($trade_row["emp_id"] == $auth_emp_id){
+            $step_index = '1';      // 申請人
+        }      
+
+            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($trade_row['idty']){
+                case "0":   // $act = '同意 (Approve)';
+                    break;
+                case "1":   // $act = '送出 (Submit)';
+                    break;
+                case "2":   // $act = '退回 (Reject)';
+                    break;
+                case "3":   // $act = '作廢 (Abort)'; 
+                    break;
+                case "4":   // $act = '編輯 (Edit)';  
+                    break;
+                case "5":   // $act = '轉呈 (Forwarded)';
+                    break;
+                case "6":   // $act = '暫存 (Save)';  
+                    break;
+                case "10":  // $act = '結案 (Close)'; 
+                    break;
+                case "11":  // $act = '承辦 (Undertake)';
+                    if($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"]){
+                        $step_index = '4';      // 業務承辦
+                    }else if($trade_row["in_sign"] == $auth_emp_id){
+                        $step_index = '5';      // 環安主管
+                    }
+                    break;
+                case "12":  // $act = '待收發貨 (Awaiting collection)'; 
+                    if(in_array($trade_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
+                        $step_index = '3';      // ppe發放人
+                    }    
+                    break;
+                case "13":  // $act = '交貨 (Delivery)';
+                    if($trade_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
+                        $step_index = '4';      // 業務承辦
+                    }  
+                    break;
+                default:    // $act = '錯誤 (Error)';         
+                    return;
+            }
+
+        if(!isset($step_index)){
+            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+                $step_index = '6';}      // normal
+            if(isset($sys_id_role) && ($sys_id_role) == 2){
+                $step_index = '7';}      // ppe site user
+            if(isset($sys_id_role) && ($sys_id_role) == 1){
+                $step_index = '8';}      // ppe pm
+            if(isset($sys_id_role) && ($sys_id_role) == 0){
+                $step_index = '9';}      // 系統管理員
+        }
+        
+        // $step套用身份
+        $step = $step_arr[$step_index];
 
 ?>
 
@@ -188,34 +268,52 @@
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
-                    <div class="col-12 col-md-6 py-0">
-                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>批量調撥</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                    <div class="col-12 col-md-4 py-0">
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b><?php echo ($trade_row["form_type"] == "import") ? "請購入庫":"調撥出庫" ?></b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
-                    <div class="col-12 col-md-6 py-0 text-end">
+                    <div class="col-12 col-md-4 py-0 t-center">
+                        <?php 
+                            echo "身分: ".$step." / idty:".$trade_row['idty']." ";
+                            switch($trade_row['idty']){
+                                case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                case "2" : echo "退件"; break;
+                                case "3" : echo "取消"; break;
+                                case "10": echo "結案"; break;
+                                case "11": echo "轉PR"; break;
+                                case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                default  : echo "na"; break; }
+
+                            echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
+                            echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
+                        ?>
+                    </div>
+                    <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
                 <div class="row px-2">
                     <div class="col-12 col-md-4">
-                        調撥單號：<?php echo ($trade_row['id'])          ? "aid_".$trade_row['id'] : "(尚未給號)";?></br>
+                        出入單號：<?php echo ($trade_row['id'])          ? "trade_aid_".$trade_row['id'] : "(尚未給號)";?></br>
                         開單日期：<?php echo ($trade_row['out_date'])    ? $trade_row['out_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
-                        填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if(isset($_SESSION[$sys_id])){ 
-                            if($_SESSION[$sys_id]["role"] <= 0 || 
-                                ( $_SESSION[$sys_id]["role"] <= 2 && ( ($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ 
-                                if($trade_row['idty'] == 1){ ?>
-                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
-                        <?php } } } ?>
+                        <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
+                            <?php if(($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"] || in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) || $sys_id_role <= 1 ){ ?>
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
+                        <?php } } ?>
                     </div>
                 </div>
     
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
+                    <form action="store.php" method="post">
+                    <!-- <form action="./zz/debug.php" method="post"> -->
+
                         <!-- 3.申請單成立 -->
                         <div class="bg-white rounded" id="nav-review" >
                             <div class="col-12 py-3 px-5">
@@ -226,21 +324,19 @@
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
-                                        <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($trade_row['out_user_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
-                                            <?php if(($trade_row['idty'] == 2) || ($trade_row['idty'] == 4) || ($trade_row['idty'] == 6)){ ?>
-                                                <!-- <form action="store.php" method="post"> -->
-                                                <form action="#" method="post">
-                                                    <input type="hidden" name="updated_user"        value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                                    <input type="hidden" name="id"                  value="<?php echo $trade_row['id'];?>">
-                                                    <input type="hidden" name="action"              value="edit">
-                                                    <input type="hidden" name="idty"                value="4">
-                                                    <input type="submit" name="edit_trade_submit"   value="編輯 (Edit)" class="btn btn-primary">
-                                                </form>&nbsp
-                                                <!-- <button type="button" value="Submit" name="edit_trade_submit" class="btn btn-primary inline" >編輯 (Edit)b</button> -->
-                                                <!-- <a href="form.php?id=<php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a> -->
+                                        <!-- 限定表單所有人：開單人、ppe pm、admin -->
+                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_id_role <= 1 ){ ?>
+                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                            <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
+                                                <?php if($trade_row["form_type"] == "import"){ ?>
+                                                    <a href="restock.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">restock 編輯 (Edit)</a>
+                                                <?php }else if($trade_row["form_type"] == "export"){ ?>
+                                                    <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">form 編輯 (Edit)</a>
+                                                <?php }?>
                                             <?php ;} ?>
-                                            <?php if(!in_array($trade_row['idty'], [ 10, 3 ])){ ?>
-                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                            <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
+                                                <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
                                     </div>
@@ -331,9 +427,6 @@
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-l">
-                                <form action="store.php" method="post">
-                                <!-- <form action="#" method="post"> -->
-
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
@@ -345,11 +438,14 @@
                                             <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                            <input type="hidden" name="id" id="id" value="">
-                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                            <input type="hidden" name="idty" id="idty" value="">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                            <input type="hidden" name="id"              id="id"             value="">
+                                            <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                            <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                            <input type="hidden" name="form_type"       id="form_type"      value="">
+                                            <input type="hidden" name="idty"            id="idty"           value="">
+                                            <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -4,6 +4,16 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = $receive_url;                        // 回本頁
+    }
+
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
         // 刪除表單
         if(!empty($_POST["delete_trade"])){
             $check_delete_result = delete_trade($_REQUEST);
@@ -68,6 +78,47 @@
 
     $allcatalogs = show_catalogs();                 // 後來改用這個讀取catalog清單，作為需求首頁目錄 for Edit時，假如原儲存項目已消失
     $allLocals = show_allLocal();                   // 所有儲存站點
+
+    // function select_step(){
+        // 身份陣列
+        $step_arr = [
+            '0' => '填單人',
+            '1' => '申請人',
+            '2' => '申請人主管',
+            '3' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '環安業務',
+            '5' => '環安主管',
+
+            '6' => 'noBody',
+            '7' => 'ppe site user',
+            '8' => 'ppe pm',
+            '9' => '系統管理員',
+        ];
+
+        // 決定表單開啟 $step身份
+        if(isset($trade_row["created_emp_id"]) && ($trade_row["created_emp_id"] == $auth_emp_id)){
+            $step_index = '0';}             // 填單人
+        if(isset($trade_row["emp_id"]) && ($trade_row["emp_id"] == $auth_emp_id)){
+            $step_index = '1';}             // 申請人
+        if(isset($trade_row["omager"]) && ($trade_row["omager"] == $auth_emp_id)){
+            $step_index = '2';}             // 申請人主管
+        
+        if(empty($step_index)){
+            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+                $step_index = '6';}         // noBody
+            if(isset($sys_id_role) && ($sys_id_role) == 2){
+                $step_index = '7';}         // ppe site user
+            if(isset($sys_id_role) && ($sys_id_role) == 1){
+                $step_index = '8';}         // ppe pm
+            if(isset($sys_id_role) && ($sys_id_role) == 0){
+                $step_index = '9';}         // 系統管理員
+            if($action = 'create'){
+                $step_index = '0';}         // 填單人
+        }
+        
+        // $step套用身份
+        $step = $step_arr[$step_index];
+    // }
 
 ?>
 
@@ -162,15 +213,16 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
-                        <a href="index.php" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div>
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        調撥單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
+                        出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
+                        </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇出庫廠區 -->
@@ -179,7 +231,7 @@
                                 <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                     <option value="" hidden>--請選擇 出貨 儲存點--</option>
                                     <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                         <?php } ?>
@@ -190,7 +242,7 @@
                         </form>
 
                         <!-- 表單狀態限制在'3作廢'才可以刪除 -->
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] === 3)){ ?>
+                        <?php if(($sys_id_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] === 3)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $trade_row["id"];?>">
                                 <input type="submit" name="delete_trade" value="刪除" title="刪除調撥單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
@@ -369,7 +421,7 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <?php if($sys_id_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
@@ -394,13 +446,14 @@
                                     <div class="modal-footer">
                                         <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                         <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
-                                        <input type="hidden" name="out_user_id"                     value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">  <!-- out_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="out_user_id"                     value="<?php echo $auth_emp_id;?>">  <!-- out_user_id/出庫填單人emp_id -->
                                         <input type="hidden" name="out_local"                       value="<?php echo $select_local["id"];?>">          <!-- out_local/出庫廠區 -->    
                                         <input type="hidden" name="form_type"   id="form_type"      value="export">
                                         <input type="hidden" name="action"      id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="idty"        id="idty"           value="1">
+                                        <input type="hidden" name="step"        id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="id"          id="id"             value="">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                        <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="1" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -429,7 +482,7 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?><th>action</th><?php } ?>
+                                    <?php if($sys_id_role <= 1){ ?><th>action</th><?php } ?>
                                 </tr>
                             </thead>
                             <tbody></tbody>

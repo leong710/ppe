@@ -59,10 +59,12 @@
                 var arr_lot_num = add_amount_arr[2];
                 var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
                 
-            Object(allcatalogs).forEach(function(cata){          
+            Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
-                    var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
+                // var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
+                // var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+',]" id="'+cata['SN']+'" class="select_item" value="'+add_amount_unity+',," checked onchange="check_item(this.id)">';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+' / '+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -89,7 +91,7 @@
 
             }else{
                 var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
-                Object(catalog).forEach(function(cata){          
+                Object(catalogs).forEach(function(cata){          
                     if(cata['SN'] === cata_SN){
                         // var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
                         // var collect_cb = '<input name="cata_SN_amount['+cata['SN']+'][pay]" class="unblock" value="'+add_amount+'">';
@@ -243,56 +245,55 @@
 // // // Edit選染
     // var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
-        // var receive_row = <?=json_encode($receive_row);?>;                        // 引入receive_row資料作為Edit
-        var receive_item = {
-            "plant"          : "plant/申請單位", 
-            "dept"           : "dept/部門名稱", 
-            "sign_code"      : "sign_code/部門代號", 
-            "emp_id"         : "emp_id/工號",
-            "cname"          : "cname/申請人姓名",
-            "extp"           : "extp/分機",
-            "local_id"       : "local_id/領用站點",
-            "ppty"           : "** ppty/需求類別",
-            "omager"         : "** omager/上層主管工號",
-            "receive_remark" : "receive_remark/用途說明",
-            "created_emp_id" : "created_emp_id/開單人工號",
-            "created_cname"  : "created_cname/開單人姓名",
+        // var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
+        var trade_item = {
+            "out_local"      : "out_local/發貨廠區", 
+            "in_local"       : "in_local/收貨廠區", 
+            "out_user_id"    : "out_user_id/發貨人emp_id", 
+            "form_type"      : "form_type/工號",
+            "item"           : "item",
+            // "cname"          : "cname/申請人姓名",
+            // "extp"           : "extp/分機",
+            // "local_id"       : "local_id/領用站點",
+            // "ppty"           : "** ppty/需求類別",
+            // "omager"         : "** omager/上層主管工號",
+            // "receive_remark" : "receive_remark/用途說明",
+            // "created_emp_id" : "created_emp_id/開單人工號",
+            // "created_cname"  : "created_cname/開單人姓名",
             // "idty"           : "idty",
-            "uuid"           : "uuid",
-            "cata_SN_amount" : "** cata_SN_amount"
+            // "id"             : "id",
+            // "cata_SN_amount" : "** cata_SN_amount"
             // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
-        Object.keys(receive_item).forEach(function(receive_key){
-            if(receive_key == 'ppty'){      // ppty/需求類別
-                document.querySelector('#'+receive_key+'_'+receive_row[receive_key]).checked = true;
-                
-            }else if(receive_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
-                var receive_row_cart = JSON.parse(receive_row[receive_key]);
-                Object.keys(receive_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, receive_row_cart[cart_key]['need'], 'off');
+        Object.keys(trade_item).forEach(function(trade_key){
+
+            if(trade_key == 'item'){      //item 購物車
+                var trade_row_cart = JSON.parse(trade_row[trade_key]);
+                Object.keys(trade_row_cart).forEach(function(cart_key){
+                    console.log("cart_key:", cart_key);
+                    add_item(cart_key, trade_row_cart[cart_key]['need'], 'off');
                 })
 
-            }else if(receive_key == 'omager'){             //omager 上層主管工號
-                document.getElementById('omager').value = receive_row[receive_key];
-                search_fun(receive_row[receive_key]);
+            }else if(trade_key == 'out_local'){             //out_local 發貨廠區
+                document.getElementById('po_no').value = trade_row[trade_key];
 
             }else{
-                document.querySelector('#'+receive_key).value = receive_row[receive_key]; 
+                document.querySelector('#'+trade_key).value = trade_row[trade_key]; 
 
             }
         })
 
         // 鋪設logs紀錄
         // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var uuid = '<?=$receive_row["uuid"]?>';
+        // var uuid = '<?=$trade_row["uuid"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + 
                     '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
                         `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="uuid" value="` + uuid + `";>` +
+                        `<input type="hidden" name="id" value="` + id + `";>` +
                         `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
                     '</form>' + '<?php } ?>' +
                 '</td>' +'</tr>';
@@ -310,23 +311,6 @@
             $(this).removeClass('autoinput');
         });
 
-    })
-
-
-    $(document).ready(function () {
-        
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
-        $('#catalog_list').DataTable({
-            "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
-            // 顯示長度
-            "pageLength": 25,
-            // 中文化
-            "language":{
-                url: "../../libs/dataTables/dataTable_zh.json"
-            }
-        });
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 
@@ -349,6 +333,24 @@
                 } 
             } 
         };
+    })
+
+
+    $(document).ready(function () {
+        
+        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
+        $('#catalog_list').DataTable({
+            "autoWidth": false,
+            // 排序
+            // "order": [[ 4, "asc" ]],
+            // 顯示長度
+            "pageLength": 25,
+            // 中文化
+            "language":{
+                url: "../../libs/dataTables/dataTable_zh.json"
+            }
+        });
+
         // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
         let amounts = [...document.querySelectorAll('.amount')];
         for(let amount of amounts){

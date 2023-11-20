@@ -314,163 +314,160 @@
                     <form action="store.php" method="post">
                     <!-- <form action="debug.php" method="post"> -->
                                             
-                        <div class="tab-content rounded bg-light" id="nav-tabContent">
-                            <!-- 3.申請單成立 -->
-                            <div class="tab-pane bg-white fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
-                                <div class="col-12 py-3 px-5">
-                                    <div class="row">
-                                        <!-- 表頭 -->
-                                        <div class="col-6 col-md-6">
-                                            <b>申請人相關資訊：</b>
-                                            <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                        </div>
-                                        <div class="col-6 col-md-6 text-end">
-                                            <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
-                                            <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
-                                                <!-- 表單狀態：2退回 4編輯 6暫存 -->
-                                                <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
-                                                    <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
-                                                <?php ;} ?>
-                                                <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
-                                                <?php if(in_array($receive_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
-                                                    <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
-                                                <?php ;} ?>
+                        <!-- 3.申請單成立 -->
+                        <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
+                            <div class="col-12 py-3 px-5">
+                                <div class="row">
+                                    <!-- 表頭 -->
+                                    <div class="col-6 col-md-6">
+                                        <b>申請人相關資訊：</b>
+                                        <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                    </div>
+                                    <div class="col-6 col-md-6 text-end">
+                                        <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
+                                        <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
+                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                            <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
+                                                <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                             <?php ;} ?>
-                                            <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                        && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
-                                                <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
-                                            <?php } ?>
-                                        </div>
-                                        <hr>
-                                        <!-- 相關資訊說明 -->
-                                        <div class="col-12 py-1" id="info_table"> 
-
-                                            <!-- 表列1 申請人 -->
-                                            <div class="row">
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $receive_row["emp_id"];?>" readonly >
-                                                        <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $receive_row["cname"];?>" readonly >
-                                                        <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機" readonly >
-                                                        <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- 表列2 申請單位 -->
-                                            <div class="row">
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位" readonly >
-                                                        <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱" readonly >
-                                                        <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" readonly >
-                                                        <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- 表列3 領用站點 -->
-                                            <div class="row">
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" id="local_id" readonly
-                                                            value="<?php echo $select_local['id'].'：'.$select_local['fab_title'].'_'.$select_local['local_title']; 
-                                                                echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
-                                                        <label for="local_id" class="form-label">local_id/領用站點：<sup class="text-danger"> *</sup></label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div style="display: flex;">
-                                                        <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                        <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled>
-                                                        <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
-                                                        <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled>
-                                                        <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-md-4 py-1 px-2">
-                                                    <div class="form-floating">
-                                                        <input type="text" name="omager" id="omager" class="form-control" required disabled placeholder="主管工號">
-                                                        <label for="omager" class="form-label">omager/主管工號：<sup class="text-danger"> *</sup></label>
-                                                        <div id="omager_badge"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- 表列5 說明 -->
-                                            <div class="row">
-                                                <div class="col-12 col-md-12 py-2 px-2">
-                                                    <div class="form-floating">
-                                                        <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
-                                                        <label for="receive_remark" class="form-label">receive_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="col-12 py-1">
-                                                    <b>備註：</b>
-                                                    </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
-                                                    </br>&nbsp2.簽核：申請人(送出)=>申請部門三級主管=>發放人及領用人(發放)=>環安單位承辦人=>環安單位(課)主管=>各廠環安單位存查3年(結案)。 
-                                                    </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
-                                                    </br>&nbsp4.以上若有填報不實，將於以退件。 
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>
+                                            <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
+                                            <?php if(in_array($receive_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
+                                                <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                            <?php ;} ?>
+                                        <?php ;} ?>
+                                        <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
+                                                    && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
+                                            <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                        <?php } ?>
                                     </div>
+                                    <hr>
+                                    <!-- 相關資訊說明 -->
+                                    <div class="col-12 py-1" id="info_table"> 
 
-                                    <!-- 表列4 購物車 -->
-                                    <div class="row">
-                                        <div class="col-12 border rounded bg-info">
-                                            <label class="form-label">器材用品/數量單位：&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></label>
-                                            <div class=" rounded border bg-light" id="shopping_cart">
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>select</th>
-                                                            <th style="text-align: left;">SN / 品名</th>
-                                                            <th>型號</th>
-                                                            <th>尺寸</th>
-                                                            <th>申請量 / 單位</th>
-                                                            <th>實發量</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="shopping_cart_tbody">
-                                                    </tbody>
-                                                </table>
+                                        <!-- 表列1 申請人 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $receive_row["emp_id"];?>" readonly >
+                                                    <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $receive_row["cname"];?>" readonly >
+                                                    <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機" readonly >
+                                                    <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 表列2 申請單位 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位" readonly >
+                                                    <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱" readonly >
+                                                    <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" readonly >
+                                                    <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 表列3 領用站點 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" id="local_id" readonly
+                                                        value="<?php echo $select_local['id'].'：'.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                            echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
+                                                    <label for="local_id" class="form-label">local_id/領用站點：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div style="display: flex;">
+                                                    <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                    <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled>
+                                                    <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
+                                                    <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled>
+                                                    <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="omager" id="omager" class="form-control" required disabled placeholder="主管工號">
+                                                    <label for="omager" class="form-label">omager/主管工號：<sup class="text-danger"> *</sup></label>
+                                                    <div id="omager_badge"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 表列5 說明 -->
+                                        <div class="row">
+                                            <div class="col-12 col-md-12 py-2 px-2">
+                                                <div class="form-floating">
+                                                    <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
+                                                    <label for="receive_remark" class="form-label">receive_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="col-12 py-1">
+                                                <b>備註：</b>
+                                                </br>&nbsp1.填入申請單位、部門名稱、申請日期、器材、數量及用途說明。
+                                                </br>&nbsp2.簽核：申請人(送出)=>申請部門三級主管=>發放人及領用人(發放)=>環安單位承辦人=>環安單位(課)主管=>各廠環安單位存查3年(結案)。 
+                                                </br>&nbsp3.需求類別若是[緊急]，必須說明事故原因，並通報防災中心。 
+                                                </br>&nbsp4.以上若有填報不實，將於以退件。 
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="row">
-                                        <div style="font-size: 6px;" class="py-2 text-end">
-                                            
-                                        </div>
-                                    </div>
-
+                                    <hr>
                                 </div>
+
+                                <!-- 表列4 購物車 -->
+                                <div class="row">
+                                    <div class="col-12 border rounded bg-info">
+                                        <label class="form-label">器材用品/數量單位：&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></label>
+                                        <div class=" rounded border bg-light" id="shopping_cart">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>select</th>
+                                                        <th style="text-align: left;">SN / 品名</th>
+                                                        <th>型號</th>
+                                                        <th>尺寸</th>
+                                                        <th>申請量 / 單位</th>
+                                                        <th>實發量</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="shopping_cart_tbody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                        
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-
 
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

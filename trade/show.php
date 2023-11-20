@@ -36,7 +36,7 @@
     }
 
     if(!empty($_REQUEST["id"])){
-        $trade_row = show_trade($_REQUEST);
+        $trade_row = show_trade($_REQUEST);                 // 讀取表單
         if(empty($trade_row)){
             echo "<script>alert('id-error：{$_REQUEST["id"]}')</script>";
             header("refresh:0;url=index.php");
@@ -52,20 +52,31 @@
         $action = 'create';                                 // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-    if(!empty($trade_row["out_local"])){                    // edit trade表單，get已選擇出庫廠區站點
-        $query_local = array(
-            'local_id' => $trade_row["out_local"]
-        );
-        $select_local = select_local($query_local);         // 讀出已被選擇出庫廠區站點的器材存量限制
+    if($trade_row["form_type"] != "import"){                // import=入庫、export=出庫；僅針對入庫做特別管理，因為入庫是PO號碼!不是local_id
+
+        if(!empty($trade_row["out_local"])){                    // edit trade表單，get已選擇出庫廠區站點
+            $query_local = array(
+                'local_id' => $trade_row["out_local"]
+            );
+            $select_local = select_local($query_local);         // 讀出已被選擇出庫廠區站點的器材存量限制
+        
+        }else{
+            $select_local = array('id' => '');
+
+        }
+    }
+
+    if(!empty($trade_row["in_local"])){                    // edit trade表單，get已選擇出庫廠區站點
+
         $query_in_local = array(
             'local_id' => $trade_row["in_local"]
         );
-        $select_in_local = select_local($query_in_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
-        // $catalogs = show_local_stock($query_local);         // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $select_in_local = select_local($query_in_local);   // 讀出已被選擇入庫廠區站點的器材存量限制
+    
+        // $catalogs = show_local_stock($query_local);      // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
         $catalogs = show_catalogs();                        // 後來改用這個讀取catalog清單，作為需求首頁目錄
 
     }else{
-        $select_local = array('id' => '');
         $select_in_local = array('id' => '');
         $catalogs = [];
     }
@@ -193,7 +204,7 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ 
-                            if($_SESSION[$sys_id]["role"] <= 1 || 
+                            if($_SESSION[$sys_id]["role"] <= 0 || 
                                 ( $_SESSION[$sys_id]["role"] <= 2 && ( ($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ 
                                 if($trade_row['idty'] == 1){ ?>
                                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
@@ -242,8 +253,13 @@
                                             <div class="col-12 col-md-6 py-1 px-2">
                                                 <div class="form-floating">
                                                     <input type="text" class="form-control" readonly
-                                                        value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
-                                                                echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
+                                                        <?php if($trade_row["form_type"] != "import"){ ?>
+                                                            value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
+                                                                    echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>"
+                                                        <?php } else { ?>
+                                                            value="<?php echo $trade_row["out_local"]; ?>"
+                                                        <?php } ?>
+                                                    >
                                                     <label for="out_local" class="form-label">out_local/出庫廠區：<sup class="text-danger"> *</sup></label>
                                                 </div>
                                             </div>
@@ -409,9 +425,10 @@
 
 <script>
     
-    var action = '<?=$action;?>';                   // 引入action資料
-    var catalogs = <?=json_encode($catalogs);?>;    // 引入catalogs資料
-    var trade_row = <?=json_encode($trade_row);?>;  // 引入trade_row資料作為Edit
+    var action = '<?=$action;?>';                                   // 引入action資料
+    var catalogs = <?=json_encode($catalogs);?>;                    // 引入catalogs資料
+    var trade_row = <?=json_encode($trade_row);?>;                  // 引入trade_row資料作為Edit
+    var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
 
 </script>
 

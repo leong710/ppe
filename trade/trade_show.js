@@ -124,6 +124,11 @@
                 Object.keys(trade_row_cart).forEach(function(cart_key){
                     add_item(cart_key, trade_row_cart[cart_key], 'off');
                 })
+            }else if(trade_key == 'item' && trade_row[trade_key]){                  //item 購物車
+                var trade_row_cart = JSON.parse(trade_row[trade_key]);
+                Object.keys(trade_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, trade_row_cart[cart_key], 'off');
+                })
             }else if(trade_row[trade_key]){
                 var row_key = document.querySelector('#'+trade_key);
                 if(row_key){
@@ -133,7 +138,7 @@
         })
 
         // 鋪設logs紀錄
-        var json = JSON.parse('<?=json_encode($logs_arr)?>');
+        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
         // var id = '<=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {

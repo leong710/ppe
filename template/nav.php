@@ -73,7 +73,7 @@
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-cash-register"></i>&nbsp領用管理</a>
+                                        <i class="fa-solid fa-cart-plus"></i>&nbsp領用管理</a>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>

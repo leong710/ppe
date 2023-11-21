@@ -86,63 +86,52 @@
     }
 
         // 身份陣列
-        $step_arr = [
-            '0' => '填單人',
-            '1' => '申請人',
-            '2' => '申請人主管',
-            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
-            '4' => '業務承辦',
-            '5' => '環安主管',
+            $step_arr = [
+                '0' => '填單人',
+                '1' => '申請人',
+                '2' => '申請人主管',
+                '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+                '4' => '業務承辦',
+                '5' => '環安主管',
 
-            '6' => 'normal',
-            '7' => 'ppe site user',
-            '8' => 'ppe pm',
-            '9' => '系統管理員',
-            '10'=> '轉呈簽核'
-        ];
+                '6' => 'normal',
+                '7' => 'ppe窗口',
+                '8' => 'ppe pm',
+                '9' => '系統管理員',
+                '10'=> '轉呈簽核'
+            ];
 
         // 決定表單開啟 $step身份
-        if($trade_row["out_user_id"] == $auth_emp_id){
-            $step_index = '0';      // 填單人
-        } else if($trade_row["emp_id"] == $auth_emp_id){
-            $step_index = '1';      // 申請人
-        }      
+            if($trade_row["out_user_id"] == $auth_emp_id){
+                $step_index = '0';      // 填單人
+            }      
 
-            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
-            switch($trade_row['idty']){
-                case "0":   // $act = '同意 (Approve)';
+            $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+            $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+            $idty = $trade_row["idty"];
+            $fab_o_id = $trade_row["fab_o_id"];                 // 取表單上出貨的fab_id
+            $fab_i_id = $trade_row["fab_i_id"];                 // 取表單上收貨的fab_id
+
+        // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($idty){
+                case 0 :   // $act = '同意 (Approve)';
                     break;
-                case "1":   // $act = '送出 (Submit)';
-                    break;
-                case "2":   // $act = '退回 (Reject)';
-                    break;
-                case "3":   // $act = '作廢 (Abort)'; 
-                    break;
-                case "4":   // $act = '編輯 (Edit)';  
-                    break;
-                case "5":   // $act = '轉呈 (Forwarded)';
-                    break;
-                case "6":   // $act = '暫存 (Save)';  
-                    break;
-                case "10":  // $act = '結案 (Close)'; 
-                    break;
-                case "11":  // $act = '承辦 (Undertake)';
-                    if($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"]){
-                        $step_index = '4';      // 業務承辦
-                    }else if($trade_row["in_sign"] == $auth_emp_id){
-                        $step_index = '5';      // 環安主管
+                case 1 :   // $act = '送出 (Submit)';
+                    if(( $fab_i_id == $_SESSION[$sys_id]["fab_id"]) || (in_array($fab_i_id, $_SESSION[$sys_id]["sfab_id"]))){
+                        $step_index = '7';      // ppe site user
                     }
                     break;
-                case "12":  // $act = '待收發貨 (Awaiting collection)'; 
-                    if(in_array($trade_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
-                        $step_index = '3';      // ppe發放人
-                    }    
+                case 2 :   // $act = '退回 (Reject)';
                     break;
-                case "13":  // $act = '交貨 (Delivery)';
-                    if($trade_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
-                        $step_index = '4';      // 業務承辦
-                    }  
+                case 3 :   // $act = '作廢 (Abort)'; 
                     break;
+                case 4 :   // $act = '編輯 (Edit)';  
+                case 5 :   // $act = '轉呈 (Forwarded)';
+                case 6 :   // $act = '暫存 (Save)';  
+                case 10 :  // $act = '結案 (Close)'; 
+                case 11 :  // $act = '承辦 (Undertake)';
+                case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
+                case 13 :  // $act = '交貨 (Delivery)';
                 default:    // $act = '錯誤 (Error)';         
                     return;
             }
@@ -150,11 +139,11 @@
         if(!isset($step_index)){
             if(!isset($sys_id_role) ||($sys_id_role) == 3){
                 $step_index = '6';}      // normal
-            if(isset($sys_id_role) && ($sys_id_role) == 2){
+            if($sys_id_role == 2){
                 $step_index = '7';}      // ppe site user
-            if(isset($sys_id_role) && ($sys_id_role) == 1){
+            if($sys_id_role == 1){
                 $step_index = '8';}      // ppe pm
-            if(isset($sys_id_role) && ($sys_id_role) == 0){
+            if($sys_id_role == 0){
                 $step_index = '9';}      // 系統管理員
         }
         
@@ -398,12 +387,10 @@
                                                 <thead>
                                                     <tr>
                                                         <th>select_id</th>
-                                                        <th>SN</th>
-                                                        <th>品名</th>
+                                                        <th style="text-align: left;">SN / 品名</th>
                                                         <th>型號</th>
                                                         <th>尺寸</th>
-                                                        <th>數量</th>
-                                                        <th>單位</th>
+                                                        <th>數量 / 單位</th>
                                                         <th>PO no</th>
                                                         <th>批號/效期</th>
                                                     </tr>

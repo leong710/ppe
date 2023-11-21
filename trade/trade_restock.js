@@ -1,6 +1,6 @@
 // // // 第一頁：info modal function
     // var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
-    var catalog_item = {
+    var catalogs_item = {
         "SN"            : "SN/編號", 
         "cate_no"       : "category/分類", 
         "pname"         : "pname/品名", 
@@ -261,7 +261,7 @@
             // "created_emp_id" : "created_emp_id/開單人工號",
             // "created_cname"  : "created_cname/開單人姓名",
             // "idty"           : "idty",
-            // "id"             : "id",
+            "id"             : "id",
             // "cata_SN_amount" : "** cata_SN_amount"
             // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
@@ -271,8 +271,16 @@
             if(trade_key == 'item'){      //item 購物車
                 var trade_row_cart = JSON.parse(trade_row[trade_key]);
                 Object.keys(trade_row_cart).forEach(function(cart_key){
-                    console.log("cart_key:", cart_key);
-                    add_item(cart_key, trade_row_cart[cart_key]['need'], 'off');
+                    var cart_key_arr = cart_key.split(',');           // arr[0]=cata_SN, arr[1]=stk_id
+                        var cata_SN  = cart_key_arr[0];                   
+                        var stk_id   = cart_key_arr[1];
+                    var add_amount_unity =  trade_row_cart[cart_key];
+                    var add_amount_arr = add_amount_unity.split(',');     // arr[0]=amount, arr[1]=po_no, arr[2]=lot_num
+                        var arr_amount  = add_amount_arr[0];
+                        var arr_po_no   = add_amount_arr[1];
+                        var arr_lot_num = add_amount_arr[2];
+                    var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+                    add_item(cata_SN, arr_amount, 'off');
                 })
 
             }else if(trade_key == 'out_local'){             //out_local 發貨廠區
@@ -290,13 +298,13 @@
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
-                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + 
-                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
-                        `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="id" value="` + id + `";>` +
-                        `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    '</form>' + '<?php } ?>' +
-                '</td>' +'</tr>';
+                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
+                    // '<?php if($sys_id_role == 0){ ?>' + '<td><form action="" method="post">'+
+                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
+                    //     `<input type="hidden" name="id" value="` + id + `";>` +
+                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
+                    // '</form></td>' + '<?php } ?>' +
+                '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
     }

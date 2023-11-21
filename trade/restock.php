@@ -66,14 +66,15 @@
             '0' => '填單人',
             '1' => '申請人',
             '2' => '申請人主管',
-            '3' => '發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
-            '4' => '環安業務',
+            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '業務承辦',
             '5' => '環安主管',
 
-            '6' => 'noBody',
-            '7' => 'ppe site user',
+            '6' => 'normal',
+            '7' => 'ppe窗口',
             '8' => 'ppe pm',
             '9' => '系統管理員',
+            '10'=> '轉呈簽核'
         ];
 
         // 決定表單開啟 $step身份
@@ -286,7 +287,7 @@
                                                     <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
                                                     <td style="text-align: left;">
                                                         <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog['SN'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
-                                                            class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
+                                                            class="cata_info_btn" onclick="info_module('catalogs',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
                                                         <?php 
                                                             echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
                                                             echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';?>
@@ -465,7 +466,7 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($sys_id_role <= 1){ ?><th>action</th><?php } ?>
+                                    <?php if($sys_id_role == 0){ ?><th>action</th><?php } ?>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -512,7 +513,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">細項說明：</h5>
-                        <button type="button" class="btn-close" aria-label="Close" data-bs-target="#catalog_modal" data-bs-toggle="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body px-5">
                         <div class="row">

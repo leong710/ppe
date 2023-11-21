@@ -3,7 +3,11 @@
     require_once("function.php");
 
     $swal_json = array();
-
+    if(!empty($_REQUEST["form_type"])){
+        $form_type = $_REQUEST["form_type"];
+    }else{
+        $form_type = "";
+    }
 
         switch($_REQUEST["action"]){
             case "create":      // 開新表單
@@ -11,19 +15,19 @@
                 break;
 
             case "edit":        // 編輯
-                if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
-                    $swal_json = update_trade($_REQUEST);
-
-                }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
-                    $swal_json = update_restoc($_REQUEST);
-                }
+                $swal_json = update_trade($_REQUEST);
+                // if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
+                //     $swal_json = update_trade($_REQUEST);
+                // }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
+                //     $swal_json = update_restock($_REQUEST);
+                // }
                 break;
 
             case "sign":        // 簽核
-                if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
+                if($form_type == "export"){             // export=出庫，需要執行預扣庫存
                     $swal_json = sign_trade($_REQUEST);
 
-                }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
+                }else if($form_type == "import"){       // import=入庫，不須執行預扣
                     $swal_json = sign_restock($_REQUEST);
                 }
                 break;
@@ -61,7 +65,7 @@
 </head>
 
 <body>
-    <div class="col-12">store_<?php echo ($_REQUEST["form_type"] == "import") ? "trade (請購入庫)":"restock (調撥出庫)" ?>...</div>
+    <div class="col-12">store_<?php echo ($form_type == "import") ? "trade (請購入庫)":"restock (調撥出庫)" ?>...</div>
 </body>
 
 <script>    

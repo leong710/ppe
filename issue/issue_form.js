@@ -1,5 +1,5 @@
 // // // 第一頁：info modal function
-    var catalogs_item = {
+    var catalog_item = {
         "SN"            : "SN/編號", 
         "cate_no"       : "category/分類", 
         "pname"         : "pname/品名", 
@@ -9,9 +9,6 @@
         "size"          : "size/尺寸",
         "unit"          : "unit/單位",
         "SPEC"          : "SPEC/規格"
-        // "po_no"         : "PO no",
-        // "lot_num"       : "批號/效期",
-        // "stk_id"        : "stk_id"
         // "scomp_no"      : "scomp_no/供應商"
     };    // 定義要抓的key=>value
 
@@ -20,7 +17,7 @@
         // step1.將原排程陣列逐筆繞出來
         $('#info_append, #pic_append').empty();
         Object(window[to_module]).forEach(function(row){          
-            if(row['SN']+'_'+row['stk_id'] === row_SN){
+            if(row['SN'] === row_SN){
                 // step2.鋪畫面到module
                 Object.keys(window[to_module+'_item']).forEach(function(item_key){
                     if(item_key === 'cate_no'){
@@ -36,19 +33,19 @@
         })
     }
     
-// // // 第n頁：catalog_modal 篩選 function
+// // // catalog_modal 篩選 function
     // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value --> 20230816 修正手動輸入超過限購，add_btn的value會只吃最大值
     function add_cart_btn(cata_SN, add_amount){
         let add_btn = document.getElementById('add_'+ cata_SN);
         if(add_btn){
-            if(add_amount == '' || add_amount == 0){
+            if(add_amount == ''){
                 add_btn.value = '';
             } else {
                 add_btn.value = add_amount;
             }
         }
     }
-    
+
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
@@ -59,27 +56,17 @@
             var swal_time = 1 * 1000;
         }
 
-        if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染，編輯狀態下參數需要分割
+        if(add_amount <= 0 ){
+            var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
+            var swal_action = 'error';
+            swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
 
-            var cata_SN_unity       = cata_SN;
-            var add_amount_unity    = add_amount;
-
-            var cata_SN_arr = cata_SN_unity.split(',');           // arr[0]=cata_SN, arr[1]=stk_id
-                var cata_SN  = cata_SN_arr[0];
-                var stk_id   = cata_SN_arr[1];
-    
-            var add_amount_arr = add_amount_unity.split(',');     // arr[0]=amount, arr[1]=po_no, arr[2]=lot_num
-                var arr_amount  = add_amount_arr[0];
-                var arr_po_no   = add_amount_arr[1];
-                var arr_lot_num = add_amount_arr[2];
-                var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
-                
-            Object(allcatalogs).forEach(function(cata){          
+        }else{
+            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+            Object(catalog).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    // var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
-                    var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN+'_'+stk_id+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
-                    // var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
-                    var add_cata_item = '<tr id="item_'+cata_SN+'_'+stk_id+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -96,43 +83,7 @@
             if(swal_time > 0){
                 swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
             }
-
-        }else{                  // 非編輯狀態下，參數可直接引用
-
-            if(add_amount <= 0 ){
-                var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
-                var swal_action = 'error';
-                swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
-    
-            }else{
-                var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
-                Object(catalogs).forEach(function(cata){          
-                    if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
-                        // var input_cb = '<input type="checkbox" name="item['+cata['stk_id']+'_'+cata['SN']+']" id="'+cata['stk_id']+'_'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                        var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
-                        var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'&nbsp'+cata['stk_id']+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td><td>'+cata['po_no']+'</td><td>'+cata['lot_num']+'</td></tr>';
-                        $('#shopping_cart_tbody').append(add_cata_item);
-                        return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
-                    }
-                })
-                // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
-                if(check_item_return){
-                    var swal_content = ' 更新成功';
-                    var swal_action = 'info';
-                }else{
-                    var swal_content = ' 加入成功';
-                    var swal_action = 'success';
-                }
-                // swal_time>0才顯示swal，主要過濾edit時的渲染導入
-                if(swal_time > 0){
-                    swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
-                }else{
-                    var sinn = cata_SN+' 數量:&nbsp<b>'+ add_amount +'</b>&nbsp加入購物車清單~';
-                    inside_toast(sinn);
-                }
-                
-            }
-
+            
         }
         check_shopping_count();        // 清算購物車件數
     }
@@ -156,10 +107,10 @@
                         var swal_content = ' 移除成功';
                         var swal_action = 'warning';
                         swal_time = swal_time * 1000;
-                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});         // swal自動關閉
+                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
                     }
                     check_shopping_count();
-                    return true;                    // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
+                    return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
                 }
             }
         }
@@ -180,7 +131,7 @@
         }
     }
 
-// // // 第三頁：searchUser function 
+// // // searchUser function 
     // 第一-階段：search Key_word
     function search_fun(){
         mloading("show");                       // 啟用mLoading
@@ -226,8 +177,7 @@
         })
         $("body").mLoading("hide");
     }
-    
-    // fun3-3：吐司顯示字條 // init toast
+
     function inside_toast(sinn){
         // init toast
         var toastLiveExample = document.getElementById('liveToast');
@@ -241,61 +191,58 @@
 
 // // // Edit選染
     function edit_item(){
-        // var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
-        var trade_item = {
-            "in_user_id"     : "in_user_id/收貨人工號",
+        // var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
+        var issue_item = {
+            "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
-            "in_local"       : "in_local/收貨站點",
+            "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
             "id"             : "id",
             "item"           : "** item"
-            // "sign_comm"       : "command/簽核comm",
+            // "sin_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
-        Object.keys(trade_item).forEach(function(trade_key){
-            if(trade_key == 'ppty'){      // ppty/需求類別
-                var ppty = document.querySelector('#'+trade_key+'_'+trade_row[trade_key]);
+        Object.keys(issue_item).forEach(function(issue_key){
+            if(issue_key == 'ppty'){      // ppty/需求類別
+                var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
                 if(ppty){
-                    document.querySelector('#'+trade_key+'_'+trade_row[trade_key]).checked = true;
+                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
                 }
                 
-            }else if(trade_key == 'item'){      //item 購物車
-                var trade_row_cart = JSON.parse(trade_row[trade_key]);
-                Object.keys(trade_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, trade_row_cart[cart_key], 'off');
+            }else if(issue_key == 'item'){      //item 購物車
+                var issue_row_cart = JSON.parse(issue_row[issue_key]);
+                Object.keys(issue_row_cart).forEach(function(cart_key){
+                    add_item(cart_key, issue_row_cart[cart_key], 'off');
                 })
             }else{
-                var row_key = document.querySelector('#'+trade_key);
+                var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
-                    document.querySelector('#'+trade_key).value = trade_row[trade_key]; 
+                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
                 }
             }
         })
 
         // 鋪設logs紀錄
         // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var id = '<?=$trade_row["id"]?>';
+        // var id = '<?=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
-                    // '<?php if($_SESSION[$sys_id]["role"] == 0){ ?>' + '<td><form action="" method="post">'+
-                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    //     `<input type="hidden" name="id" value="` + id + `";>` +
-                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    // '</form></td>' + '<?php } ?>' +
+                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
+                        `<input type="hidden" name="log_id" value="` + [i] + `";>` +
+                        `<input type="hidden" name="id" value="` + id + `";>` +
+                        `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
+                    '</form>' + '</td><?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
-
-        action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
 
     }
 
     $(function () {
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
-
     })
 
     $(document).ready(function () {
@@ -335,21 +282,23 @@
                 } 
             } 
         };
-        // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
-        let amounts = [...document.querySelectorAll('.amount')];
-        for(let amount of amounts){
-            amount.onchange = e => {
-                let amount_id = e.target.id;
-                if(amount.value == ''){
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
-                    document.getElementById('add_'+ amount_id).value = '';
-                } else {
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
-                    document.getElementById('add_'+ amount_id).value = amount.value;
-                }
-            }
-        }
 
+        // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
+        // let amounts = [...document.querySelectorAll('.amount')];
+        // for(let amount of amounts){
+        //     amount.onchange = e => {
+        //     // amount.onblur = e => {
+        //         let amount_id = e.target.id;
+        //         if(amount.value == ''){
+        //             // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
+        //             document.getElementById('add_'+ amount_id).value = '';
+        //         } else {
+        //             // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
+        //             document.getElementById('add_'+ amount_id).value = amount.value;
+        //         }
+        //     }
+        // }
+        
         // 確認action不是新表單，就進行Edit模式渲染
         if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
             edit_item();
@@ -357,3 +306,6 @@
         }
 
     })
+
+
+    

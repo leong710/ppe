@@ -11,26 +11,28 @@
         $up_href = $receive_url;                        // 回本頁
     }
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
 
-    // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
-    //     update_pr2fab($_REQUEST);
-    //     header("refresh:0;url=index.php");
-    //     exit;
-    // }
+                        // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
+                        //     update_pr2fab($_REQUEST);
+                        //     header("refresh:0;url=index.php");
+                        //     exit;
+                        // }
 
-    // if(isset($_POST["get_trade_submit"])){    // 收貨 => 10
-    //     update_get_trade($_REQUEST);
-    //     header("refresh:0;url=index.php");
-    //     exit;
-    // }
+                        // if(isset($_POST["get_trade_submit"])){    // 收貨 => 10
+                        //     update_get_trade($_REQUEST);
+                        //     header("refresh:0;url=index.php");
+                        //     exit;
+                        // }
 
-    if(isset($_POST["edit_trade_submit"])){            // 編輯 => 10
-        edit_trade($_REQUEST);
-        header("refresh:0;url=form.php?id={$_REQUEST['id']}&action=edit");
-        exit;
-    }
+                        // if(isset($_POST["edit_trade_submit"])){            // 編輯 => 10
+                        //     edit_trade($_REQUEST);
+                        //     header("refresh:0;url=form.php?id={$_REQUEST['id']}&action=edit");
+                        //     exit;
+                        // }
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -66,7 +68,7 @@
         
         }else{
             $select_local = array('id' => '');
-
+            
         }
     }
 
@@ -106,8 +108,6 @@
                 $step_index = '0';      // 填單人
             }      
 
-            $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-            $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
             $idty = $trade_row["idty"];
             $fab_o_id = $trade_row["fab_o_id"];                 // 取表單上出貨的fab_id
             $fab_i_id = $trade_row["fab_i_id"];                 // 取表單上收貨的fab_id
@@ -122,9 +122,7 @@
                     }
                     break;
                 case 2 :   // $act = '退回 (Reject)';
-                    break;
                 case 3 :   // $act = '作廢 (Abort)'; 
-                    break;
                 case 4 :   // $act = '編輯 (Edit)';  
                 case 5 :   // $act = '轉呈 (Forwarded)';
                 case 6 :   // $act = '暫存 (Save)';  
@@ -133,7 +131,6 @@
                 case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
                 case 13 :  // $act = '交貨 (Delivery)';
                 default:    // $act = '錯誤 (Error)';         
-                    return;
             }
 
         if(!isset($step_index)){

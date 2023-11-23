@@ -4,6 +4,12 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+
     // 身分選擇功能：定義user進來要看到的項目
         $trade_fab_id = "All";    // 預設值=All
         $trade_emp_id = "All";
@@ -14,13 +20,13 @@
             if($trade_emp_id == "All"){
                 $trade_fab_id = "All";
             }else{
-                $trade_fab_id = $_SESSION[$sys_id]["fab_id"];
+                $trade_fab_id = $sys_id_fab_id;
             }
 
-        } else if($_SESSION[$sys_id]["role"] >=2){
+        } else if($sys_id_role >=2){
             // 沒帶查詢，含2以上=套自身主fab_id
-            $trade_fab_id = $_SESSION[$sys_id]["fab_id"];
-            $trade_emp_id = $_SESSION["AUTH"]["emp_id"];
+            $trade_fab_id = $sys_id_fab_id;
+            $trade_emp_id = $auth_emp_id;
         }
 
     // 組合查詢陣列
@@ -104,18 +110,18 @@
                                 <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                 <select name="emp_id" id="sort_emp_id" class="form-select" onchange="this.form.submit()">
                                     <option value="All" <?php echo $trade_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
-                                    <option value="<?php echo $_SESSION["AUTH"]["emp_id"];?>" <?php echo $trade_emp_id == $_SESSION["AUTH"]["emp_id"] ? "selected":"";?>>
-                                        <?php echo $_SESSION["AUTH"]["emp_id"]."_".$_SESSION["AUTH"]["cname"];?></option>
+                                    <option value="<?php echo $auth_emp_id;?>" <?php echo $trade_emp_id == $auth_emp_id ? "selected":"";?>>
+                                        <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
                                 </select>
                             </div>
                         </form>
                     </div>
                     <div class="col-6 col-md-4 pb-1 text-end">
                         <?php if(isset($_SESSION[$sys_id])){ ?>
-                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                            <?php if($sys_id_role <= 2){ ?>
                                 <a href="form.php" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
                             <?php } ?>
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                            <?php if($sys_id_role <= 1){ ?>
                                 <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-download"></i> 請購入庫</a>
                             <?php } ?>
                         <?php } ?>
@@ -234,7 +240,7 @@
                                 <table class="table-hover">
                                     <thead>
                                         <tr class="table-primary text-danger">
-                                            <th>ai</th>
+                                            <!-- <th>ai</th> -->
                                             <th>發貨日期</th>
                                             <th>發貨廠區</th>
                                             <th>發貨人</th>
@@ -249,19 +255,19 @@
                                     <tbody>
                                         <?php foreach($trades as $trade){ ?>
                                             <tr>
-                                                <td style="font-size: 6px;"><?php echo $trade['id']; ?></td>
-                                                <td><?php echo substr($trade['out_date'],0,10); ?></td>
+                                                <!-- <td style="font-size: 6px;"><php echo $trade['id']; ?></td> -->
+                                                <td title="aid: <?php echo $trade['id'];?>"><?php echo substr($trade['out_date'],0,10); ?></td>
                                                 <td style="font-size: 14px; word-break: break-all;">
                                                     <?php if(!empty($trade["fab_o_title"])){ echo $trade['fab_o_title'].'('.$trade['fab_o_remark'].')';
                                                         }else{
-                                                            echo ($trade["out_local"]);
+                                                            echo "<b>".($trade["out_local"])."</b>";
                                                         }?>
                                                 </td>
                                                 <td><?php echo $trade['cname_o'];?></td>
-                                                <td class="t-left"><?php echo $trade["site_i_title"].'&nbsp'.$trade["fab_i_title"].'('.$trade['fab_i_remark'].')'.'_'.$trade["local_i_title"];?></td>
+                                                <td class="t-left"><?php echo $trade["fab_i_title"].'('.$trade['fab_i_remark'].')'.'_'.$trade["local_i_title"];?></td>
                                                 <td><?php echo $trade['cname_i'];?></td>
                                                 <td style="font-size: 6px;"><?php echo substr($trade['in_date'],0,10); ?></td>
-                                                <td><?php $fab_role = ($trade['fab_i_id'] == $_SESSION[$sys_id]['fab_id'] || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"])));
+                                                <td><?php $fab_role = ($trade['fab_i_id'] == $sys_id_fab_id || (in_array($trade['fab_i_id'], $sys_id_sfab_id)));
                                                     switch($trade['idty']){
                                                         case "0"    : echo "完成";                  break;
                                                         case "1"    : echo $fab_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽"; break;
@@ -274,15 +280,15 @@
                                                     }?></td>
                                                 <td>
                                                     <!-- Action功能欄 -->
-                                                    <?php if((($trade['fab_i_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"]))) 
+                                                    <?php if((($trade['fab_i_id'] == $sys_id_fab_id) || (in_array($trade['fab_i_id'], $sys_id_sfab_id))) 
                                                             && ($trade['idty'] == '1')){ ?> 
                                                         <!-- 待簽：in_local對應人員 -->
                                                         <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>
-                                                    <?php }else if((($trade['fab_o_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_i_id'], $_SESSION[$sys_id]["sfab_id"])))
+                                                    <?php }else if((($trade['fab_o_id'] == $sys_id_fab_id) || (in_array($trade['fab_i_id'], $sys_id_sfab_id)))
                                                             && ($trade['idty'] == '2')){ ?>
                                                         <!-- 待簽：out_local對應人員 -->
-                                                        <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-danger">驗退</a>
-                                                    <?php }else if((($trade['fab_o_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($trade['fab_o_id'], $_SESSION[$sys_id]["sfab_id"])))
+                                                        <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-warning">待辦</a>
+                                                    <?php }else if((($trade['fab_o_id'] == $sys_id_fab_id) || (in_array($trade['fab_o_id'], $sys_id_sfab_id)))
                                                             && ($trade['idty'] == '4')){ ?>
                                                         <!-- 待簽：out_local對應人員 -->
                                                         <a href="form.php?id=<?php echo $trade['id'];?>&action=edit" class="btn btn-sm btn-xs btn-success">編輯</a>

@@ -150,6 +150,7 @@
             // url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
             url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
             method:'get',
+            async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 // functionname: 'search',                          // 操作功能
@@ -197,6 +198,8 @@
                                 $('#omager_badge').empty();
                                 input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
                                 $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
+                                
+                                showDelegation(obj_val.omager);                         // 呼叫查詢代理簽核程式，有結果就置換，沒有就保持!!
 
                             }else{
                                 input_omager.value = '';
@@ -238,6 +241,36 @@
             }
         })
         $("body").mLoading("hide");
+    }
+
+    // fun3-1A 用上層主管工號查詢簽核代理人
+    function showDelegation(search){
+        $.ajax({
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
+            url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
+            method:'get',
+            async: false,                                                       // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                functionname: 'showDelegation',                     // 操作功能
+                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                search: search                                      // 查詢對象key_word
+            },
+            success: function(res){
+                var obj_val = res["result"];
+                // 搜尋申請人上層主管emp_id其簽核代理人 將結果進行渲染
+                if(obj_val){  
+                    $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
+                    $('#omager_badge').empty();
+                    document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
+                    $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
+                    $("#omager").addClass("autoinput");
+                }
+            },
+            error(err){
+                console.log("showDelegation search error:", err);
+            }
+        })
     }
 
     // fun3-2：omager上層主管：移除單項模組

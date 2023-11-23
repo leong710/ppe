@@ -30,16 +30,16 @@
         }
 
     // 組合查詢陣列
-    $trade_list_setting = array(
+    $trade_list_query = array(
         'fab_id' => $trade_fab_id,
         'emp_id' => $trade_emp_id
     );
-    $trades = show_trade_list($trade_list_setting);
-    $sum_trades = show_sum_trade($trade_list_setting);              // 統計看板--上：表單核簽狀態
+    $trades = show_trade_list($trade_list_query);
+    $sum_trades = show_sum_trade($trade_list_query);              // 統計看板--上：表單核簽狀態
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($trades);        //計算總筆數
-        $per = 5;                          //每頁筆數
+        $per = 25;                          //每頁筆數
         $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  
@@ -48,13 +48,10 @@
         }
         $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
-        $receive_page_div = array(
-            'start' => $start,
-            'per' => $per
-        );
-        array_push($trade_list_setting, $receive_page_div);
+            $trade_list_query["start"]  = $start;
+            $trade_list_query["per"]    = $per;
 
-        $trades = show_trade_list($trade_list_setting);
+        $trades = show_trade_list($trade_list_query);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
         if($page_end>$per_total){           //最後頁的最後筆數=總筆數
@@ -90,6 +87,10 @@
                 icon: "../../libs/jquery/loading.gif",
             }); 
         }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         mloading();    // 畫面載入時開啟loading
     </script>
 </head>
@@ -287,7 +288,7 @@
                                                     <?php }else if((($trade['fab_o_id'] == $sys_id_fab_id) || (in_array($trade['fab_i_id'], $sys_id_sfab_id)))
                                                             && ($trade['idty'] == '2')){ ?>
                                                         <!-- 待簽：out_local對應人員 -->
-                                                        <a href="show.php?id=<?php echo $trade['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-warning">待辦</a>
+                                                        <a href="show.php?id=<?php echo $trade['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
                                                     <?php }else if((($trade['fab_o_id'] == $sys_id_fab_id) || (in_array($trade['fab_o_id'], $sys_id_sfab_id)))
                                                             && ($trade['idty'] == '4')){ ?>
                                                         <!-- 待簽：out_local對應人員 -->
@@ -388,10 +389,7 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
+
 
 </script>
 

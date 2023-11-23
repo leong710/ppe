@@ -411,6 +411,7 @@
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-l">
+                                
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>

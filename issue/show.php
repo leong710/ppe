@@ -4,17 +4,29 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
-    //     update_pr2fab($_REQUEST);
-    //     header("refresh:0;url=index.php");
-    //     exit;
-    // }
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = $receive_url;                        // 回本頁
+    }
 
-    // if(isset($_POST["getIssue_submit"])){    // 收貨 => 10
-    //     update_getIssue($_REQUEST);
-    //     header("refresh:0;url=index.php");
-    //     exit;
-    // }
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+
+        // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
+        //     update_pr2fab($_REQUEST);
+        //     header("refresh:0;url=index.php");
+        //     exit;
+        // }
+
+        // if(isset($_POST["getIssue_submit"])){    // 收貨 => 10
+        //     update_getIssue($_REQUEST);
+        //     header("refresh:0;url=index.php");
+        //     exit;
+        // }
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -148,7 +160,12 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
-        // mloading();    // 畫面載入時開啟loading
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        // 畫面載入時開啟loading
+        mloading();    
     </script>
 </head>
 
@@ -162,18 +179,18 @@
                         <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
                 <div class="row px-2">
                     <div class="col-12 col-md-4">
-                        需求單號：<?php echo ($issue_row['id'])          ? "aid_".$issue_row['id'] : "(尚未給號)"; ?></br>
+                        需求單號：<?php echo ($issue_row['id'])          ? "issue_aid_".$issue_row['id'] : "(尚未給號)"; ?></br>
                         開單日期：<?php echo ($issue_row['create_date']) ? $issue_row['create_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)"; ?></br>
-                        填單人員：<?php echo ($issue_row["in_user_id"])  ? $issue_row["in_user_id"]." / ".$issue_row["cname_i"] : $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($issue_row["in_user_id"])  ? $issue_row["in_user_id"]." / ".$issue_row["cname_i"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1 && $issue_row['idty'] == 1){ ?>
+                        <?php if($sys_id_role <= 1 && $issue_row['idty'] == 1){ ?>
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } ?>
@@ -183,6 +200,9 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
+                    <form action="store.php" method="post">
+                    <!-- <form action="./zz/debug.php" method="post"> -->
+
                         <!-- 3.申請單成立 -->
                         <div class="bg-white rounded" id="nav-review" >
                             <div class="col-12 py-3 px-5">
@@ -193,12 +213,14 @@
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
-                                        <?php if((($_SESSION[$sys_id]["role"] <= 1) || ($issue_row['emp_id'] == $_SESSION["AUTH"]["emp_id"]))){ ?> 
-                                            <?php if(($issue_row['idty'] == 2) || ($issue_row['idty'] == 4) || ($issue_row['idty'] == 6)){ ?>
+                                        <?php if((($sys_id_role <= 1) || ($issue_row['emp_id'] == $auth_emp_id))){ ?> 
+                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                            <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                             <?php ;} ?>
-                                            <?php if(($issue_row['idty'] != 0) && ($issue_row['idty'] != 3)){ ?>
-                                                <button class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
+                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
+                                            <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
+                                                <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
                                     </div>
@@ -280,7 +302,6 @@
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-l">
-                                <form action="store.php" method="post">
 
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -293,11 +314,11 @@
                                             <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                            <input type="hidden" name="id" id="id" value="">
-                                            <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                            <input type="hidden" name="idty" id="idty" value="">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="id"              id="id"             value="">
+                                            <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                            <input type="hidden" name="idty"            id="idty"           value="">
+                                            <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -370,190 +391,14 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
-    // 引入catalogs資料
-    var catalogs = <?=json_encode($catalogs);?>;
-    // 加入購物車清單
-    function add_item(cata_SN, add_amount, swal_flag){
-        var swal_title = '加入購物車清單';
-        // swal_flag=off不顯示swal、其他是預設1秒
-        if(swal_flag == 'off'){
-            var swal_time = 0;
-        }else{
-            var swal_time = 1 * 1000;
-        }
 
-        if(add_amount <= 0 ){
-            var swal_content = cata_SN+' 沒有填數量!'+' 加入失敗';
-            var swal_action = 'error';
-            swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
-
-        }else{
-            var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
-            Object(catalogs).forEach(function(cata){          
-                if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)" disabled>';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
-                    $('#shopping_cart_tbody').append(add_cata_item);
-                    return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
-                }
-            })
-            // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
-            if(check_item_return){
-                var swal_content = ' 更新成功';
-                var swal_action = 'info';
-            }else{
-                var swal_content = ' 加入成功';
-                var swal_action = 'success';
-            }
-            // swal_time>0才顯示swal，主要過濾edit時的渲染導入
-            if(swal_time > 0){
-                swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
-            }
-            
-        }
-        check_shopping_count();
-    }
-
-    // 查找購物車清單已存在的項目，並予以清除
-    function check_item(cata_SN, swal_time) {
-        // swal_time = 是否啟動swal提示 ： 0 = 不啟動
-        if(!swal_time){
-            swal_time = 1;
-        }
-        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
-        if (shopping_cart_list.length > 0) {
-            // 使用for迴圈遍歷NodeList，而不是Object.keys()
-            for (var i = 0; i < shopping_cart_list.length; i++) {
-                var trElement = shopping_cart_list[i];
-                if (trElement.id === 'item_' + cata_SN) {
-                    // 從父節點中移除指定的<tr>元素
-                    trElement.parentNode.removeChild(trElement);
-                    if(swal_time != 0){
-                        var swal_title = '移除購物車項目';
-                        var swal_content = ' 移除成功';
-                        var swal_action = 'warning';
-                        swal_time = swal_time * 1000;
-                        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
-                    }
-                    return true; // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
-                }
-            }
-        }
-        return false;       // false = 沒找到數值
-    }
-    
-    // 清算購物車件數，顯示件數，切換申請單按鈕
-    function check_shopping_count(){
-        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
-        $('#shopping_count').empty();
-        if(shopping_cart_list.length > 0){
-            $('#shopping_count').append(shopping_cart_list.length);
-        }
-    }
-    // 簽核類型渲染
-    function submit_item(idty, idty_title){
-        $('#idty, #idty_title, #action').empty();
-        document.getElementById('action').value = 'sign';
-        document.getElementById('idty').value = idty;
-        $('#idty_title').append(idty_title);
-    }
-// // // Edit選染
-    // 引入action資料
-    var action = '<?=$action;?>';
-    function edit_item(){
-        // 引入issue_row資料作為Edit
-        var issue_row = <?=json_encode($issue_row);?>;
-        var issue_item = {
-            "in_user_id"     : "in_user_id/工號",
-            "cname_i"        : "cname_i/申請人姓名",
-            "in_local"       : "in_local/領用站點",
-            "ppty"           : "** ppty/需求類別",
-            "id"             : "id",
-            "item"           : "** item"
-            // "sin_comm"       : "command/簽核comm",
-        };    // 定義要抓的key=>value
-        // step1.將原陣列逐筆繞出來
-        Object.keys(issue_item).forEach(function(issue_key){
-            if(issue_key == 'ppty' && issue_row[issue_key]){                      // ppty/需求類別
-                var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
-                if(ppty){
-                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
-                }
-                
-            }else if(issue_key == 'item' && issue_row[issue_key]){      //item 購物車
-                var issue_row_cart = JSON.parse(issue_row[issue_key]);
-                Object.keys(issue_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, issue_row_cart[cart_key], 'off');
-                })
-            }else if(issue_row[issue_key]){
-                var row_key = document.querySelector('#'+issue_key);
-                if(row_key){
-                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
-                }
-            }
-        })
-
-        // 鋪設logs紀錄
-        var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var id = '<=$issue_row["id"]?>';
-        var forTable = document.querySelector('.logs tbody');
-        for (var i = 0, len = json.length; i < len; i++) {
-            forTable.innerHTML += 
-                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td></tr>';
-        }
-    }
-
-    // tab_table的顯示關閉功能
-    function op_tab(tab_value){
-        $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
-        var tab_table = document.getElementById(tab_value+"_table");
-        if (tab_table.style.display === "none") {
-            tab_table.style.display = "table";
-        } else {
-            tab_table.style.display = "none";
-        }
-    }
-    
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
-
-    $(document).ready(function () {
-
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        })
-        
-        edit_item();        // 啟動鋪設畫面
-
-        // 20230817 禁用Enter鍵表單自動提交 
-        document.onkeydown = function(event) { 
-            var target, code, tag; 
-            if (!event) { 
-                event = window.event;       //針對ie瀏覽器 
-                target = event.srcElement; 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "TEXTAREA") { return true; } 
-                    else { return false; } 
-                } 
-            } else { 
-                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "INPUT") { return false; } 
-                    else { return true; } 
-                } 
-            } 
-        };
-
-
-
-    })
+    var action = '<?=$action;?>';                                   // 引入action資料
+    var catalogs = <?=json_encode($catalogs);?>;                    // 引入catalogs資料
+    var issue_row = <?=json_encode($issue_row);?>;                  // 引入issue_row資料作為Edit
+    var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
 
 </script>
+
+<script src="issue_show.js?v=<?=time();?>"></script>
 
 <?php include("../template/footer.php"); ?>

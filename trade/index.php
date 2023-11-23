@@ -30,10 +30,11 @@
         }
 
     // 組合查詢陣列
-    $trade_list_query = array(
-        'fab_id' => $trade_fab_id,
-        'emp_id' => $trade_emp_id
-    );
+        $trade_list_query = array(
+            'fab_id' => $trade_fab_id,
+            'emp_id' => $trade_emp_id
+        );
+        
     $trades = show_trade_list($trade_list_query);
     $sum_trades = show_sum_trade($trade_list_query);              // 統計看板--上：表單核簽狀態
 

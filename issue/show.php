@@ -213,7 +213,7 @@
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
-                                        <?php if((($sys_id_role <= 1) || ($issue_row['emp_id'] == $auth_emp_id))){ ?> 
+                                        <?php if((($sys_id_role <= 1) || ($issue_row['in_user_id'] == $auth_emp_id))){ ?> 
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>

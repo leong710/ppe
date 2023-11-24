@@ -4,6 +4,16 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = $receive_url;                        // 回本頁
+    }
+
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
         // 刪除表單
         if(isset($_POST["delete_receive"])){
             $check_delete_result = delete_receive($_REQUEST);
@@ -67,21 +77,21 @@
         ];
 
         // 決定表單開啟 $step身份
-        if(isset($receive_row["created_emp_id"]) && ($receive_row["created_emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($receive_row["created_emp_id"]) && ($receive_row["created_emp_id"] == $auth_emp_id)){
             $step_index = '0';}             // 填單人
-        if(isset($receive_row["emp_id"]) && ($receive_row["emp_id"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($receive_row["emp_id"]) && ($receive_row["emp_id"] == $auth_emp_id)){
             $step_index = '1';}             // 申請人
-        if(isset($receive_row["omager"]) && ($receive_row["omager"] == $_SESSION["AUTH"]["emp_id"])){
+        if(isset($receive_row["omager"]) && ($receive_row["omager"] == $auth_emp_id)){
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if(!isset($_SESSION[$sys_id]["role"]) ||($_SESSION[$sys_id]["role"]) == 3){
+            if(!isset($sys_id_role) ||($sys_id_role) == 3){
                 $step_index = '6';}         // noBody
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 2){
+            if(isset($sys_id_role) && ($sys_id_role) == 2){
                 $step_index = '7';}         // ppe site user
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 1){
+            if(isset($sys_id_role) && ($sys_id_role) == 1){
                 $step_index = '8';}         // ppe pm
-            if(isset($_SESSION[$sys_id]["role"]) && ($_SESSION[$sys_id]["role"]) == 0){
+            if(isset($sys_id_role) && ($sys_id_role) == 0){
                 $step_index = '9';}         // 系統管理員
             if($action = 'create'){
                 $step_index = '0';}         // 填單人
@@ -90,7 +100,6 @@
         // $step套用身份
         $step = $step_arr[$step_index];
     // }
-        $up_href = $_SERVER["HTTP_REFERER"];    // 回上頁
 
 ?>
 
@@ -224,11 +233,11 @@
                     <div class="col-12 col-md-6">
                         領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$receive_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $_SESSION["AUTH"]["emp_id"]." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
                         </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
-                        <?php if(($_SESSION[$sys_id]["role"] <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
+                        <?php if(($sys_id_role <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="uuid" value="<?php echo $receive_row["uuid"];?>">
                                 <input type="submit" name="delete_receive" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
@@ -349,7 +358,7 @@
                                     <div class="row">
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating input-group">
-                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $auth_emp_id;?>">
                                                 <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
                                                 <button type="button" class="btn btn-outline-primary" onclick="search_fun('emp_id');" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊" ><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                                             </div>
@@ -397,7 +406,7 @@
                                                 <select name="local_id" id="local_id" class="form-select" required>
                                                     <option value="" hidden>-- [請選擇 領用站點] --</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <!-- <php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
+                                                        <!-- <php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
                                                         <?php if($allLocal["flag"] != "off"){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
                                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
@@ -451,7 +460,7 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
+                                            <?php if($sys_id_role <= 3){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
@@ -474,14 +483,14 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="created_emp_id" id="created_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                        <input type="hidden" name="created_cname" id="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="uuid" id="uuid" value="">
-                                        <input type="hidden" name="step" id="step" value="<?php echo $step;?>">
-                                        <input type="hidden" name="action" id="action" value="<?php echo $action;?>">
-                                        <input type="hidden" name="idty" id="idty" value="1">
-                                        <?php if($_SESSION[$sys_id]["role"] <= 3){ ?>
+                                        <input type="hidden" name="created_emp_id"  id="created_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="created_cname"   id="created_cname"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="uuid"            id="uuid"           value="">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty"            id="idty"           value="1">
+                                        <?php if($sys_id_role <= 3){ ?>
                                             <!-- <input type="submit" value="Submit" name="receive_submit" class="btn btn-primary"> -->
                                             <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
@@ -510,7 +519,7 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?><th>action</th><?php } ?>
+                                    <?php if($sys_id_role <= 1){ ?><th>action</th><?php } ?>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -522,16 +531,36 @@
 
                 </div>
     
-                <!-- 尾段：衛材訊息 -->
-                <div class="row unblock">
+                <!-- 尾段：deBug訊息 -->
+                <div class="row block" id="debug">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
-                                if($_REQUEST){
-                                    echo "<pre>";
-                                    // print_r($_REQUEST);
-                                    echo "</pre>text-end";
-                                }
+                                echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                                    echo $receive_row['idty']." ";
+                                    switch($receive_row['idty']){
+                                        case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                        case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                        case "2" : echo "退件"; break;
+                                        case "3" : echo "取消"; break;
+                                        case "10": echo "結案"; break;
+                                        case "11": echo "轉PR"; break;
+                                        case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                        default  : echo "na"; break; }
+                                    echo !empty($receive_row['in_sign']) ? " / wait: ".$receive_row['in_sign']." " :"";
+                                    echo !empty($receive_row['flow']) ? " / flow: ".$receive_row['flow']." " :"";
+                                    echo "</br>";
+
+                                echo "<pre>";
+                                    if($_REQUEST){
+                                        echo ">>> _REQUEST：</br>";
+                                        print_r($_REQUEST);
+                                    }
+                                    if($receive_row){
+                                        echo ">>> receive_row：</br>";
+                                        print_r($receive_row);
+                                    }
+                                echo "</pre>text-end";
                             ?>
                         </div>
                     </div>

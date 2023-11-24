@@ -4,6 +4,11 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    
     // 身分選擇功能：定義user進來要看到的項目
         $is_emp_id = "All";    // 預設值=All
 
@@ -17,13 +22,13 @@
         }
 
     // 組合查詢陣列
-        $list_issue_setting = array(
+        $list_issue_query = array(
             'sys_id' => $sys_id,
             'emp_id' => $is_emp_id
         );
-        $issues = show_issue_list($list_issue_setting);
-        $sum_issues = show_sum_issue($list_issue_setting);              // 統計看板--上：表單核簽狀態
-        $sum_issues_ship = show_sum_issue_ship($list_issue_setting);    // 統計看板--下：轉PR單
+        $issues = show_issue_list($list_issue_query);
+        $sum_issues = show_sum_issue($list_issue_query);              // 統計看板--上：表單核簽狀態
+        $sum_issues_ship = show_sum_issue_ship($list_issue_query);    // 統計看板--下：轉PR單
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($issues);        // 計算總筆數
@@ -36,13 +41,10 @@
         }
         $start = ($page-1)*$per;            // 每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
-        $issue_page_div = array(
-            'start' => $start,
-            'per' => $per
-        );
-        array_push($list_issue_setting, $issue_page_div);
+            $list_issue_query["start"] = $start;
+            $list_issue_query["per"] = $per;
 
-        $issues = show_issue_list($list_issue_setting);
+        $issues = show_issue_list($list_issue_query);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
         if($page_end>$per_total){           // 最後頁的最後筆數=總筆數
@@ -280,7 +282,7 @@
                                     <tbody>
                                         <?php foreach($issues as $issue){ ?>
                                             <tr>
-                                                <td><?php echo substr($issue['create_date'],0,10); ?></td>
+                                                <td title="aid: <?php echo $issue['id'];?>"><?php echo substr($issue['create_date'],0,10); ?></td>
                                                 <td><?php echo $issue['fab_i_title'].'('.$issue['fab_i_remark'].')';?></td>
                                                 <td><?php echo $issue['cname_i'];?></td>
                                                 <td style="font-size: 12px; word-break: break-all;">
@@ -295,15 +297,18 @@
                                                             case "3": echo '.緊急'; break;
                                                             default:  echo '錯誤' ; break;
                                                         };?></td>
-                                                <td><?php $sys_role = ($_SESSION[$sys_id]['role'] <= 1);
-                                                        echo ($issue['idty'] == '0' && $sys_role) ? '<span class="badge rounded-pill bg-warning text-dark">待轉</span>':"";
-                                                        echo ($issue['idty'] == '1' && $sys_role) ? '<span class="badge rounded-pill bg-danger">待簽</span>':"";
-                                                        echo ($issue['idty'] == '2')  ? "退件":"";
-                                                        echo ($issue['idty'] == '3')  ? "取消":"";
-                                                        echo ($issue['idty'] == '4')  ? "編輯":"";
-                                                        echo ($issue['idty'] == '10') ? "結案":"";
-                                                        echo ($issue['idty'] == '11') ? "轉PR":"";
-                                                        echo ($issue['idty'] == '12') ? "<span class='badge rounded-pill bg-success'>待收</span>":""; ?>
+                                                <td><?php $sys_role = ($sys_id_role <= 1) || (($issue['fab_i_id'] == $sys_id_fab_id) || (in_array($issue['fab_i_id'], $sys_id_sfab_id)));
+                                                    switch($issue['idty']){
+                                                        case "0"    : echo $sys_role ? '<span class="badge rounded-pill bg-warning text-dark">待轉</span>':"待轉";  break;
+                                                        case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽";             break;
+                                                        case "2"    : echo "退件";                  break;
+                                                        case "3"    : echo "取消";                  break;
+                                                        case "4"    : echo "編輯";                  break;
+                                                        case "10"   : echo "結案";                  break;
+                                                        case "11"   : echo "轉PR";                  break;
+                                                        case "12"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";                  break;
+                                                        default     : echo $issue['idty']."na";     break;
+                                                    }?>
                                                 </td>
                                                 <td style="font-size: 12px; word-break: break-all;"><?php echo $issue['_ship'];?>
                                                     <?php if($issue['_ship'] == '0'){?>結案<?php ;}?>
@@ -311,9 +316,12 @@
                                                 </td>
                                                 <td>
                                                     <!-- Action功能欄 -->
-                                                    <?php if(($issue['idty'] == '1') && ($_SESSION[$sys_id]['role'] <= 1)){ ?> 
+                                                    <?php if(($issue['idty'] == '1') && ($sys_id_role <= 1)){ // 1待簽 ?>        
                                                         <!-- 待簽：PM+管理員功能 -->
                                                         <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                        <!-- siteUser功能 -->
+                                                    <?php } else if(($issue['idty'] == '2') && (($issue['fab_i_id'] == $sys_id_fab_id) || (in_array($issue['fab_i_id'], $sys_id_sfab_id))) ){ ?>
+                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
                                                     <?php } else { ?>
                                                         <!-- siteUser功能 -->
                                                         <a href="show.php?id=<?php echo $issue['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>

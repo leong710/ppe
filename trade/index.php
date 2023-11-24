@@ -4,7 +4,6 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     

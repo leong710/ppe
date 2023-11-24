@@ -7,8 +7,8 @@
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                       , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                       , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                       , _fab_o.id as fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
+                       , _fab_i.id as fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
                        , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
                        , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
@@ -168,13 +168,18 @@
     function store_issue($request){
         $pdo = pdo();
         extract($request);
+
+        $fun = "store_issue";               // for swal_json
+        $content_text = "請購需求單--";        // for swal_json
+
         // item資料前處理
         $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
         // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["action"] = $action;
+            $logs_request["step"]   = $step;            // 節點-簽單人角色
             $logs_request["idty"] = $idty;
             $logs_request["cname"] = $cname;
-            $logs_request["step"] = "填單人";                   // 節點
             $logs_request["logs"] = "";   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
@@ -186,16 +191,16 @@
         try {
             $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
             $swal_json = array(
-                "fun" => "store_issue",
+                "fun" => $fun,
                 "action" => "success",
-                "content" => '請購需求單--送出成功'
+                "content" => $content_text.'送出成功'
             );
         }catch(PDOException $e){
             echo $e->getMessage();
             $swal_json = array(
-                "fun" => "store_issue",
+                "fun" => $fun,
                 "action" => "error",
-                "content" => '請購需求單--送出失敗'
+                "content" => $content_text.'送出失敗'
             );
         }
         return $swal_json;
@@ -206,18 +211,18 @@
         extract($request);
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
                         -- , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
-                        -- , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        -- , _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                        -- , _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                        , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
+                        -- , _fab_o.id AS fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
+                        , _fab_i.id AS fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
                         -- , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
                         -- , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
                 LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
                 LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
                 -- LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
-                -- LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
+                LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
                 -- LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
-                -- LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
+                LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
                 -- LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 -- LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
                 WHERE _issue.id = ? ";

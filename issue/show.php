@@ -53,6 +53,7 @@
     }
 
     if(!empty($issue_row["in_local"])){                    // edit issue表單，get已選擇出庫廠區站點
+        
         $query_in_local = array(
             'local_id' => $issue_row["in_local"]
         );
@@ -67,6 +68,74 @@
     // $allLocals = show_allLocal();                   // 所有儲存站點
     // $categories = show_categories();                // 分類
     // $sum_categorys = show_sum_category();           // 統計分類與數量
+
+    // 身份陣列
+        $step_arr = [
+            '0' => '填單人',
+            '1' => '申請人',
+            '2' => '申請人主管',
+            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '4' => '業務承辦',
+            '5' => '環安主管',
+
+            '6' => 'normal',
+            '7' => 'ppe窗口',
+            '8' => 'ppe pm',
+            '9' => '系統管理員',
+            '10'=> '轉呈簽核'
+        ];
+
+    // 決定表單開啟 $step身份
+        if($issue_row["in_user_id"] == $auth_emp_id){
+            $step_index = '0';      // 填單人
+        }      
+
+        $idty = $issue_row["idty"];
+        // $fab_o_id = $issue_row["fab_o_id"];                 // 取表單上出貨的fab_id
+        $fab_i_id = $issue_row["fab_i_id"];                 // 取表單上收貨的fab_id
+
+    // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+        switch($idty){
+            case 0 :   // $act = '同意 (Approve)';
+                break;
+            case 1 :   // $act = '送出 (Submit)';
+                if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id))){
+                    $step_index = '7';      // ppe site user
+                }
+                break;
+            case 2 :   // $act = '退回 (Reject)';
+            case 3 :   // $act = '作廢 (Abort)'; 
+            case 4 :   // $act = '編輯 (Edit)';  
+            case 5 :   // $act = '轉呈 (Forwarded)';
+            case 6 :   // $act = '暫存 (Save)';  
+            case 10 :  // $act = '結案 (Close)'; 
+            case 11 :  // $act = '承辦 (Undertake)';
+            case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
+            case 13 :  // $act = '交貨 (Delivery)';
+            default:    // $act = '錯誤 (Error)';         
+        }
+
+    if(!isset($step_index)){
+        if(!isset($sys_id_role) ||($sys_id_role) == 3){
+            $step_index = '6';}      // normal
+        if($sys_id_role == 2){
+            $step_index = '7';}      // ppe site user
+        if($sys_id_role == 1){
+            $step_index = '8';}      // ppe pm
+        if($sys_id_role == 0){
+            $step_index = '9';}      // 系統管理員
+    }
+
+    // $step套用身份
+    $step = $step_arr[$step_index];
+
+
+
+
+
+
+
+
 
 ?>
 
@@ -175,10 +244,13 @@
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
-                    <div class="col-12 col-md-6 py-0">
+                    <div class="col-12 col-md-4 py-0">
                         <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
-                    <div class="col-12 col-md-6 py-0 text-end">
+                    <div class="col-12 col-md-4 py-0 t-center">
+
+                    </div>
+                    <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
@@ -190,10 +262,11 @@
                         填單人員：<?php echo ($issue_row["in_user_id"])  ? $issue_row["in_user_id"]." / ".$issue_row["cname_i"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($sys_id_role <= 1 && $issue_row['idty'] == 1){ ?>
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
-                        <?php } ?>
+                        <?php if($issue_row['idty'] == 1){  // 1.簽核中  ?>
+                            <?php if(($issue_row["fab_i_id"] == $sys_id_fab_id || in_array($issue_row["fab_i_id"], $sys_id_sfab_id)) || $sys_id_role <= 0 ){ ?>
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
+                        <?php } } ?>
                     </div>
                 </div>
     
@@ -361,16 +434,35 @@
                 </div>
     
                 <!-- 尾段：deBug訊息 -->
-                <div class="row block">
+                <div class="row block" id="debug">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
-                            <?php
-                                if($issue_row){
-                                    echo "<pre>";
-                                    // print_r($_REQUEST);
-                                    print_r($issue_row);
-                                    echo "</pre>text-end";
-                                }
+                            <?php 
+                                echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                                    echo $issue_row['idty']." ";
+                                    switch($issue_row['idty']){
+                                        case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                        case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                        case "2" : echo "退件"; break;
+                                        case "3" : echo "取消"; break;
+                                        case "10": echo "結案"; break;
+                                        case "11": echo "轉PR"; break;
+                                        case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                        default  : echo "na"; break; }
+                                    echo !empty($issue_row['in_sign']) ? " / wait: ".$issue_row['in_sign']." " :"";
+                                    echo !empty($issue_row['flow']) ? " / flow: ".$issue_row['flow']." " :"";
+                                    echo "</br>";
+      
+                                echo "<pre>";
+                                    if($_REQUEST){
+                                        echo ">>> _REQUEST：</br>";
+                                        print_r($_REQUEST);
+                                    }
+                                    if($issue_row){
+                                        echo ">>> issue_row</br>";
+                                        print_r($issue_row);
+                                    }
+                                echo "</pre>text-end";
                             ?>
                         </div>
                     </div>

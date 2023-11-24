@@ -223,7 +223,6 @@
                         出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
-                        </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇出庫廠區 -->
@@ -495,17 +494,36 @@
 
                 </div>
     
-                <!-- 尾段：衛材訊息 -->
-                <div class="row block">
+                <!-- 尾段：debug訊息 -->
+                <div class="row block" id="debug">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
                             <?php
-                                if($_REQUEST){
-                                    echo "<pre>";
-                                    print_r($_REQUEST);
-                                    print_r($trade_row);
-                                    echo "</pre>text-end";
-                                }
+                                echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                                    echo $trade_row['idty']." ";
+                                    switch($trade_row['idty']){
+                                        case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                        case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                        case "2" : echo "退件"; break;
+                                        case "3" : echo "取消"; break;
+                                        case "10": echo "結案"; break;
+                                        case "11": echo "轉PR"; break;
+                                        case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                        default  : echo "na"; break; }
+                                    echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
+                                    echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
+                                    echo "</br>";
+
+                                echo "<pre>";
+                                    if($_REQUEST){
+                                        echo ">>> _REQUEST：</br>";
+                                        print_r($_REQUEST);
+                                    }
+                                    if($trade_row){
+                                        echo ">>> trade_row：</br>";
+                                        print_r($trade_row);
+                                    }
+                                echo "</pre>text-end";
                             ?>
                         </div>
                     </div>

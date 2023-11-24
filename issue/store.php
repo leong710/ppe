@@ -4,31 +4,31 @@
 
     $swal_json = array();
 
-    switch($_REQUEST["action"]){
-        case "create": 
-            $swal_json = store_issue($_REQUEST);      
-            break;      // 開單
+        switch($_REQUEST["action"]){
+            case "create": 
+                $swal_json = store_issue($_REQUEST);      
+                break;      // 開單
 
-        case "edit": 
-            $swal_json = update_issue($_REQUEST);     
-            break;      // 編輯
+            case "edit": 
+                $swal_json = update_issue($_REQUEST);     
+                break;      // 編輯
 
-        case "sign": 
-            $swal_json = sign_issue($_REQUEST);       
-            break;      // 簽核
+            case "sign": 
+                $swal_json = sign_issue($_REQUEST);       
+                break;      // 簽核
 
-        case "pr2fab": 
-            $swal_json = update_pr2fab($_REQUEST);    
-            break;      // $_POST["pr2fab_submit"] 發貨 => 12
+            case "pr2fab": 
+                $swal_json = update_pr2fab($_REQUEST);    
+                break;      // $_POST["pr2fab_submit"] 發貨 => 12
 
-        case "getIssue": 
-            $swal_json = update_getIssue($_REQUEST);  
-            break;      // $_POST["getIssue_submit"] 收貨 => 10
+            case "getIssue": 
+                $swal_json = update_getIssue($_REQUEST);  
+                break;      // $_POST["getIssue_submit"] 收貨 => 10
 
-        default: 
-            echo "bg-light text-success";             
-            break;
-    }
+            default: 
+                echo "bg-light text-success";             
+                break;
+        }
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -74,7 +74,7 @@
             
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = this.url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();
@@ -83,7 +83,7 @@
     
         }else{
 
-            location.href = this.url;
+            location.href = url;
         }
         
     })

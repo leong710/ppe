@@ -117,7 +117,7 @@
                 case 0 :   // $act = '同意 (Approve)';
                     break;
                 case 1 :   // $act = '送出 (Submit)';
-                    if(( $fab_i_id == $_SESSION[$sys_id]["fab_id"]) || (in_array($fab_i_id, $_SESSION[$sys_id]["sfab_id"]))){
+                    if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id))){
                         $step_index = '7';      // ppe site user
                     }
                     break;
@@ -258,21 +258,7 @@
                         <h3><i class="fa-solid fa-2"></i>&nbsp<b><?php echo ($trade_row["form_type"] == "import") ? "請購入庫":"調撥出庫" ?></b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
-                        <?php 
-                            echo "身分: ".$step." / idty:".$trade_row['idty']." ";
-                            switch($trade_row['idty']){
-                                case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
-                                case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
-                                case "2" : echo "退件"; break;
-                                case "3" : echo "取消"; break;
-                                case "10": echo "結案"; break;
-                                case "11": echo "轉PR"; break;
-                                case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
-                                default  : echo "na"; break; }
 
-                            echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
-                            echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
-                        ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
@@ -287,7 +273,7 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
-                            <?php if(($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"] || in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) || $sys_id_role <= 1 ){ ?>
+                            <?php if(($trade_row["in_local"] == $sys_id_fab_id || in_array($trade_row["in_local"], $sys_id_sfab_id)) || $sys_id_role <= 1 ){ ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
@@ -473,18 +459,35 @@
                 </div>
     
                 <!-- 尾段：deBug訊息 -->
-                <div class="row block">
+                <div class="row block" id="debug">
                     <div class="col-12 mb-0">
                         <div style="font-size: 6px;">
-                            <?php
-                                if($trade_row){
-                                    echo "<pre>";
-                                    // print_r($_REQUEST);
-                                        print_r($trade_row);
-                                        echo "</br>";
+                            <?php 
+                                echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                                    echo $trade_row['idty']." ";
+                                    switch($trade_row['idty']){
+                                        case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
+                                        case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
+                                        case "2" : echo "退件"; break;
+                                        case "3" : echo "取消"; break;
+                                        case "10": echo "結案"; break;
+                                        case "11": echo "轉PR"; break;
+                                        case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
+                                        default  : echo "na"; break; }
+                                    echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
+                                    echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
+                                    echo "</br>";
+                                    
+                                echo "<pre>";
+                                    if($_REQUEST){
+                                        echo ">>> _REQUEST：</br>";
                                         print_r($_REQUEST);
-                                    echo "</pre>text-end";
-                                }
+                                    }
+                                    if($trade_row){
+                                        echo ">>> trade_row：</br>";
+                                        print_r($trade_row);
+                                    }
+                                echo "</pre>text-end";
                             ?>
                         </div>
                     </div>

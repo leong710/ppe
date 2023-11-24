@@ -82,6 +82,13 @@
             // swal_time>0才顯示swal，主要過濾edit時的渲染導入
             if(swal_time > 0){
                 swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            }else{
+                var sinn = cata_SN+' 數量:&nbsp<b>'+ add_amount +'</b>&nbsp加入購物車清單~';
+                
+                if(action == 'create'){
+                    inside_toast(sinn);
+                };
+        
             }
             
         }
@@ -229,14 +236,16 @@
         for (var i = 0, len = json.length; i < len; i++) {
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
-                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?><td>' + '<form action="" method="post">'+
-                        `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="id" value="` + id + `";>` +
-                        `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    '</form>' + '</td><?php } ?>' +
+                    // '<?php if($_SESSION[$sys_id]["role"] == 0){ ?><td>' + '<form action="" method="post">'+
+                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
+                    //     `<input type="hidden" name="id" value="` + id + `";>` +
+                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
+                    // '</form>' + '</td><?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
+
+        action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
 
     }
 

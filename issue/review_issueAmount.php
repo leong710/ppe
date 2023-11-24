@@ -104,7 +104,7 @@
                             <a href="../trade/restock.php?pr_no=<?php echo $pr_no;?>" target="_blank" title="發貨確認" class="btn btn-primary" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>
                         <?php }?>
                         <a href="docsv.php?action=export_review&pr_no=<?php echo $pr_no;?>" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> 匯出CSV</a>
-                        <a href="../issue/" title="返回" class="btn btn-info"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div> 
             </div>
@@ -178,7 +178,7 @@
                         <input type="hidden" name="out_user_id" value="<?php echo $_SESSION["AUTH"]['id'];?>">
                         <input type="hidden" name="pr2site" value="<?php echo implode(',',$issue_SN_list);?>">
                         <input type="submit" name="pr2site_submit" value="Submit" class="btn btn-primary" hidden>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </form>    
@@ -208,7 +208,7 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="submit" class="btn btn-success" value="匯出CSV" onclick="doCSV.hide()"> 
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form> 

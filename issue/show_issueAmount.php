@@ -102,7 +102,7 @@
                             <a href="#" target="_blank" title="PR開單確認" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#issue2pr"> <i class="fa fa-edit" aria-hidden="true"></i> PR開單確認</a>
                             <a href="#" target="_blank" title="匯出CSV" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"> <i class="fa fa-download" aria-hidden="true"></i> 下載CSV</a>
                         <?php } ?>
-                        <a href="../issue/" title="返回" class="btn btn-info"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div> 
             </div>
@@ -178,7 +178,7 @@
                         <input type="hidden" name="step" value="PR開單">
                         <input type="hidden" name="issue2pr" value="<?php echo implode(',',$issue_SN_list);?>">
                         <input type="submit" name="issue2pr_submit" value="Submit" class="btn btn-primary">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </form>    
@@ -210,7 +210,7 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="submit" class="btn btn-success" value="匯出CSV" onclick="doCSV.hide()"> 
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form> 

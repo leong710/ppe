@@ -95,21 +95,21 @@
         ];
 
         // 決定表單開啟 $step身份
-        if(isset($trade_row["created_emp_id"]) && ($trade_row["created_emp_id"] == $auth_emp_id)){
+        if(isset($issue_row["in_user_id"]) && ($issue_row["in_user_id"] == $auth_emp_id)){
             $step_index = '0';}             // 填單人
-        if(isset($trade_row["emp_id"]) && ($trade_row["emp_id"] == $auth_emp_id)){
+        if(isset($issue_row["in_user_id"]) && ($issue_row["in_user_id"] == $auth_emp_id)){
             $step_index = '1';}             // 申請人
-        if(isset($trade_row["omager"]) && ($trade_row["omager"] == $auth_emp_id)){
+        if(isset($issue_row["omager"]) && ($issue_row["omager"] == $auth_emp_id)){
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+            if($sys_id_role == 3){
                 $step_index = '6';}         // noBody
-            if(isset($sys_id_role) && ($sys_id_role) == 2){
+            if($sys_id_role == 2){
                 $step_index = '7';}         // ppe site user
-            if(isset($sys_id_role) && ($sys_id_role) == 1){
+            if($sys_id_role == 1){
                 $step_index = '8';}         // ppe pm
-            if(isset($sys_id_role) && ($sys_id_role) == 0){
+            if($sys_id_role == 0){
                 $step_index = '9';}         // 系統管理員
             if($action == 'create'){
                 $step_index = '0';}         // 填單人
@@ -434,14 +434,15 @@
                                         <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
-                                        <input type="hidden" name="in_user_id"                      value="<?php echo $auth_emp_id;?>">  <!-- in_user_id/出庫填單人emp_id -->
-                                        <input type="hidden" name="in_local"                        value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
-                                        <input type="hidden" name="action"      id="action"         value="<?php echo $action;?>">
-                                        <input type="hidden" name="idty"        id="idty"           value="1">
-                                        <input type="hidden" name="step"        id="step"           value="<?php echo $step;?>">
-                                        <input type="hidden" name="id"          id="id"             value="">
+                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="cname"                               value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
+                                        <input type="hidden" name="in_user_id"                          value="<?php echo $auth_emp_id;?>">                 <!-- in_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="in_local"                            value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
+                                        <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="idty"            id="idty"           value="1">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="id"              id="id"             value="">
                                         <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>

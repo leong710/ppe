@@ -73,25 +73,25 @@
                     $obj_catalogs = [];
                     foreach($catalogs as $cata){
                         $obj_catalogs[$cata["SN"]] = [
-                            'id' => $cata["id"],
-                            'SN' => $cata["SN"],
-                            'pname' => $cata["pname"],
-                            'PIC' => $cata["PIC"],
-                            'cata_remark' => $cata["cata_remark"],
-                            'OBM' => $cata["OBM"],
-                            'model' => $cata["model"],
-                            'size' => $cata["size"],
-                            'unit' => $cata["unit"],
-                            'SPEC' => $cata["SPEC"],
-                            'part_no' => $cata["part_no"],
-                            'scomp_no' => $cata["scomp_no"],
-                            'buy_a' => $cata["buy_a"],
-                            'buy_b' => $cata["buy_b"],
-                            'flag' => $cata["flag"],
-                            'updated_user' => $cata["updated_user"],
-                            'cate_title' => $cata["cate_title"],
-                            'cate_no' => $cata["cate_no"],
-                            'cate_id' => $cata["cate_id"]
+                            'id'            => $cata["id"],
+                            'SN'            => $cata["SN"],
+                            'pname'         => $cata["pname"],
+                            'PIC'           => $cata["PIC"],
+                            'cata_remark'   => $cata["cata_remark"],
+                            'OBM'           => $cata["OBM"],
+                            'model'         => $cata["model"],
+                            'size'          => $cata["size"],
+                            'unit'          => $cata["unit"],
+                            'SPEC'          => $cata["SPEC"],
+                            'part_no'       => $cata["part_no"],
+                            'scomp_no'      => $cata["scomp_no"],
+                            'buy_a'         => $cata["buy_a"],
+                            'buy_b'         => $cata["buy_b"],
+                            'flag'          => $cata["flag"],
+                            'updated_user'  => $cata["updated_user"],
+                            'cate_title'    => $cata["cate_title"],
+                            'cate_no'       => $cata["cate_no"],
+                            'cate_id'       => $cata["cate_id"]
                         ];
                     }
                     
@@ -109,52 +109,80 @@
                         // 倒出資料大於0筆 = 有資料
                         $issues = $stmt->fetchAll();
             
+                        // foreach($issues as $row){ 
+                        //     $item_str = $row["item"];                       // 把item整串(未解碼)存到$item_str
+                        //     $item_arr = explode("," ,$item_str);            // 把字串轉成陣列進行後面的應用
+                        //     $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec
+                        //     $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec
+                        //     //PHP stdClass Object轉array 
+                        //     if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
+                        //     if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
+            
+                        //     foreach($item_dec as $it){
+                        //         $all_item[$it] = $item_dec[$it];
+                        //         if(empty($all_amount[$it])){
+                        //             $all_amount[$it] = $amount_dec[$it];
+                        //         }else{
+                        //             $all_amount[$it] = $all_amount[$it] + $amount_dec[$it];
+                        //         }
+                        //         if(empty($issue_fab[$it])){
+                        //             $issue_fab[$it] = $row['fab_i_title'].": ".$amount_dec[$it];
+                        //         }else{
+                        //             $issue_fab[$it] = $issue_fab[$it]." ".$row['fab_i_title'].": ".$amount_dec[$it];
+                        //         }
+                        //         if(empty($issue_ppty_arr[$it])){
+                        //             $issue_ppty_arr[$it] = $row['fab_i_title'].": ".$amount_dec[$it];
+                        //             if($row["ppty"]==0){$issue_ppty_arr[$it]="臨時";}
+                        //             if($row["ppty"]==1){$issue_ppty_arr[$it]="定期";}
+                        //         }
+                        //     }
+                        // }
                         foreach($issues as $row){ 
                             $item_str = $row["item"];                       // 把item整串(未解碼)存到$item_str
-                            $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-                            $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec
-                            $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec
+                            $item_dec = json_decode($item_str);             // 解碼後存到$item_dec
                             //PHP stdClass Object轉array 
                             if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-                            if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
-            
-                            foreach($item_dec as $it){
-                                $all_item[$it] = $item_dec[$it];
+                            $item_key = array_keys((array)$item_dec);   // 取得診列key
+                            foreach($item_key as $it){
+                                $all_item[$it] = $it;
                                 if(empty($all_amount[$it])){
-                                    $all_amount[$it] = $amount_dec[$it];
+                                    $all_amount[$it] = $item_dec[$it];
                                 }else{
-                                    $all_amount[$it] = $all_amount[$it] + $amount_dec[$it];
+                                    $all_amount[$it] = $all_amount[$it] + $item_dec[$it];
                                 }
                                 if(empty($issue_fab[$it])){
-                                    $issue_fab[$it] = $row['fab_i_title'].": ".$amount_dec[$it];
+                                    $issue_fab[$it] = $row['fab_i_title'].": ".$item_dec[$it];
                                 }else{
-                                    $issue_fab[$it] = $issue_fab[$it]." ".$row['fab_i_title'].": ".$amount_dec[$it];
+                                    $issue_fab[$it] = $issue_fab[$it]."、".$row['fab_i_title'].": ".$item_dec[$it];
                                 }
                                 if(empty($issue_ppty_arr[$it])){
-                                    $issue_ppty_arr[$it] = $row['fab_i_title'].": ".$amount_dec[$it];
+                                    $issue_ppty_arr[$it] = $row['fab_i_title'].": ".$item_dec[$it];
                                     if($row["ppty"]==0){$issue_ppty_arr[$it]="臨時";}
                                     if($row["ppty"]==1){$issue_ppty_arr[$it]="定期";}
                                 }
                             }
                         }
-                        $str = "需求類別,分類,No.,器材名稱,單位,需求數量,需求細項\n"; 
+                        // $str = "需求類別,分類,No.,器材名稱,單位,需求數量,需求細項\n"; 
+                        $str = "需求類別,SN,分類,品名,型號,尺寸,數量,單位,需求細項\n"; 
                         $str = iconv('utf-8','BIG5',$str); 
 
                         foreach($all_item as $ai){ 
                             // 使用 function process_tool 取代
                             // $p_ai = process_tool($ai);
-                            $issue_ppty =   mb_convert_encoding($issue_ppty_arr[$ai],"big5","utf-8");
-                            $cate_title =   mb_convert_encoding($obj_catalogs[$ai]['cate_title'],"big5","utf-8");
-                            $id =           mb_convert_encoding($obj_catalogs[$ai]['id'],"big5","utf-8"); // utf8 to big5
-                            $catalog_title= mb_convert_encoding($obj_catalogs[$ai]['pname'],"big5","utf-8");
-                            $unit =         mb_convert_encoding($obj_catalogs[$ai]['unit'],"big5","utf-8");
-                            $amount =       $all_amount[$ai];
-                            $detail_reim =  str_replace(array("\r\n","\r","\n"), " ", $issue_fab[$ai]);
-                            $detail =       mb_convert_encoding($detail_reim,"big5","utf-8");
-                            $str .= $issue_ppty.",".$cate_title.",".$id.",".$catalog_title.",".$unit.",".$amount.",".$detail."\n"; //用引文逗號分開 
+                            $issue_ppty    = mb_convert_encoding($issue_ppty_arr[$ai],"big5","utf-8");
+                            $SN            = mb_convert_encoding($obj_catalogs[$ai]['SN'],"big5","utf-8"); // utf8 to big5
+                            $cate_title    = mb_convert_encoding($obj_catalogs[$ai]['cate_title'],"big5","utf-8");
+                            $catalog_title = mb_convert_encoding($obj_catalogs[$ai]['pname'],"big5","utf-8");
+                            $model         = mb_convert_encoding($obj_catalogs[$ai]['model'],"big5","utf-8");
+                            $size          = mb_convert_encoding($obj_catalogs[$ai]['size'],"big5","utf-8");
+                            $amount        = $all_amount[$ai];
+                            $unit          = mb_convert_encoding($obj_catalogs[$ai]['unit'],"big5","utf-8");
+                            $detail_reim   = str_replace(array("\r\n","\r","\n"), " ", $issue_fab[$ai]);
+                            $detail        = mb_convert_encoding($detail_reim,"big5","utf-8");
+                            $str .= $issue_ppty.",".$SN.",".$cate_title.",".$catalog_title.",".$model.",".$size.",".$amount.",".$unit.",".$detail."\n"; //用引文逗號分開 
                         } 
                         // 輸出檔案命名
-                        $filename = 'tn衛材需求總表('.$csv_title.')_'.date('Ymd').'.csv'; //設定檔名 
+                        $filename = 'tnPPE請購需求總表('.$csv_title.')_'.date('Ymd').'.csv'; //設定檔名 
                         export_csv($filename, $str); //匯出 
                         
                     }else{
@@ -198,25 +226,25 @@
                     $obj_catalogs = [];
                     foreach($catalogs as $cata){
                         $obj_catalogs[$cata["SN"]] = [
-                            'id' => $cata["id"],
-                            'SN' => $cata["SN"],
-                            'pname' => $cata["pname"],
-                            'PIC' => $cata["PIC"],
-                            'cata_remark' => $cata["cata_remark"],
-                            'OBM' => $cata["OBM"],
-                            'model' => $cata["model"],
-                            'size' => $cata["size"],
-                            'unit' => $cata["unit"],
-                            'SPEC' => $cata["SPEC"],
-                            'part_no' => $cata["part_no"],
-                            'scomp_no' => $cata["scomp_no"],
-                            'buy_a' => $cata["buy_a"],
-                            'buy_b' => $cata["buy_b"],
-                            'flag' => $cata["flag"],
-                            'updated_user' => $cata["updated_user"],
-                            'cate_title' => $cata["cate_title"],
-                            'cate_no' => $cata["cate_no"],
-                            'cate_id' => $cata["cate_id"]
+                            'id'            => $cata["id"],
+                            'SN'            => $cata["SN"],
+                            'pname'         => $cata["pname"],
+                            'PIC'           => $cata["PIC"],
+                            'cata_remark'   => $cata["cata_remark"],
+                            'OBM'           => $cata["OBM"],
+                            'model'         => $cata["model"],
+                            'size'          => $cata["size"],
+                            'unit'          => $cata["unit"],
+                            'SPEC'          => $cata["SPEC"],
+                            'part_no'       => $cata["part_no"],
+                            'scomp_no'      => $cata["scomp_no"],
+                            'buy_a'         => $cata["buy_a"],
+                            'buy_b'         => $cata["buy_b"],
+                            'flag'          => $cata["flag"],
+                            'updated_user'  => $cata["updated_user"],
+                            'cate_title'    => $cata["cate_title"],
+                            'cate_no'       => $cata["cate_no"],
+                            'cate_id'       => $cata["cate_id"]
                         ];
                     }
             
@@ -263,18 +291,18 @@
                         $str = iconv('utf-8','BIG5',$str);
                          
                         foreach($all_item as $ai){ 
-                            $issue_ppty =   mb_convert_encoding($issue_ppty_arr[$ai],"big5","utf-8");
-                            $cate_title =   mb_convert_encoding($obj_catalogs[$ai]['cate_title'],"big5","utf-8");
-                            $id =           mb_convert_encoding($obj_catalogs[$ai]['id'],"big5","utf-8"); // utf8 to big5
-                            $catalog_title= mb_convert_encoding($obj_catalogs[$ai]['pname'],"big5","utf-8");
-                            $unit =         mb_convert_encoding($obj_catalogs[$ai]['unit'],"big5","utf-8");
-                            $amount =       $all_amount[$ai];
-                            $detail_reim =  str_replace(array("\r\n","\r","\n"), " ", $issue_fab[$ai]);
-                            $detail =       mb_convert_encoding($detail_reim,"big5","utf-8");
+                            $issue_ppty    = mb_convert_encoding($issue_ppty_arr[$ai],"big5","utf-8");
+                            $cate_title    = mb_convert_encoding($obj_catalogs[$ai]['cate_title'],"big5","utf-8");
+                            $id            = mb_convert_encoding($obj_catalogs[$ai]['id'],"big5","utf-8"); // utf8 to big5
+                            $catalog_title = mb_convert_encoding($obj_catalogs[$ai]['pname'],"big5","utf-8");
+                            $unit          = mb_convert_encoding($obj_catalogs[$ai]['unit'],"big5","utf-8");
+                            $amount        = $all_amount[$ai];
+                            $detail_reim   = str_replace(array("\r\n","\r","\n"), " ", $issue_fab[$ai]);
+                            $detail        = mb_convert_encoding($detail_reim,"big5","utf-8");
                             $str .= $issue_ppty.",".$cate_title.",".$id.",".$catalog_title.",".$unit.",".$amount.",".$detail."\n"; //用引文逗號分開 
                         } 
                         // 輸出檔案命名
-                        $filename = 'tn衛材需求總表('.$csv_title.')_'.date('Ymd').'.csv'; //設定檔名 
+                        $filename = 'tnPPE請購需求總表('.$csv_title.')_'.date('Ymd').'.csv'; //設定檔名 
                         export_csv($filename, $str); //匯出 
                         
                     }else{

@@ -86,7 +86,7 @@
         ];
 
     // 決定表單開啟 $step身份
-        if($issue_row["in_user_id"] == $auth_emp_id){
+        if(isset($issue_row["in_user_id"]) && ($issue_row["in_user_id"] == $auth_emp_id)){
             $step_index = '0';      // 填單人
         }      
 
@@ -99,7 +99,7 @@
             case 0 :   // $act = '同意 (Approve)';
                 break;
             case 1 :   // $act = '送出 (Submit)';
-                if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id))){
+                if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
                     $step_index = '7';      // ppe site user
                 }
                 break;
@@ -116,7 +116,7 @@
         }
 
     if(!isset($step_index)){
-        if(!isset($sys_id_role) ||($sys_id_role) == 3){
+        if($sys_id_role == 3){
             $step_index = '6';}      // normal
         if($sys_id_role == 2){
             $step_index = '7';}      // ppe site user
@@ -124,6 +124,8 @@
             $step_index = '8';}      // ppe pm
         if($sys_id_role == 0){
             $step_index = '9';}      // 系統管理員
+        if($action == 'create'){
+            $step_index = '0';}         // 填單人
     }
 
     // $step套用身份
@@ -263,7 +265,7 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($issue_row['idty'] == 1){  // 1.簽核中  ?>
-                            <?php if(($issue_row["fab_i_id"] == $sys_id_fab_id || in_array($issue_row["fab_i_id"], $sys_id_sfab_id)) || $sys_id_role <= 0 ){ ?>
+                            <?php if($sys_id_role <= 1 ){ ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
@@ -388,8 +390,10 @@
                                         </div>
                                         <div class="modal-footer">
                                             <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                             <input type="hidden" name="id"              id="id"             value="">
                                             <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                            <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="idty"            id="idty"           value="">
                                             <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>

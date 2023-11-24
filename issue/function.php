@@ -178,8 +178,8 @@
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;            // 節點-簽單人角色
-            $logs_request["idty"] = $idty;
-            $logs_request["cname"] = $cname;
+            $logs_request["idty"]   = $idty;
+            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
             $logs_request["logs"] = "";   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
@@ -244,16 +244,17 @@
 
         // 把_issue表單logs叫近來處理
             $query = array('id'=> $id );
-            $issue_logs = showLogs($query);
+
             if($action == "edit"){
-                $idty = 4;
+                $idty = 1;
             }
+            $issue_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
-            $logs_request["step"] = '填單人';
-            $logs_request["idty"] = $idty;
-            $logs_request["cname"] = $created_cname;
-            $logs_request["logs"] = $issue_logs["logs"];   
+            $logs_request["step"]   = $step."-編輯";
+            $logs_request["idty"]   = $idty;
+            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
+            $logs_request["logs"]   = $issue_logs["logs"];   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
@@ -301,17 +302,17 @@
             $query = array('id'=> $id );
             $issue_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
-            $logs_request["idty"] = $idty;   
-            $logs_request["cname"] = $updated_user;
-            $logs_request["logs"] = $issue_logs["logs"];   
+            $logs_request["action"] = $action;
+            $logs_request["step"]   = $step;                    // 節點-簽單人角色
+            $logs_request["idty"]   = $idty;   
+            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
+            $logs_request["logs"]   = $issue_logs["logs"];   
             $logs_request["remark"] = $sin_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
 
         // 更新_issue表單
-        $sql = "UPDATE _issue
-                SET idty = ? , logs = ?
-                WHERE id = ? ";
+        $sql = "UPDATE _issue SET idty = ? , logs = ? WHERE id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$idty, $logs_enc, $id]);

@@ -21,25 +21,25 @@
         $obj_catalogs = [];
         foreach($catalogs as $cata){
             $obj_catalogs[$cata["SN"]] = [
-                'id' => $cata["id"],
-                'SN' => $cata["SN"],
-                'pname' => $cata["pname"],
-                'PIC' => $cata["PIC"],
-                'cata_remark' => $cata["cata_remark"],
-                'OBM' => $cata["OBM"],
-                'model' => $cata["model"],
-                'size' => $cata["size"],
-                'unit' => $cata["unit"],
-                'SPEC' => $cata["SPEC"],
-                'part_no' => $cata["part_no"],
-                'scomp_no' => $cata["scomp_no"],
-                'buy_a' => $cata["buy_a"],
-                'buy_b' => $cata["buy_b"],
-                'flag' => $cata["flag"],
-                'updated_user' => $cata["updated_user"],
-                'cate_title' => $cata["cate_title"],
-                'cate_no' => $cata["cate_no"],
-                'cate_id' => $cata["cate_id"]
+                'id'            => $cata["id"],
+                'SN'            => $cata["SN"],
+                'pname'         => $cata["pname"],
+                'PIC'           => $cata["PIC"],
+                'cata_remark'   => $cata["cata_remark"],
+                'OBM'           => $cata["OBM"],
+                'model'         => $cata["model"],
+                'size'          => $cata["size"],
+                'unit'          => $cata["unit"],
+                'SPEC'          => $cata["SPEC"],
+                'part_no'       => $cata["part_no"],
+                'scomp_no'      => $cata["scomp_no"],
+                'buy_a'         => $cata["buy_a"],
+                'buy_b'         => $cata["buy_b"],
+                'flag'          => $cata["flag"],
+                'updated_user'  => $cata["updated_user"],
+                'cate_title'    => $cata["cate_title"],
+                'cate_no'       => $cata["cate_no"],
+                'cate_id'       => $cata["cate_id"]
             ];
         }
         
@@ -199,7 +199,7 @@
                             <label for="" class="form-label">請選擇您要匯出的需求類別：<sup class="text-danger"> *</sup></label>
                             <select name="ppty" id="ppty" class="form-control" required >
                                 <option value="0" hidden>0_臨時需求</option>
-                                <option value="1" selected>1_定期需求</option>
+                                <option value="1" selected>1_定期需求 action=export</option>
                                 <option value="All" hidden>All_全部</option>
                             </select>
                         </div>

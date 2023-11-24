@@ -537,7 +537,8 @@
                         <div style="font-size: 6px;">
                             <?php
                                 echo $step ? ">>> 表單身分：".$step."</br>" : "";
-                                    echo $receive_row['idty']." ";
+                                if(isset($receive_row['idty'])){
+                                    echo ">>> idty:".$receive_row['idty']." ";
                                     switch($receive_row['idty']){
                                         case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
                                         case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
@@ -550,6 +551,7 @@
                                     echo !empty($receive_row['in_sign']) ? " / wait: ".$receive_row['in_sign']." " :"";
                                     echo !empty($receive_row['flow']) ? " / flow: ".$receive_row['flow']." " :"";
                                     echo "</br>";
+                                }
 
                                 echo "<pre>";
                                     if($_REQUEST){

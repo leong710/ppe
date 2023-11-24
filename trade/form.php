@@ -500,7 +500,8 @@
                         <div style="font-size: 6px;">
                             <?php
                                 echo $step ? ">>> 表單身分：".$step."</br>" : "";
-                                    echo $trade_row['idty']." ";
+                                if(isset($trade_row['idty'])){
+                                    echo ">>> idty:".$trade_row['idty']." ";
                                     switch($trade_row['idty']){
                                         case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
                                         case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
@@ -513,6 +514,7 @@
                                     echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
                                     echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
                                     echo "</br>";
+                                }
 
                                 echo "<pre>";
                                     if($_REQUEST){

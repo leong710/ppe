@@ -488,7 +488,8 @@
                         <div style="font-size: 6px;">
                             <?php
                                 echo $step ? ">>> 表單身分：".$step."</br>" : "";
-                                    echo $issue_row['idty']." ";
+                                if(isset($issue_row['idty'])){
+                                    echo ">>> idty:".$issue_row['idty']." ";
                                     switch($issue_row['idty']){
                                         case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
                                         case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
@@ -501,6 +502,7 @@
                                     echo !empty($issue_row['in_sign']) ? " / wait: ".$issue_row['in_sign']." " :"";
                                     echo !empty($issue_row['flow']) ? " / flow: ".$issue_row['flow']." " :"";
                                     echo "</br>";
+                                }
 
                                 echo "<pre>";
                                     if($_REQUEST){

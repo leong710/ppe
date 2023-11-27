@@ -483,7 +483,9 @@
                 </div>
     
                 <!-- 尾段：debug訊息 -->
-                <?php include("debug_board.php"); ?>
+                <?php if(isset($_REQUEST["debug"])){
+                    include("debug_board.php"); 
+                } ?>
 
             </div>
         </div>

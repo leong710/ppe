@@ -495,41 +495,10 @@
                 </div>
     
                 <!-- 尾段：debug訊息 -->
-                <div class="row block" id="debug">
-                    <div class="col-12 mb-0">
-                        <div style="font-size: 6px;">
-                            <?php
-                                echo $step ? ">>> 表單身分：".$step."</br>" : "";
-                                if(isset($trade_row['idty'])){
-                                    echo ">>> idty:".$trade_row['idty']." ";
-                                    switch($trade_row['idty']){
-                                        case "0" : echo '<span class="badge rounded-pill bg-warning text-dark">待領</span>'; break;
-                                        case "1" : echo '<span class="badge rounded-pill bg-danger">待簽</span>'; break;
-                                        case "2" : echo "退件"; break;
-                                        case "3" : echo "取消"; break;
-                                        case "10": echo "結案"; break;
-                                        case "11": echo "轉PR"; break;
-                                        case "12": echo '<span class="badge rounded-pill bg-success">待收</span>'; break;
-                                        default  : echo "na"; break; }
-                                    echo !empty($trade_row['in_sign']) ? " / wait: ".$trade_row['in_sign']." " :"";
-                                    echo !empty($trade_row['flow']) ? " / flow: ".$trade_row['flow']." " :"";
-                                    echo "</br>";
-                                }
-
-                                echo "<pre>";
-                                    if($_REQUEST){
-                                        echo ">>> _REQUEST：</br>";
-                                        print_r($_REQUEST);
-                                    }
-                                    if($trade_row){
-                                        echo ">>> trade_row：</br>";
-                                        print_r($trade_row);
-                                    }
-                                echo "</pre>text-end";
-                            ?>
-                        </div>
-                    </div>
-                </div>
+                <?php if(isset($_REQUEST["debug"])){
+                    include("debug_board.php"); 
+                } ?>
+                
             </div>
         </div>
     </div>

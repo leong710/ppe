@@ -296,21 +296,10 @@
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
-    })
-
-    $(document).ready(function () {
-        
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
-        $('#catalog_list').DataTable({
-            "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
-            // 顯示長度
-            "pageLength": 25,
-            // 中文化
-            "language":{
-                url: "../../libs/dataTables/dataTable_zh.json"
-            }
+        // 監聽表單內 input 變更事件
+        $('#cname, #plant, #dept, #sign_code, #omager, #extp').change(function() {
+            // 當有變更時，對該input加上指定的class
+            $(this).removeClass('autoinput');
         });
 
         // 20230817 禁用Enter鍵表單自動提交 
@@ -335,6 +324,23 @@
                 } 
             } 
         };
+    })
+
+    $(document).ready(function () {
+        
+        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
+        $('#catalog_list').DataTable({
+            "autoWidth": false,
+            // 排序
+            // "order": [[ 4, "asc" ]],
+            // 顯示長度
+            "pageLength": 25,
+            // 中文化
+            "language":{
+                url: "../../libs/dataTables/dataTable_zh.json"
+            }
+        });
+
         // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value -->
         let amounts = [...document.querySelectorAll('.amount')];
         for(let amount of amounts){

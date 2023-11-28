@@ -244,7 +244,6 @@
                                 <input type="submit" name="delete_trade" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
-                        <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
                     </div>
                 </div>
     
@@ -325,7 +324,14 @@
                             <!-- 2.購物車 -->
                             <div class="tab-pane fade" id="nav-shopping_cart" role="tabpanel" aria-labelledby="nav-shopping_cart-tab">
                                 <div class="col-12 px-4">
-                                    <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                        </div>
+                                        <div class="col-12 col-md-6 text-end">
+                                            <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                        </div>
+                                    </div>
                                     <div class=" rounded border bg-light" id="shopping_cart">
                                         <table>
                                             <thead>
@@ -526,18 +532,18 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <form name="excelInput" action="load_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
-                        <div class="modal-body px-5">
+                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
+                        <div class="modal-body px-4">
                             <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <label for="excelFile" class="form-label">需求清單<sup class="text-danger"> * 限EXCEL檔案</sup></label>
+                                <div class="col-12 col-md-6 py-0">
+                                    <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/restock_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                        <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                     <div class="input-group">
                                         <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 250px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                                         <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary">上傳</button>
                                     </div>
-                                    <a href="_Format/restock_example.xlsx" target="_blank" >上傳格式範例</a>
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-6 py-0">
                                     <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
                                     <p id="sn_list" name="warning" >＊請確認Excel中的資料</p>
                                 </div>
@@ -549,8 +555,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" id="import_excel_btn" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
-                            <input type="reset" name="reset" class="btn btn-info" value="清除">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                         </div>
                     </form>
                 </div>
@@ -571,6 +576,7 @@
 
 
 <script>
+// 開局設定init
     var action      = '<?=$action;?>';                               // Edit選染 // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                  // 第一頁：info modal function 引入catalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                 // Edit選染 // 引入trade_row資料作為Edit
@@ -587,92 +593,6 @@
     var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
     var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
-    // 以下為上傳後"iframe"的部分
-    // 阻止檔案未上傳導致的錯誤。
-    // 請注意設置時的"onsubmit"與"onclick"。
-    function restockExcelForm() {
-        // 如果檔案長度等於"0"。
-        if (excelFile.files.length === 0) {
-            // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
-            warningText.style.display = "block";
-            return false;
-        }
-        // 如果已選擇文件，允許表單提交
-        iframe.style.display = 'block'; 
-        // 以下為編輯特有
-        // showTrainList.style.display = 'none';
-        return true;
-    }
-
-    function iframeLoadAction() {
-        iframe.style.height = '0px';
-        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        var iframeContent = iframeDocument.documentElement;
-        var newHeight = iframeContent.scrollHeight + 'px';
-        iframe.style.height = newHeight;
-        var excel_json = iframeDocument.getElementById('excel_json');
-        var stopUpload = iframeDocument.getElementById('stopUpload');
-        // 在此處對找到的 <textarea> 元素進行相應的操作
-        if (excel_json) {
-            sn_list.style.display = "none";
-            // 手动触发input事件
-            var inputEvent = new Event('input', { bubbles: true });
-            import_excel_btn.style.display = "block";       // 載入按鈕--顯示
-            warningText.style.display = "none";             // 警告文字--隱藏
-            
-        } else if(stopUpload) {
-            // 沒有找到 <textarea> 元素
-            console.log('請確認資料是否正確');
-            sn_list.style.display = "block";
-            import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
-            warningText.style.display = "block";            // 警告文字--顯示
-
-        }else{
-            console.log('找不到 <textarea> 元素');
-        }
-    };
-
-    // 監控按下送出鍵後，打開"iframe"
-    excelUpload.addEventListener('click', function() {
-        iframeLoadAction();
-        restockExcelForm();
-    });
-    // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
-    iframe.addEventListener('load', function(){
-        iframeLoadAction();
-    });
-
-    // 監控按下[載入]鍵後----載入購物車
-    import_excel_btn.addEventListener('click', function() {
-        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        var excel_json = iframeDocument.getElementById('excel_json');
-        var stopUpload = iframeDocument.getElementById('stopUpload');
-
-        if (excel_json) {
-            uploadExcel_toCart(excel_json.value);
-
-        } else if(stopUpload) {
-            console.log('請確認資料是否正確');
-        }else{
-            console.log('找不到 ? 元素');
-        }
-
-    });
-    
-    // Excel載入購物車
-    function uploadExcel_toCart(row_cart){
-        var trade_row_cart = JSON.parse(row_cart);
-        Object(trade_row_cart).forEach(function(cart_row){
-            Object.keys(cart_row).forEach(function(cart_row_key){
-                var cata_SN    = cart_row_key;                   
-                var arr_amount = cart_row[cart_row_key];
-                check_item(cata_SN, 0);                 // call function 查找已存在的項目，並予以清除。
-                add_item(cata_SN, arr_amount, 'off');
-            })
-        })
-        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
-
-    }
 
 </script>
 

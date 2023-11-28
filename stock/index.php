@@ -234,9 +234,9 @@
                     <div class="col-md-4 py-0 text-end">
                         <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
                             <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
-                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 新增</button>
+                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
                             <?php } ?>
-                            <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i> 下載CSV</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -456,6 +456,10 @@
                     <!-- 20211215分頁工具 -->
                 </div>
                 <hr>
+                 <!-- 尾段：debug訊息 -->
+                 <?php if(isset($_REQUEST["debug"])){
+                    include("debug_board.php"); 
+                } ?>
             </div>
         </div>
     </div>
@@ -581,7 +585,7 @@
                             <?php } ?>
                             <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
@@ -594,37 +598,55 @@
     <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">匯出儲存點存量紀錄(csv)</h4>
+                <div class="modal-header bg-info">
+                    <h4 class="modal-title">匯出儲存點存量清單</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <!-- 20220606 匯出csv -->
-                <form id="doCSVform" action="docsv.php" method="post"> 
-                    <div class="modal-body p-4" >
-                        <div class="col-12">
-                            <label for="" class="form-label">請選擇您要查詢下載的fab：<sup class="text-danger"> *</sup></label>
-                            <select name="fab_id" id="fab_id" class="form-control" required >
-                                <option value="All" selected>-- 全部fab --</option>
-                                <?php foreach($fabs as $fab){ ?>
-                                    <option value="<?php echo $fab["id"];?>">
-                                    <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label for="" class="form-label">存量狀態：<sup class="text-danger"> *</sup></label>
-                            <input type="radio" name="state" value="0" id="0" class="form-check-input" checked>
-                            <label for="0" class="form-check-label">全部</label>&nbsp&nbsp
-                        </div>
+                <div class="modal-body px-4" >
+                    <!-- 20220606 匯出csv -->
+                    <div class="col-12 border rounded add_mode_bgc px-3">
+                        <form id="doCSVform" action="docsv.php" method="post"> 
+                            <div class="row">
+                                <div class="col-12 py-0">
+                                    <label for="" class="form-label">請選擇您要查詢下載的fab：<sup class="text-danger"> *</sup></label>
+                                    <select name="fab_id" id="fab_id" class="form-control" required >
+                                        <option value="All" selected>-- 全部fab --</option>
+                                        <?php foreach($fabs as $fab){ ?>
+                                            <option value="<?php echo $fab["id"];?>">
+                                            <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 py-0">
+                                    <label for="" class="form-label">存量狀態：<sup class="text-danger"> *</sup></label>
+                                    <input type="radio" name="state" value="0" id="0" class="form-check-input" checked>
+                                    <label for="0" class="form-check-label">全部</label>&nbsp&nbsp
+                                </div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <input type="hidden" name="action" value="export"> 
+                                    <button type="submit" class="btn btn-warning" data-bs-dismiss="modal" ><i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspCSV</button>
+                                </div>
+                            </div>
+                        </form> 
                     </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="action" value="export"> 
-                            <input type="submit" class="btn btn-success" value="匯出CSV" data-bs-dismiss="modal"> 
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                    <hr>
+                    <!-- 20231128 下載Excel -->
+                    <form id="myForm" method="post" action="../_Format/download_excel.php">
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <!-- 下載EXCEL的觸發 -->
+                                <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" onclick="submitDownloadExcel()" >
+                                    <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
+                            </div>
                         </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>
-                </form> 
+                </div>
             </div>
         </div>
     </div>
@@ -659,6 +681,9 @@
     var stock = <?=json_encode($div_stocks);?>;                         // 引入div_stocks資料
     var stock_item = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
     var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+    
+// 先定義一個陣列(裝輸出資料使用)for 下載Excel
+    var listData = <?=json_encode($stocks);?>;                         // 引入stocks資料
 
 </script>
 

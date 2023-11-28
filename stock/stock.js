@@ -210,3 +210,35 @@
             }
         }
     }
+// 20231128_下載Excel
+    function submitDownloadExcel() {
+        // 定義要抓的key=>value
+            var stocks_item_keys = {
+                "id"            : "aid", 
+                "fab_title"     : "儲存點", 
+                "local_title"   : "儲存位置", 
+                "cate_no"       : "分類", 
+                "cate_title"    : "分類名稱", 
+                "SN"            : "SN", 
+                "pname"         : "名稱", 
+                "standard_lv"   : "安全存量", 
+                "amount"        : "現場存量", 
+                "stock_remark"  : "備註說明",
+                "lot_num"       : "批號/期限",
+                "po_no"         : "po_no",
+                "updated_at"    : "最後更新",
+                "updated_user"  : "最後編輯"
+            };
+        var sort_listData = [];         // 建立陣列
+        for(var i=0; i < listData.length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(stocks_item_keys).forEach(function(item_key){
+                // console.log(stocks_item_keys[item_key]+"：" ,listData[i][item_key]);
+                sort_listData[i][stocks_item_keys[item_key]] = listData[i][item_key];
+            })
+        }
+        // console.log('sort_listData:', sort_listData);
+        var htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById('htmlTable').value = htmlTableValue;
+        // console.log(listData);
+    }

@@ -309,6 +309,65 @@
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
     }
 
+// 20231128 以下為上傳後"iframe"的部分
+    // 阻止檔案未上傳導致的錯誤。
+    // 請注意設置時的"onsubmit"與"onclick"。
+    function restockExcelForm() {
+        // 如果檔案長度等於"0"。
+        if (excelFile.files.length === 0) {
+            // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
+            warningText.style.display = "block";
+            return false;
+        }
+        // 如果已選擇文件，允許表單提交
+        iframe.style.display = 'block'; 
+        // 以下為編輯特有
+        // showTrainList.style.display = 'none';
+        return true;
+    }
+
+    function iframeLoadAction() {
+        iframe.style.height = '0px';
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        var iframeContent = iframeDocument.documentElement;
+        var newHeight = iframeContent.scrollHeight + 'px';
+        iframe.style.height = newHeight;
+        var excel_json = iframeDocument.getElementById('excel_json');
+        var stopUpload = iframeDocument.getElementById('stopUpload');
+        // 在此處對找到的 <textarea> 元素進行相應的操作
+        if (excel_json) {
+            sn_list.style.display = "none";
+            // 手动触发input事件
+            var inputEvent = new Event('input', { bubbles: true });
+            import_excel_btn.style.display = "block";       // 載入按鈕--顯示
+            warningText.style.display = "none";             // 警告文字--隱藏
+            
+        } else if(stopUpload) {
+            // 沒有找到 <textarea> 元素
+            console.log('請確認資料是否正確');
+            sn_list.style.display = "block";
+            import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
+            warningText.style.display = "block";            // 警告文字--顯示
+
+        }else{
+            // console.log('找不到 < ? > 元素');
+        }
+    };
+    // Excel載入購物車
+    function uploadExcel_toCart(row_cart){
+        var trade_row_cart = JSON.parse(row_cart);
+        Object(trade_row_cart).forEach(function(cart_row){
+            Object.keys(cart_row).forEach(function(cart_row_key){
+                var cata_SN    = cart_row_key;                   
+                var arr_amount = cart_row[cart_row_key];
+                check_item(cata_SN, 0);                 // call function 查找已存在的項目，並予以清除。
+                add_item(cata_SN, arr_amount, 'off');
+            })
+        })
+        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+
+    }
+
     $(function () {
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
@@ -341,8 +400,33 @@
                 } 
             } 
         };
-    })
 
+        // 20231128 以下為上傳後"iframe"的部分
+            // 監控按下送出鍵後，打開"iframe"
+            excelUpload.addEventListener('click', function() {
+                iframeLoadAction();
+                restockExcelForm();
+            });
+            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+            iframe.addEventListener('load', function(){
+                iframeLoadAction();
+            });
+            // 監控按下[載入]鍵後----呼叫Excel載入購物車
+            import_excel_btn.addEventListener('click', function() {
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var excel_json = iframeDocument.getElementById('excel_json');
+                var stopUpload = iframeDocument.getElementById('stopUpload');
+
+                if (excel_json) {
+                    uploadExcel_toCart(excel_json.value);
+
+                } else if(stopUpload) {
+                    console.log('請確認資料是否正確');
+                }else{
+                    console.log('找不到 ? 元素');
+                }
+            });
+    })
 
     $(document).ready(function () {
         

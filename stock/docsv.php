@@ -121,26 +121,8 @@ if( !isset($aResult['error']) ) {
                     foreach($stocks as $row){ 
                         // 使用 function process_tool 取代
                             // // 因為remark=textarea會包含html符號，必須用strip_tags移除html標籤
-                            // $s_remark = strip_tags($row['stock_remark']);
-                            // $s_po_no = strip_tags($row['po_no']);
                             // // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
-                            // $sn_remark = str_replace(array("\r\n","\r","\n"), "", $s_remark);
-                            // $sn_po_no = str_replace(array("\r\n","\r","\n"), "", $s_po_no);
                             // // utf8 to big5
-                            // $id =           mb_convert_encoding($row['id'],"big5","utf-8"); 
-                            // $site_title =   mb_convert_encoding($row['site_title'],"big5","utf-8");
-                            // $fab_title =    mb_convert_encoding($row['fab_title'],"big5","utf-8");
-                            // $local_title =  mb_convert_encoding($row['local_title'],"big5","utf-8");
-                            // $cate_title =   mb_convert_encoding($row['cate_title'],"big5","utf-8");
-                            // $cata_title =   mb_convert_encoding($row['pname'],"big5","utf-8");
-                            // $standard_lv =  mb_convert_encoding($row['standard_lv'],"big5","utf-8");
-                            // $amount =       mb_convert_encoding($row['amount'],"big5","utf-8");
-                            // $remark =       mb_convert_encoding($sn_remark,"big5","utf-8");
-                            // $lot_num =      mb_convert_encoding($row['lot_num'],"big5","utf-8");
-                            // $po_no =        mb_convert_encoding($sn_po_no,"big5","utf-8");
-                            // $pno =          mb_convert_encoding($row['pno'],"big5","utf-8");
-                            // $updated_at =   mb_convert_encoding($row['updated_at'],"big5","utf-8");
-                            // $cname =        mb_convert_encoding($row['updated_user'],"big5","utf-8");
                         $p_row = process_tool($row);
                         $str .= $p_row["id"].",".$p_row["site_title"]."_".$p_row["fab_title"].",".$p_row["local_title"].",".$p_row["cate_title"].",";
                         $str .= $p_row["cata_SN"].",".$p_row["pname"].",".$p_row["standard_lv"].",".$p_row["amount"].",".$p_row["stock_remark"].",".$p_row["lot_num"].",";

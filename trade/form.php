@@ -186,6 +186,10 @@
         tr > td {
             vertical-align: middle; 
         }
+        #excelFile{    
+            margin-bottom: 0px;
+            /* text-align: center; */
+        }
     </style>
     <script>    
         // loading function
@@ -343,7 +347,14 @@
                             <!-- 2.購物車 -->
                             <div class="tab-pane fade" id="nav-shopping_cart" role="tabpanel" aria-labelledby="nav-shopping_cart-tab">
                                 <div class="col-12 px-4">
-                                    <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 py-0">
+                                            <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                        </div>
+                                        <div class="col-12 col-md-6 py-0 text-end">
+
+                                        </div>
+                                    </div>
                                     <div class=" rounded border bg-light" id="shopping_cart">
                                         <table>
                                             <thead>
@@ -533,7 +544,6 @@
                 </div>
             </div>
         </div>
-    
     <!-- goTop滾動畫面DIV 2/4-->
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>

@@ -184,6 +184,10 @@
         tr > td {
             vertical-align: middle; 
         }
+        #excelFile{    
+            margin-bottom: 0px;
+            /* text-align: center; */
+        }
     </style>
     <script>    
         // loading function
@@ -336,7 +340,14 @@
                             <!-- 2.購物車 -->
                             <div class="tab-pane fade" id="nav-shopping_cart" role="tabpanel" aria-labelledby="nav-shopping_cart-tab">
                                 <div class="col-12 px-4">
-                                    <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
+                                        </div>
+                                        <div class="col-12 col-md-6 text-end">
+                                            <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                        </div>
+                                    </div>
                                     <div class=" rounded border bg-light" id="shopping_cart">
                                         <table>
                                             <thead>
@@ -521,7 +532,44 @@
                 </div>
             </div>
         </div>
-    
+    <!-- 互動視窗 load_excel -->
+        <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">上傳Excel檔：</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
+                        <div class="modal-body px-4">
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0">
+                                    <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/restock_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                        <sup class="text-danger"> * 限EXCEL檔案</sup></label>
+                                    <div class="input-group">
+                                        <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 250px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                        <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary">上傳</button>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 py-0">
+                                    <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
+                                    <p id="sn_list" name="warning" >＊請確認Excel中的資料</p>
+                                </div>
+                            </div>
+                                
+                            <div class="row">
+                                <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="restockExcelForm()"></iframe>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="import_excel_btn" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     <!-- goTop滾動畫面DIV 2/4-->
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
@@ -535,13 +583,22 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
-    
-    // // // info modal function
+// // // info modal function
     var action = '<?=$action;?>';                       // 引入action資料
     var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
     var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
     var json = JSON.parse('<?=json_encode($logs_arr)?>');
     var id = '<?=$issue_row["id"]?>';
+
+// 以下為控制 iframe
+    var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
+    var iframe           = document.getElementById('api');                // 清冊的iframe介面
+    var warningText      = document.getElementById('warningText');        // 清冊未上傳的提示
+    var sn_list          = document.getElementById('sn_list');            // 清冊中有誤的提示
+    var excel_json       = document.getElementById('excel_json');         // 清冊中有誤的提示
+    var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
+    var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
+    var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
 
 </script>
 

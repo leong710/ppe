@@ -629,18 +629,20 @@
                             </div>
                         </form> 
                     </div>
-                    <hr>
                     <!-- 20231128 下載Excel -->
-                    <form id="myForm" method="post" action="../_Format/download_excel.php">
-                        <div class="row">
-                            <div class="col-12 text-end">
-                                <!-- 下載EXCEL的觸發 -->
-                                <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" onclick="submitDownloadExcel()" >
-                                    <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
+                    <?php if($per_total != 0){ ?>
+                        <hr>
+                        <form id="myForm" method="post" action="../_Format/download_excel.php">
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <!-- 下載EXCEL的觸發 -->
+                                    <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                    <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" onclick="submitDownloadExcel()" >
+                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    <?php } ?>
                 </div>
                 <div class="modal-footer">
                     <div class="text-end">

@@ -65,6 +65,17 @@
             vertical-align: top; 
             word-break: break-all;
         }
+        /* 新增與編輯 module表頭顏色 */
+        .add_mode_bgc {          
+            background-color: #ADD8E6;
+        }
+        .edit_mode_bgc {
+            background-color: #FFFACD;
+        }
+        #excelFile{    
+            margin-bottom: 0px;
+            /* text-align: center; */
+        }
     </style>
 </head>
 <body>
@@ -101,7 +112,7 @@
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
                                 <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增supp供應商" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_supp"> <i class="fa fa-plus"></i> 新增supp供應商</a>
+                                    <button type="button" id="edit_supp_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="add_module('supp')"><i class="fa fa-plus"></i> 單筆新增供應商</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -144,7 +155,7 @@
                                                         </span>
                                                     <?php } ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                                    <button type="button" id="edit_supp_btn" value="<?php echo $supp["id"];?>" class="btn btn-sm btn-xs btn-info" 
+                                                    <button type="button" value="<?php echo $supp["id"];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="edit_module('supp',this.value)" >編輯</button>
                                                 <?php } ?></td>
                                             </tr>
@@ -161,12 +172,9 @@
                             <div class="col-12 col-md-4 py-0">
                                 <h3>contact/聯絡人管理</h3>
                             </div>
-                            <div class="col-12 col-md-4 py-0">
-                                
-                            </div>
-                            <div class="col-12 col-md-4 py-0 text-end">
+                            <div class="col-12 col-md-8 py-0 text-end">
                                 <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增聯絡人" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_contact"> <i class="fa fa-plus"></i> 新增聯絡人</a>
+                                    <button type="button" id="edit_contact_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="add_module('contact')"><i class="fa fa-plus"></i> 單筆新增聯絡人</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -207,7 +215,7 @@
                                                             <?php echo $contact["flag"] == "On" ? "顯示":"隱藏";?></span>
                                                     <?php } ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                                    <button type="button" id="edit_contact_btn" value="<?php echo $contact["id"];?>" class="btn btn-sm btn-xs btn-info" 
+                                                    <button type="button" value="<?php echo $contact["id"];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="edit_module('contact',this.value)" >編輯</button>
                                                 <?php } ?></td>
                                             </tr>
@@ -224,241 +232,66 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增supp供應商 -->
-    <div class="modal fade" id="add_supp" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">新增supp供應商</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <form action="" method="post">
-                    <div class="modal-body px-4">
-                        <div class="row">
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="scname" id="scname" class="form-control" required placeholder="供應商名稱">
-                                    <label for="scname" class="form-label">scname/供應商名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="sname" id="sname" class="form-control" placeholder="供應商英文名稱">
-                                    <label for="sname" class="form-label">sname/供應商英文名稱：</label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <textarea name="supp_remark" id="supp_remark" class="form-control" style="height: 90px;" placeholder="敘述說明"></textarea>
-                                    <label for="supp_remark" class="form-label">supp_remark/註解說明：</label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="comp_no" id="comp_no" class="form-control" required placeholder="統一編號">
-                                    <label for="comp_no" class="form-label">comp_no/統一編號：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="inv_title" id="inv_title" class="form-control" placeholder="發票抬頭">
-                                    <label for="inv_title" class="form-label">inv_title/發票抬頭：</label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="_address" id="_address" class="form-control" placeholder="發票地址">
-                                    <label for="_address" class="form-label">_address/發票地址：</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" id="supp_On" class="form-check-input" value="On" checked>&nbsp
-                                            <label for="supp_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" id="supp_Off" class="form-check-input" value="Off">&nbsp
-                                            <label for="supp_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="0">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" name="supp_submit" class="btn btn-primary" value="新增" >
-                            <?php } ?>
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>
-<!-- 彈出畫面模組 新增contact聯絡人 -->
-    <div class="modal fade" id="add_contact" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- 彈出畫面模組 編輯、新增supp供應商 -->
+    <div class="modal fade" id="edit_supp" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">新增contact聯絡人</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                    <h4 class="modal-title"><span id="supp_modal_action"></span>&nbspsupp供應商</h4>
 
-                <form action="" method="post">
-                    <div class="modal-body px-5">
-                        <div class="row">
-                            <div class="col-12 py-2">
-                                <div class="form-floating">
-                                    <select name="comp_no" id="comp_no" class="form-select">
-                                        <option value="" selected hidden>-- 請選擇供應商 --</option>
-                                        <?php foreach($supps as $supp){ ?>
-                                            <option value="<?php echo $supp["comp_no"];?>" title="<?php echo $supp["sname"];?>" >
-                                                <!-- <php echo $supp["flag"] == "Off" ? "hidden":"";?>> -->
-                                            <?php echo $supp["id"]."_".$supp["scname"]." (".$supp["comp_no"].")"; echo ($supp["flag"] == "Off") ? " -- 已關閉":"";?></option>
-                                        <?php } ?>
-                                    </select> 
-                                    <label for="comp_no" class="form-label">comp_no/供應商(統編)：</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="cname" class="form-control" id="cname" required placeholder="聯絡人名稱">
-                                    <label for="cname" class="form-label">cname/聯絡人名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
-                                    <input type="tel" name="phone" class="form-control" id="phone" required placeholder="聯絡電話">
-                                    <label for="phone" class="form-label">phone/聯絡電話：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
-                                    <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com">
-                                    <label for="email" class="form-label">email/電子信箱：</label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
-                                    <input type="tel" name="fax" class="form-control" id="fax" placeholder="傳真">
-                                    <label for="fax" class="form-label">fax/傳真：</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <textarea name="contact_remark" id="contact_remark" class="form-control" style="height: 100px" placeholder="註解說明"></textarea>
-                                    <label for="contact_remark" class="form-label">contact_remark/註解說明：</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" value="On" id="contact_On" class="form-check-input" checked>&nbsp
-                                            <label for="contact_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td>
-                                            <input type="radio" name="flag" value="Off" id="contact_Off" class="form-check-input">&nbsp
-                                            <label for="contact_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="1">
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="新增" name="contact_submit" class="btn btn-primary">
-                            <?php } ?>
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>   
-
-<!-- 彈出畫面模組 編輯supp -->
-    <div class="modal fade" id="edit_supp" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">編輯supp供應商</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="supp_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_supp" value="刪除supp供應商" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                            <span id="supp_modal_delect_btn"></span>
+
+                                    &nbsp&nbsp&nbsp&nbsp&nbsp
+                                    <input type="submit" name="delete_supp" value="刪除supp供應商" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form action="" method="post">
-                    <div class="modal-body px-4">
+                    <div class="modal-body px-5">
                         <div class="row">
 
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="scname" id="edit_scname" class="form-control" required placeholder="供應商名稱">
                                     <label for="edit_scname" class="form-label">scname/供應商名稱：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="sname" id="edit_sname" class="form-control" placeholder="供應商英文名稱">
-                                    <label for="edit_sname" class="form-label">sname/供應商英文名稱：</label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <textarea name="supp_remark" id="edit_supp_remark" class="form-control" style="height: 90px;" placeholder="敘述說明"></textarea>
-                                    <label for="edit_supp_remark" class="form-label">supp_remark/註解說明：</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 py-1">
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="comp_no" id="edit_comp_no" class="form-control" required placeholder="統一編號">
                                     <label for="edit_comp_no" class="form-label">comp_no/統一編號：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <div class="col-12 py-1">
+
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="sname" id="edit_sname" class="form-control" placeholder="供應商英文名稱">
+                                    <label for="edit_sname" class="form-label">sname/供應商英文名稱：</label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="inv_title" id="edit_inv_title" class="form-control" placeholder="發票抬頭">
                                     <label for="edit_inv_title" class="form-label">inv_title/發票抬頭：</label>
                                 </div>
                             </div>
+
                             <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="_address" id="edit__address" class="form-control" placeholder="發票地址">
                                     <label for="edit__address" class="form-label">_address/發票地址：</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 py-1">
+                                <div class="form-floating">
+                                    <textarea name="supp_remark" id="edit_supp_remark" class="form-control" style="height: 90px;" placeholder="敘述說明"></textarea>
+                                    <label for="edit_supp_remark" class="form-label">supp_remark/註解說明：</label>
                                 </div>
                             </div>
 
@@ -485,13 +318,14 @@
                     </div>
                     <div class="modal-footer">
                         <div class="text-end">
-                            <input type="hidden" name="activeTab" value="0">
-                            <input type="hidden" name="id" id="supp_edit_id" >
+                            <input type="hidden" name="activeTab"  id="supp_activeTab"  value="">
+                            <input type="hidden" name="id"         id="supp_edit_id"    value="">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" name="edit_supp_submit" class="btn btn-primary" value="儲存">
+                                <span id="supp_modal_submit_btn"></span>
                             <?php } ?>
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <input type="reset" class="btn btn-info" id="supp_reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
@@ -499,17 +333,20 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 編輯contact聯絡人 -->
+<!-- 彈出畫面模組 編輯、新增contact聯絡人 -->
     <div class="modal fade" id="edit_contact" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯contact聯絡人</h4>
+                    <h4 class="modal-title"><span id="contact_modal_action"></span>&nbspcontact聯絡人</h4>
+
                     <form action="" method="post">
                         <input type="hidden" name="id" id="contact_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_contact" value="刪除contact聯絡人" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                            <span id="contact_modal_delect_btn"></span>
+
+                                    &nbsp&nbsp&nbsp&nbsp&nbsp
+                                    <input type="submit" name="delete_contact" value="刪除contact聯絡人" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -518,7 +355,7 @@
                 <form action="" method="post">
                     <div class="modal-body px-5">
                         <div class="row">
-                            <div class="col-12 py-2">
+                            <div class="col-12 py-1">
                                 <div class="form-floating">
                                     <select name="comp_no" id="edit_comp_no" class="form-select">
                                         <option value="" >-- 請選擇供應商 --</option>
@@ -587,13 +424,14 @@
                     </div>
                     <div class="modal-footer">
                         <div class="text-end">
-                            <input type="hidden" name="activeTab" value="1">
-                            <input type="hidden" name="id" id="contact_edit_id" >
+                            <input type="hidden" name="activeTab"   id="contact_activeTab"  value="">
+                            <input type="hidden" name="id"          id="contact_edit_id"    value="">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" name="edit_contact_submit" class="btn btn-primary" value="儲存">
+                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?> 
+                                <span id="contact_modal_submit_btn"></span>
                             <?php } ?>
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                            <input type="reset" class="btn btn-info" id="contact_reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
@@ -601,7 +439,44 @@
             </div>
         </div>
     </div>
+<!-- 互動視窗 load_excel -->
+    <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">上傳Excel檔：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
+                <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
+                    <div class="modal-body px-4">
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-0">
+                                <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/restock_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                    <sup class="text-danger"> * 限EXCEL檔案</sup></label>
+                                <div class="input-group">
+                                    <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 250px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary">上傳</button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 py-0">
+                                <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
+                                <p id="sn_list" name="warning" >＊請確認Excel中的資料</p>
+                            </div>
+                        </div>
+                            
+                        <div class="row">
+                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="restockExcelForm()"></iframe>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="import_excel_btn" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -617,16 +492,43 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
+
+    var supp       = <?=json_encode($supps);?>;                                // 引入supps資料
+    var contact    = <?=json_encode($contacts);?>;                             // 引入contacts資料
+    var supp_item       = ['id','scname','sname','supp_remark','inv_title','comp_no','_address','flag'];    // 交給其他功能帶入 delete_supp_id
+    var contact_item    = ['id','comp_no','cname','phone','email','fax','contact_remark','flag'];           // 交給其他功能帶入 delete_contact_id
+
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
         document.querySelector('#key_word').value = '';
     }
 
-    var supp       = <?=json_encode($supps);?>;                                // 引入supps資料
-    var contact    = <?=json_encode($contacts);?>;                             // 引入contacts資料
-    var supp_item       = ['id','scname','sname','supp_remark','inv_title','comp_no','_address','flag'];    // 交給其他功能帶入 delete_supp_id
-    var contact_item    = ['id','comp_no','cname','phone','email','fax','contact_remark','flag'];           // 交給其他功能帶入 delete_contact_id
+// // // add mode function
+    function add_module(to_module){     // 啟用新增模式
+        console.log(to_module);
+        $('#'+to_module+'_modal_action, #'+to_module+'_modal_delect_btn, #'+to_module+'_modal_submit_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
+        $('#'+to_module+'_reset_btn').click();                                                              // reset清除表單
+
+        $('#'+to_module+'_modal_action').append('新增');                                                    // model標題文字
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.remove('edit_mode_bgc');      // model標題底色--去除編輯底色
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.add('add_mode_bgc');          // model標題底色--增加新增底色
+
+        var add_btn = '<input type="submit" name="add_'+to_module+'_submit" class="btn btn-primary" value="新增">';
+        $('#'+to_module+'_modal_submit_btn').append(add_btn);                                               // 添加儲存鈕
+
+        var reset_btn = document.getElementById(to_module+'_reset_btn');                                    // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                                                              // 新增模式 = 解除
+        if(to_module == 'supp'){
+            var activeTab = 0;
+        }else if(to_module == 'contact'){
+            var activeTab = 1;
+        }else{
+            var activeTab = 0;
+        }
+        document.getElementById(to_module+'_activeTab') = activeTab;
+    }
+
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){

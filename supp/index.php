@@ -506,7 +506,6 @@
 
 // // // add mode function
     function add_module(to_module){     // 啟用新增模式
-        console.log(to_module);
         $('#'+to_module+'_modal_action, #'+to_module+'_modal_delect_btn, #'+to_module+'_modal_submit_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
         $('#'+to_module+'_reset_btn').click();                                                              // reset清除表單
 
@@ -532,7 +531,24 @@
 
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
-        // remark: to_module = 來源與目的 site、fab、local
+        $('#'+to_module+'_modal_action, #'+to_module+'_modal_delect_btn, #'+to_module+'_modal_submit_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
+        $('#'+to_module+'_reset_btn').click();                                                              // reset清除表單
+
+        $('#'+to_module+'_modal_action').append('編輯');                                                    // model標題
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.remove('add_mode_bgc');       // model標題底色--去除新增底色
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.add('edit_mode_bgc');         // model標題底色--新增編輯底色
+
+        var reset_btn = document.getElementById(to_module+'_reset_btn');                                    // 指定清除按鈕
+        reset_btn.classList.add('unblock');                                                                 // 編輯模式 = 隱藏
+
+        var add_btn = '<input type="submit" name="add_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
+        $('#'+to_module+'_modal_submit_btn').append(add_btn);                                               // 添加儲存鈕
+
+        var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+        $('#modal_delect_btn').append(del_btn);     // 刪除鈕
+
+
+        // remark: to_module = 來源與目的 supp、contact
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
             if(row['id'] == row_id){
@@ -552,8 +568,8 @@
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
 
-                // step3-3.開啟 彈出畫面模組 for user編輯
-                // edit_myTodo_btn.click();
+
+                return;
             }
         })
     }

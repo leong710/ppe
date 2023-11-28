@@ -243,9 +243,6 @@
                         <input type="hidden" name="id" id="supp_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             <span id="supp_modal_delect_btn"></span>
-
-                                    &nbsp&nbsp&nbsp&nbsp&nbsp
-                                    <input type="submit" name="delete_supp" value="刪除supp供應商" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -344,9 +341,6 @@
                         <input type="hidden" name="id" id="contact_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             <span id="contact_modal_delect_btn"></span>
-
-                                    &nbsp&nbsp&nbsp&nbsp&nbsp
-                                    <input type="submit" name="delete_contact" value="刪除contact聯絡人" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -546,7 +540,9 @@
 
         var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
         $('#modal_delect_btn').append(del_btn);     // 刪除鈕
-
+        
+        '<input type="submit" name="delete_supp" value="刪除supp供應商" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">'
+        '<input type="submit" name="delete_contact" value="刪除contact聯絡人" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">'
 
         // remark: to_module = 來源與目的 supp、contact
         // step1.將原排程陣列逐筆繞出來

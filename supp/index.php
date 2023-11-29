@@ -111,9 +111,25 @@
                                 <h3>supp/供應商管理</h3>
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <button type="button" id="edit_supp_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="add_module('supp')"><i class="fa fa-plus"></i> 單筆新增供應商</button>
-                                <?php } ?>
+                                <div class="row">
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                        <div class="col-12 col-md-6 py-0">
+                                            <button type="button" id="edit_supp_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="add_module('supp')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('supp')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                        </div>
+
+                                        <div class="col-12 col-md-6 py-0">
+                                            <?php if($count_supp != 0){ ?>
+                                                <!-- 下載EXCEL的觸發 -->
+                                                <form id="supp_myForm" method="post" action="../_Format/download_excel.php">
+                                                    <input type="hidden" name="htmlTable" id="supp_htmlTable" value="">
+                                                    <button type="submit" name="submit" class="btn btn-success" value="supp" onclick="submitDownloadExcel('supp')" >
+                                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                                </form>
+                                            <?php } ?>
+                                        </div>
+                                    <?php } ?>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -169,13 +185,29 @@
                     <!-- _contact -->
                     <div id="nav-contact_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-contact-tab">
                         <div class="row">
-                            <div class="col-12 col-md-4 py-0">
+                            <div class="col-12 col-md-6 py-0">
                                 <h3>contact/聯絡人管理</h3>
                             </div>
-                            <div class="col-12 col-md-8 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <button type="button" id="edit_contact_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="add_module('contact')"><i class="fa fa-plus"></i> 單筆新增聯絡人</button>
-                                <?php } ?>
+                            <div class="col-12 col-md-6 py-0 text-end">
+                                <div class="row">
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                        <div class="col-12 col-md-6 py-0">
+                                            <button type="button" id="edit_contact_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="add_module('contact')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('contact')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                        </div>
+
+                                        <div class="col-12 col-md-6 py-0">
+                                            <?php if($count_contact != 0){ ?>
+                                                <!-- 下載EXCEL的觸發 -->
+                                                <form id="contact_myForm" method="post" action="../_Format/download_excel.php">
+                                                    <input type="hidden" name="htmlTable" id="contact_htmlTable" value="">
+                                                    <button type="submit" name="submit" class="btn btn-success" value="contact" onclick="submitDownloadExcel('contact')" >
+                                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                                </form>
+                                            <?php } ?>
+                                        </div>
+                                    <?php } ?>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -435,32 +467,32 @@
     </div>
 <!-- 互動視窗 load_excel -->
     <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">上傳Excel檔：</h5>
+                    <h5 class="modal-title">上傳<span id="excel_modal_action"></span>&nbspExcel檔：</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
+                <form name="excelInput" action="../_Format/upload_excel_supp.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return checkExcelForm()">
                     <div class="modal-body px-4">
                         <div class="row">
                             <div class="col-12 col-md-6 py-0">
-                                <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/restock_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">需求清單 <span id="excel_example"></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
-                                    <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 250px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary">上傳</button>
+                                    <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 400px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                    <button type="submit" name="excelUpload" id="upload_excel_btn" class="btn btn-outline-secondary" value="">上傳</button>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 py-0">
                                 <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
-                                <p id="sn_list" name="warning" >＊請確認Excel中的資料</p>
+                                <p id="warningData" name="warning" >＊請確認Excel中的資料</p>
                             </div>
                         </div>
                             
                         <div class="row">
-                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="restockExcelForm()"></iframe>
+                            <iframe id="api" name="api" width="100%" height="100%" style="display: none;" onclick="checkExcelForm()"></iframe>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -492,13 +524,25 @@
     var supp_item       = ['id','scname','sname','supp_remark','inv_title','comp_no','_address','flag'];    // 交給其他功能帶入 delete_supp_id
     var contact_item    = ['id','comp_no','cname','phone','email','fax','contact_remark','flag'];           // 交給其他功能帶入 delete_contact_id
 
+// 以下為控制 iframe
+    var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
+    var iframe           = document.getElementById('api');                // 清冊的iframe介面
+    var warningText      = document.getElementById('warningText');        // 提示-檔案上傳
+    var warningData      = document.getElementById('warningData');        // 提示-檔案內容
+    var excel_json       = document.getElementById('excel_json');         // excel內容轉json
+    var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
+    var upload_excel_btn = document.getElementById('upload_excel_btn');   // 按鈕-上傳
+    var import_excel_btn = document.getElementById('import_excel_btn');   // 按鈕-載入
+
+
+
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
         document.querySelector('#key_word').value = '';
     }
 
-// // // add mode function
+    // 20231129 合併：add mode function
     function add_module(to_module){     // 啟用新增模式
         $('#'+to_module+'_modal_action, #'+to_module+'_modal_delect_btn, #'+to_module+'_modal_submit_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
         $('#'+to_module+'_reset_btn').click();                                                              // reset清除表單
@@ -512,18 +556,18 @@
 
         var reset_btn = document.getElementById(to_module+'_reset_btn');                                    // 指定清除按鈕
         reset_btn.classList.remove('unblock');                                                              // 新增模式 = 解除
-        if(to_module == 'supp'){
-            var activeTab = 0;
-        }else if(to_module == 'contact'){
-            var activeTab = 1;
-        }else{
-            var activeTab = 0;
-        }
-        document.getElementById(to_module+'_activeTab') = activeTab;
+
+            if(to_module == 'supp'){
+                var activeTab = 0;
+            }else if(to_module == 'contact'){
+                var activeTab = 1;
+            }else{
+                var activeTab = 0;
+            }
+            document.getElementById(to_module+'_activeTab').value = activeTab;
     }
 
-
-    // fun-1.鋪編輯畫面
+    // 20231129 合併：fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
         $('#'+to_module+'_modal_action, #'+to_module+'_modal_delect_btn, #'+to_module+'_modal_submit_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
         $('#'+to_module+'_reset_btn').click();                                                              // reset清除表單
@@ -531,18 +575,24 @@
         $('#'+to_module+'_modal_action').append('編輯');                                                    // model標題
         document.querySelector('#edit_'+to_module+' .modal-header').classList.remove('add_mode_bgc');       // model標題底色--去除新增底色
         document.querySelector('#edit_'+to_module+' .modal-header').classList.add('edit_mode_bgc');         // model標題底色--新增編輯底色
+        
+        var add_btn = '<input type="submit" name="add_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
+        $('#'+to_module+'_modal_submit_btn').append(add_btn);                                               // 添加儲存鈕
 
         var reset_btn = document.getElementById(to_module+'_reset_btn');                                    // 指定清除按鈕
         reset_btn.classList.add('unblock');                                                                 // 編輯模式 = 隱藏
 
-        var add_btn = '<input type="submit" name="add_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
-        $('#'+to_module+'_modal_submit_btn').append(add_btn);                                               // 添加儲存鈕
+        var del_btn = '&nbsp&nbsp&nbsp&nbsp<input type="submit" name="delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+        $('#'+to_module+'_modal_delect_btn').append(del_btn);     // 刪除鈕
 
-        var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
-        $('#modal_delect_btn').append(del_btn);     // 刪除鈕
-
-        // '<input type="submit" name="delete_supp" value="刪除supp供應商" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">'
-        // '<input type="submit" name="delete_contact" value="刪除contact聯絡人" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">'
+            if(to_module == 'supp'){
+                var activeTab = 0;
+            }else if(to_module == 'contact'){
+                var activeTab = 1;
+            }else{
+                var activeTab = 0;
+            }
+            document.getElementById(to_module+'_activeTab').value = activeTab;
 
         // remark: to_module = 來源與目的 supp、contact
         // step1.將原排程陣列逐筆繞出來
@@ -564,11 +614,23 @@
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
 
-
                 return;
             }
         })
     }
+
+    // 20231129 合併：excel mode function
+    function excel_module(to_module){     // 上傳Excel模式
+        $('#excel_modal_action, #excel_example').empty();     // 清除model功能
+
+        $('#excel_modal_action').append(to_module);                                                    // model標題文字
+
+        var example_btn = '&nbsp<a href="../_Format/'+to_module+'_example.xlsx" target="_blank">上傳格式範例</a>';
+        $('#excel_example').append(example_btn);                                               // 添加 上傳格式範例 鈕
+
+        document.getElementById('upload_excel_btn').value = to_module;
+    }
+
 
     // 切換上架/下架開關
     let flagBtns = [...document.querySelectorAll('.flagBtn')];
@@ -618,10 +680,95 @@
         }
     }
 
+// 20231128 以下為上傳後"iframe"的部分
+    // 阻止檔案未上傳導致的錯誤。
+    // 請注意設置時的"onsubmit"與"onclick"。
+    function checkExcelForm() {
+        // 如果檔案長度等於"0"。
+        if (excelFile.files.length === 0) {
+            // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
+            warningText.style.display = "block";
+            return false;
+        }
+        // 如果已選擇文件，允許表單提交
+        iframe.style.display = 'block'; 
+        // 以下為編輯特有
+        // showTrainList.style.display = 'none';
+        return true;
+    }
 
-    // 在任何地方啟用工具提示框
+    function iframeLoadAction() {
+        iframe.style.height = '0px';
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        var iframeContent = iframeDocument.documentElement;
+        var newHeight = iframeContent.scrollHeight + 'px';
+        iframe.style.height = newHeight;
+        var excel_json = iframeDocument.getElementById('excel_json');
+        var stopUpload = iframeDocument.getElementById('stopUpload');
+        // 在此處對找到的 <textarea> 元素進行相應的操作
+        if (excel_json) {
+            warningData.style.display = "none";
+            // 手动触发input事件
+            var inputEvent = new Event('input', { bubbles: true });
+            import_excel_btn.style.display = "block";       // 載入按鈕--顯示
+            warningText.style.display = "none";             // 警告文字--隱藏
+            
+        } else if(stopUpload) {
+            // 沒有找到 <textarea> 元素
+            console.log('請確認資料是否正確');
+            warningData.style.display = "block";
+            import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
+            warningText.style.display = "block";            // 警告文字--顯示
+
+        }else{
+            // console.log('找不到 < ? > 元素');
+        }
+    };
+    // Excel載入購物車
+    function uploadExcel_toCart(row_cart){
+        var trade_row_cart = JSON.parse(row_cart);
+        Object(trade_row_cart).forEach(function(cart_row){
+            Object.keys(cart_row).forEach(function(cart_row_key){
+                var cata_SN    = cart_row_key;                   
+                var arr_amount = cart_row[cart_row_key];
+                check_item(cata_SN, 0);                 // call function 查找已存在的項目，並予以清除。
+                add_item(cata_SN, arr_amount, 'off');
+            })
+        })
+        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+
+    }
+
+
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
+
+        // 20231128 以下為上傳後"iframe"的部分
+            // 監控按下送出鍵後，打開"iframe"
+            upload_excel_btn.addEventListener('click', function() {
+                iframeLoadAction();
+                checkExcelForm();
+            });
+            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+            iframe.addEventListener('load', function(){
+                iframeLoadAction();
+            });
+            // 監控按下[載入]鍵後----呼叫Excel載入購物車
+            import_excel_btn.addEventListener('click', function() {
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var excel_json = iframeDocument.getElementById('excel_json');
+                var stopUpload = iframeDocument.getElementById('stopUpload');
+
+                if (excel_json) {
+                    uploadExcel_toCart(excel_json.value);
+
+                } else if(stopUpload) {
+                    console.log('請確認資料是否正確');
+                }else{
+                    console.log('找不到 ? 元素');
+                }
+            });
     })
 
     $(document).ready(function(){

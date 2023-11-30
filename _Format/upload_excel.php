@@ -296,6 +296,98 @@
                         }
                     }
                 }
+            else if ($submit === 'pno') {
+                // 上傳--Part_NO料號pno
+                    if (isset($_FILES['excelFile'])) {
+                        $file = $_FILES['excelFile']['tmp_name'];
+                        $spreadsheet = IOFactory::load($file);
+                        $worksheet = $spreadsheet->getActiveSheet();
+                        $data = $worksheet->toArray();
+                        // echo print_r($data);
+                        // 在此处可以对$data进行进一步处理
+                        // 将结果输出为HTML表格
+                        $theadTitles = array('料號', '料號註解', '年度', '統器材編號編', '尺寸');
+                        // 計算陣列中的"key"
+                        $keyCount = count($theadTitles);
+                        echo '<div class="col-12 justify-content-center border bg-light">';
+                        echo '<table><thead><tr>';
+                        // 繞出每一個"theadTitles"的值
+                        foreach ($theadTitles as $theadTitle){
+                            echo '<th>' . $theadTitle . '</th>';
+                        }
+                        echo '</tr></thead>';
+                        // 防止無資料送入的錯誤。
+                        if(!isset($data[1])){
+                            echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                            return ;
+            
+                        }else{
+    
+                            echo '<tbody>';
+                            // 設定一個"result"陣列
+                            $result = array();
+                            $stopUpload = 0;
+    
+                            // 繞出每一個Data的值
+                            foreach ($data as $rowIndex => $row) {
+                                // 跳過表頭
+                                    if ($rowIndex === 0) {
+                                    // if ($rowIndex <= 1) {
+                                        continue; 
+                                    }
+                                echo '<tr>';
+                                // 避免輸入的part_no代碼中有 空白
+                                $part_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
+                                // 避免輸入的Phone代碼中有 空白
+                                // $phone_replace = trim(str_replace(' ', '', $row[1]));
+                                // 查詢cname是否存在
+                                $part_no_row = check_something($submit, $part_no_replace);
+                                
+                                if ($part_no_row["state"] !== "NA") {
+                                    echo '<td>' . htmlspecialchars($part_no_replace) . '</td>';
+                                    echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                                    echo '<td>' . htmlspecialchars($row[2]) . '</td>';
+                                    echo '<td>' . htmlspecialchars($row[3]) . '</td>';
+                                    echo '<td>' . htmlspecialchars($row[4]) . '</td>';
+    
+                                    $process = array(
+                                        'part_no'        => $part_no_replace,
+                                        'pno_remark'     => $row[1],
+                                        '_year'          => $row[2],
+                                        'cata_SN'        => $row[3],
+                                        'size'           => $row[4]
+       
+                                    );
+                                    $result[] = $process;
+
+                                }else {
+                                    handleInvalidRow($submit, $part_no_row, $part_no_replace);
+                                }
+    
+                                echo '</tr>'; 
+                            };
+    
+                            echo '</tbody></table>';
+                            // 增加卡"SN有誤"不能上傳。
+                            // print_r($result);
+                            // 如果"有誤"的累計資料等於"0"。
+                            if( $stopUpload === 0 ){
+                                // 將資料打包成JSON
+                                $jsonString = json_encode($result);
+    
+                            // cata購物車鋪設前處理 
+                                $cart_dec = (array) json_decode($jsonString);
+    
+                                // 以下是回傳給form購物車使用。
+                                echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                                echo '</div>';
+                            }else{
+                                echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
+                                echo '</div>';
+                            }
+                        }
+                    }
+                }
             else if ($submit === '其他按钮名称') {
                 // 其他按钮被点击时执行的操作
                 // ...

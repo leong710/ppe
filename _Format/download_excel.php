@@ -53,6 +53,9 @@
             case "contact":
                 $filename_head = "PPE聯絡人_總表下載";
                 break;
+            case "pno":
+                $filename_head = "PPE_Part_NO料號_總表下載";
+                break;
             default:
                 $filename_head = $to_module;
                 break;

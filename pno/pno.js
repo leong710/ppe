@@ -235,6 +235,102 @@
         }
     }
 
+    
+    // 20231129 合併：excel mode function
+    function excel_module(to_module){     // 上傳Excel模式
+        $('#excel_modal_action, #excel_example').empty();     // 清除model功能
+
+        $('#excel_modal_action').append(to_module);                                                    // model標題文字
+
+        var example_btn = '&nbsp<a href="../_Format/'+to_module+'_example.xlsx" target="_blank">上傳格式範例</a>';
+        $('#excel_example').append(example_btn);                                               // 添加 上傳格式範例 鈕
+
+        document.getElementById('upload_excel_btn').value = to_module;
+        document.getElementById('import_excel_btn').value = to_module;
+    }
+
+// 20231128 以下為上傳後"iframe"的部分
+    // 阻止檔案未上傳導致的錯誤。
+    // 請注意設置時的"onsubmit"與"onclick"。
+    function checkExcelForm() {
+        // 如果檔案長度等於"0"。
+        if (excelFile.files.length === 0) {
+            // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
+            warningText.style.display = "block";
+            return false;
+        }
+        // 如果已選擇文件，允許表單提交
+        iframe.style.display = 'block'; 
+        // 以下為編輯特有
+        // showTrainList.style.display = 'none';
+        return true;
+    }
+
+    function iframeLoadAction() {
+        iframe.style.height = '0px';
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        var iframeContent = iframeDocument.documentElement;
+        var newHeight = iframeContent.scrollHeight + 'px';
+        iframe.style.height = newHeight;
+        var excel_json = iframeDocument.getElementById('excel_json');
+        var stopUpload = iframeDocument.getElementById('stopUpload');
+        // 在此處對找到的 <textarea> 元素進行相應的操作
+        if (excel_json) {
+            warningData.style.display = "none";
+            // 手动触发input事件
+            var inputEvent = new Event('input', { bubbles: true });
+            import_excel_btn.style.display = "block";       // 載入按鈕--顯示
+            warningText.style.display = "none";             // 警告文字--隱藏
+            
+        } else if(stopUpload) {
+            // 沒有找到 <textarea> 元素
+            console.log('請確認資料是否正確');
+            warningData.style.display = "block";
+            import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
+            warningText.style.display = "block";            // 警告文字--顯示
+
+        }else{
+            // console.log('找不到 < ? > 元素');
+        }
+    };
+
+    // 20231128_下載Excel
+    function submitDownloadExcel(to_module) {
+        // 定義要抓的key=>value
+            if(to_module == "pno"){
+                var item_keys = {
+                    "cate_no"       : "分類編號",
+                    "cate_remark"   : "分類名稱",
+                    "cata_SN"       : "器材編號", 
+                    "pname"         : "器材名稱", 
+                    "size"          : "尺寸", 
+                    "_year"         : "年度", 
+                    "part_no"       : "料號", 
+                    // "price"         : "年度/單價NT$", 
+                    "pno_remark"    : "料號註解", 
+                    "flag"          : "開關",
+                    "updated_at"    : "最後更新",
+                    "updated_user"  : "最後編輯"
+                };
+            }else{
+                var item_keys = {};
+            }
+            // Object(window[to_module]).forEach(function(row){          
+
+        var sort_listData = [];         // 建立整理陣列
+        for(var i=0; i < window[to_module].length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(item_keys).forEach(function(i_key){
+                // console.log(item_keys[i_key]+"：" ,listData[i][item_key]);
+                sort_listData[i][item_keys[i_key]] = window[to_module][i][i_key];
+            })
+        }
+        // console.log('sort_listData:', sort_listData);
+        var htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+        // console.log(listData);
+    }
+
     // 精簡前語法
     // var rows = document.getElementsByTagName("td");
         // Array.from(rows).forEach(function(row) {

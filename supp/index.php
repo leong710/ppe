@@ -114,11 +114,6 @@
                                 <div class="row">
                                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                         <div class="col-12 col-md-6 py-0">
-                                            <button type="button" id="edit_supp_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="add_module('supp')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('supp')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
-                                        </div>
-
-                                        <div class="col-12 col-md-6 py-0">
                                             <?php if($count_supp != 0){ ?>
                                                 <!-- 下載EXCEL的觸發 -->
                                                 <form id="supp_myForm" method="post" action="../_Format/download_excel.php">
@@ -127,6 +122,11 @@
                                                         <i class="fa fa-download" aria-hidden="true"></i> 下載Excel</button>
                                                 </form>
                                             <?php } ?>
+                                        </div>
+
+                                        <div class="col-12 col-md-6 py-0">
+                                            <button type="button" id="edit_supp_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="add_module('supp')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('supp')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
                                         </div>
                                     <?php } ?>
                                 </div>
@@ -192,11 +192,6 @@
                                 <div class="row">
                                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                         <div class="col-12 col-md-6 py-0">
-                                            <button type="button" id="edit_contact_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="add_module('contact')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('contact')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
-                                        </div>
-
-                                        <div class="col-12 col-md-6 py-0">
                                             <?php if($count_contact != 0){ ?>
                                                 <!-- 下載EXCEL的觸發 -->
                                                 <form id="contact_myForm" method="post" action="../_Format/download_excel.php">
@@ -205,6 +200,10 @@
                                                         <i class="fa fa-download" aria-hidden="true"></i> 下載Excel</button>
                                                 </form>
                                             <?php } ?>
+                                        </div>
+                                        <div class="col-12 col-md-6 py-0">
+                                            <button type="button" id="edit_contact_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="add_module('contact')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#load_excel" onclick="excel_module('contact')"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
                                         </div>
                                     <?php } ?>
                                 </div>

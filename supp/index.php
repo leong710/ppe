@@ -124,7 +124,7 @@
                                                 <form id="supp_myForm" method="post" action="../_Format/download_excel.php">
                                                     <input type="hidden" name="htmlTable" id="supp_htmlTable" value="">
                                                     <button type="submit" name="submit" class="btn btn-success" value="supp" onclick="submitDownloadExcel('supp')" >
-                                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                                        <i class="fa fa-download" aria-hidden="true"></i> 下載Excel</button>
                                                 </form>
                                             <?php } ?>
                                         </div>
@@ -202,7 +202,7 @@
                                                 <form id="contact_myForm" method="post" action="../_Format/download_excel.php">
                                                     <input type="hidden" name="htmlTable" id="contact_htmlTable" value="">
                                                     <button type="submit" name="submit" class="btn btn-success" value="contact" onclick="submitDownloadExcel('contact')" >
-                                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                                        <i class="fa fa-download" aria-hidden="true"></i> 下載Excel</button>
                                                 </form>
                                             <?php } ?>
                                         </div>
@@ -272,7 +272,8 @@
                     <h4 class="modal-title"><span id="supp_modal_action"></span>&nbspsupp供應商</h4>
 
                     <form action="" method="post">
-                        <input type="hidden" name="id" id="supp_delete_id">
+                        <input type="hidden" name="activeTab"   id="supp_delete_activeTab"  value="">
+                        <input type="hidden" name="id"          id="supp_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             <span id="supp_modal_delect_btn"></span>
                         <?php } ?>
@@ -370,7 +371,8 @@
                     <h4 class="modal-title"><span id="contact_modal_action"></span>&nbspcontact聯絡人</h4>
 
                     <form action="" method="post">
-                        <input type="hidden" name="id" id="contact_delete_id">
+                        <input type="hidden" name="activeTab"   id="contact_delete_activeTab"  value="">
+                        <input type="hidden" name="id"          id="contact_delete_id"         value="">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                             <span id="contact_modal_delect_btn"></span>
                         <?php } ?>
@@ -465,7 +467,7 @@
             </div>
         </div>
     </div>
-<!-- 互動視窗 load_excel -->
+<!-- 互動視窗 upload_excel -->
     <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
@@ -474,8 +476,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form name="excelInput" action="../_Format/upload_excel_supp.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return checkExcelForm()">
-                    <div class="modal-body px-4">
+                <div class="modal-body px-4">
+                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return checkExcelForm()">
                         <div class="row">
                             <div class="col-12 col-md-6 py-0">
                                 <label for="excelFile" class="form-label">需求清單 <span id="excel_example"></span> 
@@ -490,16 +492,20 @@
                                 <p id="warningData" name="warning" >＊請確認Excel中的資料</p>
                             </div>
                         </div>
-                            
+                                
                         <div class="row">
-                            <iframe id="api" name="api" width="100%" height="100%" style="display: none;" onclick="checkExcelForm()"></iframe>
+                            <iframe id="api" name="api" width="100%" height="auto" style="display: none;" onclick="checkExcelForm()"></iframe>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" id="import_excel_btn" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
-                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <form action="import_excel.php" method="POST">
+                        <input  type="hidden" name="excelTable"   id="excelTable"       value="">
+                        <input  type="hidden" name="updated_user" id="updated_user"     value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                        <button type="submit" name="import_excel" id="import_excel_btn" value="" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
+                    </form>
+                    <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
             </div>
         </div>
     </div>
@@ -519,8 +525,8 @@
 
 <script>
 
-    var supp       = <?=json_encode($supps);?>;                                // 引入supps資料
-    var contact    = <?=json_encode($contacts);?>;                             // 引入contacts資料
+    var supp            = <?=json_encode($supps);?>;                                // 引入supps資料
+    var contact         = <?=json_encode($contacts);?>;                             // 引入contacts資料
     var supp_item       = ['id','scname','sname','supp_remark','inv_title','comp_no','_address','flag'];    // 交給其他功能帶入 delete_supp_id
     var contact_item    = ['id','comp_no','cname','phone','email','fax','contact_remark','flag'];           // 交給其他功能帶入 delete_contact_id
 
@@ -533,8 +539,6 @@
     var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
     var upload_excel_btn = document.getElementById('upload_excel_btn');   // 按鈕-上傳
     var import_excel_btn = document.getElementById('import_excel_btn');   // 按鈕-載入
-
-
 
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
@@ -592,6 +596,7 @@
             }else{
                 var activeTab = 0;
             }
+            document.getElementById(to_module+'_delete_activeTab').value = activeTab;
             document.getElementById(to_module+'_activeTab').value = activeTab;
 
         // remark: to_module = 來源與目的 supp、contact
@@ -629,6 +634,7 @@
         $('#excel_example').append(example_btn);                                               // 添加 上傳格式範例 鈕
 
         document.getElementById('upload_excel_btn').value = to_module;
+        document.getElementById('import_excel_btn').value = to_module;
     }
 
 
@@ -739,6 +745,56 @@
 
     }
 
+    // 20231128_下載Excel
+    function submitDownloadExcel(to_module) {
+        // 定義要抓的key=>value
+            if(to_module == "supp"){
+                var item_keys = {
+                    "scname"        : "供應商中文名稱", 
+                    "sname"         : "供應商英文名稱", 
+                    "inv_title"     : "發票抬頭", 
+                    "cate_no"       : "分類", 
+                    "comp_no"       : "統編", 
+                    "_address"      : "發票地址", 
+                    "contact"       : "聯絡人", 
+                    "phone"         : "連絡電話", 
+                    "email"         : "電子信箱", 
+                    "fax"           : "傳真",
+                    "supp_remark"   : "備註說明",
+                    "flag"          : "開關",
+                    "updated_at"    : "最後更新",
+                    "updated_user"  : "最後編輯"
+                };
+            }else if(to_module == "contact"){
+                var item_keys = {
+                    "cname"         : "聯絡人姓名", 
+                    "phone"         : "連絡電話", 
+                    "email"         : "電子信箱", 
+                    "fax"           : "傳真",
+                    "comp_no"       : "統編", 
+                    "contact_remark": "備註說明",
+                    "flag"          : "開關",
+                    "updated_at"    : "最後更新",
+                    "updated_user"  : "最後編輯"
+                };
+            }else{
+                var item_keys = {};
+            }
+            // Object(window[to_module]).forEach(function(row){          
+
+        var sort_listData = [];         // 建立整理陣列
+        for(var i=0; i < window[to_module].length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(item_keys).forEach(function(i_key){
+                // console.log(item_keys[i_key]+"：" ,listData[i][item_key]);
+                sort_listData[i][item_keys[i_key]] = window[to_module][i][i_key];
+            })
+        }
+        // console.log('sort_listData:', sort_listData);
+        var htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+        // console.log(listData);
+    }
 
     $(function () {
         // 在任何地方啟用工具提示框
@@ -761,7 +817,9 @@
                 var stopUpload = iframeDocument.getElementById('stopUpload');
 
                 if (excel_json) {
-                    uploadExcel_toCart(excel_json.value);
+                    // uploadExcel_toCart(excel_json.value);
+                    // console.log(excel_json.value);
+                    document.getElementById('excelTable').value = excel_json.value;
 
                 } else if(stopUpload) {
                     console.log('請確認資料是否正確');

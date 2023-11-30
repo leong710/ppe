@@ -637,7 +637,7 @@
                                 <div class="col-12 text-end">
                                     <!-- 下載EXCEL的觸發 -->
                                     <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                    <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" onclick="submitDownloadExcel()" >
+                                    <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" value="stock" onclick="submitDownloadExcel('stock')" >
                                         <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
                                 </div>
                             </div>

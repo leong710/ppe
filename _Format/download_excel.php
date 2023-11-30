@@ -9,6 +9,11 @@
     use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
     $data = json_decode($_POST["htmlTable"], true);
+    if(!empty($_REQUEST["submit"])){
+        $to_module = $_REQUEST["submit"];
+    }else{
+        $to_module = "downLoad_excel";
+    }
     $now = date("Y-m-d");
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
@@ -38,9 +43,22 @@
 
 
     // 設定檔案名稱
-    $row_fab_title = $data[0]["儲存點"];
+        switch($to_module){
+            case "stock":
+                $filename_head = $data[0]["儲存點"]."_PPE存量總表";
+                break;
+            case "supp":
+                $filename_head = "PPE供應商_總表下載";
+                break;
+            case "contact":
+                $filename_head = "PPE聯絡人_總表下載";
+                break;
+            default:
+                $filename_head = $to_module;
+                break;
+        }
 
-    $filename = $row_fab_title.'_PPE存量總表_'.$now.'.xlsx';  // 設定檔名 
+    $filename = $filename_head."_".$now.'.xlsx';  // 設定檔名 
 
     // 以下為EXCEL規範制式的表頭格式
     header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

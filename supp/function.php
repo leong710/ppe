@@ -9,9 +9,12 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$scname, $sname, $supp_remark, $inv_title, $comp_no, $_address, $flag, $updated_user]);
+            $result = TRUE;
         }catch(PDOException $e){
             echo $e->getMessage();
+            $result = FALSE;
         }
+        return $result;
     }
     // from edit_supp.php 依ID找出要修改的supp內容
     function edit_supp($request){
@@ -124,9 +127,12 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$cname, $phone, $email, $fax, $comp_no, $contact_remark, $flag, $updated_user]);
+            $result = TRUE;
         }catch(PDOException $e){
             echo $e->getMessage();
+            $result = FALSE;
         }
+        return $result;
     }
     // from edit_contact.php 依ID找出要修改的contact內容
     function edit_contact($request){

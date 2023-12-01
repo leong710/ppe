@@ -82,9 +82,9 @@
                         LEFT JOIN _site _site_i   ON _fab_i.site_id = _site_i.id ";
                 // 設定狀態文字 for filename串接
                 // 後段-堆疊查詢語法：需求類別=0臨時
-                if($ppty == '0'){
-                    $sql .= " WHERE ppty =? AND _issue.idty=0 ";
-                    $csv_title = "臨時需求";
+                    if($ppty == '0'){
+                        $sql .= " WHERE ppty =? AND _issue.idty=0 ";
+                        $csv_title = "臨時需求";
                     }
                     // 後段-堆疊查詢語法：需求類別=1定期
                     if($ppty == '1'){

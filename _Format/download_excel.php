@@ -18,7 +18,7 @@
     $spreadsheet = new Spreadsheet();
     // $sheet = $spreadsheet->getActiveSheet();
     $sheet = $spreadsheet->getActiveSheet()->freezePane('A2');      // 冻结窗格，锁定行和列
-
+    
     $keys = array_keys($data[0]);
     $column = 1;
         foreach ($keys as $key) {
@@ -36,12 +36,17 @@
                 if ($key === "action") {
                     continue; // 跳过特定的 $key
                 }
-                $sheet->setCellValueByColumnAndRow($col, $row, $value);
+                // $sheet->setCellValueByColumnAndRow($col, $row, $value); // cell直接帶入值
+                    // 自動換行
+                    $cell = $sheet->getCellByColumnAndRow($col, $row);
+                    $cell->setValue($value);                                   
+                    $style = $cell->getStyle();
+                    $style->getAlignment()->setWrapText(true);
+
                 $col++;
             }
             $row++;
         }
-
 
     // 設定檔案名稱
         switch($to_module){
@@ -56,6 +61,12 @@
                 break;
             case "pno":
                 $filename_head = "PPE_Part_NO料號_總表下載";
+                break;
+            case "issueAmount":
+                $filename_head = "PPE_請購需求單待轉PR_總表下載";
+                break;
+            case "issueAmount_PR":
+                $filename_head = "PPE_請購需求單已開PR：{$_REQUEST["pr_no"]}_總表下載";
                 break;
             default:
                 $filename_head = $to_module;

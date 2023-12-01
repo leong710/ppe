@@ -452,7 +452,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-5" style="text-align:center;" >
-                    <img src="<?php echo $_GET["img"]; ?>" style="height: 100%;" class="img-thumbnail">
+                    <img src="./images/<?php echo $_GET["img"]; ?>" style="height: 100%;" class="img-thumbnail">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>

@@ -29,25 +29,25 @@
         $obj_catalogs = [];
         foreach($catalogs as $cata){
             $obj_catalogs[$cata["SN"]] = [
-                'id' => $cata["id"],
-                'SN' => $cata["SN"],
-                'pname' => $cata["pname"],
-                'PIC' => $cata["PIC"],
-                'cata_remark' => $cata["cata_remark"],
-                'OBM' => $cata["OBM"],
-                'model' => $cata["model"],
-                'size' => $cata["size"],
-                'unit' => $cata["unit"],
-                'SPEC' => $cata["SPEC"],
-                'part_no' => $cata["part_no"],
-                'scomp_no' => $cata["scomp_no"],
-                'buy_a' => $cata["buy_a"],
-                'buy_b' => $cata["buy_b"],
-                'flag' => $cata["flag"],
-                'updated_user' => $cata["updated_user"],
-                'cate_title' => $cata["cate_title"],
-                'cate_no' => $cata["cate_no"],
-                'cate_id' => $cata["cate_id"]
+                'id'            => $cata["id"],
+                'SN'            => $cata["SN"],
+                'pname'         => $cata["pname"],
+                'PIC'           => $cata["PIC"],
+                'cata_remark'   => $cata["cata_remark"],
+                'OBM'           => $cata["OBM"],
+                'model'         => $cata["model"],
+                'size'          => $cata["size"],
+                'unit'          => $cata["unit"],
+                'SPEC'          => $cata["SPEC"],
+                'part_no'       => $cata["part_no"],
+                'scomp_no'      => $cata["scomp_no"],
+                'buy_a'         => $cata["buy_a"],
+                'buy_b'         => $cata["buy_b"],
+                'flag'          => $cata["flag"],
+                'updated_user'  => $cata["updated_user"],
+                'cate_title'    => $cata["cate_title"],
+                'cate_no'       => $cata["cate_no"],
+                'cate_id'       => $cata["cate_id"]
             ];
         }
     
@@ -100,10 +100,19 @@
                 </div> 
                 <div class="col-12 col-md-6 text-end">
                     <div class="">
-                        <?php if($_SESSION[$sys_id]['role'] <= 1){?>  
+                        <?php if($_SESSION[$sys_id]['role'] <= 1  ){?>  
                             <a href="../trade/restock.php?pr_no=<?php echo $pr_no;?>" target="_blank" title="發貨確認" class="btn btn-primary" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>
-                        <?php }?>
-                        <a href="docsv.php?action=export_review&pr_no=<?php echo $pr_no;?>" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> 匯出CSV</a>
+                            <?php if(count($issues) > 0) { ?> 
+                                <!-- 20231128 下載Excel -->
+                                <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
+                                    <input type="hidden" name="htmlTable"   id="htmlTable"  value="">
+                                    <input type="hidden" name="pr_no"       value="<?php echo $pr_no;?>">
+                                    <button type="submit" name="submit" class="btn btn-success" value="issueAmount_PR" onclick="submitDownloadExcel(this.value)" >
+                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
+                                </form>
+                            <?php } ?>
+                        <?php } ?>
+                        <a href="docsv.php?action=export_review&pr_no=<?php echo $pr_no;?>" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
                         <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div> 
@@ -121,7 +130,7 @@
                     </div>
                     <hr>
                     <div class="px-3">
-                        <table class="for-table">
+                        <table class="for-table" id="issueAmount_table">
                             <thead>
                                 <tr>
                                     <th>SN</th>
@@ -224,5 +233,35 @@
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
+<script>
+
+    // 在任何地方啟用工具提示框
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    })
+
+    // 20231128_下載Excel
+    function submitDownloadExcel() {
+        // 定義畫面上Table範圍
+        var ia_table = document.getElementById("issueAmount_table");
+        var rows = ia_table.getElementsByTagName("tr");
+        var rowData = [];
+        // 获取表格的标题行数据
+        var headerRow = ia_table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
+        var headerCells = headerRow.getElementsByTagName("th");
+        // 逐列導出
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+            rowData[i-1] = {};
+            // 逐欄導出：thead-th = tbod-td
+            for (var j = 0; j < cells.length; j++) {
+                rowData[i-1][headerCells[j].innerHTML] = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
+            }
+        }
+        console.log('rowData:', rowData);
+        var htmlTableValue = JSON.stringify(rowData);
+        document.getElementById('htmlTable').value = htmlTableValue;
+    }
+</script>
 
 <?php include("../template/footer.php"); ?>

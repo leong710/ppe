@@ -104,10 +104,10 @@
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來
         Object.keys(issue_item).forEach(function(issue_key){
-            if(issue_key == 'ppty' && issue_row[issue_key]){                      // ppty/需求類別
+            if(issue_key == 'ppty'){                      // ppty/需求類別
                 var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
                 if(ppty){
-                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                    ppty.checked = true;
                 }
                 
             }else if(issue_key == 'item' && issue_row[issue_key]){      //item 購物車
@@ -118,7 +118,7 @@
             }else if(issue_row[issue_key]){
                 var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
-                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
+                    row_key.value = issue_row[issue_key]; 
                 }
             }
         })

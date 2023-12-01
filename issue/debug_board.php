@@ -4,7 +4,9 @@
     <div class="col-12 mb-0 bg-white rounded">
         <div style="font-size: 8px;">
             <?php 
-                echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                if(isset($step)){
+                    echo $step ? ">>> 表單身分：".$step."</br>" : "";
+                }
                 if(isset($issue_row['idty'])){
                     echo ">>> idty:".$issue_row['idty']." ";
                     switch($issue_row['idty']){
@@ -28,9 +30,13 @@
                         print_r($_REQUEST);
                         echo "<hr>";
                     }
-                    if($issue_row){
+                    if(isset($issue_row)){
                         echo ">>> issue_row</br>";
                         print_r($issue_row);
+                    }
+                    if(isset($issues)){
+                        echo ">>> issues</br>";
+                        print_r($issues);
                     }
                 echo "</pre>text-end";
             ?>

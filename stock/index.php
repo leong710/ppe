@@ -678,11 +678,11 @@
 
 <script>
 // // // 開局導入設定檔
-    var allLocals = <?=json_encode($allLocals);?>;                      // 引入所有local的allLocals值
-    var low_level = [];                                                 // 宣告low_level變數
-    var stock = <?=json_encode($div_stocks);?>;                         // 引入div_stocks資料
-    var stock_item = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-    var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+    var allLocals   = <?=json_encode($allLocals);?>;                   // 引入所有local的allLocals值
+    var low_level   = [];                                              // 宣告low_level變數
+    var stock       = <?=json_encode($div_stocks);?>;                  // 引入div_stocks資料
+    var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
+    var swal_json   = <?=json_encode($swal_json);?>;                   // 引入swal_json值
     
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
     var listData = <?=json_encode($stocks);?>;                         // 引入stocks資料

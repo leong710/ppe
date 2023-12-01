@@ -56,6 +56,13 @@
         .unblock{
             display: none;
         }
+        /* 新增與編輯 module表頭顏色 */
+        .add_mode_bgc {          
+            background-color: #ADD8E6;
+        }
+        .edit_mode_bgc {
+            background-color: #FFFACD;
+        }
     </style>
 </head>
 <!-- 針對item儲存狀況快照的內容進行反解處理 -->
@@ -88,27 +95,30 @@
         <div class="col-12 rounded p-4 my-2" style="background-color: rgba(200, 255, 255, .6);">
             <!-- 表單表頭功能鍵 -->
             <div class="row px-2">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-4">
                     <div class="">
                         <h3><b>請購需求單待轉PR</b></h3>
                     </div> 
-                    <div class="">
-
-                    </div> 
                 </div> 
-                <div class="col-12 col-md-6 text-end">
+                <div class="col-12 col-md-8 text-end">
                     <div class="">
                         <?php if($_SESSION[$sys_id]["role"] <=1 && count($issues) > 0){ ?>
                             <a href="#" target="_blank" title="PR開單確認" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#issue2pr"> <i class="fa fa-edit" aria-hidden="true"></i> PR開單確認</a>
-                            <a href="#" target="_blank" title="匯出CSV" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"> <i class="fa fa-download" aria-hidden="true"></i> 下載CSV</a>
+                            <!-- 20231128 下載Excel -->
+                            <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
+                                <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                <button type="submit" name="submit" class="btn btn-success" value="issueAmount" onclick="submitDownloadExcel(this.value)" >
+                                    <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
+                            </form>
                         <?php } ?>
+                        <a href="docsv.php?action=export&ppty=All" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
                         <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                     </div>
                 </div> 
             </div>
-            <div id="table">
+            <div>
                 <!-- 需求清單table -->
-                <div id="table" class="col-xl-12 col-12 rounded bg-light mb-3">
+                <div class="col-xl-12 col-12 rounded bg-light mb-3">
                     <div class="row">
                         <div class="col-12 col-md-6 pb-0">
                             請購需求單數量：<?php echo count($issues)."件";?>
@@ -119,7 +129,7 @@
                     </div>
                     <hr>
                     <div class="px-3">
-                        <table class="for-table">
+                        <table class="for-table" id="issueAmount_table">
                             <thead>
                                 <tr>
                                     <th>SN</th>
@@ -156,6 +166,11 @@
                 </div>
             </div>
         </div>
+        <hr>
+        <!-- 尾段：debug訊息 -->
+        <?php if(isset($_REQUEST["debug"])){
+            include("debug_board.php"); 
+        } ?>
     </div>
 </div>
 <!-- 彈出畫面說明模組 PR開單確認-->
@@ -184,39 +199,6 @@
             </form>    
         </div>
     </div>
-<!-- 彈出畫面模組2 匯出CSV-->
-    <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">匯出需求總表(csv)</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <!-- 20220606測試匯出csv -->
-                <form id="addform" action="docsv.php?action=export" method="post"> 
-                    <div class="modal-body p-4" >
-                        <div class="col-12">
-                            <label for="" class="form-label">請選擇您要匯出的需求類別：<sup class="text-danger"> *</sup></label>
-                            <select name="ppty" id="ppty" class="form-control" required >
-                                <option value="0" hidden>0_臨時需求</option>
-                                <option value="1" selected>1_定期需求 action=export</option>
-                                <option value="All" hidden>All_全部</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-    
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="submit" class="btn btn-success" value="匯出CSV" onclick="doCSV.hide()"> 
-                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form> 
-            </div>
-        </div>
-    </div>
 <!-- goTop滾動畫面DIV 2/4-->
 <div id="gotop">
     <i class="fas fa-angle-up fa-1x"></i>
@@ -227,10 +209,33 @@
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
+
     // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
+
+    // 20231128_下載Excel
+    function submitDownloadExcel() {
+        // 定義畫面上Table範圍
+        var ia_table = document.getElementById("issueAmount_table");
+        var rows = ia_table.getElementsByTagName("tr");
+        var rowData = [];
+        // 获取表格的标题行数据
+        var headerRow = ia_table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
+        var headerCells = headerRow.getElementsByTagName("th");
+        // 逐列導出
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+            rowData[i-1] = {};
+            // 逐欄導出：thead-th = tbod-td
+            for (var j = 0; j < cells.length; j++) {
+                rowData[i-1][headerCells[j].innerHTML] = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
+            }
+        }
+        var htmlTableValue = JSON.stringify(rowData);
+        document.getElementById('htmlTable').value = htmlTableValue;
+    }
 </script>
 
 <?php include("../template/footer.php"); ?>

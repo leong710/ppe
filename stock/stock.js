@@ -237,7 +237,7 @@
                 sort_listData[i][stocks_item_keys[item_key]] = listData[i][item_key];
             })
         }
-        // console.log('sort_listData:', sort_listData);
+        console.log('sort_listData:', sort_listData);
         var htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById('htmlTable').value = htmlTableValue;
         // console.log(listData);

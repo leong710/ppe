@@ -1,13 +1,41 @@
 
-    // 在任何地方啟用工具提示框
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+
+        // 20231128 以下為上傳後"iframe"的部分
+            // 監控按下送出鍵後，打開"iframe"
+            upload_excel_btn.addEventListener('click', function() {
+                iframeLoadAction();
+                checkExcelForm();
+            });
+            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+            iframe.addEventListener('load', function(){
+                iframeLoadAction();
+            });
+            // 監控按下[載入]鍵後----呼叫Excel載入購物車
+            import_excel_btn.addEventListener('click', function() {
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var excel_json = iframeDocument.getElementById('excel_json');
+                var stopUpload = iframeDocument.getElementById('stopUpload');
+
+                if (excel_json) {
+                    // console.log(excel_json.value);
+                    document.getElementById('excelTable').value = excel_json.value;
+
+                } else if(stopUpload) {
+                    console.log('請確認資料是否正確');
+                }else{
+                    console.log('找不到 ? 元素');
+                }
+            });
+
     })
 
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
 
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");

@@ -197,6 +197,9 @@
             border: 2px solid greenyellow;
             padding: 5px;
         }
+        #excel_iframe{
+            height: 320px;
+        }
     </style>
     <script>    
         // loading function
@@ -603,7 +606,7 @@
                                 </div>
                             </div>
                                 
-                            <div class="row">
+                            <div class="row" id="excel_iframe">
                                 <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="restockExcelForm()"></iframe>
                             </div>
                         </div>

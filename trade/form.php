@@ -190,6 +190,9 @@
             margin-bottom: 0px;
             /* text-align: center; */
         }
+        #excel_iframe{
+            height: 320px;
+        }
     </style>
     <script>    
         // loading function

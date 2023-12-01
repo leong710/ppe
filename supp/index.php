@@ -76,6 +76,9 @@
             margin-bottom: 0px;
             /* text-align: center; */
         }
+        #excel_iframe{
+            height: 320px;
+        }
     </style>
 </head>
 <body>
@@ -492,7 +495,7 @@
                             </div>
                         </div>
                                 
-                        <div class="row">
+                        <div class="row" id="excel_iframe">
                             <iframe id="api" name="api" width="100%" height="auto" style="display: none;" onclick="checkExcelForm()"></iframe>
                         </div>
                     </form>

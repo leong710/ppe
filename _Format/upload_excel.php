@@ -11,386 +11,361 @@
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['excelUpload'])) {
-            $submit = $_POST['excelUpload'];
-            if ($submit === '') {
-                // "上傳"按钮被点击时执行的操作
-                    if (isset($_FILES['excelFile'])) {
-                        $file = $_FILES['excelFile']['tmp_name'];
-                        $spreadsheet = IOFactory::load($file);
-                        $worksheet = $spreadsheet->getActiveSheet();
-                        $data = $worksheet->toArray();
-                        // echo print_r($data);
-                        // 在此处可以对$data进行进一步处理
-                        // 将结果输出为HTML表格
-                        $theadTitles = array('SN', '名稱', '需求數量');
-                        // 計算陣列中的"key"
-                        $keyCount = count($theadTitles);
-                        echo '<div class="col-12 justify-content-center border bg-light">';
-                        echo '<table><thead><tr>';
-                        // 繞出每一個"theadTitles"的值
-                        foreach ($theadTitles as $theadTitle){
-                            echo '<th>' . $theadTitle . '</th>';
-                        }
-                        echo '</tr></thead>';
-                        // 防止無資料送入的錯誤。
-                        if(!isset($data[1])){
-                            echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
-                            return ;
             
-                        }else{
+            if (isset($_FILES['excelFile'])) {
+                $file = $_FILES['excelFile']['tmp_name'];
+                $spreadsheet = IOFactory::load($file);
+                $worksheet = $spreadsheet->getActiveSheet();
+                $data = $worksheet->toArray();
+                // echo print_r($data);
 
-                            echo '<tbody>';
-                            // 設定一個"result"陣列
-                            $result = array();
-                            $stopUpload = 0;
-
-                            // 繞出每一個Data的值
-                            foreach ($data as $rowIndex => $row) {
-                                // 跳過表頭
-                                    if ($rowIndex === 0) {
-                                        continue; 
-                                    }
-                                echo '<tr>';
-                                // 避免輸入的SN代碼中有 空白、小寫
-                                $SN_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
-                                // 避免輸入的Amount代碼中有 空白
-                                $amount_replace = trim(str_replace(' ', '', $row[1]));
-                                    // 查詢SN是否存在
-                                    // $SN_row = checkSN($SN_replace);
-                                    $SN_row = check_something($submit, $SN_replace);
-
-                                if ($SN_row["state"] !== "NA" && is_numeric($amount_replace)) {
-                                    echo '<td>' . htmlspecialchars($SN_replace) . '</td>';
-                                    echo '<td>' . htmlspecialchars($SN_row["pname"]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($amount_replace) . '</td>';
-
-                                    // $process = array(
-                                    //     'SN'        => $SN_replace,
-                                    //     'amount'    => $amount_replace
-                                    // );
-                                    $process = [
-                                        $SN_replace => $amount_replace
-                                    ];
-                                    $result[] = $process;
-                                }else {
-                                    handleInvalidRow($submit, $SN_row, $amount_replace);
-                                }
-
-                                echo '</tr>'; 
-                            };
-
-                            echo '</tbody></table>';
-                            // 增加卡"SN有誤"不能上傳。
-                            // print_r($result);
-                            // 如果"有誤"的累計資料等於"0"。
-                            if( $stopUpload === 0 ){
-                                // 將資料打包成JSON
-                                $jsonString = json_encode($result);
-
-                            // cata購物車鋪設前處理 
-                                $cart_dec = (array) json_decode($jsonString);
-
-                                // 以下是回傳給form購物車使用。
-                                echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
-                                echo '</div>';
-                            }else{
-                                echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個資料有誤。請確認後再上傳。".'</div>';
-                                echo '</div>';
-                            }
-                        }
-                    }
-                }
-            else if ($submit === 'supp') {
-                // 上傳--供應商supp
-                    if (isset($_FILES['excelFile'])) {
-                        $file = $_FILES['excelFile']['tmp_name'];
-                        $spreadsheet = IOFactory::load($file);
-                        $worksheet = $spreadsheet->getActiveSheet();
-                        $data = $worksheet->toArray();
-                        // echo print_r($data);
-                        // 在此处可以对$data进行进一步处理
-                        // 将结果输出为HTML表格
-                        $theadTitles = array('供應商中文名稱','供應商英文名稱','發票抬頭','統編','發票地址','聯絡人','連絡電話','電子信箱','傳真','註解說明');
-                        // 計算陣列中的"key"
-                        $keyCount = count($theadTitles);
-                        echo '<div class="col-12 justify-content-center border bg-light">';
-                        echo '<table><thead><tr>';
-                        // 繞出每一個"theadTitles"的值
-                        foreach ($theadTitles as $theadTitle){
-                            echo '<th>' . $theadTitle . '</th>';
-                        }
-                        echo '</tr></thead>';
-                        // 防止無資料送入的錯誤。
-                        if(!isset($data[1])){
-                            echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
-                            return ;
-            
-                        }else{
-    
-                            echo '<tbody>';
-                            // 設定一個"result"陣列
-                            $result = array();
-                            $stopUpload = 0;
-    
-                            // 繞出每一個Data的值
-                            foreach ($data as $rowIndex => $row) {
-                                // 跳過表頭
-                                    if ($rowIndex === 0) {
-                                    // if ($rowIndex <= 1) {
-                                        continue; 
-                                    }
-                                echo '<tr>';
-                                // 避免輸入的comp_no代碼中有 空白
-                                // $comp_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
-                                $comp_no_replace = trim(str_replace(' ', '', $row[3]));
-                                    // // 避免輸入的Phone代碼中有 空白
-                                    // $phone_replace = trim(str_replace(' ', '', $row[1]));
-                                // 查詢comp_no是否存在
-                                $supp_row = check_something($submit, $comp_no_replace);
-                                
-                                if ($supp_row["state"] !== "NA") {
-                                    echo '<td>' . htmlspecialchars($row[0]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[1]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[2]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($comp_no_replace) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[4]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[5]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[6]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[7]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[8]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[9]) . '</td>';
-    
-                                    $process = array(
-                                        'scname'        => $row[0],
-                                        'sname'         => $row[1],
-                                        'inv_title'     => $row[2],
-                                        'comp_no'       => $comp_no_replace,
-                                        '_address'      => $row[4],
-                                        'contact'       => $row[5],
-                                        'phone'         => $row[6],
-                                        'email'         => $row[7],
-                                        'fax'           => $row[8],
-                                        'supp_remark'   => $row[9]
-                                    );
-                                    $result[] = $process;
-
-                                }else {
-                                    handleInvalidRow($submit, $supp_row, $comp_no_replace);
-                                }
-    
-                                echo '</tr>'; 
-                            };
-    
-                            echo '</tbody></table>';
-                            // 增加卡"SN有誤"不能上傳。
-                            // print_r($result);
-                            // 如果"有誤"的累計資料等於"0"。
-                            if( $stopUpload === 0 ){
-                                // 將資料打包成JSON
-                                $jsonString = json_encode($result);
-    
-                            // cata購物車鋪設前處理 
-                                $cart_dec = (array) json_decode($jsonString);
-    
-                                // 以下是回傳給form購物車使用。
-                                echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
-                                echo '</div>';
-                            }else{
-                                echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
-                                echo '</div>';
-                            }
-                        }
-                    }
-                }
-            else if ($submit === 'contact') {
-                // 上傳--聯絡人contact
-                    if (isset($_FILES['excelFile'])) {
-                        $file = $_FILES['excelFile']['tmp_name'];
-                        $spreadsheet = IOFactory::load($file);
-                        $worksheet = $spreadsheet->getActiveSheet();
-                        $data = $worksheet->toArray();
-                        // echo print_r($data);
-                        // 在此处可以对$data进行进一步处理
-                        // 将结果输出为HTML表格
-                        $theadTitles = array('聯絡人姓名', '連絡電話', '電子信箱', '傳真', '供應商統編', '註解說明');
-                        // 計算陣列中的"key"
-                        $keyCount = count($theadTitles);
-                        echo '<div class="col-12 justify-content-center border bg-light">';
-                        echo '<table><thead><tr>';
-                        // 繞出每一個"theadTitles"的值
-                        foreach ($theadTitles as $theadTitle){
-                            echo '<th>' . $theadTitle . '</th>';
-                        }
-                        echo '</tr></thead>';
-                        // 防止無資料送入的錯誤。
-                        if(!isset($data[1])){
-                            echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
-                            return ;
-            
-                        }else{
-    
-                            echo '<tbody>';
-                            // 設定一個"result"陣列
-                            $result = array();
-                            $stopUpload = 0;
-    
-                            // 繞出每一個Data的值
-                            foreach ($data as $rowIndex => $row) {
-                                // 跳過表頭
-                                    if ($rowIndex === 0) {
-                                    // if ($rowIndex <= 1) {
-                                        continue; 
-                                    }
-                                echo '<tr>';
-                                // 避免輸入的cname代碼中有 空白
-                                // $cname_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
-                                $cname_replace = trim(str_replace(' ', '', $row[0]));
-                                // 避免輸入的Phone代碼中有 空白
-                                // $phone_replace = trim(str_replace(' ', '', $row[1]));
-                                // 查詢cname是否存在
-                                $contace_row = check_something($submit, $cname_replace);
-                                
-                                if ($contace_row["state"] !== "NA") {
-                                    echo '<td>' . htmlspecialchars($cname_replace) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[1]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[2]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[3]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[4]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[5]) . '</td>';
-    
-                                    $process = array(
-                                        'cname'             => $cname_replace,
-                                        'phone'             => $row[1],
-                                        'email'             => $row[2],
-                                        'fax'               => $row[3],
-                                        'comp_no'           => $row[4],
-                                        'contact_remark'    => $row[5]
-                                    );
-                                    $result[] = $process;
-
-                                }else {
-                                    handleInvalidRow($submit, $contace_row, $cname_replace);
-                                }
-    
-                                echo '</tr>'; 
-                            };
-    
-                            echo '</tbody></table>';
-                            // 增加卡"SN有誤"不能上傳。
-                            // print_r($result);
-                            // 如果"有誤"的累計資料等於"0"。
-                            if( $stopUpload === 0 ){
-                                // 將資料打包成JSON
-                                $jsonString = json_encode($result);
-    
-                            // cata購物車鋪設前處理 
-                                $cart_dec = (array) json_decode($jsonString);
-    
-                                // 以下是回傳給form購物車使用。
-                                echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
-                                echo '</div>';
-                            }else{
-                                echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
-                                echo '</div>';
-                            }
-                        }
-                    }
-                }
-            else if ($submit === 'pno') {
-                // 上傳--Part_NO料號pno
-                    if (isset($_FILES['excelFile'])) {
-                        $file = $_FILES['excelFile']['tmp_name'];
-                        $spreadsheet = IOFactory::load($file);
-                        $worksheet = $spreadsheet->getActiveSheet();
-                        $data = $worksheet->toArray();
-                        // echo print_r($data);
-                        // 在此处可以对$data进行进一步处理
-                        // 将结果输出为HTML表格
-                        $theadTitles = array('料號', '料號註解', '年度', '統器材編號編', '尺寸');
-                        // 計算陣列中的"key"
-                        $keyCount = count($theadTitles);
-                        echo '<div class="col-12 justify-content-center border bg-light">';
-                        echo '<table><thead><tr>';
-                        // 繞出每一個"theadTitles"的值
-                        foreach ($theadTitles as $theadTitle){
-                            echo '<th>' . $theadTitle . '</th>';
-                        }
-                        echo '</tr></thead>';
-                        // 防止無資料送入的錯誤。
-                        if(!isset($data[1])){
-                            echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
-                            return ;
-            
-                        }else{
-    
-                            echo '<tbody>';
-                            // 設定一個"result"陣列
-                            $result = array();
-                            $stopUpload = 0;
-    
-                            // 繞出每一個Data的值
-                            foreach ($data as $rowIndex => $row) {
-                                // 跳過表頭
-                                    if ($rowIndex === 0) {
-                                    // if ($rowIndex <= 1) {
-                                        continue; 
-                                    }
-                                echo '<tr>';
-                                // 避免輸入的part_no代碼中有 空白
-                                $part_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
-                                // 避免輸入的Phone代碼中有 空白
-                                // $phone_replace = trim(str_replace(' ', '', $row[1]));
-                                // 查詢cname是否存在
-                                $part_no_row = check_something($submit, $part_no_replace);
-                                
-                                if ($part_no_row["state"] !== "NA") {
-                                    echo '<td>' . htmlspecialchars($part_no_replace) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[1]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[2]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[3]) . '</td>';
-                                    echo '<td>' . htmlspecialchars($row[4]) . '</td>';
-    
-                                    $process = array(
-                                        'part_no'        => $part_no_replace,
-                                        'pno_remark'     => $row[1],
-                                        '_year'          => $row[2],
-                                        'cata_SN'        => $row[3],
-                                        'size'           => $row[4]
-       
-                                    );
-                                    $result[] = $process;
-
-                                }else {
-                                    handleInvalidRow($submit, $part_no_row, $part_no_replace);
-                                }
-    
-                                echo '</tr>'; 
-                            };
-    
-                            echo '</tbody></table>';
-                            // 增加卡"SN有誤"不能上傳。
-                            // print_r($result);
-                            // 如果"有誤"的累計資料等於"0"。
-                            if( $stopUpload === 0 ){
-                                // 將資料打包成JSON
-                                $jsonString = json_encode($result);
-    
-                            // cata購物車鋪設前處理 
-                                $cart_dec = (array) json_decode($jsonString);
-    
-                                // 以下是回傳給form購物車使用。
-                                echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
-                                echo '</div>';
-                            }else{
-                                echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
-                                echo '</div>';
-                            }
-                        }
-                    }
-                }
-            else if ($submit === '其他按钮名称') {
                 // 其他按钮被点击时执行的操作
-                // ...
+                $submit = $_POST['excelUpload'];
+                if ($submit === '') {               // "上傳"按钮被点击时执行的操作
+                    // 在此处可以对$data进行进一步处理
+                    // 将结果输出为HTML表格
+                    $theadTitles = array('SN', '名稱', '需求數量');
+                    // 計算陣列中的"key"
+                    $keyCount = count($theadTitles);
+                    echo '<div class="col-12 justify-content-center border bg-light">';
+                    echo '<table><thead><tr>';
+                    // 繞出每一個"theadTitles"的值
+                    foreach ($theadTitles as $theadTitle){
+                        echo '<th>' . $theadTitle . '</th>';
+                    }
+                    echo '</tr></thead>';
+                    // 防止無資料送入的錯誤。
+                    if(!isset($data[1])){
+                        echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                        return ;
+        
+                    }else{
+
+                        echo '<tbody>';
+                        // 設定一個"result"陣列
+                        $result = array();
+                        $stopUpload = 0;
+
+                        // 繞出每一個Data的值
+                        foreach ($data as $rowIndex => $row) {
+                            // 跳過表頭
+                                if ($rowIndex === 0) {
+                                    continue; 
+                                }
+                            echo '<tr>';
+                            // 避免輸入的SN代碼中有 空白、小寫
+                            $SN_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
+                            // 避免輸入的Amount代碼中有 空白
+                            $amount_replace = trim(str_replace(' ', '', $row[1]));
+                                // 查詢SN是否存在
+                                // $SN_row = checkSN($SN_replace);
+                                $SN_row = check_something($submit, $SN_replace);
+
+                            if ($SN_row["state"] !== "NA" && is_numeric($amount_replace)) {
+                                echo '<td>' . htmlspecialchars($SN_replace) . '</td>';
+                                echo '<td>' . htmlspecialchars($SN_row["pname"]) . '</td>';
+                                echo '<td>' . htmlspecialchars($amount_replace) . '</td>';
+
+                                // $process = array(
+                                //     'SN'        => $SN_replace,
+                                //     'amount'    => $amount_replace
+                                // );
+                                $process = [
+                                    $SN_replace => $amount_replace
+                                ];
+                                $result[] = $process;
+                            }else {
+                                handleInvalidRow($submit, $SN_row, $amount_replace);
+                            }
+
+                            echo '</tr>'; 
+                        };
+
+                        echo '</tbody></table>';
+                        // 增加卡"SN有誤"不能上傳。
+                        // print_r($result);
+                        // 如果"有誤"的累計資料等於"0"。
+                        if( $stopUpload === 0 ){
+                            // 將資料打包成JSON
+                            $jsonString = json_encode($result);
+
+                        // cata購物車鋪設前處理 
+                            $cart_dec = (array) json_decode($jsonString);
+
+                            // 以下是回傳給form購物車使用。
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                            echo '</div>';
+                        }else{
+                            echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個資料有誤。請確認後再上傳。".'</div>';
+                            echo '</div>';
+                        }
+                    }
+                } else if ($submit === 'supp') {    // 上傳--供應商supp
+                    // 在此处可以对$data进行进一步处理
+                    // 将结果输出为HTML表格
+                    $theadTitles = array('供應商中文名稱','供應商英文名稱','發票抬頭','統編','發票地址','聯絡人','連絡電話','電子信箱','傳真','註解說明');
+                    // 計算陣列中的"key"
+                    $keyCount = count($theadTitles);
+                    echo '<div class="col-12 justify-content-center border bg-light">';
+                    echo '<table><thead><tr>';
+                    // 繞出每一個"theadTitles"的值
+                    foreach ($theadTitles as $theadTitle){
+                        echo '<th>' . $theadTitle . '</th>';
+                    }
+                    echo '</tr></thead>';
+                    // 防止無資料送入的錯誤。
+                    if(!isset($data[1])){
+                        echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                        return ;
+        
+                    }else{
+
+                        echo '<tbody>';
+                        // 設定一個"result"陣列
+                        $result = array();
+                        $stopUpload = 0;
+
+                        // 繞出每一個Data的值
+                        foreach ($data as $rowIndex => $row) {
+                            // 跳過表頭
+                                if ($rowIndex === 0) {
+                                // if ($rowIndex <= 1) {
+                                    continue; 
+                                }
+                            echo '<tr>';
+                            // 避免輸入的comp_no代碼中有 空白
+                            // $comp_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
+                            $comp_no_replace = trim(str_replace(' ', '', $row[3]));
+                                // // 避免輸入的Phone代碼中有 空白
+                                // $phone_replace = trim(str_replace(' ', '', $row[1]));
+                            // 查詢comp_no是否存在
+                            $supp_row = check_something($submit, $comp_no_replace);
+                            
+                            if ($supp_row["state"] !== "NA") {
+                                echo '<td>' . htmlspecialchars($row[0]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[2]) . '</td>';
+                                echo '<td>' . htmlspecialchars($comp_no_replace) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[4]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[5]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[6]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[7]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[8]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[9]) . '</td>';
+
+                                $process = array(
+                                    'scname'        => $row[0],
+                                    'sname'         => $row[1],
+                                    'inv_title'     => $row[2],
+                                    'comp_no'       => $comp_no_replace,
+                                    '_address'      => $row[4],
+                                    'contact'       => $row[5],
+                                    'phone'         => $row[6],
+                                    'email'         => $row[7],
+                                    'fax'           => $row[8],
+                                    'supp_remark'   => $row[9]
+                                );
+                                $result[] = $process;
+
+                            }else {
+                                handleInvalidRow($submit, $supp_row, $comp_no_replace);
+                            }
+
+                            echo '</tr>'; 
+                        };
+
+                        echo '</tbody></table>';
+                        // 增加卡"SN有誤"不能上傳。
+                        // print_r($result);
+                        // 如果"有誤"的累計資料等於"0"。
+                        if( $stopUpload === 0 ){
+                            // 將資料打包成JSON
+                            $jsonString = json_encode($result);
+
+                        // cata購物車鋪設前處理 
+                            $cart_dec = (array) json_decode($jsonString);
+
+                            // 以下是回傳給form購物車使用。
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                            echo '</div>';
+                        }else{
+                            echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
+                            echo '</div>';
+                        }
+                    }
+                } else if ($submit === 'contact') {     // 上傳--聯絡人contact
+                    // 在此处可以对$data进行进一步处理
+                    // 将结果输出为HTML表格
+                    $theadTitles = array('聯絡人姓名', '連絡電話', '電子信箱', '傳真', '供應商統編', '註解說明');
+                    // 計算陣列中的"key"
+                    $keyCount = count($theadTitles);
+                    echo '<div class="col-12 justify-content-center border bg-light">';
+                    echo '<table><thead><tr>';
+                    // 繞出每一個"theadTitles"的值
+                    foreach ($theadTitles as $theadTitle){
+                        echo '<th>' . $theadTitle . '</th>';
+                    }
+                    echo '</tr></thead>';
+                    // 防止無資料送入的錯誤。
+                    if(!isset($data[1])){
+                        echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                        return ;
+        
+                    }else{
+
+                        echo '<tbody>';
+                        // 設定一個"result"陣列
+                        $result = array();
+                        $stopUpload = 0;
+
+                        // 繞出每一個Data的值
+                        foreach ($data as $rowIndex => $row) {
+                            // 跳過表頭
+                                if ($rowIndex === 0) {
+                                // if ($rowIndex <= 1) {
+                                    continue; 
+                                }
+                            echo '<tr>';
+                            // 避免輸入的cname代碼中有 空白
+                            // $cname_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
+                            $cname_replace = trim(str_replace(' ', '', $row[0]));
+                            // 避免輸入的Phone代碼中有 空白
+                            // $phone_replace = trim(str_replace(' ', '', $row[1]));
+                            // 查詢cname是否存在
+                            $contace_row = check_something($submit, $cname_replace);
+                            
+                            if ($contace_row["state"] !== "NA") {
+                                echo '<td>' . htmlspecialchars($cname_replace) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[2]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[3]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[4]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[5]) . '</td>';
+
+                                $process = array(
+                                    'cname'             => $cname_replace,
+                                    'phone'             => $row[1],
+                                    'email'             => $row[2],
+                                    'fax'               => $row[3],
+                                    'comp_no'           => $row[4],
+                                    'contact_remark'    => $row[5]
+                                );
+                                $result[] = $process;
+
+                            }else {
+                                handleInvalidRow($submit, $contace_row, $cname_replace);
+                            }
+
+                            echo '</tr>'; 
+                        };
+
+                        echo '</tbody></table>';
+                        // 增加卡"SN有誤"不能上傳。
+                        // print_r($result);
+                        // 如果"有誤"的累計資料等於"0"。
+                        if( $stopUpload === 0 ){
+                            // 將資料打包成JSON
+                            $jsonString = json_encode($result);
+
+                        // cata購物車鋪設前處理 
+                            $cart_dec = (array) json_decode($jsonString);
+
+                            // 以下是回傳給form購物車使用。
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                            echo '</div>';
+                        }else{
+                            echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
+                            echo '</div>';
+                        }
+                    }
+                } else if ($submit === 'pno') {         // 上傳--Part_NO料號pno
+                    // 在此处可以对$data进行进一步处理
+                    // 将结果输出为HTML表格
+                    $theadTitles = array('料號', '料號註解', '年度', '器材編號SN', '尺寸');
+                    // 計算陣列中的"key"
+                    $keyCount = count($theadTitles);
+                    echo '<div class="col-12 justify-content-center border bg-light">';
+                    echo '<table><thead><tr>';
+                    // 繞出每一個"theadTitles"的值
+                    foreach ($theadTitles as $theadTitle){
+                        echo '<th>' . $theadTitle . '</th>';
+                    }
+                    echo '</tr></thead>';
+                    // 防止無資料送入的錯誤。
+                    if(!isset($data[1])){
+                        echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                        return ;
+        
+                    }else{
+
+                        echo '<tbody>';
+                        // 設定一個"result"陣列
+                        $result = array();
+                        $stopUpload = 0;
+
+                        // 繞出每一個Data的值
+                        foreach ($data as $rowIndex => $row) {
+                            // 跳過表頭
+                                if ($rowIndex === 0) {
+                                // if ($rowIndex <= 1) {
+                                    continue; 
+                                }
+                            echo '<tr>';
+                            // 避免輸入的part_no代碼中有 空白
+                            $part_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
+                            // 避免輸入的Phone代碼中有 空白
+                            // $phone_replace = trim(str_replace(' ', '', $row[1]));
+                            // 查詢cname是否存在
+                            $part_no_row = check_something($submit, $part_no_replace);
+                            
+                            if ($part_no_row["state"] !== "NA") {
+                                echo '<td>' . htmlspecialchars($part_no_replace) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[1]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[2]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[3]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[4]) . '</td>';
+
+                                $process = array(
+                                    'part_no'        => $part_no_replace,
+                                    'pno_remark'     => $row[1],
+                                    '_year'          => $row[2],
+                                    '_quoteYear'     => $row[2],
+                                    'cata_SN'        => $row[3],
+                                    'size'           => $row[4]
+
+                                );
+                                $result[] = $process;
+
+                            }else {
+                                handleInvalidRow($submit, $part_no_row, $part_no_replace);
+                            }
+
+                            echo '</tr>'; 
+                        };
+
+                        echo '</tbody></table>';
+                        // 增加卡"SN有誤"不能上傳。
+                        // print_r($result);
+                        // 如果"有誤"的累計資料等於"0"。
+                        if( $stopUpload === 0 ){
+                            // 將資料打包成JSON
+                            $jsonString = json_encode($result);
+
+                        // cata購物車鋪設前處理 
+                            $cart_dec = (array) json_decode($jsonString);
+
+                            // 以下是回傳給form購物車使用。
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                            echo '</div>';
+                        }else{
+                            echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有".$stopUpload."個，資料有誤。請確認後再上傳。".'</div>';
+                            echo '</div>';
+                        }
+                    }
+                } else if ($submit === '其他按钮名称') {
+                    // 其他按钮被点击时执行的操作
+                    // ...
+                }
             }
         }
     }
@@ -411,6 +386,10 @@
                 $sql_check = "SELECT * FROM _contact WHERE cname = ?";
                 break;
 
+            case "pno":
+                $sql_check = "SELECT * FROM _pno WHERE part_no = ?";
+                break;
+
             default:            // 預定失效 
                 return; 
                 break;
@@ -419,7 +398,7 @@
         try {
             $stmt_check -> execute([$query_item]);
             if($stmt_check -> rowCount() > 0){     
-                // 確認cname姓名是否已經註冊
+                // 確認query_item是否已經註冊
                 $result = $stmt_check->fetch();
                 // 如果有值，則返回找到的資料。
                 switch($submit){
@@ -448,6 +427,15 @@
                             "query_row"     => "cname",
                             "cname"         => $result["cname"],
                             "comp_no"       => $result["comp_no"]
+                        ];  
+                        break;
+                    case "pno":
+                        $resultRecall = [
+                            "state"         => "NA",
+                            "query_item"    => $query_item,
+                            "query_row"     => "part_no",
+                            "part_no"       => $result["part_no"],
+                            "cata_SN"       => $result["cata_SN"]
                         ];  
                         break;
                     default:            // 預定失效 
@@ -483,6 +471,15 @@
                             "comp_no"       => "NA"
                         ];
                         break;
+                    case "pno":
+                        $resultRecall = [
+                            "state"         => "OK",
+                            "query_item"    => $query_item,
+                            "query_row"     => "part_no",
+                            "part_no"       => $query_item,
+                            "cata_SN"       => "NA"
+                        ];
+                        break;
                     default:            // 預定失效 
                         break;
                 }
@@ -510,6 +507,9 @@
                 case "contact":
                     echo '<td>'.$row_check["query_item"].'</td><td colspan="5" style="text-align: left;">此筆資料'.$errorMsg.'已被建立</td>';
                     break;
+                case "pno":
+                    echo '<td>'.$row_check["query_item"].'</td><td colspan="4" style="text-align: left;">此筆資料'.$errorMsg.'已被建立</td>';
+                    break;
                 default:            // 預定失效 
                     break;
             }
@@ -524,6 +524,9 @@
                     break;
                 case "contact":
                     echo '<td>'.$row_check["query_item"].'</td><td colspan="5" style="text-align: left;">此筆資料'.$errorMsg.'有誤</td>';
+                    break;
+                case "pno":
+                    echo '<td>'.$row_check["query_item"].'</td><td colspan="4" style="text-align: left;">此筆資料'.$errorMsg.'有誤</td>';
                     break;
                 default:            // 預定失效 
                     break;
@@ -556,6 +559,8 @@
             case "supp":
                 break;
             case "contact":
+                break;
+            case "pno":
                 break;
             default:            // 預定失效 
                 break;

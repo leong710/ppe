@@ -17,7 +17,9 @@
                 // header("refresh:0;url=register.php");
                 return;
             }
-
+            if(empty($_price)){
+                $_price = 0;
+            }
         // 組合price單價 = _quoteYear/報價年度 : _price/單價
             $price_arr = array(
                 $_quoteYear => $_price
@@ -28,10 +30,12 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price_json, $flag, $updated_user]);
-            
+            $result = TRUE;
         }catch(PDOException $e){
             echo $e->getMessage();
+            $result = FALSE;
         }
+        return $result;
     }
     // from edit_pno.php 依ID找出要修改的pno內容
     function edit_pno($request){

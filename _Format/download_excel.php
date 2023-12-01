@@ -16,7 +16,8 @@
     }
     $now = date("Y-m-d");
     $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
+    // $sheet = $spreadsheet->getActiveSheet();
+    $sheet = $spreadsheet->getActiveSheet()->freezePane('A2');      // 冻结窗格，锁定行和列
 
     $keys = array_keys($data[0]);
     $column = 1;

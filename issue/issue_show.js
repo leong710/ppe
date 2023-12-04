@@ -1,14 +1,4 @@
 
-    // tab_table的顯示關閉功能
-    function op_tab(tab_value){
-        $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
-        var tab_table = document.getElementById(tab_value+"_table");
-        if (tab_table.style.display === "none") {
-            tab_table.style.display = "table";
-        } else {
-            tab_table.style.display = "none";
-        }
-    }
 
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
@@ -29,8 +19,20 @@
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)" disabled>';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled>';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
+                    if(issue_collect_role){
+                            var amount_need = add_amount['need'];               // 加工：取需求量
+                            var amount_need_length = amount_need.length;        // 加工：取需求量的長度
+                        // console.log(add_amount['need'], amount_need_length);
+                        add_cata_item += '<td><input type="number" name="item['+cata['SN']+'][pay]" class="collect amount t-center" disabled placeholder="數量" min="0" ';
+                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
+                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+')value='+amount_need+'" >'+'</td></tr>';
+                        add_cata_item += ' value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+')value='+amount_need+'" >'+'</td></tr>';
+                        add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
+                    }else{
+                        add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
+                    }
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -100,7 +102,7 @@
             "ppty"           : "** ppty/需求類別",
             "id"             : "id",
             "item"           : "** item"
-            // "sin_comm"       : "command/簽核comm",
+            // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來
         Object.keys(issue_item).forEach(function(issue_key){
@@ -134,18 +136,128 @@
 
     // 簽核類型渲染
     function submit_item(idty, idty_title){
-        $('#idty, #idty_title, #action').empty();
+        $('#idty, #idty_title, #action, #po_no_form, #sign_comm').empty();
         document.getElementById('action').value = 'sign';
         document.getElementById('idty').value = idty;
         $('#idty_title').append(idty_title);
+
+        var po_no_form = document.getElementById('po_no_form');
+        var po_no_input = '<label for="po_no" class="form-label">PO編號：<sup class="text-danger"> *</sup></label>';
+            po_no_input += '<input type="text" name="po_no" id="po_no" class="form-control t-center" placeholder="請填PO編號" maxlength="12" required>';
+        var sign_comm = document.getElementById('sign_comm');
+
+           
+        if(po_no_form && (idty == 13)){
+            $('#po_no_form').append(po_no_input);
+            po_no_form.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
+            sign_comm.value = '(請購入庫)';
+        }else{
+            po_no_form.classList.add('unblock');              // 按下其他 = 隱藏
+            sign_comm.value = '';
+        }
     }
 
-    // 在任何地方啟用工具提示框
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    })
+    // tab_table的顯示關閉功能
+    function op_tab(tab_value){
+        $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
+        var tab_table = document.getElementById(tab_value+"_table");
+        if (tab_table.style.display === "none") {
+            tab_table.style.display = "table";
+        } else {
+            tab_table.style.display = "none";
+        }
+    }
     
-    $(document).ready(function () {
+    // 2023/10/25 將請購需求單推送給按push的人~
+    function push_mapp(emp_id){
+
+        emp_id = emp_id.trim();
+        if(!emp_id || (emp_id.length < 8)){
+            alert("工號字數有誤 !!");
+            $("body").mLoading("hide");
+            return false;
+        } 
+
+        issue_msg = sort_issue();       // 呼叫fun 取得整理的文字串
+
+        $.ajax({
+            url:'http://10.53.248.167/SendNotify',                              // 20230505 正式修正要去掉port 801
+            method:'post',
+            async: false,                                                       // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                eid : emp_id,                                                   // 傳送對象
+                message : issue_msg                                           // 傳送訊息
+            },
+            success: function(res){
+                console.log("push_mapp -- success：",res);
+                // swal_content = '推送成功';
+                // swal_action = 'success';
+            },
+            error: function(res){
+                console.log("push_mapp -- error：",res);
+                // swal_content = '推送失敗';
+                // swal_action = 'error';
+            }
+        });
+        
+        var swal_title = '請購需求單-發放訊息';
+        var swal_content = '推送成功';
+        var swal_action = 'success';
+        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
+        $("body").mLoading("hide");
+        
+        // console.log("i'm push_mapp");
+        return;
+    }
+    
+    // 2023/10/25 整理請購需求單內訊息給mapp用
+    function sort_issue(){
+        
+        // get領用地點
+            var getLocal_id = document.getElementById('local_id');
+            if(getLocal_id){
+                var collect_local = getLocal_id.value;
+            }else{
+                var collect_local = '(請查閱請購需求)';
+            }
+        // get購物車數量
+            var getShopping_cart = document.getElementById('shopping_count');
+            if(getShopping_cart){
+                var shopping_count = getShopping_cart.innerText;
+            }else{
+                var shopping_count = '(請查閱請購需求';
+            }
+
+        var issue_row_cart = JSON.parse(issue_row['item']);   // get申請單品項數量
+        var i_cunt = 1;                                                     // 各品項前的計數
+        var add_cata_item = '[ PPE請購需求 - '+action+' ]';
+            add_cata_item += '\n申請日期：'+issue_row['create_date'];
+            add_cata_item += '\n申請人：'+issue_row['cname_i'];
+            add_cata_item += '\n需求廠區：'+collect_local;
+        
+        Object.keys(issue_row_cart).forEach(function(cart_key){
+            Object(catalogs).forEach(function(cata){          
+                if(cata['SN'] === cart_key){
+                    // add_cata_item += '\nSN： '+cata['SN']+'\npName： '+cata['pname']+'\nModel： '+cata['model']+'\nSize： '+cata['size']+'\nAmount： '+issue_row_cart[cart_key]+'\nUnit： '+cata['unit'];
+                    add_cata_item += '\n'+i_cunt+'.SN:'+cata['SN']+' / '+cata['pname'];
+                    add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+issue_row_cart[cart_key]['need']+' '+cata['unit']+'\n';
+                    i_cunt += 1;
+                    return;         // 對應到一筆資料就可以結束迴圈了
+                }
+            })
+        })
+
+        add_cata_item += '\n以上共：'+shopping_count +' 品項';
+        add_cata_item += '\n文件連結：'+issue_url;
+        
+        // console.log("i'm sort_issue");
+        return add_cata_item;
+    }
+
+    $(function () {
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
 
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
@@ -169,6 +281,9 @@
                 } 
             } 
         };
+    })
+    
+    $(document).ready(function () {
 
         edit_item();        // 啟動鋪設畫面
         $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車

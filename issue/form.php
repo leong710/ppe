@@ -360,8 +360,7 @@
                                                     <th>品名</th>
                                                     <th>型號</th>
                                                     <th>尺寸</th>
-                                                    <th>數量</th>
-                                                    <th>單位</th>
+                                                    <th>數量 / 單位</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="shopping_cart_tbody">
@@ -444,8 +443,8 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-5">
-                                        <label for="sin_comm" class="form-check-label" >command：</label>
-                                        <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                        <label for="sign_comm" class="form-check-label" >command：</label>
+                                        <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">

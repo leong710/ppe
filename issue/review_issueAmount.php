@@ -63,22 +63,25 @@
 </head>
 <!-- 針對item儲存狀況快照的內容進行反解處理 -->
 <?php foreach($issues as $is){
-    $item_str = $is["item"];                     // 把item整串(未解碼)存到$item_str
-    $item_dec = json_decode($item_str);          // 解碼後存到$item_dec
-    //PHP stdClass Object轉array 
-    if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-    $item_key = array_keys((array)$item_dec);   // 取得診列key
-    foreach($item_key as $it){
-        $all_item[$it] = $it;
-        if(empty($all_amount[$it])){
-            $all_amount[$it] = $item_dec[$it];
+    $item_str = $is["item"];                                    // 把item整串(未解碼)存到$item_str
+    $item_dec = json_decode($item_str);                         // 解碼後存到$item_dec
+    if(is_object($item_dec)) { $item_dec = (array)$item_dec; }  // PHP stdClass Object轉array 
+    // $item_key = array_keys((array)$item_dec);                   // 取得診列key
+    $item_key = array_keys($item_dec);                          // 取得診列key
+
+    foreach($item_key as $ikey){
+        $all_item[$ikey] = $ikey;
+        $item_dec_amount = (array) $item_dec[$ikey];
+
+        if(empty($all_amount[$ikey])){
+            $all_amount[$ikey] = $item_dec_amount["need"];
         }else{
-            $all_amount[$it] = $all_amount[$it] + $item_dec[$it];
+            $all_amount[$ikey] = $all_amount[$ikey] + $item_dec_amount["need"];
         }
-        if(empty($issue_fab[$it])){
-            $issue_fab[$it] = $is['fab_i_title'].': '.$item_dec[$it];
+        if(empty($issue_fab[$ikey])){
+            $issue_fab[$ikey] = $is['fab_i_title'].': '.$item_dec_amount["need"];
         }else{
-            $issue_fab[$it] = $issue_fab[$it].'</br>'.$is['fab_i_title'].': '.$item_dec[$it];
+            $issue_fab[$ikey] = $issue_fab[$ikey].'</br>'.$is['fab_i_title'].': '.$item_dec_amount["need"];
         }
         array_push($issue_SN_list, $is['id']);
     }

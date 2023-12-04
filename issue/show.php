@@ -4,11 +4,11 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    $issue_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
         $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
     }else{
-        $up_href = $receive_url;                        // 回本頁
+        $up_href = $issue_url;                          // 回本頁
     }
 
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -45,7 +45,6 @@
         // logs紀錄鋪設前處理 
         $logs_dec = json_decode($issue_row["logs"]);
         $logs_arr = (array) $logs_dec;
-
     }else{
         $issue_row = array( "id" => "" );       // 預設issue_row[id]=空array
         $logs_arr = [];                             // 預設logs_arr=空array
@@ -53,7 +52,6 @@
     }
 
     if(!empty($issue_row["in_local"])){                    // edit issue表單，get已選擇出庫廠區站點
-        
         $query_in_local = array(
             'local_id' => $issue_row["in_local"]
         );
@@ -130,14 +128,6 @@
 
     // $step套用身份
     $step = $step_arr[$step_index];
-
-
-
-
-
-
-
-
 
 ?>
 
@@ -223,6 +213,15 @@
         tr > td {
             vertical-align: middle; 
         }
+        #logs_div tr > td , #logs_div tr > th{
+            text-align: left;
+        }
+        .collect{
+            color: #fa0e7e;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0px 0px 1px #fff;
+        }
     </style>
     <script>    
         // loading function
@@ -269,6 +268,15 @@
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
+                        <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
+                            $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
+                            $issue_collect_role = FALSE ;
+                            if($issue_role && $issue_row['idty'] == 11 ){ 
+                                $issue_collect_role = TRUE ;?>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                        <?php }else if($issue_role && $issue_row['idty'] == 13 ){                             ;?>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="12" onclick="submit_item(this.value, this.innerHTML);">驗收 (acceptance)</button>
+                        <?php } ?>
                     </div>
                 </div>
     
@@ -298,6 +306,9 @@
                                                 <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
+                                        <?php if($issue_row['idty'] == 11 && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']])) ){ ?>
+                                            <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
+                                        <?php } ?>
                                     </div>
                                     <hr>
                                     <!-- 相關資訊說明 -->
@@ -306,7 +317,7 @@
                                         <div class="row">
                                             <div class="col-12 col-md-6 py-1 px-2">
                                                 <div class="form-floating">
-                                                <input type="text" class="form-control" readonly
+                                                <input type="text" class="form-control" id="local_id" readonly
                                                         value="<?php echo $select_in_local['id'].'：'.$select_in_local['site_title'].' '.$select_in_local['fab_title'].'_'.$select_in_local['local_title']; 
                                                             echo ($select_in_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                     <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
@@ -334,7 +345,7 @@
                                             <div class="col-12 py-1">
                                                 <b>備註：</b>
                                                 </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                                </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
+                                                </br>&nbsp2.簽核：申請人1=>承辦人0=>PR待轉11=>轉PR==>11交貨13==>驗收12+16=>表單結案10。 
                                             </div>
                                         </div>
                                     </div>
@@ -350,12 +361,12 @@
                                                 <thead>
                                                     <tr>
                                                         <th>select</th>
-                                                        <th>SN</th>
-                                                        <th>品名</th>
+                                                        <th style="text-align: left;">SN / 品名</th>
                                                         <th>型號</th>
                                                         <th>尺寸</th>
                                                         <th>數量</th>
-                                                        <th>單位</th>
+                                                        <th>申請量 / 單位</th>
+                                                        <th>實發量</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="shopping_cart_tbody">
@@ -385,8 +396,15 @@
                                         </div>
                                         
                                         <div class="modal-body px-5">
-                                            <label for="sin_comm" class="form-check-label" >command：</label>
-                                            <textarea name="sin_comm" id="sin_comm" class="form-control" rows="5"></textarea>
+                                            <!-- 第二排的功能 -->
+                                            <div class="row">
+                                                <div class="col-12 py-0 block" id="po_no_form">
+                                                </div>
+                                                <div class="col-12 py-0">
+                                                    <label for="sign_comm" class="form-check-label" >command：</label>
+                                                    <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
@@ -458,10 +476,12 @@
 
 <script>
 
-    var action = '<?=$action;?>';                                   // 引入action資料
-    var catalogs = <?=json_encode($catalogs);?>;                    // 引入catalogs資料
-    var issue_row = <?=json_encode($issue_row);?>;                  // 引入issue_row資料作為Edit
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
+    var catalogs            = <?=json_encode($catalogs);?>;                 // 引入catalogs資料
+    var action              = '<?=$action;?>';                              // 引入action資料
+    var issue_row           = <?=json_encode($issue_row);?>;                // 引入issue_row資料作為Edit
+    var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
+    var json                = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
+    var issue_url           = '<?=$issue_url;?>';                           // push訊息 // 本文件網址
 
 </script>
 

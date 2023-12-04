@@ -17,13 +17,13 @@
                 $swal_json = sign_issue($_REQUEST);       
                 break;      // 簽核
 
-            case "pr2fab": 
-                $swal_json = update_pr2fab($_REQUEST);    
-                break;      // $_POST["pr2fab_submit"] 發貨 => 12
+            // case "pr2fab": 
+            //     $swal_json = update_pr2fab($_REQUEST);    
+            //     break;      // $_POST["pr2fab_submit"] 發貨 => 12
 
-            case "getIssue": 
-                $swal_json = update_getIssue($_REQUEST);  
-                break;      // $_POST["getIssue_submit"] 收貨 => 10
+            // case "getIssue": 
+            //     $swal_json = update_getIssue($_REQUEST);  
+            //     break;      // $_POST["getIssue_submit"] 收貨 => 10
 
             default: 
                 echo "bg-light text-success";             

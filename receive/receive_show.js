@@ -318,11 +318,6 @@
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 

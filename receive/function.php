@@ -221,6 +221,9 @@
         $pdo = pdo();
         extract($request);
 
+        $fun = "store_receive";               // for swal_json
+        $content_text = "領用申請--";        // for swal_json
+
         // item資料前處理
             $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素再要編碼
             
@@ -252,16 +255,16 @@
                 $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
                         , $cata_SN_amount_enc, $idty, $logs_enc, $created_emp_id, $created_cname, $created_cname, $omager, $in_sign]);
                 $swal_json = array(
-                    "fun" => "store_receive",
+                    "fun" => $fun,
                     "action" => "success",
-                    "content" => '領用申請--送出成功'
+                    "content" => $content_text.'送出成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => "store_receive",
+                    "fun" => $fun,
                     "action" => "error",
-                    "content" => '領用申請--送出失敗'
+                    "content" => $content_text.'送出失敗'
                 );
             }
         return $swal_json;
@@ -711,18 +714,20 @@
         // log資料前處理
         // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
         switch($idty){
-            case "0":   $action = '同意 (Approve)';       break;
-            case "1":   $action = '送出 (Submit)';        break;
-            case "2":   $action = '退回 (Reject)';        break;
-            case "3":   $action = '作廢 (Abort)';         break;
-            case "4":   $action = '編輯 (Edit)';          break;
-            case "5":   $action = '轉呈 (Forwarded)';     break;
-            case "6":   $action = '暫存 (Save)';          break;
-            case "10":  $action = '同意 (Approve)';       break;    // 結案 (Close)
-            case "11":  $action = '同意 (Approve)';       break;    // 承辦 (Undertake)
+            case "0":   $action = '同意 (Approve)';        break;
+            case "1":   $action = '送出 (Submit)';         break;
+            case "2":   $action = '退回 (Reject)';         break;
+            case "3":   $action = '作廢 (Abort)';          break;
+            case "4":   $action = '編輯 (Edit)';           break;
+            case "5":   $action = '轉呈 (Forwarded)';      break;
+            case "6":   $action = '暫存 (Save)';           break;
+            case "10":  $action = '同意 (Approve)';        break;    // 結案 (Close)
+            case "11":  $action = '同意 (Approve)';        break;    // 承辦 (Undertake)
             case "12":  $action = '待收發貨 (Awaiting collection)';   break;
-            case "13":  $action = '交貨 (Delivery)';      break;
-            case "14":  $action = '扣帳 (Debit)';         break;
+            case "13":  $action = '交貨 (Delivery)';       break;
+            case "14":  $action = '庫存-扣帳 (Debit)';      break;
+            case "15":  $action = '庫存-回補 (Replenish)';  break;
+            case "16":  $action = '庫存-入賬 (Account)';    break;
             default:    $action = '錯誤 (Error)';         return;
         }
 

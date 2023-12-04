@@ -241,7 +241,12 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
-        // mloading();    // 畫面載入時開啟loading
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        // 畫面載入時開啟loading
+        mloading();   
     </script>
 </head>
 
@@ -264,7 +269,7 @@
 
                 <div class="row px-2">
                     <div class="col-12 col-md-4">
-                        需求單號：<?php echo ($receive_row['id'])             ? "aid_".$receive_row['id'] : "(尚未給號)";?></br>
+                        需求單號：<?php echo ($receive_row['id'])             ? "receive_aid_".$receive_row['id'] : "(尚未給號)";?></br>
                         開單日期：<?php echo ($receive_row['created_at'])     ? $receive_row['created_at'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
                         填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
@@ -553,12 +558,12 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
-    var catalogs = <?=json_encode($catalogs);?>;                    // 第一頁：info modal function 引入catalogs資料
-    var action = '<?=$action;?>';                                   // Edit選染 // 引入action資料
-    var receive_row = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
-    var receive_collect_role = '<?=$receive_collect_role?>';        // collect選染 // 引入receive_row_發放人權限作為渲染標記
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
-    var receive_url = '<?=$receive_url;?>';                         // push訊息 // 本文件網址
+    var catalogs             = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料
+    var action               = '<?=$action;?>';                              // Edit選染 // 引入action資料
+    var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
+    var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
+    var json                 = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
+    var receive_url          = '<?=$receive_url;?>';                         // push訊息 // 本文件網址
 </script>
 
 <script src="receive_show.js?v=<?=time();?>"></script>

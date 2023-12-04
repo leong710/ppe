@@ -65,8 +65,9 @@
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
             Object(catalog).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+']" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+'</td><td>'+cata['unit']+'</td></tr>';
+                    var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
+                    var collect_cb = '<input name="item['+cata['SN']+'][pay]" class="unblock" value="'+add_amount+'">';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+collect_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -206,7 +207,7 @@
             "ppty"           : "** ppty/需求類別",
             "id"             : "id",
             "item"           : "** item"
-            // "sin_comm"       : "command/簽核comm",
+            // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
         Object.keys(issue_item).forEach(function(issue_key){

@@ -34,6 +34,18 @@
         })
     }
 // // // 第n頁：catalog_modal 篩選 function
+    // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value --> 20230816 修正手動輸入超過限購，add_btn的value會只吃最大值
+    function add_cart_btn(cata_SN, add_amount){
+        let add_btn = document.getElementById('add_'+ cata_SN);
+        if(add_btn){
+            if(add_amount == ''){
+                add_btn.value = '';
+            } else {
+                add_btn.value = add_amount;
+            }
+        }
+    }
+    
     // 加入購物車清單
     function add_item(cata_SN, add_amount, flag){
         var swal_title = '加入購物車清單';

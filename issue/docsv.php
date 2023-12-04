@@ -171,25 +171,28 @@
         foreach($issues as $row){ 
             $item_str = $row["item"];                                   // 把item整串(未解碼)存到$item_str
             $item_dec = json_decode($item_str);                         // 解碼後存到$item_dec
-            //PHP stdClass Object轉array 
-            if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-            $item_key = array_keys((array)$item_dec);                   // 取得診列key
-            foreach($item_key as $it){
-                $all_item[$it] = $it;
-                if(empty($all_amount[$it])){
-                    $all_amount[$it] = $item_dec[$it];
+            if(is_object($item_dec)) { $item_dec = (array)$item_dec; }  // PHP stdClass Object轉array 
+            // $item_key = array_keys((array)$item_dec);                   // 取得診列key
+            $item_key = array_keys($item_dec);                   // 取得診列key
+
+            foreach($item_key as $ikey){
+                $all_item[$ikey] = $ikey;
+                $item_dec_amount = (array) $item_dec[$ikey];
+
+                if(empty($all_amount[$ikey])){
+                    $all_amount[$ikey] = $item_dec_amount["need"];
                 }else{
-                    $all_amount[$it] = $all_amount[$it] + $item_dec[$it];
+                    $all_amount[$ikey] = $all_amount[$ikey] + $item_dec_amount["need"];
                 }
-                if(empty($issue_fab[$it])){
-                    $issue_fab[$it] = $row['fab_i_title'].": ".$item_dec[$it];
+                if(empty($issue_fab[$ikey])){
+                    $issue_fab[$ikey] = $row['fab_i_title'].": ".$item_dec_amount["need"];
                 }else{
-                    $issue_fab[$it] = $issue_fab[$it]."、".$row['fab_i_title'].": ".$item_dec[$it];
+                    $issue_fab[$ikey] = $issue_fab[$ikey]."、".$row['fab_i_title'].": ".$item_dec_amount["need"];
                 }
-                if(empty($issue_ppty_arr[$it])){
-                    $issue_ppty_arr[$it] = $row['fab_i_title'].": ".$item_dec[$it];
-                    if($row["ppty"]==0){$issue_ppty_arr[$it]="臨時";}
-                    if($row["ppty"]==1){$issue_ppty_arr[$it]="定期";}
+                if(empty($issue_ppty_arr[$ikey])){
+                    $issue_ppty_arr[$ikey] = $row['fab_i_title'].": ".$item_dec_amount["need"];
+                    if($row["ppty"]==0){$issue_ppty_arr[$ikey]="臨時";}
+                    if($row["ppty"]==1){$issue_ppty_arr[$ikey]="定期";}
                 }
             }
         }

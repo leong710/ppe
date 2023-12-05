@@ -214,18 +214,18 @@
             if(issue_key == 'ppty'){      // ppty/需求類別
                 var ppty = document.querySelector('#'+issue_key+'_'+issue_row[issue_key]);
                 if(ppty){
-                    document.querySelector('#'+issue_key+'_'+issue_row[issue_key]).checked = true;
+                    ppty.checked = true;
                 }
                 
             }else if(issue_key == 'item'){      //item 購物車
                 var issue_row_cart = JSON.parse(issue_row[issue_key]);
                 Object.keys(issue_row_cart).forEach(function(cart_key){
-                    add_item(cart_key, issue_row_cart[cart_key], 'off');
+                    add_item(cart_key, issue_row_cart[cart_key]['need'], 'off');
                 })
             }else{
                 var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
-                    document.querySelector('#'+issue_key).value = issue_row[issue_key]; 
+                    row_key.value = issue_row[issue_key]; 
                 }
             }
         })

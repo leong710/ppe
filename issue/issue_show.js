@@ -129,6 +129,7 @@
         // var id = '<=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
+            var remark = json[i].remark;   // *********20231205下班寫到這裡
             forTable.innerHTML += 
                 '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td></tr>';
         }

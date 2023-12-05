@@ -271,7 +271,7 @@
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                             $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
                             $issue_collect_role = FALSE ;
-                            if($issue_role && $issue_row['idty'] == 11 ){ 
+                            if($_SESSION[$sys_id]["role"] <= 1 && $issue_row['idty'] == 11 ){ 
                                 $issue_collect_role = TRUE ;?>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php }else if($issue_role && $issue_row['idty'] == 13 ){                             ;?>
@@ -306,7 +306,7 @@
                                                 <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
-                                        <?php if($issue_row['idty'] == 11 && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']])) ){ ?>
+                                        <?php if($issue_row['idty'] == 11 && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']]) || $_SESSION[$sys_id]["role"] <= 1 ) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>

@@ -1001,9 +1001,9 @@
             );
             $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
-                $process_remark .= " // 入帳成功: ".$process_result["result"];
+                $process_remark .= "_rn_ // 入帳: ".$process_result["result"];
             }else{                                                          // False - 抵扣失敗
-                $process_remark .= " // 入帳失敗: ".$process_result["error"];
+                $process_remark .= "_rn_ // 入帳: ".$process_result["error"];
             }
         }
 

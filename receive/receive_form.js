@@ -329,7 +329,10 @@
         // step1.將原排程陣列逐筆繞出來
         Object.keys(receive_item).forEach(function(receive_key){
             if(receive_key == 'ppty'){      // ppty/需求類別
-                document.querySelector('#'+receive_key+'_'+receive_row[receive_key]).checked = true;
+                var ppty = document.querySelector('#'+receive_key+'_'+receive_row[receive_key]);
+                if(ppty){
+                    ppty.checked = true;
+                }
                 
             }else if(receive_key == 'cata_SN_amount'){      //cata_SN_amount 購物車
                 var receive_row_cart = JSON.parse(receive_row[receive_key]);
@@ -338,11 +341,17 @@
                 })
 
             }else if(receive_key == 'omager'){             //omager 上層主管工號
-                document.getElementById('omager').value = receive_row[receive_key];
+                var id_omager = document.getElementById('omager');
+                if(id_omager){
+                    id_omager.value = receive_row[receive_key];
+                }
                 search_fun(receive_row[receive_key]);
 
             }else{
-                document.querySelector('#'+receive_key).value = receive_row[receive_key]; 
+                var id_other = document.querySelector('#'+receive_key);
+                if(id_other){
+                    id_other.value = receive_row[receive_key]; 
+                }
 
             }
         })

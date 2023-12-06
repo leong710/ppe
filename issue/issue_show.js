@@ -20,7 +20,7 @@
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
                     var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled>';
-                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
+                    var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
                     if(issue_collect_role){
                             var amount_need = add_amount['need'];               // 加工：取需求量
                             var amount_need_length = amount_need.length;        // 加工：取需求量的長度
@@ -125,13 +125,14 @@
             }
         })
 
-
+        // 鋪設logs紀錄
         // var id = '<=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
-            var remark = json[i].remark;   // *********20231205下班寫到這裡
+            json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
             forTable.innerHTML += 
-                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td></tr>';
+                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
+                    '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td></tr>';
         }
     }
 

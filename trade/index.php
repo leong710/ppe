@@ -302,6 +302,7 @@
                                         <?php } ?>
                                     </tbody>
                                 </table>
+                                <hr>
                                 <!-- 20211215分頁工具 -->               
                                 <div class="row">
                                     <div class="col-12 col-md-6">	
@@ -389,7 +390,8 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
-
+    
+    // setInterval('window.location.reload();', 60000);     // 60秒刷新一次
 
 </script>
 

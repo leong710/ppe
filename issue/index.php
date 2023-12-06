@@ -80,6 +80,10 @@
                 icon: "../../libs/jquery/loading.gif",
             }); 
         }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         mloading();    // 畫面載入時開啟loading
     </script>
 </head>
@@ -306,7 +310,7 @@
                                                         case "4"    : echo "編輯";                  break;
                                                         case "10"   : echo "結案";                  break;
                                                         case "11"   : echo "轉PR";                  break;
-                                                        case "12"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";                  break;
+                                                        case "13"   : echo "<span class='badge rounded-pill bg-success'>待收</span>";                  break;
                                                         default     : echo $issue['idty']."na";     break;
                                                     }?>
                                                 </td>
@@ -320,11 +324,14 @@
                                                         <!-- 待簽：PM+管理員功能 -->
                                                         <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                         <!-- siteUser功能 -->
-                                                    <?php } else if(($issue['idty'] == '2') && (($issue['fab_i_id'] == $sys_id_fab_id) || (in_array($issue['fab_i_id'], $sys_id_sfab_id))) ){ ?>
-                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
+                                                    <?php } else if(($issue['idty'] == '11') && ($sys_id_role <= 1)){ ?>
+                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
+                                                        <!-- siteUser功能 -->
+                                                    <?php } else if((in_array($issue['idty'], [2, 13])) && (($issue['fab_i_id'] == $sys_id_fab_id) || (in_array($issue['fab_i_id'], $sys_id_sfab_id))) ){ ?>
+                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
                                                     <?php } else { ?>
                                                         <!-- siteUser功能 -->
-                                                        <a href="show.php?id=<?php echo $issue['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                        <a href="show.php?id=<?php echo $issue['id'];?>&action=review" class="btn btn-sm btn-xs btn-info">檢視</a>
                                                     <?php }?>
                                                 </td>
                                             </tr>
@@ -439,9 +446,8 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
+
+    // setInterval('window.location.reload();', 60000);     // 60秒刷新一次
+    
 </script>
 <?php include("../template/footer.php"); ?>

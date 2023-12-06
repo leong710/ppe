@@ -344,16 +344,16 @@
         $sql .= " WHERE id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-                if((in_array($idty, [ 13 ]))){                              // case = 13交貨
-                    $stmt->execute([$idty_after, $logs_enc, $item_enc, $po_no, $updated_emp_id, $id]);
+            if((in_array($idty, [ 13 ]))){                              // case = 13交貨
+                $stmt->execute([$idty_after, $logs_enc, $item_enc, $po_no, $updated_emp_id, $id]);
 
-                }else if($idty == 12){                                      // case = 12驗收
-                    $stmt->execute([$idty_after, $logs_enc, $id]);
-                    process_issue($request);                              // 呼叫處理fun 處理整張需求的交易事件(多筆)--issue入帳事宜
+            }else if($idty == 12){                                      // case = 12驗收
+                $stmt->execute([$idty_after, $logs_enc, $id]);
+                process_issue($request);                              // 呼叫處理fun 處理整張需求的交易事件(多筆)--issue入帳事宜
 
-                }else{
-                    $stmt->execute([$idty_after, $logs_enc, $id]);
-                }
+            }else{
+                $stmt->execute([$idty_after, $logs_enc, $id]);
+            }
 
             $swal_json = array(
                 "fun" => $fun,
@@ -816,7 +816,7 @@
             case "13":  $action = '交貨 (Delivery)';        break;
             case "14":  $action = '庫存-扣帳 (Debit)';      break;
             case "15":  $action = '庫存-回補 (Replenish)';  break;
-            case "16":  $action = '庫存-入賬 (Account)';    break;
+            case "16":  $action = '庫存-入帳 (Account)';    break;
             default:    $action = '錯誤 (Error)';           return;
         }
 
@@ -897,7 +897,7 @@
             $updated_user = $_SESSION["AUTH"]["cname"];               // 0.預設更新人
         }
         $lot_num        = "9999-12-31";                               // 0.批號/效期
-        $stock_remark   = " *".$po_no."請購入賬：".$p_amount;                                // 0.備註
+        $stock_remark   = " *".$po_no."請購入帳：".$p_amount;                                // 0.備註
 
         // 先把舊資料叫出來，進行加扣數量參考基準
             $sql_check = "SELECT _stk.* , _l.low_level , _f.id AS fab_id 
@@ -924,7 +924,7 @@
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$stk_amount, $stock_remark, $updated_user, $stk_row_list[$i]['id']]);
-                        $process_result['result'] = "id:".$stk_row_list[$i]['id']."+".$p_amount;      // 回傳 True: id + amount
+                        $process_result['result'] = $stk_row_list[$i]['cata_SN']."+".$p_amount."=".$stk_amount;      // 回傳 True: id + amount
                 }catch(PDOException $e){
                     echo $e->getMessage();
                         $process_result['error'] = "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
@@ -940,41 +940,41 @@
         }else{                                                                  // B.- 開新紀錄
             echo "<script>alert('case:4. 開新紀錄~')</script>";                     // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-            $row_check = "SELECT _local.* FROM `_local` WHERE _local.id=? ";          
-            $row = $pdo -> prepare($row_check);
-            try {
-                $row -> execute([$p_local]);
-                $row_local = $row->fetch();
-                
-            }catch(PDOException $e){
-                echo $e->getMessage();
-            }
+                    $row_check = "SELECT _local.* FROM `_local` WHERE _local.id=? ";          
+                    $row = $pdo -> prepare($row_check);
+                    try {
+                        $row -> execute([$p_local]);
+                        $row_local = $row->fetch();
+                        
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                    }
 
-            if( $row -> rowCount() >0){                                                     // 有取得local資料
-                $row_lowLevel = json_decode($row_local["low_level"]);                       // 將local.low_level解碼
-                if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }      // 將物件轉成陣列
-                if(isset($row_lowLevel[$cata_SN])){
-                    $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
+                if( $row -> rowCount() >0){                                                     // 有取得local資料
+                    $row_lowLevel = json_decode($row_local["low_level"]);                       // 將local.low_level解碼
+                    if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }      // 將物件轉成陣列
+                    if(isset($row_lowLevel[$cata_SN])){
+                        $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
+                    }else{
+                        $low_level = 0;                                                         // 未取得local資料時，給他一個0
+                    }
                 }else{
-                    $low_level = 0;                                                         // 未取得local資料時，給他一個0
+                    $low_level = 0;                                                             // 未取得local資料時，給他一個0
                 }
-            }else{
-                $low_level = 0;                                                             // 未取得local資料時，給他一個0
-            }
             
             // step-2 建立新紀錄到資料庫
-            // $p_amount *= -1;                                                             // 2.發放量餘額 轉負數
+                // $p_amount *= -1;                                                             // 2.發放量餘額 轉負數
 
-            $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
-                    VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";                             // 2.建立新紀錄到資料庫
-            $stmt = $pdo->prepare($sql);
-            try {
-                $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                    $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
-            }catch(PDOException $e){
-                echo $e->getMessage();
-                    $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
-            }
+                $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
+                        VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";                             // 2.建立新紀錄到資料庫
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
+                        $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                        $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
+                }
         }
         return $process_result;
     }
@@ -1001,9 +1001,9 @@
             );
             $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
-                $process_remark .= "_rn_ // 入帳: ".$process_result["result"];
+                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
             }else{                                                          // False - 抵扣失敗
-                $process_remark .= "_rn_ // 入帳: ".$process_result["error"];
+                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
             }
         }
 
@@ -1016,7 +1016,7 @@
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;   
-            $logs_request["idty"]   = "16";   // '入賬 (Account)'
+            $logs_request["idty"]   = "16";   // '入帳 (Account)'
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
             $logs_request["logs"]   = $issue_logs["logs"];   
             $logs_request["remark"] = $process_remark;   

@@ -26,16 +26,15 @@
             }
         }
         // 更新log
-        if(isset($_POST["delete_log"])){
-            updateLogs($_REQUEST);
-        }
+        // if(isset($_POST["delete_log"])){
+        //     updateLogs($_REQUEST);
+        // }
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
         $action = $_REQUEST["action"];              // 有action就帶action
     }else{
         $action = 'create';                         // 沒有action就新開單
-        
     }
 
     if(isset($_REQUEST["uuid"])){
@@ -121,85 +120,11 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-            /* transition: 3s; */
-        }
-        /*眼睛*/
-        #checkEye , #omager_badge {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }
-        .tag{
-            display: inline-block;
-            /* 粉紅 */
-            /* background-color: #fa0e7e; */
-            /* 粉藍 */
-            background-color: #0e7efa;
-            font: 14px;
-            color: white;
-            border-radius: 5px;
-            padding: 0px 3px 0px 7px;
-            margin-right: 5px;
-            margin-bottom:5px;
-            /* 粉紅 */
-            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
-            /* 粉藍 */
-            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
-        }
-        .tag .remove {
-            margin: 0 7px 3px;
-            display: inline-block;
-            cursor: pointer;
-        }
-        #catalog_list img {
-            max-width: 100px;
-            /* max-height: 100px; */
-            max-height: 100px;
-        }
-        .badge {
-            /* 標籤增加陰影辨識度 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .cata_info_btn , .add_btn{
-            /* 將圖示的背景色設置為透明並添加陰影 */
-            background-color: transparent; 
-            text-shadow: 0px 0px 1px #fff;
-            color: blue;
-            /* 將圖示的背景色設置為按鈕的背景色 */
-            /* background-color: inherit; */
-        }
-        .cata_info_btn:hover , .add_btn:hover{
-            /* color: red; */
-            transition: .5s;
-            font-weight: bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        tr > td {
-            vertical-align: middle; 
-        }
         #emp_id, #excelFile{    
             margin-bottom: 0px;
             text-align: center;
         }
-        .autoinput {
-            /* background-color: greenyellow; */
-            border: 2px solid greenyellow;
-            padding: 5px;
-        }
-        #excel_iframe{
-            height: 320px;
-        }
+
     </style>
     <script>    
         // loading function
@@ -234,7 +159,7 @@
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$receive_row['id']; ?></br>
+                        領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "receive_aid_".$receive_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
                         </br>表單身分：<?php echo $step;?>
@@ -338,7 +263,7 @@
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th>select_id</th>
+                                                    <th>select</th>
                                                     <th>SN</th>
                                                     <th>品名</th>
                                                     <th>型號</th>
@@ -514,10 +439,10 @@
                     <!-- 尾段logs訊息 -->
                     <div class="col-12 pt-0 rounded bg-light unblock" id="logs_div">
                         <div class="row">
-                            <div class="col-12 col-md-6">
-                                表單Log記錄：
+                            <div class="col-6 col-md-6">
+                                表單記錄：
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-6 col-md-6">
                         
                             </div>
                         </div>
@@ -529,13 +454,13 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($sys_id_role <= 1){ ?><th>action</th><?php } ?>
+                                    <!-- <th>action</th> -->
                                 </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
                         <div style="font-size: 6px;" class="text-end">
-                            logs訊息text-end
+                            logs-end
                         </div>
                     </div>
 

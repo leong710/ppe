@@ -741,7 +741,7 @@
 
         $app = [];  // 定義app陣列=appry
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
-        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
+        $log_remark = str_replace(array("\r\n","\r","\n"), "_rn_", $remark);
         $app = array(   "step"      => $step,
                         "cname"     => $cname,
                         "datetime"  => date('Y-m-d H:i:s'), 
@@ -842,39 +842,37 @@
                 // }
 
                     $stk_amount -= $p_amount;                                   // 1.儲存量餘額 = 儲存量 - 發放量
-                    $p_amount = 0;                                              // 1.發放量餘額 = 0
 
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute([$stk_amount, $updated_user, $stk_row_list[$i]['id']]);
-                            $process_result['result'] = "id:".$stk_row_list[$i]['id']."-".$stk_amount;      // 回傳 True: id - amount
+                            $process_result['result'] = "id:".$stk_row_list[$i]['cata_SN']."-".$p_amount."=".$stk_amount;      // 回傳 True: id - amount
         
                     }catch(PDOException $e){
                         echo $e->getMessage();
                             $process_result['error'] = "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
                     }
-                
-                if($p_amount <= 0){
                     
-                    return $process_result;   // pay扣完了就離開
+                    $p_amount = 0;                                              // 1.發放量餘額 = 0
+                    if($p_amount <= 0){
+                        return $process_result;   // pay扣完了就離開
+                    // }else if(($i + 1) >= $stk_row_list_length && $p_amount > 0){    // 3.stk現有筆數用完了，但還有需求餘額
+                    //     echo "<script>alert('case:3. stk現有筆數用完了，但還有需求餘額: {$p_amount}')</script>";              // deBug
+                    //     $p_amount *= -1;                                            // 3.發放量餘額 轉負數
+                    //     $standard_lv = $stk_row_list[0]['standard_lv'];             // 3.安全存量
 
-                // }else if(($i + 1) >= $stk_row_list_length && $p_amount > 0){    // 3.stk現有筆數用完了，但還有需求餘額
-                //     echo "<script>alert('case:3. stk現有筆數用完了，但還有需求餘額: {$p_amount}')</script>";              // deBug
-                //     $p_amount *= -1;                                            // 3.發放量餘額 轉負數
-                //     $standard_lv = $stk_row_list[0]['standard_lv'];             // 3.安全存量
+                    //     $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
+                    //             VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
+                    //     $stmt = $pdo->prepare($sql);
+                    //     try {
+                    //         $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $lot_num, $updated_user]);
+                    //             $process_result['result'] = "++".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
 
-                //     $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
-                //             VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 3.建立新紀錄到資料庫
-                //     $stmt = $pdo->prepare($sql);
-                //     try {
-                //         $stmt->execute([$p_local, $cata_SN, $standard_lv, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                //             $process_result['result'] = "++".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
-
-                //     }catch(PDOException $e){
-                //         echo $e->getMessage();
-                //             $process_result['error'] = "--".$cata_SN."-".$p_amount;                   // 回傳 False: - id
-                //     }
-                }
+                    //     }catch(PDOException $e){
+                    //         echo $e->getMessage();
+                    //             $process_result['error'] = "--".$cata_SN."-".$p_amount;                   // 回傳 False: - id
+                    //     }
+                    }
             }
 
             return $process_result;
@@ -905,19 +903,18 @@
                 }
             
             // step-2 建立新紀錄到資料庫
-                $p_amount *= -1;                                            // 2.發放量餘額 轉負數
-
+                $p_amount *= -1;                                                            // 2.發放量餘額 轉負數
 
                 $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";         // 2.建立新紀錄到資料庫
+                        VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";                         // 2.建立新紀錄到資料庫
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                        $process_result['result'] = "++".$cata_SN."-".$p_amount;                   // 回傳 True: id - amount
+                        $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
 
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                        $process_result['error']  = "--".$cata_SN."-".$p_amount;                   // 回傳 False: - id
+                        $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
                 }
         }
         return $process_result;
@@ -927,27 +924,27 @@
         $pdo = pdo();
         extract($request);
         $query = array("uuid"=> $uuid);
-        $process_remark = "";
         $receive_row = show_receive($query);                                            // 1.調閱原表單
+        $process_remark = "";
         $cata_SN_amount = json_decode($receive_row["cata_SN_amount"]);                  // 1-1.取出需求清單並解碼
         if(is_object($cata_SN_amount)) { $cata_SN_amount = (array)$cata_SN_amount; }    // 1-2.將需求清單物件轉換成陣列(才有辦法取長度、取SN_key)
             $cata_SN_keys = array_keys($cata_SN_amount);                                // 1-3.取出需求清單的KEY(cata_SN)
 
-        forEach($cata_SN_keys as $cata_SN_key){
-            if(is_object($cata_SN_amount[$cata_SN_key])) { 
-                $cata_SN_amount[$cata_SN_key] = (array)$cata_SN_amount[$cata_SN_key]; 
+        forEach($cata_SN_keys as $ikey){
+            if(is_object($cata_SN_amount[$ikey])) { 
+                $cata_SN_amount[$ikey] = (array)$cata_SN_amount[$ikey]; 
             }
             $process = array(
-                "p_local" => $receive_row["local_id"],
-                "cata_SN" => $cata_SN_key,
-                "p_amount" => $cata_SN_amount[$cata_SN_key]["pay"],
-                "updated_user" => $updated_user 
+                "p_local"       => $receive_row["local_id"],
+                "cata_SN"       => $ikey,
+                "p_amount"      => $cata_SN_amount[$ikey]["pay"],
+                "updated_user"  => $updated_user 
             );
             $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
-                $process_remark .= " // 扣帳成功: ".$process_result["result"];
+                $process_remark .= "_rn_ ## 扣帳 ".$process_result["result"];
             }else{                                                          // False - 抵扣失敗
-                $process_remark .= " // 扣帳失敗: ".$process_result["error"];
+                $process_remark .= "_rn_ ## 扣帳 ".$process_result["error"];
             }
         }
 

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/grid.css">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=<?=time();?>">
     <!-- ?v=?=time()?> 正式版要移除-->
 </head>
 <body>

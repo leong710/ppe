@@ -144,6 +144,11 @@
                                      'idty'         => $idty );
                     // 呼叫預扣原本數量功能=呼叫process_trade($request)
                     $process_result = process_trade($process);  // 呼叫處理fun 處理整張需求的交易事件(一次一筆)--stock扣帳事宜
+                            if($process_result["result"]){                                  // True - 抵扣完成
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                            }else{                                                          // False - 抵扣失敗
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                            }
                 }
             // **** 預扣功能 end  
 
@@ -166,7 +171,7 @@
                 $logs_request["idty"]   = $idty;                                    // 表單狀態
                 $logs_request["cname"]  = $updated_user." (".$out_user_id.")";      // 開單人
                 $logs_request["logs"]   = "";   
-                $logs_request["remark"] = $sign_comm;   
+                $logs_request["remark"] = $sign_comm.$process_remark;   
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -288,6 +293,11 @@
                                      'idty'         => $idty );
                     // 呼叫預扣原本數量功能=呼叫process_trade($request)
                     $process_result = process_trade($process);  // 呼叫處理fun 處理整張需求的交易事件(一次一筆)--stock扣帳事宜
+                            if($process_result["result"]){                                  // True - 抵扣完成
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                            }else{                                                          // False - 抵扣失敗
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                            }
                 }
             // **** 預扣功能 end  
 
@@ -314,7 +324,7 @@
                 $logs_request["idty"]   = $idty;                                    // 表單狀態
                 $logs_request["cname"]  = $updated_user." (".$out_user_id.")";      // 開單人
                 $logs_request["logs"]   = $trade_logs["logs"];   
-                $logs_request["remark"] = $sign_comm;   
+                $logs_request["remark"] = $sign_comm.$process_remark;   
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -351,17 +361,17 @@
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => $fun,
-                    "action" => "error",
-                    "content" => $content_text.'送出失敗'
+                    "fun"       => $fun,
+                    "action"    => "error",
+                    "content"   => $content_text.'送出失敗'
                 );
             }
         }else{
             // echo "<script>alert('預扣功能：error')</script>";
             $swal_json = array(
-                "fun" => $fun,
-                "action" => "error",
-                "content" => $content_text.'預扣功能失敗'
+                "fun"       => $fun,
+                "action"    => "error",
+                "content"   => $content_text.'預扣功能失敗'
             );
         }
 
@@ -437,14 +447,14 @@
                 }
                 $process = [];  // 清空預設值
                 $process = array('stock_id' => $st,
-                                 'lot_num' => $lot_num_dec[$st],
-                                 'po_no' => $po_no_dec[$st],
-                                 'cata_SN' => $item_dec[$st],
+                                 'lot_num'  => $lot_num_dec[$st],
+                                 'po_no'    => $po_no_dec[$st],
+                                 'cata_SN'  => $item_dec[$st],
                                  'p_amount' => $amount_dec[$st],
-                                 'p_local' => $p_local,
-                                 'user_id' => $p_in_user_id,
-                                 'cname' => $_SESSION["AUTH"]["cname"],
-                                 'idty' => $b_idty);
+                                 'p_local'  => $p_local,
+                                 'user_id'  => $p_in_user_id,
+                                 'cname'    => $_SESSION["AUTH"]["cname"],
+                                 'idty'     => $b_idty);
                 process_trade($process);
             }
         // 把原本沒有的塞進去
@@ -555,6 +565,11 @@
                                  'idty'     => '3' );   // 必須使用idty:3 = 取消上一張狀態，先回補到原位
                 // 後續要加入預扣原本數量功能=呼叫process_trade($request)
                 $process_result = process_trade($process);
+                        if($process_result["result"]){                                  // True - 抵扣完成
+                            $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                        }else{                                                          // False - 抵扣失敗
+                            $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                        }
             }
         // **** 預扣回補功能 end   
 
@@ -572,7 +587,7 @@
                 $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";            // 簽單人
                 $logs_request["step"]   = $step;                    // 節點-簽單人角色
                 $logs_request["logs"]   = $trade["logs"];           // 帶入舊logs
-                $logs_request["remark"] = $sign_comm;               // 簽核command
+                $logs_request["remark"] = $sign_comm.$process_remark;               // 簽核command
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -605,7 +620,8 @@
             $fun = "store_restock";             // for swal_json
             $content_text = "請購入庫--";        // for swal_json
         }
-
+        
+        $process_remark = "";
         $trade = show_trade($request);                  // 把trade表單叫近來處理 入賬或回補
 
         // **** 入賬、回補功能
@@ -658,6 +674,11 @@
                                      'idty'         => $idty );         // idty:3 = 取消
                     // 後續要加入預扣原本數量功能=呼叫process_trade($request)
                     $process_result = process_trade($process);
+                            if($process_result["result"]){                                  // True - 抵扣完成
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                            }else{                                                          // False - 抵扣失敗
+                                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                            }
                 }
             } else {
                 $process_result = true; // 因為排除簽核3取消，暫時無須處理! 但需標示處理已完成
@@ -677,7 +698,7 @@
                     $logs_request["idty"]   = $idty;                    // 表單狀態
                     $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";            // 簽單人
                     $logs_request["logs"]   = $trade["logs"];           // 帶入舊logs
-                    $logs_request["remark"] = $sign_comm;               // 簽核command
+                    $logs_request["remark"] = $sign_comm.$process_remark;               // 簽核command
                 // 呼叫toLog製作log檔
                     $logs_enc = toLog($logs_request);
 
@@ -712,16 +733,16 @@
                         try {
                             $stmt->execute([$p_in_user_id, $p_idty, $logs_enc, $id]);
                             $swal_json = array(
-                                "fun" => $fun,
-                                "action" => "success",
-                                "content" => $content_text.'同意成功'
+                                "fun"       => $fun,
+                                "action"    => "success",
+                                "content"   => $content_text.'同意成功'
                             );
                         }catch(PDOException $e){
                             echo $e->getMessage();
                             $swal_json = array(
-                                "fun" => $fun,
-                                "action" => "error",
-                                "content" => $content_text.'同意失敗'
+                                "fun"       => $fun,
+                                "action"    => "error",
+                                "content"   => $content_text.'同意失敗'
                             );
                         }
                         break;
@@ -744,16 +765,16 @@
                         try {
                             $stmt->execute([$p_idty, $logs_enc, $id]);
                             $swal_json = array(
-                                "fun" => $fun,
-                                "action" => "success",
-                                "content" => $content_text.$content_text_ext.'成功'
+                                "fun"       => $fun,
+                                "action"    => "success",
+                                "content"   => $content_text.$content_text_ext.'成功'
                             );
                         }catch(PDOException $e){
                             echo $e->getMessage();
                             $swal_json = array(
-                                "fun" => $fun,
-                                "action" => "error",
-                                "content" => $content_text.$content_text_ext.'失敗'
+                                "fun"       => $fun,
+                                "action"    => "error",
+                                "content"   => $content_text.$content_text_ext.'失敗'
                             );
                         }
                         break;
@@ -765,9 +786,9 @@
         }else{
             // echo "<script>alert('入賬、回補功能：error')</script>";
             $swal_json = array(
-                "fun" => $fun,
-                "action" => "error",
-                "content" => $content_text.'入賬、回補功能失敗...請洽管理員'
+                "fun"       => $fun,
+                "action"    => "error",
+                "content"   => $content_text.'入賬、回補功能失敗...請洽管理員'
             );
         }
 
@@ -1275,11 +1296,11 @@
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$row['amount'], $row['id']]);
-                $process_result = true;
+                $process_result['result'] = $row['cata_SN']."+-".$p_amount."=".$row['amount'];      // 回傳 True: id + amount
 
             }catch(PDOException $e){
                 echo $e->getMessage();
-                $process_result = false;
+                $process_result['error'] = "id:".($row['id'] * -1);               // 回傳 False: - id
 
             }
             return $process_result;
@@ -1287,23 +1308,25 @@
         }else{      // 開新紀錄
             // echo "<script>alert('process_trade:開新紀錄~')</script>";            // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-            $row_check="SELECT _local.* 
-                        FROM `_local`
-                        WHERE _local.id=? ";          
-            $row = $pdo -> prepare($row_check);
-            try {
-                $row -> execute([$p_local]);
-                $row_local = $row->fetch();
-                $process_result = true;
-            }catch(PDOException $e){
-                echo $e->getMessage();
-                $process_result = false;
-            }
+                $row_check="SELECT _local.* FROM `_local` WHERE _local.id=? ";          
+                $row = $pdo -> prepare($row_check);
+                try {
+                    $row -> execute([$p_local]);
+                    $row_local = $row->fetch();
+
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+
+                }
 
             if( $row -> rowCount() >0){                                                 // 有取得local資料
                 $row_lowLevel = json_decode($row_local["low_level"]);                   // 將local.low_level解碼
                 if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }  // 將物件轉成陣列
-                $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
+                if(isset($row_lowLevel[$cata_SN])){
+                    $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
+                }else{
+                    $low_level = 0;                                                         // 未取得local資料時，給他一個0
+                }
             }else{
                 $low_level = 0;                                                         // 未取得local資料時，給他一個0
             }
@@ -1313,10 +1336,10 @@
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '', '', $po_no, $lot_num, $updated_user]);
-                $process_result = true;
+                $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
             }catch(PDOException $e){
                 echo $e->getMessage();
-                $process_result = false;
+                $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
             }
         }
         return $process_result;
@@ -1359,7 +1382,7 @@
 
         $app = [];                                  // 定義app陣列
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
-        $log_remark = str_replace(array("\r\n","\r","\n"), " ", $remark);
+        $log_remark = str_replace(array("\r\n","\r","\n"), "_rn_", $remark);
         $app = array(   "step"      => $step,
                         "cname"     => $cname,
                         "datetime"  => date('Y-m-d H:i:s'), 

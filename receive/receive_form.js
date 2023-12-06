@@ -361,14 +361,16 @@
         // var uuid = '<?=$receive_row["uuid"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
+            json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
             forTable.innerHTML += 
-                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + 
-                    '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
-                        `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                        `<input type="hidden" name="uuid" value="` + uuid + `";>` +
-                        `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    '</form>' + '<?php } ?>' +
-                '</td>' +'</tr>';
+                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
+                    '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
+                    // '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
+                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
+                    //     `<input type="hidden" name="uuid" value="` + uuid + `";>` +
+                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
+                    // '</form>' + '<?php } ?>' +
+                '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
     }

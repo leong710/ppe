@@ -145,83 +145,7 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-            /* transition: 3s; */
-        }
-        .tag{
-            display: inline-block;
-            /* 粉紅 */
-            /* background-color: #fa0e7e; */
-            /* 粉藍 */
-            background-color: #0e7efa;
-            font: 14px;
-            color: white;
-            border-radius: 5px;
-            padding: 0px 3px 0px 7px;
-            margin-right: 5px;
-            margin-bottom:5px;
-            /* 粉紅 */
-            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
-            /* 粉藍 */
-            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
-        }
-        .tag .remove {
-            margin: 0 7px 3px;
-            display: inline-block;
-            cursor: pointer;
-        }
-        .op_tab_btn {
-            /* 將圖示的背景色設置為透明並添加陰影 */
-            background-color: transparent; 
-            text-shadow: 0px 0px 1px #fff;
-            color: blue;
-            /* 將圖示的背景色設置為按鈕的背景色 */
-            /* background-color: inherit; */
-        }
-        #catalog_list img {
-            max-width: 100px;
-            /* max-height: 100px; */
-            max-height: 100px;
-        }
-        .badge {
-            /* 標籤增加陰影辨識度 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .cata_info_btn , .add_btn{
-            /* 將圖示的背景色設置為透明並添加陰影 */
-            background-color: transparent; 
-            text-shadow: 0px 0px 1px #fff;
-            color: blue;
-            /* 將圖示的背景色設置為按鈕的背景色 */
-            /* background-color: inherit; */
-        }
-        .cata_info_btn:hover , .add_btn:hover{
-            /* color: red; */
-            transition: .5s;
-            font-weight: bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        tr > td {
-            vertical-align: middle; 
-        }
-        #logs_div tr > td , #logs_div tr > th{
-            text-align: left;
-        }
-        .collect{
-            color: #fa0e7e;
-            font-weight: bold;
-            font-size: 20px;
-            text-shadow: 0px 0px 1px #fff;
-        }
+
     </style>
     <script>    
         // loading function
@@ -306,7 +230,7 @@
                                                 <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
-                                        <?php if($issue_row['idty'] == 11 && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']]) || $_SESSION[$sys_id]["role"] <= 1 ) ){ ?>
+                                        <?php if(in_array($issue_row['idty'],[11 , 13]) && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']]) || $_SESSION[$sys_id]["role"] <= 1 ) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>
@@ -364,7 +288,6 @@
                                                         <th style="text-align: left;">SN / 品名</th>
                                                         <th>型號</th>
                                                         <th>尺寸</th>
-                                                        <th>數量</th>
                                                         <th>申請量 / 單位</th>
                                                         <th>實發量</th>
                                                     </tr>
@@ -426,10 +349,10 @@
                     <!-- 尾段logs訊息 -->
                     <div class="col-12 pt-0 rounded bg-light" id="logs_div">
                         <div class="row">
-                            <div class="col-12 col-md-6">
-                                表單Log記錄：
+                            <div class="col-6 col-md-6">
+                                表單記錄：
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-6 col-md-6">
                             </div>
                         </div>
                         <div class="row">
@@ -449,7 +372,7 @@
                                 </table>
                             </div>
                             <div style="font-size: 6px;" class="text-end">
-                                logs訊息text-end
+                                logs-end
                             </div>
                         </div>
                     </div>

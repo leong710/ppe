@@ -26,9 +26,9 @@
             }
         }
         // 更新log
-        if(!empty($_POST["delete_log"])){
-            updateLogs($_REQUEST);
-        }
+        // if(!empty($_POST["delete_log"])){
+        //     updateLogs($_REQUEST);
+        // }
 
     // 決定表單開啟方式
     if(!empty($_REQUEST["action"])){
@@ -141,58 +141,7 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-            /* transition: 3s; */
-        }
-        /*眼睛*/
-        #checkEye {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }
-        #catalog_list img {
-            max-width: 100px;
-            /* max-height: 100px; */
-            max-height: 100px;
-        }
-        .badge {
-            /* 標籤增加陰影辨識度 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .cata_info_btn , .add_btn{
-            /* 將圖示的背景色設置為透明並添加陰影 */
-            background-color: transparent; 
-            text-shadow: 0px 0px 1px #fff;
-            color: blue;
-            /* 將圖示的背景色設置為按鈕的背景色 */
-            /* background-color: inherit; */
-        }
-        .cata_info_btn:hover , .add_btn:hover{
-            /* color: red; */
-            transition: .5s;
-            font-weight: bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        tr > td {
-            vertical-align: middle; 
-        }
-        #excelFile{    
-            margin-bottom: 0px;
-            /* text-align: center; */
-        }
-        #excel_iframe{
-            height: 320px;
-        }
+
     </style>
     <script>    
         // loading function
@@ -227,7 +176,7 @@
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
-                        出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "aid_".$trade_row['id']; ?></br>
+                        出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "trade_aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
                     </div>
@@ -481,10 +430,10 @@
                     <!-- 尾段logs訊息 -->
                     <div class="col-12 pt-0 rounded bg-light unblock" id="logs_div">
                         <div class="row">
-                            <div class="col-12 col-md-6">
-                                表單Log記錄：
+                            <div class="col-6 col-md-6">
+                                表單記錄：
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-6 col-md-6">
                         
                             </div>
                         </div>
@@ -496,13 +445,13 @@
                                     <th>Time Signed</th>
                                     <th>Status</th>
                                     <th>Comment</th>
-                                    <?php if($sys_id_role == 0){ ?><th>action</th><?php } ?>
+                                    <!-- <th>action</th> -->
                                 </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
                         <div style="font-size: 6px;" class="text-end">
-                            logs訊息text-end
+                            logs-end
                         </div>
                     </div>
 

@@ -277,8 +277,10 @@
         // var id = '<?=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
+            json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
             forTable.innerHTML += 
-                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + '</td><td>' + json[i].remark + '</td>' +
+                '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
+                    '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
                     // '<?php if($_SESSION[$sys_id]["role"] == 0){ ?>' + '<td><form action="" method="post">'+
                     //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
                     //     `<input type="hidden" name="id" value="` + id + `";>` +

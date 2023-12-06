@@ -113,6 +113,7 @@
     function store_trade($request){
         $pdo = pdo();
         extract($request);
+        $process_remark = "";
 
         if($form_type == "export"){             // export=出庫，需要執行預扣庫存
             $fun = "store_trade";               // for swal_json
@@ -145,9 +146,9 @@
                     // 呼叫預扣原本數量功能=呼叫process_trade($request)
                     $process_result = process_trade($process);  // 呼叫處理fun 處理整張需求的交易事件(一次一筆)--stock扣帳事宜
                             if($process_result["result"]){                                  // True - 抵扣完成
-                                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                                $process_remark .= "_rn_ ## 出帳 ".$process_result["result"];
                             }else{                                                          // False - 抵扣失敗
-                                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                                $process_remark .= "_rn_ ## 出帳 ".$process_result["error"];
                             }
                 }
             // **** 預扣功能 end  
@@ -171,7 +172,7 @@
                 $logs_request["idty"]   = $idty;                                    // 表單狀態
                 $logs_request["cname"]  = $updated_user." (".$out_user_id.")";      // 開單人
                 $logs_request["logs"]   = "";   
-                $logs_request["remark"] = $sign_comm.$process_remark;   
+                $logs_request["remark"] = $sign_comm;   
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -182,9 +183,11 @@
                     switch($idty){
                         case "1":           // 1送出=14扣帳
                             $logs_request["idty"]   = "14";                   // 表單狀態
+                            $logs_request["remark"] = $sign_comm.$process_remark;  
                             break;
                         case "2":           // 2退件=15回補
                             $logs_request["idty"]   = "15";                   // 表單狀態
+                            $logs_request["remark"] = $sign_comm.$process_remark;  
                             break;
                         default:            // 預定失效 
                             return; 
@@ -262,6 +265,7 @@
     function update_trade($request){
         $pdo = pdo();
         extract($request);
+        $process_remark = "";
 
         if($form_type == "export"){             // export=出庫，需要執行預扣庫存
             $fun = "update_trade";              // for swal_json
@@ -533,6 +537,7 @@
     function edit_trade($request){
         $pdo = pdo();
         extract($request);
+        $process_remark = "";
         $sys_id = "ppe";
         
         $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
@@ -612,6 +617,7 @@
     function sign_trade($request){
         $pdo = pdo();
         extract($request);
+        $process_remark = "";
 
         if($form_type == "export"){             // export=出庫，需要執行預扣庫存
             $fun = "store_trade";               // for swal_json
@@ -621,7 +627,6 @@
             $content_text = "請購入庫--";        // for swal_json
         }
         
-        $process_remark = "";
         $trade = show_trade($request);                  // 把trade表單叫近來處理 入賬或回補
 
         // **** 入賬、回補功能

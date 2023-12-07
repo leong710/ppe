@@ -194,7 +194,7 @@
 
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -230,7 +230,7 @@
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <!-- 限定表單所有人：開單人、ppe pm、admin -->
-                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_id_role <= 1 ){ ?>
+                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_id_role <= 1 || (( $fab_o_id == $sys_id_fab_id) || (in_array($fab_o_id, $sys_id_sfab_id)))){ ?>
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <?php if($trade_row["form_type"] == "import"){ ?>
@@ -349,6 +349,7 @@
                                             <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="form_type"       id="form_type"      value="">
                                             <input type="hidden" name="idty"            id="idty"           value="">
+                                            <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $idty;?>">
                                             <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>

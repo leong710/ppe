@@ -1397,7 +1397,7 @@
         }else{      // 開新紀錄
             // echo "<script>alert('process_trade:開新紀錄~')</script>";            // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-                $row_check="SELECT _l.* , _l.local_title , _f.fab_title ,
+                $row_check="SELECT _l.* , _l.local_title , _f.fab_title
                             FROM `_local` _l
                             LEFT JOIN _fab _f ON _l.fab_id = _f.id  
                             WHERE _l.id=? ";          
@@ -1449,14 +1449,15 @@
             }
             
             // step-2 建立新紀錄到資料庫
-            $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
+            $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_user, created_at, updated_at)
+                    VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '', '', $po_no, $lot_num, $updated_user]);
-                $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ".$cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
+                $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
             }catch(PDOException $e){
                 echo $e->getMessage();
-                $process_result['error']  = $row['fab_title'] . "_" . $row['local_title'] . " -新 ".$cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
+                $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
             }
         }
         return $process_result;

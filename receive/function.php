@@ -811,7 +811,7 @@
         $stock_remark   = "* 發放欠額";                                // 0.備註
 
         // 先把舊資料叫出來，進行加扣數量參考基準
-        $sql_check = "SELECT _stk.* , _l.low_level , _f.id AS fab_id 
+        $sql_check = "SELECT _stk.* , _l.low_level , _l.local_title , _f.id AS fab_id , _f.fab_title 
                       FROM `_stock` _stk
                       LEFT JOIN _local _l ON _stk.local_id = _l.id 
                       LEFT JOIN _fab _f ON _l.fab_id = _f.id 
@@ -842,15 +842,19 @@
                 // }
 
                     $stk_amount -= $p_amount;                                   // 1.儲存量餘額 = 儲存量 - 發放量
+                    $cama = array(
+                        'icon'  => ' - ',     // log交易訊息中加減號
+                        'title' => ' 扣帳 '   // log交易訊息 動作
+                    );
 
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute([$stk_amount, $updated_user, $stk_row_list[$i]['id']]);
-                            $process_result['result'] = "id:".$stk_row_list[$i]['cata_SN']."-".$p_amount."=".$stk_amount;      // 回傳 True: id - amount
+                        $process_result['result'] = $stk_row_list[$i]['fab_title'] . "_" . $stk_row_list[$i]['local_title'] . " " . $stk_row_list[$i]['cata_SN'] . $cama['icon'] . $p_amount . " = ".$stk_amount;      // 回傳 True: id - amount
         
                     }catch(PDOException $e){
                         echo $e->getMessage();
-                            $process_result['error'] = "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
+                        $process_result['error'] = $stk_row_list[$i]['fab_title'] . "_" . $stk_row_list[$i]['local_title'] . " " . $cama['title'] . "id:" . ($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
                     }
                     
                     $p_amount = 0;                                              // 1.發放量餘額 = 0
@@ -880,18 +884,16 @@
         }else{                                                                  // B.- 開新紀錄
             echo "<script>alert('case:4. 開新紀錄~')</script>";                             // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-                $row_check = "SELECT _local.* FROM `_local` WHERE _local.id=? ";          
-                $row = $pdo -> prepare($row_check);
-                try {
-                    $row -> execute([$p_local]);
-                    $row_local = $row->fetch();
-                    
-                }catch(PDOException $e){
-                    echo $e->getMessage();
-                }
-
-                if( $row -> rowCount() >0){                                                 // 有取得local資料
-                    $row_lowLevel = json_decode($row_local["low_level"]);                   // 將local.low_level解碼
+                $row_check = "SELECT _l.* , _f.fab_title 
+                              FROM `_local` _l
+                              LEFT JOIN _fab _f ON _l.fab_id = _f.id  
+                              WHERE _l.id = ? ";          
+                $stmt_check = $pdo -> prepare($row_check);
+                $stmt_check -> execute([$p_local]);
+                
+                if($stmt_check -> rowCount() >0){                                                 // 有取得local資料
+                    $row = $stmt_check->fetch();
+                    $row_lowLevel = json_decode($row["low_level"]);                         // 將local.low_level解碼
                     if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }  // 將物件轉成陣列
                     if(isset($row_lowLevel[$cata_SN])){
                         $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
@@ -903,18 +905,23 @@
                 }
             
             // step-2 建立新紀錄到資料庫
-                $p_amount *= -1;                                                            // 2.發放量餘額 轉負數
+                // $p_amount *= -1;                                                            // 2.發放量餘額 轉負數
+                $t_amount = $p_amount * -1;                                                            // 2.發放量餘額 轉負數
+                $cama = array(
+                    'icon'  => ' - ',     // log交易訊息中加減號
+                    'title' => ' 扣帳 '   // log交易訊息 動作
+                );
 
                 $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
                         VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";                         // 2.建立新紀錄到資料庫
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                        $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
+                    $stmt->execute([$p_local, $cata_SN, $low_level, $t_amount, $stock_remark, $lot_num, $updated_user]);
+                    $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 True: id - amount
 
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                        $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
+                    $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 False: - id
                 }
         }
         return $process_result;
@@ -942,9 +949,17 @@
             );
             $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
-                $process_remark .= "_rn_ ## 扣帳 ".$process_result["result"];
+                if(empty($process_remark)){
+                    $process_remark = "## ".$process_result["result"];
+                }else{
+                    $process_remark .= "_rn_## ".$process_result["result"];
+                }
             }else{                                                          // False - 抵扣失敗
-                $process_remark .= "_rn_ ## 扣帳 ".$process_result["error"];
+                if(empty($process_remark)){
+                    $process_remark = "## ".$process_result["error"];
+                }else{
+                    $process_remark .= "_rn_## ".$process_result["error"];
+                }   
             }
         }
 

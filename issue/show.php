@@ -176,7 +176,7 @@
 
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -336,7 +336,7 @@
                                             <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                             <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="idty"            id="idty"           value="">
-                                            <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $idty;?>">
+                                            <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $issue_row["idty"];?>">
                                             <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>

@@ -72,11 +72,26 @@
             $step_index = '0';      // 填單人
         } else if($receive_row["emp_id"] == $auth_emp_id){
             $step_index = '1';      // 申請人
-        }      
+        }
+
         if($receive_row["omager"] == $auth_emp_id){
             $step_index = '2';      // 申請人主管
-        } else if($receive_row["in_sign"] == $auth_emp_id){
-            $step_index = '10';     // 轉呈簽核
+        } 
+        
+        if($receive_row["in_sign"] == $auth_emp_id){
+            
+            if($receive_row["idty"] < 10){           // 未交貨後的頭銜
+                $step_index = '10';     // 轉呈簽核
+
+            }else{    // 已交貨後的頭銜
+                if($receive_row["idty"] >= 10){
+                    
+                }
+                $step_index = '10';     // 轉呈簽核
+            }
+        
+        
+        
         }
 
             // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
@@ -179,7 +194,7 @@
 
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -190,10 +205,10 @@
                         填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($receive_row['idty'] == 1){ // 1.簽核中 ?>
-                            <?php if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role == 0 ){ ?>
+                        <?php if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 0 ){ ?>
+                            <?php if(in_array($receive_row['idty'], [ 1, 13, 11])){ // 1.簽核中 13承辦 11主管 ?>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <?php } if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 1 ){ ?>
+                            <?php } if(!in_array($receive_row['idty'], [ 13, 11]) && $sys_id_role <= 1 ){ ?>
                                 <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
                                 <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
@@ -410,7 +425,7 @@
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="">
-                                        <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $idty;?>">
+                                        <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $receive_row['idty'];?>">
                                         <?php if($sys_id_role <= 3){ ?>
                                             <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                         <?php } ?>

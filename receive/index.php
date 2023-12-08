@@ -459,6 +459,10 @@
                                                         && ($receive['idty'] == '1') && $sys_role){ ?> 
                                                     <!-- 待簽：in_local對應人員 -->
                                                     <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
+                                                <!-- siteUser功能 -->
+                                                    <?php } else if((in_array($receive['idty'], [2, 13])) && ($receive['emp_id'] == $auth_emp_id) ){ ?>
+
+                                                        <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
                                                 <?php } else { ?>
                                                     <!-- siteUser功能 -->
                                                     <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=review" class="btn btn-sm btn-xs btn-info">檢視</a>

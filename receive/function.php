@@ -295,6 +295,19 @@
     function update_receive($request){
         $pdo = pdo();
         extract($request);
+
+        $receive_row = show_receive($request);            // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+            echo "<script>alert('!! 注意 !!\r\n當您送出表單的同時，該表單型態已被異動(即修改)，\r\n本表單送出無效，返回確認 ~')</script>";
+            $swal_json = array(
+                "fun"       => $fun,
+                "action"    => "error",
+                "content"   => $content_text.'同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~'
+            );
+            return $swal_json;
+        }
+
         // item資料前處理
             $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
     
@@ -305,7 +318,8 @@
                 $flow = "主管簽核";
                 $idty_after = "1";                      // 由 5轉呈 存換成 1送出
 
-            $receive_logs = showLogs($query);
+            // $receive_logs = showLogs($query);
+            $receive_logs = $receive_row["logs"];
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step."-編輯";
@@ -343,6 +357,19 @@
     function delete_receive($request){
         $pdo = pdo();
         extract($request);
+        
+        $receive_row = show_receive($request);            // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+            echo "<script>alert('!! 注意 !!\r\n當您送出表單的同時，該表單型態已被異動(即修改)，\r\n本表單送出無效，返回確認 ~')</script>";
+            $swal_json = array(
+                "fun"       => $fun,
+                "action"    => "error",
+                "content"   => $content_text.'同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~'
+            );
+            return $swal_json;
+        }
+
         $sql = "DELETE FROM _receive WHERE uuid = ?";
         $stmt = $pdo->prepare($sql);
         try {
@@ -360,15 +387,26 @@
     
         // 把_receive表單logs叫近來處理
             $query = array('uuid'=> $uuid );
+            $receive_row = show_receive($query);            // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+            if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+                echo "<script>alert('!! 注意 !!\r\n當您送出表單的同時，該表單型態已被異動(即修改)，\r\n本表單送出無效，返回確認 ~')</script>";
+                $swal_json = array(
+                    "fun"       => $fun,
+                    "action"    => "error",
+                    "content"   => $content_text.'同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~'
+                );
+                return $swal_json;
+            }
 
             if($idty == 5 && !empty($in_sign)){             // case = 5轉呈
-                $receive_row = show_receive($query);            // 調閱原表單
                 $sign_comm .= " // 原待簽 ".$receive_row["in_sign"]." 轉呈 ".$in_sign;
                 $flow = "轉呈簽核";
                 $receive_logs["logs"] = $receive_row["logs"];   // 已調閱表單，直接取用logs
 
             }else{
-                $receive_logs = showLogs($query);               // 未調閱表單，另外開表單讀logs
+                // $receive_logs = showLogs($query);               // 未調閱表單，另外開表單讀logs
+                $receive_logs = $receive_row["logs"];               // 未調閱表單，另外開表單讀logs
 
             }
             if(empty($receive_logs["logs"])){

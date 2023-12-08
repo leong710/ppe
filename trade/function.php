@@ -513,8 +513,17 @@
         $pdo = pdo();
         extract($request);
 
-        // $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
-
+        $trade = show_trade($request);                  // 把trade表單叫近來處理 預扣回補
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $trade["idty"])){
+            echo "<script>alert('!! 注意 !!\r\n當您送出表單的同時，該表單型態已被異動(即修改)，\r\n本表單送出無效，返回確認 ~')</script>";
+            $swal_json = array(
+                "fun"       => $fun,
+                "action"    => "error",
+                "content"   => $content_text.'同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~'
+            );
+            return $swal_json;
+        }
         // // **** 預扣回補功能    
         //     // StdObject轉換成Array
         //     if(is_object($item)) { $item = (array)$trade["item"]; } 

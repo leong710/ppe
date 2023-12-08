@@ -336,6 +336,7 @@
                                             <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                             <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="idty"            id="idty"           value="">
+                                            <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $idty;?>">
                                             <?php if($sys_id_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>

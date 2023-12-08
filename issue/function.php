@@ -169,18 +169,20 @@
         $pdo = pdo();
         extract($request);
 
-        $fun = "store_issue";               // for swal_json
-        $content_text = "請購需求單--";        // for swal_json
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "store_issue",
+            "content"   => "請購需求單--"
+        );
 
         // item資料前處理
-            $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
+        $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
-            $logs_request["step"]   = $step;            // 節點-簽單人角色
+            $logs_request["step"]   = $step;                // 節點-簽單人角色
             $logs_request["idty"]   = $idty;
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
-            $logs_request["logs"] = "";   
+            $logs_request["logs"]   = "";   
             $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs = toLog($logs_request);
@@ -190,18 +192,12 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
-            $swal_json = array(
-                "fun" => $fun,
-                "action" => "success",
-                "content" => $content_text.'送出成功'
-            );
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '送出成功';
         }catch(PDOException $e){
             echo $e->getMessage();
-            $swal_json = array(
-                "fun" => $fun,
-                "action" => "error",
-                "content" => $content_text.'送出失敗'
-            );
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '送出失敗';
         }
         return $swal_json;
     }
@@ -233,28 +229,42 @@
             return $issue;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
     // 驗收動作的update表單
     function update_issue($request){
         $pdo = pdo();
         extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "update_issue",
+            "content"   => "更新表單--"
+        );
+
+        $issue_row = show_issue($request);                  // 1.調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $issue_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
+
         // item資料前處理
-        $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
-
+        $item_str = json_encode(array_filter($item));       // 去除陣列中空白元素再要編碼
+        
+        if($action == "edit"){
+            $idty = 1;
+        }
         // 把_issue表單logs叫近來處理
-            $query = array('id'=> $id );
-
-            if($action == "edit"){
-                $idty = 1;
-            }
-            $issue_logs = showLogs($query);
+            // $query = array('id'=> $id );
+            // $issue_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step."-編輯";
             $logs_request["idty"]   = $idty;
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
-            $logs_request["logs"]   = $issue_logs["logs"];   
+            $logs_request["logs"]   = $issue_row["logs"];  
             $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
@@ -266,18 +276,12 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs_enc, $ppty, $id]);
-            $swal_json = array(
-                "fun" => "update_issue",
-                "action" => "success",
-                "content" => '請購需求單--更新成功'
-            );
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '更新成功';
         }catch(PDOException $e){
             echo $e->getMessage();
-            $swal_json = array(
-                "fun" => "update_issue",
-                "action" => "error",
-                "content" => '請購需求單--更新失敗'
-            );
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '更新失敗';
         }
         return $swal_json;
     }
@@ -285,36 +289,54 @@
     function delete_issue($request){
         $pdo = pdo();
         extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "delete_issue",
+            "content"   => "刪除表單--"
+        );
+
+        $issue_row = show_issue($request);                  // 1.調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $issue_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
+
         $sql = "DELETE FROM _issue WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
+            return true;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
     // sign動作的_issue表單 20230807
     function sign_issue($request){
         $pdo = pdo();
         extract($request);
-    
-        $fun = "sign_issue";               // for swal_json
-        $content_text = "請購需求單--";        // for swal_json
 
-        // 把_issue表單logs叫近來處理
-            $query = array('id'=> $id );
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "sign_issue",
+            "content"   => "請購需求單--"
+        );
 
-            $issue_logs = showLogs($query);
-            if(empty($issue_logs["logs"])){
-                $issue_logs["logs"] = "";
-            }
+        $issue_row = show_issue($request);                      // 1.調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $issue_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '同意失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
 
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
-            $logs_request["step"]   = $step;                    // 節點-簽單人角色
+            $logs_request["step"]   = $step;                                // 節點-簽單人角色
             $logs_request["idty"]   = $idty;   
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
-            $logs_request["logs"]   = $issue_logs["logs"];   
+            $logs_request["logs"]   = $issue_row["logs"];   
             if($idty == 13){
                 $po_no = strtoupper(trim(str_replace(' ', '', $po_no)));    // 去除空白、轉大寫
                 $logs_request["remark"] = $po_no."：".$sign_comm;
@@ -344,104 +366,26 @@
         $sql .= " WHERE id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            if((in_array($idty, [ 13 ]))){                              // case = 13交貨
+            if((in_array($idty, [ 13 ]))){                                  // case = 13交貨
                 $stmt->execute([$idty_after, $logs_enc, $item_enc, $po_no, $updated_emp_id, $id]);
 
-            }else if($idty == 12){                                      // case = 12驗收
+            }else if($idty == 12){                                          // case = 12驗收
                 $stmt->execute([$idty_after, $logs_enc, $id]);
-                process_issue($request);                              // 呼叫處理fun 處理整張需求的交易事件(多筆)--issue入帳事宜
+                process_issue($request);                                    // 呼叫處理fun 處理整張需求的交易事件(多筆)--issue入帳事宜
 
             }else{
                 $stmt->execute([$idty_after, $logs_enc, $id]);
             }
-
-            $swal_json = array(
-                "fun" => $fun,
-                "action" => "success",
-                "content" => $content_text.'sign成功'
-            );
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= 'sign成功';
         }catch(PDOException $e){
             echo $e->getMessage();
-            $swal_json = array(
-                "fun" => $fun,
-                "action" => "error",
-                "content" => $content_text.'sign失敗'
-            );
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= 'sign失敗';
         }
         return $swal_json;
     }
-    // 驗收動作的update表單  ==> 這是舊的要修正
-    // function sign_update_issue($request){
-    //     $pdo = pdo();
-    //     extract($request);
-    //     // item資料前處理
-    //     $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
-    //     $issue_id = array('id' => $p_id);               // 指定issue_id
-    //     $issue = show_issue($issue_id);                  // 把issue~原表單叫近來處理
-    //         $b_ppty = $issue['ppty'];                       // 指定~原表單需求類別ppty
-    //         $in_local = $issue['in_local'];                 // 指定~原收件區in_local
-    //         $out_local = $issue['out_local'];               // 指定~原發貨區out_local
-    //         $logs = $issue['logs'];                         // 指定~原表單記錄檔logs
-    //         $b_idty = $issue['idty'];                       // 指定~原表單狀態b_idty
-    //         $in_date = $issue['in_date'];                   // 指定~原表單狀態in_date
-    //         $item_str = $issue["item"];                     // 把item整串(未解碼)存到$item_str
-    //         $item_arr = explode("_," ,$item_str);           // 把字串轉成陣列進行後面的應用
-    //         $item_dec = json_decode($item_arr[0]);          // 解碼後存到$item_dec     = catalog_id
-    //         $amount_dec = json_decode($item_arr[1]);        // 解碼後存到$amount_dec   = amount
-    //     //PHP stdClass Object轉array 
-    //         if(is_object($item_dec)) { $item_dec = (array)$item_dec; } 
-    //         if(is_object($amount_dec)) { $amount_dec = (array)$amount_dec; } 
-
-    //     // V2 判斷前單$b_idty不是1待簽、12待領，就返回        
-    //     if($b_idty == 1 || $b_idty == 12){
-    //         $idty = $p_idty;
-    //     }else{    
-    //         echo "<script>alert('$b_idty.此表單在您簽核前已被改變成[非待簽核]狀態，請再確認，謝謝!');</script>";
-    //         return;
-    //     }
-        
-    //     // 12待收 => 10結案
-    //     if($b_ppty == 1 && $b_idty == 12 && $p_idty == 10){
-    //         // 逐筆呼叫處理
-    //         foreach(array_keys($item_dec) as $it){
-    //             // 假如po_num是空的，給他NA
-    //             if(empty($po_num_dec[$it])){
-    //                 $po_num_dec[$it] = 'NA';
-    //             }
-        
-    //             $process = [];  // 清空預設值
-    //             $process = array('stock_id' => $it,
-    //                             'lot_num' => $in_date,             // lot_num = 批號/期限；因PM發貨時會把發貨日寫入in_date，所以只能暫時先吃他
-    //                             'po_num' => $out_local,            // po_num = 採購編號；因PM發貨時會把PO_num寫入out_local
-    //                             'catalog_id' => $item_dec[$it],    // catalog_id = 器材目錄id
-    //                             'p_amount' => $amount_dec[$it],    // p_amount = 正常數量
-    //                             'p_local' => $in_local,             // p_local = local單位id
-    //                             'idty' => $b_idty);                // idty = 交易狀態
-    //             process_issue_old($process);
-    //         }
-    //     }
-
-    //     // 把原本沒有的塞進去
-    //     $request['idty'] = $idty;   
-    //     $request['cname'] = $_SESSION["AUTH"]["cname"];
-    //     $request['logs'] = $logs;   
-        
-    //     // 呼叫toLog製作log檔
-    //     $logs_enc = toLog($request);
-
-    //     // 更新trade表單
-    //     $sql = "UPDATE _issue 
-    //             SET idty=?, logs=?, in_date=now() 
-    //             WHERE id=? ";
-    //     $stmt = $pdo->prepare($sql);
-    //     try {
-    //         $stmt->execute([$p_idty, $logs_enc, $p_id]);
-    //     }catch(PDOException $e){
-    //         echo $e->getMessage();
-    //     }
-
-    // }
 // // // issue  -- end
 
 // // // issueAmoun待轉PR總表
@@ -900,7 +844,7 @@
         $stock_remark   = " *".$po_no."請購入帳：".$p_amount;                                // 0.備註
 
         // 先把舊資料叫出來，進行加扣數量參考基準
-            $sql_check = "SELECT _stk.* , _l.low_level , _f.id AS fab_id 
+            $sql_check = "SELECT _stk.* , _l.low_level , _l.local_title , _f.id AS fab_id , _f.fab_title
                         FROM `_stock` _stk
                         LEFT JOIN _local _l ON _stk.local_id = _l.id 
                         LEFT JOIN _fab _f ON _l.fab_id = _f.id 
@@ -909,7 +853,7 @@
             $stmt_check = $pdo -> prepare($sql_check);
             $stmt_check -> execute([$p_local, $cata_SN]);
 
-        if($stmt_check -> rowCount() >0){                                       // A.- 已有紀錄
+        if($stmt_check -> rowCount() >0){                                           // A.- 已有紀錄
             // echo "<script>alert('process_trade:已有紀錄~')</script>";            // deBug
             $stk_row_list = $stmt_check -> fetchAll();
             $stk_row_list_length = count($stk_row_list);                            // 取stock件數長度
@@ -919,15 +863,19 @@
             for($i = 0; $i < $stk_row_list_length; $i++ ){
                 $stk_amount = $stk_row_list[$i]['amount'];                          // $stk_amount=品項儲存量
                 $stk_amount += $p_amount;                                           // 1.儲存量餘額 = 儲存量 + 發放量
+                $cama = array(
+                    'icon'  => ' + ',     // log交易訊息中加減號
+                    'title' => ' 入帳 '   // log交易訊息 動作
+                );
                 $stock_remark .= $stk_row_list[$i]['stock_remark'];
 
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$stk_amount, $stock_remark, $updated_user, $stk_row_list[$i]['id']]);
-                        $process_result['result'] = $stk_row_list[$i]['cata_SN']."+".$p_amount."=".$stk_amount;      // 回傳 True: id + amount
+                        $process_result['result'] = $stk_row_list[$i]['fab_title'] . "_" . $stk_row_list[$i]['local_title'] . " " . $stk_row_list[$i]['cata_SN'] . $cama['icon'] . $p_amount . "=" . $stk_amount;      // 回傳 True: id + amount
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                        $process_result['error'] = "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
+                        $process_result['error'] = $stk_row_list[$i]['fab_title'] . "_" . $stk_row_list[$i]['local_title'] . " " . $cama['title'] . "id:".($stk_row_list[$i]['id'] * -1);               // 回傳 False: - id
                 }
                 
                 $p_amount = 0;                                                      // 1.發放量餘額 = 0
@@ -937,21 +885,19 @@
             }
             return $process_result;
         
-        }else{                                                                  // B.- 開新紀錄
-            echo "<script>alert('case:4. 開新紀錄~')</script>";                     // deBug
+        }else{                                                                              // B.- 開新紀錄
+            // echo "<script>alert('case:4. 開新紀錄~')</script>";                              // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-                    $row_check = "SELECT _local.* FROM `_local` WHERE _local.id=? ";          
-                    $row = $pdo -> prepare($row_check);
-                    try {
-                        $row -> execute([$p_local]);
-                        $row_local = $row->fetch();
-                        
-                    }catch(PDOException $e){
-                        echo $e->getMessage();
-                    }
+                $row_check = "SELECT _l.* , _f.fab_title 
+                                FROM `_local` _l
+                                LEFT JOIN _fab _f ON _l.fab_id = _f.id  
+                                WHERE _l.id = ? ";          
+                $stmt_check = $pdo -> prepare($row_check);
+                $stmt_check -> execute([$p_local]);
 
-                if( $row -> rowCount() >0){                                                     // 有取得local資料
-                    $row_lowLevel = json_decode($row_local["low_level"]);                       // 將local.low_level解碼
+                if($stmt_check -> rowCount() >0){                                               // 有取得local資料
+                    $row = $stmt_check->fetch();
+                    $row_lowLevel = json_decode($row["low_level"]);                             // 將local.low_level解碼
                     if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }      // 將物件轉成陣列
                     if(isset($row_lowLevel[$cata_SN])){
                         $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
@@ -964,16 +910,21 @@
             
             // step-2 建立新紀錄到資料庫
                 // $p_amount *= -1;                                                             // 2.發放量餘額 轉負數
+                $cama = array(
+                    'icon'  => ' - ',     // log交易訊息中加減號
+                    'title' => ' 扣帳 '   // log交易訊息 動作
+                );
 
                 $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
                         VALUES(?, ?, ?, ?, ?, ?, ?, now(), now())";                             // 2.建立新紀錄到資料庫
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                        $process_result['result'] = "++".$cata_SN."+".$p_amount;                   // 回傳 True: id - amount
+                    $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 True: id - amount
+                
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                        $process_result['error']  = "--".$cata_SN."+".$p_amount;                   // 回傳 False: - id
+                    $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 False: - id
                 }
         }
         return $process_result;
@@ -985,6 +936,7 @@
         $query = array("id"=> $id);
         $issue_row = show_issue($query);                                // 1.調閱原表單
         $process_remark = "";
+
         $item = json_decode($issue_row["item"]);                        // 1-1.取出需求清單並解碼
         if(is_object($item)) { $item = (array)$item; }                  // 1-2.將需求清單物件轉換成陣列(才有辦法取長度、取SN_key)
             $item_keys = array_keys($item);                             // 1-3.取出需求清單的KEY(item)
@@ -1001,24 +953,26 @@
             );
             $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
-                $process_remark .= "_rn_ ## 入帳 ".$process_result["result"];
+                if(empty($process_remark)){
+                    $process_remark = "## ".$process_result["result"];
+                }else{
+                    $process_remark .= "_rn_## ".$process_result["result"];
+                }
             }else{                                                          // False - 抵扣失敗
-                $process_remark .= "_rn_ ## 入帳 ".$process_result["error"];
+                if(empty($process_remark)){
+                    $process_remark = "## ".$process_result["error"];
+                }else{
+                    $process_remark .= "_rn_## ".$process_result["error"];
+                }      
             }
         }
 
-        // 把_receive表單logs叫近來處理
-            if($issue_row["logs"]){
-                $issue_logs["logs"] = $issue_row["logs"];           // 已調閱表單，直接取用logs
-            }else{
-                $issue_logs = showLogs($query);               // 未調閱表單，另外開表單讀logs
-            }
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;   
             $logs_request["idty"]   = "16";   // '入帳 (Account)'
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
-            $logs_request["logs"]   = $issue_logs["logs"];   
+            $logs_request["logs"]   = $issue_row["logs"];   
             $logs_request["remark"] = $process_remark;   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
@@ -1030,11 +984,8 @@
             }catch(PDOException $e){
                 echo $e->getMessage();
             }
-                
         return;
     }
-
-
 
     // 找出自己的資料 
     function showMe($request){

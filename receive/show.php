@@ -182,7 +182,11 @@
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
-                        <?php echo $receive_row["idty"]." _ ".$step." _ ".$receive_row["in_sign"]." _ ".$receive_row["flow"];?>
+                        <?php if(($receive_row["idty"] == 10) && ($receive_row["flow"] == "close")){
+                            echo "<h1><span class='badge rounded-pill bg-secondary'>Close</span></h1>";
+                        }else{
+                            echo $receive_row["idty"]." _ ".$step." _ ".$receive_row["in_sign"]." _ ".$receive_row["flow"];
+                        } ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>

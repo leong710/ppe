@@ -11,8 +11,10 @@
         $up_href = $receive_url;                        // 回本頁
     }
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -46,7 +48,7 @@
     }else{
         $select_local = array('id' => '');
     }
-    $pm_emp_id = $receive_row["pm_emp_id"];
+    $pm_emp_id = $receive_row["pm_emp_id"];         // *** 廠區業務窗口
     $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
 
     $catalogs = show_catalogs();                    // 器材=All
@@ -74,64 +76,54 @@
             $step_index = '1';      // 申請人
         }
 
-        if($receive_row["omager"] == $auth_emp_id){
-            $step_index = '2';      // 申請人主管
-        } 
-        
-        if($receive_row["in_sign"] == $auth_emp_id){
-            
-            if($receive_row["idty"] < 10){           // 未交貨後的頭銜
-                $step_index = '10';     // 轉呈簽核
-
-            }else{    // 已交貨後的頭銜
-                if($receive_row["idty"] >= 10){
-                    
-                }
-                $step_index = '10';     // 轉呈簽核
-            }
-        
-        
-        
-        }
-
+        if($receive_row["idty"] < 10){       // ** 未交貨後的頭銜
             // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
             switch($receive_row['idty']){
                 case "0":   // $act = '同意 (Approve)';
-                    break;
                 case "1":   // $act = '送出 (Submit)';
+                    if($receive_row["in_sign"] == $auth_emp_id){
+                        if($receive_row["omager"] == $auth_emp_id){
+                            $step_index = '2';      // 申請人主管
+                        }else if( ($receive_row["flow"] == "forward")  ){   
+                            $step_index = '10';     // 轉呈簽核
+                        }
+                    }
                     break;
                 case "2":   // $act = '退回 (Reject)';
-                    break;
                 case "3":   // $act = '作廢 (Abort)'; 
-                    break;
                 case "4":   // $act = '編輯 (Edit)';  
-                    break;
                 case "5":   // $act = '轉呈 (Forwarded)';
-                    break;
                 case "6":   // $act = '暫存 (Save)';  
+                default:    // $act = '錯誤 (Error)';
                     break;
+            }
+
+        } else if($receive_row["idty"] >= 10){   // ** 已交貨後的頭銜
+            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($receive_row['idty']){
                 case "10":  // $act = '結案 (Close)'; 
                     break;
-                case "11":  // $act = '承辦 (Undertake)';
-                    if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
+                case "11":                      // $act = '承辦 (Undertake)';
+                    if($receive_row["fab_id"] == $sys_id_fab_id){
                         $step_index = '4';      // 業務承辦
                     }else if($receive_row["in_sign"] == $auth_emp_id){
                         $step_index = '5';      // 環安主管
                     }
                     break;
-                case "12":  // $act = '待收發貨 (Awaiting collection)'; 
-                    if(in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])){
+                case "12":                      // $act = '待收發貨 (Awaiting collection)'; 
+                    if($receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_id_sfab_id)){
                         $step_index = '3';      // ppe發放人
-                    }    
+                    } 
                     break;
-                case "13":  // $act = '交貨 (Delivery)';
-                    if($receive_row["fab_id"] == $_SESSION[$sys_id]["fab_id"]){
+                case "13":                      // $act = '交貨 (Delivery)';
+                    if($receive_row["fab_id"] == $sys_id_fab_id){
                         $step_index = '4';      // 業務承辦
                     }  
                     break;
                 default:    // $act = '錯誤 (Error)';         
                     return;
             }
+        }
 
         if(!isset($step_index)){
             if(!isset($sys_id_role) ||($sys_id_role) == 3){
@@ -146,7 +138,6 @@
         
         // $step套用身份
         $step = $step_arr[$step_index];
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -191,7 +182,7 @@
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
-
+                        <?php echo $receive_row["idty"]." _ ".$step." _ ".$receive_row["in_sign"]." _ ".$receive_row["flow"];?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
@@ -205,15 +196,17 @@
                         填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if( ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 0 ){ ?>
+                        <?php if( $receive_row['idty'] == 1 && ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 0 ){ ?>
                             <?php if(in_array($receive_row['idty'], [ 1, 13, 11])){ // 1.簽核中 13承辦 11主管 ?>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <?php } if(!in_array($receive_row['idty'], [ 13, 11]) && $sys_id_role <= 1 ){ ?>
-                                <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                            <?php } if(!in_array($receive_row['idty'], [ 13, 11])){ ?>
+                                <?php if( ($receive_row["flow"] != "forward")  ){   ?>
+                                    <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                                <?php } ?>
                                 <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"])); 
+                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_id_sfab_id)); 
                             if($receive_collect_role){ ?>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
@@ -234,7 +227,7 @@
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="debug.php" method="post"> -->
+                    <!-- <form action="./zz/debug.php" method="post"> -->
                                             
                         <!-- 3.申請單成立 -->
                         <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -258,7 +251,7 @@
                                             <?php ;} ?>
                                         <?php ;} ?>
                                         <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                    && (in_array($receive_row["fab_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
+                                                    && (in_array($receive_row["fab_id"], $sys_id_sfab_id) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>
@@ -491,11 +484,11 @@
 
 <script>
     var catalogs             = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料
-    var action               = '<?=$action;?>';                              // Edit選染 // 引入action資料
-    var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
+    var action               = '<?=$action;?>';                              // Edit選染    // 引入action資料
+    var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染    // 引入receive_row資料作為Edit
     var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
     var json                 = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
-    var receive_url          = '<?=$receive_url;?>';                         // push訊息 // 本文件網址
+    var receive_url          = '<?=$receive_url;?>';                         // push訊息    // 本文件網址
 </script>
 
 <script src="receive_show.js?v=<?=time();?>"></script>

@@ -1,7 +1,7 @@
 <?php
-    require_once("../pdo.php");
-    require_once("../sso.php");
-    require_once("function.php");
+    require_once("../../pdo.php");
+    require_once("../../sso.php");
+    require_once("../function.php");
     if(!isset($_SESSION)){                          // 確認session是否啟動
 		session_start();
 	}

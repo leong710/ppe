@@ -195,6 +195,7 @@
                 $in_sign = "";
             }
         }
+        $flow = "主管簽核";
 
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
@@ -208,12 +209,12 @@
 
         //// **** 儲存receive表單
         $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
-                    , cata_SN_amount, idty, logs, created_emp_id, created_cname, updated_user, omager, in_sign
-                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
+                    , cata_SN_amount, idty, flow, logs, created_emp_id, created_cname, updated_user, omager, in_sign
+                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
-                    , $cata_SN_amount_enc, $idty, $logs_enc, $created_emp_id, $created_cname, $created_cname, $omager, $in_sign]);
+                    , $cata_SN_amount_enc, $idty, $flow, $logs_enc, $created_emp_id, $created_cname, $created_cname, $omager, $in_sign]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
 
@@ -348,7 +349,7 @@
 
         if($idty == 5 && !empty($in_sign)){             // case = 5轉呈
             $sign_comm .= " // 原待簽 ".$receive_row["in_sign"]." 轉呈 ".$in_sign;
-            $flow = "轉呈簽核";
+            $flow = "forward";
         }
 
         // 製作log紀錄前處理：塞進去製作元素
@@ -365,9 +366,16 @@
         $sql = "UPDATE _receive 
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
 
-            if($idty == 5){                                         // case = 5轉呈
+            if($idty == 0){                                   // case = 0同意
                 $sql .= " , in_sign = ? , flow = ? ";
-                $idty_after = "1";                                      // 由 5轉呈 存換成 1送出
+                $in_sign = NULL;                                        // 由 存換成 NULL
+                $flow = 'collect';                                      // 由 存換成 collect 12待領
+                $idty_after = 12;                                       // 由 0同意 存換成 12待領/待收
+
+            // }else if($idty == 2){                                   // case = 2退件
+            //     $sql .= " , in_sign = ? , flow = ? ";
+            //     $flow = 'Reject';                                       // 由 存換成 NULL
+            //     $idty_after = $idty;                                    // 由 換成 3作廢
 
             }else if($idty == 3){                                   // case = 3取消/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
@@ -375,40 +383,38 @@
                 $flow = NULL ;                                          // 由 存換成 NULL
                 $idty_after = $idty;                                    // 由 換成 3作廢
 
-            }else if($idty == 0){                                   // case = 0同意
-                $sql .= " , in_sign = ? , flow = ? ";
-                $in_sign = NULL;                                        // 由 存換成 NULL
-                $flow = 'collect';                                      // 由 存換成 collect 12待領
-                $idty_after = 12;                                       // 由 0同意 存換成 12待領/待收
-
             }else if($idty == 4){                                   // case = 4編輯/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
                 $flow = NULL;                                           // 由 存換成 NULL
                 $idty_after = "1";                                      // 由 4編輯 存換成 1送出
 
-            }else if($idty == 13){                                   // case = 13交貨 (Delivery)
-                $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
-                    // $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
-                    // $in_sign = $query_omager['omager_emp_id'];          // 由 存換成 NULL ==> 業務負責人/負責人主管
-                $in_sign = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
-                $flow = 'delivery';                                     // 由 存換成 delivery 13交貨
-                $idty_after = $idty;                                    // 由 12待領 存換成 13交貨
-                $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
-
-            }else if($idty == 11){                                   // case = 11承辦 (Undertake)
+            }else if($idty == 5){                                         // case = 5轉呈
                 $sql .= " , in_sign = ? , flow = ? ";
-                $query_fab_omager = query_fab_omager($fab_sign_code);   // 尋找FAB的環安主管。
-                $in_sign = $query_fab_omager['OMAGER'];                 // 由 存換成 NULL ==> 業務負責人/負責人主管
-                $flow = 'undertake';                                    // 由 存換成 undertake
-                $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
-            
+                $idty_after = "1";                                      // 由 5轉呈 存換成 1送出
+
             }else if($idty == 10){                                   // case = 10結案 (close)
                 $sql .= " , in_sign = ? , flow = ? ";
                 $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
                 $flow = 'close';                                        // 由 存換成 close
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
 
+            }else if($idty == 11){                                   // case = 11承辦 (Undertake)
+                $sql .= " , in_sign = ? , flow = ? ";
+                $query_fab_omager = query_fab_omager($fab_sign_code);   // 尋找FAB的環安主管。
+                $in_sign = $query_fab_omager['OMAGER'];                 // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $flow = 'ESHmanager';                                   // 由 存換成 ESHmanager
+                $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
+                
+            }else if($idty == 13){                                   // case = 13交貨 (Delivery)
+                $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
+                    // $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
+                    // $in_sign = $query_omager['omager_emp_id'];          // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $in_sign = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
+                $flow = 'ppe_pm';                                       // 由 存換成 delivery 13交貨
+                $idty_after = $idty;                                    // 由 12待領 存換成 13交貨
+                $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
+            
             }else{
                 // *** 2023/10/24 這裏要想一下，主管簽完同意後，要清除in_sign和flow
                 $idty_after = $idty;                                // 由 5轉呈 存換成 1送出
@@ -513,7 +519,7 @@
 
             $query_fab_omager = query_fab_omager($receive_row["fab_sign_code"]);    // 尋找FAB的環安主管。
             $in_sign = $query_fab_omager['OMAGER'];                                 // 由 存換成 NULL ==> 業務負責人/負責人主管
-            $flow = 'undertake';                                                    // 由 存換成 undertake
+            $flow = 'ESHmanager';                                                   // 由 存換成 ESHmanager
             $idty_after = '11';                                                     // 由 13交貨 存換成 11承辦
 
             $stmt = $pdo->prepare($sql);

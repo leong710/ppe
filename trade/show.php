@@ -242,9 +242,9 @@
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <?php if($trade_row["form_type"] == "import"){ ?>
-                                                    <a href="restock.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">restock 編輯 (Edit)</a>
+                                                    <a href="restock.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary" title="restock">編輯 (Edit)</a>
                                                 <?php }else if($trade_row["form_type"] == "export"){ ?>
-                                                    <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary">form 編輯 (Edit)</a>
+                                                    <a href="form.php?id=<?php echo $trade_row['id'];?>&action=edit" class="btn btn-primary" title="form">編輯 (Edit)</a>
                                                 <?php }?>
                                             <?php ;} ?>
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->

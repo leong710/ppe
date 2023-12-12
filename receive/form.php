@@ -375,6 +375,7 @@
                                                 <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
                                                 <div id="omager_badge"></div>
                                             </div>
+                                            <input type="text" name="in_signName" id="in_signName" class="form-control">
                                         </div>
                                     </div>
                                     

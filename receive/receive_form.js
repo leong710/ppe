@@ -180,7 +180,8 @@
                         var input_dept = document.getElementById('dept');               // 部門名稱
                         var input_sign_code = document.getElementById('sign_code');     // 部門代號
                         var input_extp = document.getElementById('extp');               // 分機
-                        var input_omager = document.getElementById('omager');         // 上層主管
+                        var input_omager = document.getElementById('omager');           // 上層主管
+                        var input_in_signName = document.getElementById('in_signName'); // 待簽姓名
 
                         if(obj_val){
 
@@ -208,11 +209,13 @@
                                 $('#omager_badge').empty();
                                 input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
                                 $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
-                                
+                                input_in_signName.value = obj_val.s2_cname;             // 帶入待簽人姓名
+
                                 showDelegation(obj_val.omager);                         // 呼叫查詢代理簽核程式，有結果就置換，沒有就保持!!
 
                             }else{
                                 input_omager.value = '';
+                                input_in_signName.value = '';
                             }
                             $("#cname, #plant, #dept, #sign_code, #omager").addClass("autoinput");
 
@@ -232,14 +235,17 @@
                         
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
-                        if(obj_val){                            
+                        if(obj_val){ 
+                            console.log(fun,'obj_val:', obj_val);                           
                             $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             $("#omager").addClass("autoinput");
+                            document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
                             var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入上層主管資訊...完成!!';
                             inside_toast(sinn);
 
                         }else{
                             document.getElementById('omager').value = '';                         // 將欄位cname清除
+                            document.getElementById('in_signName').value = '';                    // 將欄位cname清除
                             var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
                             inside_toast(sinn);
                         }
@@ -274,6 +280,9 @@
                     document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
                     $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
                     $("#omager").addClass("autoinput");
+
+                    document.getElementById('in_signName').value = obj_val.DEPUTYCNAME;             // 將欄位帶入待簽人姓名                          
+
                 }
             },
             error(err){
@@ -286,6 +295,7 @@
     $('#omager_badge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
         document.getElementById('omager').value = '';          // 將欄位cname清除
+        document.getElementById('in_signName').value = '';     // 將欄位in_signName清除
         $('#omager').removeClass('autoinput');                 // 移除外框提示
         // $('#omager_badge').empty();
     });

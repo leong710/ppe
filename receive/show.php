@@ -424,6 +424,7 @@
                                                     <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
                                                             aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
                                                     <div id="in_sign_badge"></div>
+                                                    <input type="hidden" name="in_signName" id="in_signName" class="form-control">
                                                 </div>
                                             </div>
                                             <hr>

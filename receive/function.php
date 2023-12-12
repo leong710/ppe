@@ -209,12 +209,12 @@
 
         //// **** 儲存receive表單
         $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
-                    , cata_SN_amount, idty, flow, logs, created_emp_id, created_cname, updated_user, omager, in_sign
-                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
+                    , cata_SN_amount, idty, flow, logs, created_emp_id, created_cname, updated_user, omager, in_sign, in_signName
+                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark
-                    , $cata_SN_amount_enc, $idty, $flow, $logs_enc, $created_emp_id, $created_cname, $created_cname, $omager, $in_sign]);
+                    , $cata_SN_amount_enc, $idty, $flow, $logs_enc, $created_emp_id, $created_cname, $created_cname, $omager, $in_sign, $in_signName]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
 
@@ -287,11 +287,12 @@
         // 更新_receive表單
         $sql = "UPDATE _receive
                 SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
-                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ?, omager=?, in_sign=?, flow=?, updated_at = now()
+                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ?, omager=?, in_sign=?, in_signName=?, flow=?, updated_at = now()
                 WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, $cata_SN_amount_enc, $idty_after, $logs_enc, $updated_user, $omager, $in_sign, $flow, $uuid]);
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, 
+                            $cata_SN_amount_enc, $idty_after, $logs_enc, $updated_user, $omager, $in_sign, $in_signName, $flow, $uuid]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '更新成功';
         }catch(PDOException $e){
@@ -367,51 +368,58 @@
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
 
             if($idty == 0){                                   // case = 0同意
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = 'collect';                                      // 由 存換成 collect 12待領
                 $idty_after = 12;                                       // 由 0同意 存換成 12待領/待收
 
             }else if($idty == 2){                                   // case = 2退回
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = 'Reject';                                       // 由 存換成 NULL
                 $idty_after = $idty;                                    // 由 換成 2退回
 
             }else if($idty == 3){                                   // case = 3取消/作廢
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = "abort" ;                                       // 由 存換成 NULL
                 $idty_after = $idty;                                    // 由 換成 3作廢
 
             }else if($idty == 4){                                   // case = 4編輯/作廢
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = "edit";                                           // 由 存換成 NULL
                 $idty_after = "1";                                      // 由 4編輯 存換成 1送出
 
             }else if($idty == 5){                                         // case = 5轉呈
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $idty_after = "1";                                      // 由 5轉呈 存換成 1送出
 
             }else if($idty == 10){                                   // case = 10結案 (close)
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = 'close';                                        // 由 存換成 close
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
 
             }else if($idty == 11){                                   // case = 11承辦 (Undertake)
-                $sql .= " , in_sign = ? , flow = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $query_fab_omager = query_fab_omager($fab_sign_code);   // 尋找FAB的環安主管。
                 $in_sign = $query_fab_omager['OMAGER'];                 // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $in_signName = $query_fab_omager['cname'];              // 由 存換成 NULL ==> 業務負責人/負責人主管
                 $flow = 'ESHmanager';                                   // 由 存換成 ESHmanager
                 $idty_after = $idty;                                    // 由 11交貨 存換成 11交貨
                 
             }else if($idty == 13){                                   // case = 13交貨 (Delivery)
-                $sql .= " , in_sign = ? , flow = ? , cata_SN_amount = ? ";
+                $sql .= " , in_sign = ? , in_signName=? , flow = ? , cata_SN_amount = ? ";
                     // $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
                     // $in_sign = $query_omager['omager_emp_id'];          // 由 存換成 NULL ==> 業務負責人/負責人主管
                 $in_sign = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
+                $in_signName = NULL;                                    // 由 存換成 NULL
                 $flow = 'PPEpm';                                        // 由 存換成 delivery 13交貨
                 $idty_after = $idty;                                    // 由 12待領 存換成 13交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
@@ -424,10 +432,10 @@
         $stmt = $pdo->prepare($sql);
         try {
             if((in_array($idty, [ 0, 2, 3, 4, 5, 11, 10]))){               // case = 2退回、3取消/作廢、5轉呈 4編輯(送出) 11承辦 10結案
-                $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
+                $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $in_signName, $flow, $uuid]);
 
             }else if($idty == 13){                                  // case = 13交貨
-                $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $cata_SN_amount_enc, $uuid]);
+                $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $in_signName, $flow, $cata_SN_amount_enc, $uuid]);
                 process_receive($request);                      // 呼叫處理fun 處理整張需求的交易事件(多筆)--stock扣帳事宜
                 idty13pass11($request);                         // 20231109 當發放人==pm_emp_id則自動簽核，並跳到主管簽核11
 
@@ -515,17 +523,18 @@
 
         // 更新_receive表單
             $sql = "UPDATE _receive 
-                    SET idty = ? , logs = ? , updated_user = ? , updated_at = now() , in_sign = ? , flow = ? 
+                    SET idty = ? , logs = ? , updated_user = ? , updated_at = now() , in_sign = ? , in_signName = ? , flow = ? 
                     WHERE uuid = ? ";
 
             $query_fab_omager = query_fab_omager($receive_row["fab_sign_code"]);    // 尋找FAB的環安主管。
             $in_sign = $query_fab_omager['OMAGER'];                                 // 由 存換成 NULL ==> 業務負責人/負責人主管
+            $in_signName = $query_fab_omager['cname'];                              // 由 存換成 NULL ==> 業務負責人/負責人主管
             $flow = 'ESHmanager';                                                   // 由 存換成 ESHmanager
             $idty_after = '11';                                                     // 由 13交貨 存換成 11承辦
 
             $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
+            $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $in_signName, $flow, $uuid]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= $logs_request["step"].'--sign成功';
         }catch(PDOException $e){
@@ -962,6 +971,44 @@
     }
 // // // process_issue處理交易事件 -- end
 
+// // // 查詢待簽名單for send MAPP
+function inSign_list(){
+    $pdo = pdo();
+    $sql = "SELECT _r.in_sign AS emp_id, _r.in_signName AS cname, COUNT(_r.in_sign) AS waiting
+            FROM _receive _r
+            WHERE _r.in_sign IS NOT NULL
+            GROUP BY _r.in_sign
+            HAVING _r.in_sign IS NOT NULL ";
+    $stmt = $pdo->prepare($sql);
+    try {
+        $stmt->execute();
+        $inSign_list = $stmt->fetchAll();
+        return $inSign_list;
+
+    }catch(PDOException $e){
+        echo $e->getMessage();
+        return false;
+    }
+}
+
+function check_ip($request){
+    extract($request);
+    $local_pc = array(                      // 建立local_pc查詢陣列
+        '127.0.0.1'   => '7132e2545d301024dfb18da07cceccedb41b4864',   // 127.0.0.1
+        'tw059332n_1' => 'a2e9ef3a208c4882a99ec708d09cedc7ebb92bb6',   // tw059332n-10.53.90.184
+        'tw059332n_2' => 'dc7f33a2a06752e87d62a7e75bd0feedbddf1cbd',   // tw059332n-169.254.69.80
+        'tw074163p'   => 'c2cb37acb2c9eb3e4068ac55d278ac7d9bea85e3'    // tw074163p-10.53.90.114
+    );
+    $ip = sha1(md5($ip));
+    
+    if(in_array($ip, $local_pc)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// // // 查詢待簽名單 -- end
 
     // deBug專用
     function deBug($request){

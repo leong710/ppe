@@ -98,6 +98,7 @@
 
         var fun = tag_id+'_badge';
         $('#'+fun).empty();
+        $('#'+fun+'Name').empty();
 
         search = search.trim();
         if(!search || (search.length < 8)){
@@ -108,7 +109,6 @@
 
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            // url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
             method:'get',
             dataType:'json',
             data:{
@@ -129,6 +129,7 @@
                             $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
                         }else{
                             $('#'+fun).append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                            document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
                         }
                         
                     }else{
@@ -146,7 +147,8 @@
     // fun3-2：in_sign上層主管：移除單項模組
     $('#in_sign_badge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();   // 自畫面中移除
-        document.getElementById('in_sign').value = '';                         // 將欄位cname清除
+        document.getElementById('in_sign').value = '';            // 將欄位cname清除
+        document.getElementById('in_signName').value = '';        // 將欄位in_signName清除
         $('#in_sign_badge').empty();
     });
 

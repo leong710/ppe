@@ -4,11 +4,11 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
         $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
     }else{
-        $up_href = $receive_url;                        // 回本頁
+        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -170,7 +170,7 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
-                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
 
@@ -334,8 +334,14 @@
                                 <div class="col-12 py-4 px-5">
                                     <!-- 表列0 說明 -->
                                     <div class="row">
-                                        <div class="col-12">
+                                        <div class="col-6 col-md-6 px-2">
                                             請申請人填入相關資料：
+                                        </div>
+                                        <div class="col-6 col-md-6 px-2 text-end">
+                                            <?php if($sys_id_role <= 3){ ?>
+                                                <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                                         </div>
                                         <hr>
                                     </div>
@@ -387,7 +393,7 @@
                                             <?php if($sys_id_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
-                                            <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                                            <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                                         </div>
                                     </div>
                                 </div>

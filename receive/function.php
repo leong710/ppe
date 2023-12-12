@@ -195,7 +195,7 @@
                 $in_sign = "";
             }
         }
-        $flow = "主管簽核";
+        $flow = "Manager";
 
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
@@ -411,7 +411,7 @@
                     // $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
                     // $in_sign = $query_omager['omager_emp_id'];          // 由 存換成 NULL ==> 業務負責人/負責人主管
                 $in_sign = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
-                $flow = 'ppe_pm';                                       // 由 存換成 delivery 13交貨
+                $flow = 'PPEpm';                                        // 由 存換成 delivery 13交貨
                 $idty_after = $idty;                                    // 由 12待領 存換成 13交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
             
@@ -508,7 +508,7 @@
             $logs_request["idty"]   = "11";   
             $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
             $logs_request["logs"]   = $receive_row["logs"];   
-            $logs_request["remark"] = "自動簽核";   
+            $logs_request["remark"] = "(自動簽核)";   
         // 呼叫toLog製作log檔
             $logs_enc = toLog($logs_request);
 

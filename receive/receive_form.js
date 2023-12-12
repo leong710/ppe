@@ -159,13 +159,11 @@
         } 
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
-            url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
             method:'get',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                // functionname: 'search',                          // 操作功能
                 functionname: 'showStaff',                          // 操作功能
                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
                 search: search                                      // 查詢對象key_word
@@ -258,8 +256,7 @@
     // fun3-1A 用上層主管工號查詢簽核代理人
     function showDelegation(search){
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
-            url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
             method:'get',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',

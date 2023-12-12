@@ -4,11 +4,11 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
         $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
     }else{
-        $up_href = $receive_url;                        // 回本頁
+        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
 
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -182,14 +182,28 @@
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
-                        <?php if(($receive_row["idty"] == 10) && ($receive_row["flow"] == "close")){
-                            echo "<h1><span class='badge rounded-pill bg-secondary'>Close</span></h1>";
-                        }else{
-                            echo $receive_row["idty"]." _ ".$step." _ ".$receive_row["in_sign"]." _ ".$receive_row["flow"];
-                        } ?>
+                        <?php 
+                            echo "<h3><span class='badge rounded-pill ";
+                                switch($receive_row['idty']){
+                                    case "0" : echo "bg-success'>待領";     break;
+                                    case "1" : echo "bg-primary'>待簽";      break;
+                                    case "2" : echo "bg-warning text-dark'>退件"; break;
+                                    case "3" : echo "bg-info'>取消";   break;
+                                    case "10": echo "bg-secondary'>結案";   break;
+                                    case "11": echo "bg-primary'>待簽";        break;
+                                    case "12": echo "bg-success'>待收";     break;
+                                    case "13": echo "bg-danger'>待簽";      break;
+                                    default  : echo "'>na";                 break; }
+                            // echo "<sup> ".$receive_row['idty']."</sup>";
+                            echo !empty($receive_row['in_sign']) ? "：".$receive_row['in_sign']." " :"";
+                            echo !empty($receive_row['flow']) ? " / ".$receive_row['flow']." " :"";
+                            // echo " ... ".$step;
+                            echo "</span></h3>";
+                        ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -492,7 +506,8 @@
     var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染    // 引入receive_row資料作為Edit
     var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
     var json                 = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
-    var receive_url          = '<?=$receive_url;?>';                         // push訊息    // 本文件網址
+    // var receive_url          = '<=$receive_url;?>';                         // push訊息    // 本文件網址
+    var receive_url          = '<?=$up_href;?>';                         // push訊息    // 本文件網址
 </script>
 
 <script src="receive_show.js?v=<?=time();?>"></script>

@@ -481,7 +481,7 @@
                 <div class="modal-body px-4">
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return checkExcelForm()">
                         <div class="row">
-                            <div class="col-12 col-md-6 py-0">
+                            <div class="col-6 col-md-8 py-0">
                                 <label for="excelFile" class="form-label">需求清單 <span id="excel_example"></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
@@ -489,7 +489,7 @@
                                     <button type="submit" name="excelUpload" id="upload_excel_btn" class="btn btn-outline-secondary" value="">上傳</button>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6 py-0">
+                            <div class="col-6 col-md-4 py-0">
                                 <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
                                 <p id="warningData" name="warning" >＊請確認Excel中的資料</p>
                             </div>

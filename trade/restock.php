@@ -460,15 +460,15 @@
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
                         <div class="modal-body px-4">
                             <div class="row">
-                                <div class="col-12 col-md-6 py-0">
+                                <div class="col-6 col-md-8 py-0">
                                     <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/restock_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                         <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                     <div class="input-group">
-                                        <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 250px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                        <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary">上傳</button>
+                                        <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                        <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="stock">上傳</button>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6 py-0">
+                                <div class="col-6 col-md-4 py-0">
                                     <p id="warningText" name="warning" >＊請上傳需求單Excel檔</p>
                                     <p id="sn_list" name="warning" >＊請確認Excel中的資料</p>
                                 </div>

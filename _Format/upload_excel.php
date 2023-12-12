@@ -21,7 +21,7 @@
 
                 // 其他按钮被点击时执行的操作
                 $submit = $_POST['excelUpload'];
-                if ($submit === '') {               // "上傳"按钮被点击时执行的操作
+                if ($submit === 'stock') {               // "上傳"按钮被点击时执行的操作
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
                     $theadTitles = array('SN', '名稱', '需求數量');
@@ -374,24 +374,24 @@
     function check_something($submit, $query_item){
         $pdo = pdo();
         switch($submit){
-            case "stock":           
+            case "stock":              
                 $sql_check = "SELECT * FROM _cata WHERE SN = ?";
                 break;
 
-            case "supp":
+            case "supp":        // 供應商
                 $sql_check = "SELECT * FROM _supp WHERE comp_no = ?";
                 break;
 
-            case "contact":
+            case "contact":     // 聯絡人
                 $sql_check = "SELECT * FROM _contact WHERE cname = ?";
                 break;
 
-            case "pno":
+            case "pno":         // 料號
                 $sql_check = "SELECT * FROM _pno WHERE part_no = ?";
                 break;
 
             default:            // 預定失效 
-                return; 
+                // return; 
                 break;
         }
         $stmt_check = $pdo -> prepare($sql_check);

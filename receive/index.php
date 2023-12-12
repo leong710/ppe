@@ -197,14 +197,14 @@
                                         <tr class="table-dark">
                                             <th>開單日期</th>
                                             <th>提貨廠區/申請單位/申請人</th>
-                                            <th>表單狀態</th>
+                                            <th>狀態</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach($my_inSign_lists as $my_inSign){ ?>
                                             <tr>
                                                 <td title="<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10)." <sup>".$my_inSign['id']."</sup>";?></td>
-                                                <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
+                                                <td class="word_bk"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
                                                     <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
                                                 <td><?php $sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
                                                     switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
@@ -417,7 +417,7 @@
                                         <th>申請人...</th>
                                         <th>簽單日期</th>
                                         <th>類別</th>
-                                        <th>表單狀態</th>
+                                        <th>狀態</th>
                                         <th>action</th>
                                     </tr>
                                 </thead>
@@ -427,14 +427,14 @@
                                         <tr>
                                             <td title="<?php echo $receive['id'];?>"><?php echo substr($receive['created_at'],0,10)." <sup>".$receive['id']."</sup>"; ?></td>
                                             <td><?php echo $receive['fab_title'].' ('.$receive['fab_remark'].')';?></td>
-                                            <td><?php echo $receive["plant"]." / ".$receive["dept"];?></td>
+                                            <td class="word_bk"><?php echo $receive["plant"]." / ".$receive["dept"];?></td>
                                             <td><?php echo $receive["cname"]; echo $receive["emp_id"] ? " (".$receive["emp_id"].")":"";?></td>
                                             <td><?php echo substr($receive["updated_at"],0,10); ?></td>
-                                            <td><?php echo $receive['ppty'];
+                                            <td><?php 
                                                     switch($receive['ppty']){
-                                                        case "0":   echo '.臨時';                   break;
-                                                        case "1":   echo '.定期';                   break;
-                                                        case "3":   echo '.緊急';                   break;
+                                                        case "0":   echo '<span class="text-primary">臨時</span>';    break;
+                                                        case "1":   echo '定期';                                      break;
+                                                        case "3":   echo '<span class="text-danger">緊急</span>';     break;
                                                         // default:    echo '錯誤';   break;
                                                     } ;?></td>
                                             <td><?php $sys_role = (($receive['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));

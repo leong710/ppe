@@ -162,7 +162,11 @@ a:hover {
         display: none;
         /* transition: 3s; */
     }
-    
+    .word_bk {
+        text-align: left; 
+        vertical-align: top; 
+        word-break: break-all;
+    }
     /* 密碼的眼睛*/
     #checkEye , #omager_badge , #in_sign_badge {
         position: absolute;

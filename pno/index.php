@@ -83,9 +83,6 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-        }
         .tab-content.active {
             /* display: block; */
             animation: fadeIn 1s;
@@ -93,11 +90,6 @@
         .nav-tabs .nav-link.active {
             /* color: #FFFFFF; */
             background-color: #84C1FF;
-        }
-        .word_bk {
-            text-align: left; 
-            vertical-align: top; 
-            word-break: break-all;
         }
         #fix_price tr > th {
             color: blue;
@@ -123,13 +115,6 @@
         }
         .edit_mode_bgc{
             background-color: #FFFACD;
-        }
-        #excelFile{    
-            margin-bottom: 0px;
-            /* text-align: center; */
-        }
-        #excel_iframe{
-            height: 320px;
         }
     </style>
 </head>

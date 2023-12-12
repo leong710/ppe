@@ -4,7 +4,8 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    $issue_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
+    // 複製本頁網址藥用
+    $issue_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     if(isset($_SERVER["HTTP_REFERER"])){
         $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
     }else{
@@ -15,18 +16,6 @@
     $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
     $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
-
-        // if(isset($_POST["pr2fab_submit"])){    // 發貨 => 12
-        //     update_pr2fab($_REQUEST);
-        //     header("refresh:0;url=index.php");
-        //     exit;
-        // }
-
-        // if(isset($_POST["getIssue_submit"])){    // 收貨 => 10
-        //     update_getIssue($_REQUEST);
-        //     header("refresh:0;url=index.php");
-        //     exit;
-        // }
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -67,7 +56,10 @@
     // $categories = show_categories();                // 分類
     // $sum_categorys = show_sum_category();           // 統計分類與數量
 
-    // 身份陣列
+    // $fab_o_id = $issue_row["fab_o_id"];                 // 取表單上出貨的fab_id
+    $fab_i_id = $issue_row["fab_i_id"];                 // 取表單上收貨的fab_id
+
+        // 身份陣列
         $step_arr = [
             '0' => '填單人',
             '1' => '申請人',
@@ -75,59 +67,65 @@
             '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
             '4' => '業務承辦',
             '5' => '環安主管',
-
             '6' => 'normal',
-            '7' => 'ppe窗口',
-            '8' => 'ppe pm',
+            '7' => 'PPE窗口',
+            '8' => 'PPEpm',
             '9' => '系統管理員',
             '10'=> '轉呈簽核'
         ];
 
-    // 決定表單開啟 $step身份
+        // 決定表單開啟 $step身份
         if(isset($issue_row["in_user_id"]) && ($issue_row["in_user_id"] == $auth_emp_id)){
-            $step_index = '0';      // 填單人
+            $step_index = '1';      // 申請人
         }      
 
-        $idty = $issue_row["idty"];
-        // $fab_o_id = $issue_row["fab_o_id"];                 // 取表單上出貨的fab_id
-        $fab_i_id = $issue_row["fab_i_id"];                 // 取表單上收貨的fab_id
-
-    // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
-        switch($idty){
-            case 0 :   // $act = '同意 (Approve)';
-                break;
-            case 1 :   // $act = '送出 (Submit)';
-                if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
-                    $step_index = '7';      // ppe site user
-                }
-                break;
-            case 2 :   // $act = '退回 (Reject)';
-            case 3 :   // $act = '作廢 (Abort)'; 
-            case 4 :   // $act = '編輯 (Edit)';  
-            case 5 :   // $act = '轉呈 (Forwarded)';
-            case 6 :   // $act = '暫存 (Save)';  
-            case 10 :  // $act = '結案 (Close)'; 
-            case 11 :  // $act = '承辦 (Undertake)';
-            case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
-            case 13 :  // $act = '交貨 (Delivery)';
-            default:    // $act = '錯誤 (Error)';         
+        if($issue_row["idty"] < 10){            // ** 未交貨後的頭銜
+            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($issue_row["idty"]){
+                case 0 :   // $act = '同意 (Approve)';
+                    break;
+                case 1 :   // $act = '送出 (Submit)';
+                    if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
+                        $step_index = '7';      // ppe site user
+                    }
+                    break;
+                case 2 :   // $act = '退回 (Reject)';
+                case 3 :   // $act = '作廢 (Abort)'; 
+                case 4 :   // $act = '編輯 (Edit)';  
+                case 5 :   // $act = '轉呈 (Forwarded)';
+                case 6 :   // $act = '暫存 (Save)';  
+                default:    // $act = '錯誤 (Error)';         
+                    break;
+            }
+        } else if($issue_row["idty"] >= 10){    // ** 已交貨後的頭銜
+            // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
+            switch($issue_row["idty"]){
+                case 10 :  // $act = '結案 (Close)'; 
+                case 11 :  // $act = '承辦 (Undertake)';
+                case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
+                case 13 :  // $act = '交貨 (Delivery)';
+                default:    // $act = '錯誤 (Error)';         
+                    break;
+            }
         }
 
-    if(!isset($step_index)){
-        if($sys_id_role == 3){
-            $step_index = '6';}      // normal
-        if($sys_id_role == 2){
-            $step_index = '7';}      // ppe site user
-        if($sys_id_role == 1){
-            $step_index = '8';}      // ppe pm
-        if($sys_id_role == 0){
-            $step_index = '9';}      // 系統管理員
-        if($action == 'create'){
-            $step_index = '0';}         // 填單人
-    }
+        if(!isset($step_index)){
+            if(!isset($sys_id_role) || ($sys_id_role) == 3){
+                $step_index = '6';}      // normal
+            if(isset($sys_id_role)){
+                if($sys_id_role == 2){
+                    $step_index = '7';}      // PPE窗口
+                if($sys_id_role == 1){
+                    $step_index = '8';}      // PPEpm
+                if($sys_id_role == 0){
+                    $step_index = '9';}      // 系統管理員
+            }
+            if($action == 'create'){
+                $step_index = '0';}         // 填單人
+        }
 
-    // $step套用身份
-    $step = $step_arr[$step_index];
+        // $step套用身份
+        $step = $step_arr[$step_index];
 
 ?>
 
@@ -173,7 +171,23 @@
                         <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
-
+                        <?php 
+                            echo "<h3><span class='badge rounded-pill ";
+                                switch($issue_row['idty']){
+                                    case "0" : echo "bg-info'>待領";                break;
+                                    case "1" : echo "bg-primary'>待簽";             break;
+                                    case "2" : echo "bg-warning text-dark'>退回";   break;
+                                    case "3" : echo "bg-dark'>取消";                break;
+                                    case "10": echo "bg-secondary'>結案";           break;
+                                    case "11": echo "bg-primary'>待簽";             break;
+                                    case "12": echo "bg-success'>待收";             break;
+                                    case "13": echo "bg-danger'>待簽";              break;
+                                    default  : echo "'>na";                         break; 
+                                }
+                            // echo "<sup> ".$trade_row['idty']."</sup>";
+                            // echo " ... ".$step;
+                            echo "</span></h3>";
+                        ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
                         <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>

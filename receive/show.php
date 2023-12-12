@@ -5,10 +5,11 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     if(isset($_SERVER["HTTP_REFERER"])){
         $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
     }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
+        $up_href = $receive_url;                        // 回本頁
     }
 
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -58,13 +59,12 @@
             '0' => '填單人',
             '1' => '申請人',
             '2' => '申請人主管',
-            '3' => 'ppe發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
+            '3' => 'PPE發放人',            // 1.依廠區需求可能非一人簽核權限 2.發放人有調整發放數量後簽核權限
             '4' => '業務承辦',
             '5' => '環安主管',
-
             '6' => 'normal',
-            '7' => 'ppe site user',
-            '8' => 'ppe pm',
+            '7' => 'PPE窗口',
+            '8' => 'PPEpm',
             '9' => '系統管理員',
             '10'=> '轉呈簽核'
         ];
@@ -126,14 +126,16 @@
         }
 
         if(!isset($step_index)){
-            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+            if(!isset($sys_id_role) || ($sys_id_role) == 3){
                 $step_index = '6';}      // normal
-            if(isset($sys_id_role) && ($sys_id_role) == 2){
-                $step_index = '7';}      // ppe site user
-            if(isset($sys_id_role) && ($sys_id_role) == 1){
-                $step_index = '8';}      // ppe pm
-            if(isset($sys_id_role) && ($sys_id_role) == 0){
-                $step_index = '9';}      // 系統管理員
+            if(isset($sys_id_role)){
+                if($sys_id_role == 2){
+                    $step_index = '7';}      // PPE窗口
+                if($sys_id_role == 1){
+                    $step_index = '8';}      // PPEpm
+                if($sys_id_role == 0){
+                    $step_index = '9';}      // 系統管理員
+            }
         }
         
         // $step套用身份
@@ -185,15 +187,16 @@
                         <?php 
                             echo "<h3><span class='badge rounded-pill ";
                                 switch($receive_row['idty']){
-                                    case "0" : echo "bg-info'>待領";     break;
-                                    case "1" : echo "bg-primary'>待簽";      break;
-                                    case "2" : echo "bg-warning text-dark'>退回"; break;
-                                    case "3" : echo "bg-dark'>取消";   break;
-                                    case "10": echo "bg-secondary'>結案";   break;
-                                    case "11": echo "bg-primary'>待簽";        break;
-                                    case "12": echo "bg-success'>待收";     break;
-                                    case "13": echo "bg-danger'>待簽";      break;
-                                    default  : echo "'>na";                 break; }
+                                    case "0" : echo "bg-info'>待領";                break;
+                                    case "1" : echo "bg-primary'>待簽";             break;
+                                    case "2" : echo "bg-warning text-dark'>退回";   break;
+                                    case "3" : echo "bg-dark'>取消";                break;
+                                    case "10": echo "bg-secondary'>結案";           break;
+                                    case "11": echo "bg-primary'>待簽";             break;
+                                    case "12": echo "bg-success'>待收";             break;
+                                    case "13": echo "bg-danger'>待簽";              break;
+                                    default  : echo "'>na";                         break; 
+                                }
                             // echo "<sup> ".$receive_row['idty']."</sup>";
                             echo !empty($receive_row['in_sign']) ? "：".$receive_row['in_sign']." " :"";
                             echo !empty($receive_row['flow']) ? " / ".$receive_row['flow']." " :"";
@@ -506,8 +509,7 @@
     var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染    // 引入receive_row資料作為Edit
     var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
     var json                 = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
-    // var receive_url          = '<=$receive_url;?>';                         // push訊息    // 本文件網址
-    var receive_url          = '<?=$up_href;?>';                         // push訊息    // 本文件網址
+    var receive_url          = '<?=$receive_url;?>';                         // push訊息    // 本文件網址
 </script>
 
 <script src="receive_show.js?v=<?=time();?>"></script>

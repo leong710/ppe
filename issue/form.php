@@ -198,7 +198,7 @@
                         <?php if(($sys_id_role <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $issue_row["id"];?>">
-                                <input type="submit" name="delete_issue" value="刪除" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
+                                <input type="submit" name="delete_issue" value="刪除 (Delete)" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
                             </form>
                         <?php }?>
                     </div>
@@ -431,21 +431,25 @@
                         
                             </div>
                         </div>
-                        <table class="for-table logs table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Step</th>
-                                    <th>Signer</th>
-                                    <th>Time Signed</th>
-                                    <th>Status</th>
-                                    <th>Comment</th>
-                                    <!-- <th>action</th> -->
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <div style="font-size: 6px;" class="text-end">
-                            logs-end
+                        <div class="row">
+                            <div class="col-12 py-1 px-4">
+                                <table class="for-table logs table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Step</th>
+                                            <th>Signer</th>
+                                            <th>Time Signed</th>
+                                            <th>Status</th>
+                                            <th>Comment</th>
+                                            <!-- <th>action</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div style="font-size: 6px;" class="text-end">
+                                logs-end
+                            </div>
                         </div>
                     </div>
                 </div>

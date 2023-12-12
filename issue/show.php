@@ -199,7 +199,7 @@
                                 $issue_collect_role = TRUE ;?>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php }else if($issue_role && $issue_row['idty'] == 13 ){                             ;?>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="12" onclick="submit_item(this.value, this.innerHTML);">驗收 (acceptance)</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="12" onclick="submit_item(this.value, this.innerHTML);">驗收 (Acceptance)</button>
                         <?php } ?>
                     </div>
                 </div>

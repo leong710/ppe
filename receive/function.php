@@ -380,13 +380,13 @@
             }else if($idty == 3){                                   // case = 3取消/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
-                $flow = NULL ;                                          // 由 存換成 NULL
+                $flow = "abort" ;                                       // 由 存換成 NULL
                 $idty_after = $idty;                                    // 由 換成 3作廢
 
             }else if($idty == 4){                                   // case = 4編輯/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
-                $flow = NULL;                                           // 由 存換成 NULL
+                $flow = "edit";                                           // 由 存換成 NULL
                 $idty_after = "1";                                      // 由 4編輯 存換成 1送出
 
             }else if($idty == 5){                                         // case = 5轉呈

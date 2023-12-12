@@ -219,7 +219,7 @@
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                             <?php } if(!in_array($receive_row['idty'], [ 13, 11])){ ?>
                                 <?php if( ($receive_row["flow"] != "forward")  ){   ?>
-                                    <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (forwarded)</button>
+                                    <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (Forwarded)</button>
                                 <?php } ?>
                                 <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>

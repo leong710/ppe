@@ -185,10 +185,10 @@
                         <?php 
                             echo "<h3><span class='badge rounded-pill ";
                                 switch($receive_row['idty']){
-                                    case "0" : echo "bg-success'>待領";     break;
+                                    case "0" : echo "bg-info'>待領";     break;
                                     case "1" : echo "bg-primary'>待簽";      break;
-                                    case "2" : echo "bg-warning text-dark'>退件"; break;
-                                    case "3" : echo "bg-info'>取消";   break;
+                                    case "2" : echo "bg-warning text-dark'>退回"; break;
+                                    case "3" : echo "bg-dark'>取消";   break;
                                     case "10": echo "bg-secondary'>結案";   break;
                                     case "11": echo "bg-primary'>待簽";        break;
                                     case "12": echo "bg-success'>待收";     break;

@@ -268,7 +268,7 @@
         $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
     
         $in_sign = $omager;                     // update送出回原主管，不回轉呈簽核
-        $flow = "主管簽核";
+        $flow = "Manager";
         $idty_after = "1";                      // 由 5轉呈 存換成 1送出
  
         // 把_receive表單logs叫近來處理
@@ -372,10 +372,11 @@
                 $flow = 'collect';                                      // 由 存換成 collect 12待領
                 $idty_after = 12;                                       // 由 0同意 存換成 12待領/待收
 
-            // }else if($idty == 2){                                   // case = 2退件
-            //     $sql .= " , in_sign = ? , flow = ? ";
-            //     $flow = 'Reject';                                       // 由 存換成 NULL
-            //     $idty_after = $idty;                                    // 由 換成 3作廢
+            }else if($idty == 2){                                   // case = 2退回
+                $sql .= " , in_sign = ? , flow = ? ";
+                $in_sign = NULL;                                        // 由 存換成 NULL
+                $flow = 'Reject';                                       // 由 存換成 NULL
+                $idty_after = $idty;                                    // 由 換成 2退回
 
             }else if($idty == 3){                                   // case = 3取消/作廢
                 $sql .= " , in_sign = ? , flow = ? ";
@@ -422,7 +423,7 @@
         $sql .= " WHERE uuid = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            if((in_array($idty, [ 0, 3, 4, 5, 11, 10]))){               // case = 3取消/作廢、case = 5轉呈 4編輯(送出) 11承辦 10結案
+            if((in_array($idty, [ 0, 2, 3, 4, 5, 11, 10]))){               // case = 2退回、3取消/作廢、5轉呈 4編輯(送出) 11承辦 10結案
                 $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $flow, $uuid]);
 
             }else if($idty == 13){                                  // case = 13交貨

@@ -16,15 +16,17 @@
     if( !isset($aResult['error']) ) {
         $su = [];       // 宣告查詢陣列起始
         $aResult['success'] = 'Run function '.$function.'!';    // 預先定義回傳內容。
+
         switch($function) {
             // fun-1.storeLog 儲存log = C
             case 'storeLog':
                 // 宣告查詢陣列內容
-                $su['t_stamp'] = (isset($_POST['t_stamp'])) ? $_POST['t_stamp'] : $_GET['t_stamp'];
-                $su['sys'] = (isset($_POST['sys'])) ? $_POST['sys'] : $_GET['sys'];         
-                $su['remark'] = (isset($_POST['remark'])) ? $_POST['remark'] : $_GET['remark'];
+                $su['thisDay']  = (isset($_POST['thisDay'])) ? $_POST['thisDay'] : $_GET['thisDay'];
+                $su['sys']      = (isset($_POST['sys']))     ? $_POST['sys']     : $_GET['sys'];
+                $su['logs']     = (isset($_POST['logs']))    ? $_POST['logs']    : $_GET['logs'];
+                $su['t_stamp']  = (isset($_POST['t_stamp'])) ? $_POST['t_stamp'] : $_GET['t_stamp'];
 
-                if(empty($su['sys']) || empty($su['remark'])) {
+                if(empty($su['thisDay']) || empty($su['sys']) || empty($su['logs'])) {
                     $aResult['error'] = $function.' - 參數錯誤!';
                 } else {
                     $storeLog = storeLog($su);

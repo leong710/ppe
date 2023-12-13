@@ -1,7 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("function.php");
-    accessDeniedAdmin();
+    // accessDeniedAdmin();
     
 	$sys_id = "todo";
     if(isset($_POST["storeLog"])){
@@ -76,20 +76,26 @@
                                 <table id="log_table" class="display responsive nowrap" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th data-toggle="tooltip" data-placement="bottom" title="AUTO_INCREMENT">id</th>
-                                            <th data-toggle="tooltip" data-placement="bottom" title="進資料庫時間">T_STAMP</th>
+                                            <th data-toggle="tooltip" data-placement="bottom" title="AUTO_INCREMENT">aid</th>
+                                            <th data-toggle="tooltip" data-placement="bottom" title="thisDay">thisDay</th>
                                             <th data-toggle="tooltip" data-placement="bottom" title="系統名稱">sys</th>
-                                            <th data-toggle="tooltip" data-placement="bottom" title="記錄事項">remark</th>
+                                            <th data-toggle="tooltip" data-placement="bottom" title="記錄事項">logs</th>
+                                            <th data-toggle="tooltip" data-placement="bottom" title="進資料庫時間">T_STAMP</th>
                                         </tr>
                                     </thead>
                                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
-                                        <?php foreach($log_list as $log){ ?>
+                                        <?php foreach($log_list as $log){ 
+                                            $logs = json_decode($log['logs']);
+                                            ?>
                                             <tr id="<?php echo $log['id']; ?>">
                                                 <td><?php echo $log['id']; ?></td>
-                                                <td><?php echo $log['t_stamp']; ?></td>
+                                                <td><?php echo $log['thisDay']; ?></td>
                                                 <td><?php echo $log['sys']; ?></td>
-                                                <td class="word-break"><?php echo $log['remark']; ?></td>
+                                                <td class="word-break"><?php echo "<pre>";
+                                                                            print_r($logs); 
+                                                                            echo "</pre>"?></td>
+                                                <td><?php echo $log['t_stamp']; ?></td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>

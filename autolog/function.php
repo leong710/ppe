@@ -3,7 +3,7 @@
     function accessDeniedAdmin(){
         session_start();
         if(!isset($_SESSION["AUTH"]) || $_SESSION["AUTH"]["role"] != 0){
-            header('location:../view/index.php');
+            header('location:../../index.php');
             return;
         }
     }
@@ -23,6 +23,24 @@
         }
     }
     
+    // fun-1.storeLog 儲存log = C
+    function storeLog($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "INSERT INTO autolog(thisDay, sys, logs, t_stamp)VALUES(?, ?, ?, ?) ";
+        if(empty($t_stamp)){
+            $t_stamp = date("Y-m-d\TH:i");
+        }
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$thisDay, $sys, $logs, $t_stamp]);
+            return "storeLog done";
+            
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+        
     // fun-2.showLog 讀取log = R
     function showLog($request){
         $pdo = pdo();
@@ -39,24 +57,7 @@
             echo $e->getMessage();
         }
     }
-    
-    // fun-1.storeLog 儲存log = C
-    function storeLog($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "INSERT INTO autolog( sys, remark, t_stamp)VALUES(?, ?, ?) ";
-        if(empty($t_stamp)){
-            $t_stamp = date("Y-m-d\TH:i");
-        }
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$sys, $remark, $t_stamp]);
-            return "storeLog done";
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    
+
     // fun-3.deleteLog 刪除log = D
     function deleteLog($request){
         $pdo = pdo();

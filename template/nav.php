@@ -3,6 +3,12 @@
 
     $webroot = "..";
 
+    if(isset($_SESSION[$sys_id]["role"])){ 
+        $sys_id_role = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
+    }else{
+        $sys_id_role = false;                                           // 取出$_session引用
+    };
+    // 2023/12/14 這邊待處理
     if(isset($_SESSION[$sys_id]) && $_SESSION[$sys_id]["role"] <= 2){
         //// 2調撥
             $fab_id = $_SESSION[$sys_id]["fab_id"];        // 先給預設值
@@ -78,7 +84,7 @@
                                         
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                         <li><a class="dropdown-item" href="../receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
+                                        <?php if($sys_id_role <= 2 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <!-- <li><a class="dropdown-item" href="../receive/index.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用分類管理</a></li> -->
                                             <!-- <li><a class="dropdown-item" href="../receive/edit.php"><i class="fa-regular fa-square-plus"></i>&nbsp新增領用</a></li> -->
@@ -86,7 +92,7 @@
                                     </ul>
                                 </li>
 
-                                <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
+                                <?php if($sys_id_role <= 2 ){ ?>
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -99,7 +105,7 @@
                                     <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
                                         <!-- <li><a class="dropdown-item" href="#">&nbsp庫存</a></li> -->
                                         <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/stock/byCatalog.php"><i class="fa-solid fa-cart-shopping"></i><i class="fa-solid fa-suitcase"></i>器材存量管理</a></li> -->
-                                        <?php if($_SESSION[$sys_id]["role"] <= 2 ){ ?>
+                                        <?php if($sys_id_role <= 2 ){ ?>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b></a></li>
                                             <li><hr class="dropdown-divider"></li>
@@ -129,7 +135,7 @@
                                     </ul>
                                 </li>
                                 <?php } ?>
-                                <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                                <?php if($sys_id_role <= 1 ){ ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa-solid fa-sliders"></i>&nbsp進階設定</a>
@@ -140,23 +146,22 @@
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp儲存點管理</a></li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/supp/"><i class="fa-solid fa-address-book"></i>&nbsp供應商聯絡人管理</a></li>
-                                            <!-- <li><hr class="dropdown-divider"></li> -->
-                                            <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/checked/siteList.php">半年檢紀錄總表</a></li> -->
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
+                                            <?php if($sys_id_role <= 0 ){ ?>
+                                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/auto.php"><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</a></li>
+                                            <?php } ?>
 
                                         </ul>
                                     </li>
                                 <?php } ?>
-                                <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                                <?php if($sys_id_role <= 1 ){ ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/auto.php"><i class="fa-solid fa-comment-sms"></i>&nbspMAPP自動發報通知</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報紀錄</a></li>
                                             <!-- <li><hr class="dropdown-divider"></li> -->
                                             <!-- <li><a class="dropdown-item" href="<php echo $webroot;?>/checked/siteList.php">半年檢紀錄總表</a></li> -->
-
                                         </ul>
                                     </li>
                                 <?php } ?>
@@ -193,17 +198,17 @@
                                       }
                                     echo $_SESSION["AUTH"]["cname"]; 
                                         if(isset($_SESSION[$sys_id])){ 
-                                            echo '<sup class="text-danger"> - '.$_SESSION[$sys_id]["role"].'</sup>'; 
+                                            echo '<sup class="text-danger"> - '.$sys_id_role.'</sup>'; 
                                         }
                                     ?> 你好
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
                                 <?php if(isset($_SESSION[$sys_id])){ ?>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                    <?php if($sys_id_role <= 2){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/edit.php?user=<?php echo $_SESSION["AUTH"]["user"];?>"><i class="fa fa-user-circle" aria-hidden="true"></i> 編輯User資訊</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     <?php } ?>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                    <?php if($sys_id_role <= 1){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/index.php"><i class="fa fa-address-card" aria-hidden="true"></i> 管理使用者</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     <?php } ?>

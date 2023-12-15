@@ -25,7 +25,7 @@
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($log_list);        //計算總筆數
-        $per = 2;                           //每頁筆數
+        $per = 5;                           //每頁筆數
         $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  
@@ -178,13 +178,14 @@
                                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($log_list as $log){ 
-                                            $logs_log = json_decode($log['logs']);
-                                            if(is_object($logs_log)) { $logs_log = (array)$logs_log; } 
-                                            $logs_json = ($logs_log['autoLogs']);
-                                            // $logs_json = ($logs_log);
+                                              $logs_log = json_decode($log['logs']);                        // 1.把json字串反解成物件或陣列
+                                              if(is_object($logs_log)) { $logs_log = (array)$logs_log; }    // 2.判斷 物件轉陣列
+                                              $logs_json = $logs_log['autoLogs'];                           // 3.只取autoLogs的部分
                                         ?>
                                             <tr id="<?php echo $log['id']; ?>">
-                                                <td><?php echo "(aid:".$log['id'].")&nbsp".$log['thisDay']."</br>".$log['sys']." => ".count($logs_json)."件"."</br>".$log['t_stamp']; ?>
+                                                <!-- 第1格.thisInfo 紀錄敘述 -->
+                                                <td>
+                                                    <?php echo "(aid:".$log['id'].")&nbsp".$log['thisDay']."</br>".$log['sys']." => ".count($logs_json)."次"."</br>".$log['t_stamp']; ?>
                                                     <?php if($sys_id_role == 0){ ?>
                                                         <form action="" method="post">
                                                             <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
@@ -195,12 +196,14 @@
                                                     <?php }?>
                                                 
                                                 </td>
+                                                <!-- 第2格.Logs 紀錄內容 -->
                                                 <td>
                                                     <table>
                                                         <?php $i = 1;
                                                             foreach($logs_json AS $l){
                                                                 if(is_object($l)) { $l = (array)$l; } 
-                                                                echo "<tr><td class='".$l["mapp_res"]."'>".$i."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>".$l["cname"]." (".$l["emp_id"].") ".$l["waiting"]."</td>";
+                                                                echo "<tr><td class='".$l["mapp_res"]."'>".$i."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>";
+                                                                echo !empty($l["cname"]) ? $l["cname"]." (".$l["emp_id"].") ".$l["waiting"]."</td>" : "</td>" ;
                                                                 echo "<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
                                                                 $i++;
                                                             } 

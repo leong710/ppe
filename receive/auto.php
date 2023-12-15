@@ -164,11 +164,12 @@
     // init
         var fa_OK = '<snap id="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';    // 打勾符號
         var fa_NG = '<snap id="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>'; // 打叉符號
-        var fun = '<?=$fun?>';
-        var check_ip = <?=$check_ip?>;
+        var fun         = '<?=$fun?>';
+        var check_ip    = <?=$check_ip?>;
         
         var inSign_lists = <?=json_encode($inSign_lists);?>;
-        var ppe_url = 'http://tw059332n.cminl.oa/ppe/receive/';
+        // var inSign_lists = [];
+        var ppe_url  = 'http://tw059332n.cminl.oa/ppe/receive/';
         var int_msg1 = '** 測試 ~ 測試 **\n【環安PPE系統】待您簽核文件提醒\n';
         var int_msg2 = ' 您有 ';
         var int_msg3 = ' 件待簽核文件尚未處理，如已簽核完畢，請忽略此訊息！';
@@ -199,31 +200,41 @@
             }
         }
         // fun_2 倒數 n秒自動關閉視窗功能
-        var CountDownSecond = 61; //讓倒數計時器一開始的數字是10，10秒鐘後關閉視窗
         function CountDown() {
-            // window.close();
-            if (CountDownSecond !=0) {
-                CountDownSecond -= 1;
-                document.getElementById("myMessage").innerHTML = "視窗關閉倒數 " + CountDownSecond + " 秒";
-            } else {
-                document.getElementById("myMessage").innerHTML = "視窗關閉！";
-                window.close();
-                return;
-            }
-            setTimeout("CountDown()",1000);
-        }
-        // fun_3 延遲模組
-        function delayedLoop() {
-            var i = 0;
-            var loop = function() {
-                // console.log('delayedLoop_i:',i);
-                i++;
-                if (i < 10) {
-                    setTimeout(loop, 1000); // 每隔3秒遞迴調用 loop() 函数
+            let delayTime = 1000;   // 1次1秒
+            let i = 30;             // 10次==10秒
+            const loop = () => {
+                if (i >= 0) {
+                    document.getElementById("myMessage").innerHTML = "視窗關閉倒數 "+ i +" 秒";
+                    setTimeout(loop, delayTime);
+                } else {
+                    // callback();                  // 要執行的程式
+                    document.getElementById("myMessage").innerHTML = "視窗關閉！";
+                    window.open('', '_self', '');
+                    window.close();
                 }
-            }
+                i--;
+            };
             loop();
         }
+        // fun_3 延遲模組
+        function delayedLoop(i, callback) {
+            if(i==0 || i==null){
+                i = 10;             // 10次==10秒
+            }
+            const loop = () => {
+                if (i >= 0) {
+                    document.getElementById("myMessage").innerHTML = "Fun: "+ callback +" 執行倒數 "+ i +" 秒";
+                    setTimeout(loop, 1000);
+                } else {
+                    document.getElementById("myMessage").innerHTML = "Fun: "+ callback +" 執行！";
+                    window[callback]();                  // 要執行的程式
+                }
+                i--;
+            };
+            loop();
+        }
+
     // 主技能
         // 2023/12/13 step_2 寫入log記錄檔~
         function toLog(logs_msg){
@@ -283,58 +294,68 @@
             var user_logs = [];                                                 // 宣告儲存Log用的 大-陣列Logs
             $('#result').empty();                                               // 清空執行訊息欄位        
             if(inSign_lists){
-                // 逐筆把清單繞出來
-                Object(inSign_lists).forEach(function(user){
-                    var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
-                    var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
-                        emp_id  : user['emp_id'],
-                        cname   : user['cname'],
-                        waiting : user['waiting']
-                    }
-
-                    // 確認工號是否有誤
-                    if(!user_emp_id || (user_emp_id.length < 8)){
-                        alert("工號字數有誤 !!");
-                        $("body").mLoading("hide");
-                        mapp_result['error']++; 
-                        return false;
-
-                    } else {
-                        // 組合訊息文字
-                        var mg_msg  = int_msg1;
-                            mg_msg += "(" + user['cname'] + ")";
-                            mg_msg += int_msg2 + user['waiting'] + int_msg3;
-                            mg_msg += int_msg4 + ppe_url + int_msg5;
-                        user_log['mg_msg']   = mg_msg;                                        // 小-物件log 紀錄mg_msg訊息
-                        user_log['thisTime'] = thisTime;                                      // 小-物件log 紀錄thisTime
-
-                        // 發送mapp
-                            // mapp_result_check = push_mapp(user_emp_id, mg_msg);      // 正式用這個發
-                                // if(user_emp_id != '11053914'){                              // 測試要過濾
-                                if(user_emp_id == '10008048'){
-                                    // mapp_result_check = push_mapp(user_emp_id, mg_msg);
-                                    // console.log(user_emp_id, mg_msg);
+                if(inSign_lists.length >= 1){                                   // 有件數 > 0 舊執行通知
+                    // 逐筆把清單繞出來
+                    Object(inSign_lists).forEach(function(user){
+                        var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
+                        var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
+                            emp_id  : user['emp_id'],
+                            cname   : user['cname'],
+                            waiting : user['waiting']
+                        }
+    
+                        // 確認工號是否有誤
+                        if(!user_emp_id || (user_emp_id.length < 8)){
+                            alert("工號字數有誤 !!");
+                            $("body").mLoading("hide");
+                            mapp_result['error']++; 
+                            return false;
+    
+                        } else {
+                            // 組合訊息文字
+                            var mg_msg  = int_msg1;
+                                mg_msg += "(" + user['cname'] + ")";
+                                mg_msg += int_msg2 + user['waiting'] + int_msg3;
+                                mg_msg += int_msg4 + ppe_url + int_msg5;
+                            user_log['mg_msg']   = mg_msg;                                        // 小-物件log 紀錄mg_msg訊息
+                            user_log['thisTime'] = thisTime;                                      // 小-物件log 紀錄thisTime
+    
+                            // 發送mapp
+                                // mapp_result_check = push_mapp(user_emp_id, mg_msg);               // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                                if(user_emp_id != '10008048'){                                   // 測試要過濾
+                                    // mapp_result_check = push_mapp(user_emp_id, mg_msg);      // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
                                     mapp_result['success']++;
                                     mapp_result_check = true; 
-                                    user_log['mapp_res'] = 'OK';
                                 }else{
                                     mapp_result['error']++; 
                                     mapp_result_check = false; 
-                                    user_log['mapp_res'] = 'NG';
                                 }
-
-                        // 標記emp_id位置，顯示OK或NG，並顯示執行訊息
-                        var action_id = document.querySelector('#id_'+user_emp_id);         // 定義user所在td位置
-                        if(mapp_result_check){
-                            action_id.innerHTML = fa_OK + action_id.innerText;              // 插入打勾符號
-                            $('#result').append(fa_OK + user['cname'] + "("+user['emp_id'] + ")" + ' ... done'+'</br>');
-                        }else{
-                            action_id.innerHTML = fa_NG + action_id.innerText;              // 插入打叉符號
-                            $('#result').append(fa_NG + user['cname'] + "("+user['emp_id'] + ")" + ' ... fail'+'</br>');
+    
+                            // 標記emp_id位置，顯示OK或NG，並顯示執行訊息
+                            if(mapp_result_check){                                              // 判斷是否發送成功
+                                user_log['mapp_res'] = 'OK';
+                            }else{
+                                user_log['mapp_res'] = 'NG';
+                            }
+                            var action_id = document.querySelector('#id_'+user_emp_id);         // 定義user所在td位置
+                            action_id.innerHTML = window['fa_'+user_log['mapp_res']] + action_id.innerText;              // 插入打叉符號
+                            $('#result').append(window['fa_'+user_log['mapp_res']] + user['cname'] + "("+user['emp_id'] + ")" + ' ... '+user_log['mapp_res']+'</br>'); // 插入下方顯示
                         }
-                    }
-                    user_logs.push(user_log);                                               // 將log單筆小物件 塞入 logs大陣列中
-                })
+                        user_logs.push(user_log);                                               // 將log單筆小物件 塞入 logs大陣列中
+                    })
+
+                }else{                                                                          // 沒件數 == 0 就不用執行通知，但依樣要生成Log
+                    var user_log = {                                                            // 宣告儲存Log內的單筆 小-物件log
+                            emp_id  : '',
+                            cname   : '',
+                            waiting : '0',
+                            mg_msg  : '(無待簽文件)',
+                            mapp_res: 'OK',
+                            thisTime: thisTime
+                        }
+                    user_logs.push(user_log);                                                   // 將log單筆小物件 塞入 logs大陣列中 
+                    $('#result').append(fa_OK + '(無待簽文件) ... done'+'</br>');                // 插入下方顯示
+                }
             }
             // 打包整理Logs的陣列
                 user_logs_obj = {
@@ -342,8 +363,7 @@
                     autoLogs : user_logs
                 }
                 user_logs_json = JSON.stringify(user_logs_obj);                                 // logs大陣列轉JSON字串
-            // console.log(user_logs_json);
-                toLog(user_logs_json);
+                toLog(user_logs_json);                                                          // *** call fun.step_2 寫入log記錄檔
 
             // swal組合訊息，根據發送結果選用提示內容與符號
             var swal_title = '領用申請單-發放訊息';
@@ -358,8 +378,8 @@
                     var swal_action = 'warning';
                 }
 
-            $("body").mLoading("hide");                                                       // 關閉mLoading圖示
-            swal(swal_title ,swal_content ,swal_action, {timer:5000});        // popOut swal + 自動關閉
+            $("body").mLoading("hide");                                                         // 關閉mLoading圖示
+            swal(swal_title ,swal_content ,swal_action, {timer:5000});                          // popOut swal + 自動關閉
             // 將其歸零，避免汙染
             mapp_result = {
                 'success' : 0,
@@ -369,34 +389,24 @@
 
     // fun啟動自動執行
     $(document).ready( function () {
-        op_tab('user_lists');   // 關閉清單
+        // op_tab('user_lists');   // 關閉清單
+        if(check_ip && fun){
+            switch (fun) {
+                case 'receive':         // MAPP待簽發報
+                    (async () => {
+                        await step_0();     // 等待 func1 執行完畢  // step_0 整理訊息、發送、顯示發送結果。
+                        CountDown();        // 當 func1 執行完畢後才會執行 func2    // 倒數 n秒自動關閉視窗~
+                    })();
+                    break;
 
-            // if(check_ip && fun){
-            //     console.log('fun:',fun);
-            // }
-            // if(check_ip && fun){
-            //     switch (fun) {
-            //         case 'mytodo':
-            //             sort_toRun();               // autoUpload myTodo 呼叫主功能sort_toRun
-            //             CountDown();                // 倒數 n秒自動關閉視窗~
-            //             break;
-            //         case 'scm':
-            //             uploadMyTodo_toSCM();       // autoUpload scm_db step-0.啟動自動上傳scm
-            //             CountDown();                // 倒數 n秒自動關閉視窗~
-            //             break;
-            //         case 'twice':
-            //             sort_toRun();               // autoUpload myTodo 呼叫主功能sort_toRun
-            //             setTimeout(uploadMyTodo_toSCM, 5000);   // autoUpload scm_db 延遲5秒 + step-0.啟動自動上傳scm 
-            //             CountDown();                // 倒數 n秒自動關閉視窗~
-            //             break;
-            //         default:
-            //             $('#result').append('autoUpload : function error!</br>');
-            //     }
+                default:
+                    $('#result').append('MAPP待簽發報 : function error!</br>');
+            }
 
-            // }else{
-            //     $('#result').append('autoUpload : standBy...</br>');
-            // }
-        // step_0();
+        }else{
+            $('#result').append('MAPP待簽發報 : standBy...</br>');
+        }
+
     } );
 
 </script>

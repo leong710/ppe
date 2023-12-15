@@ -19,7 +19,7 @@
             echo $e->getMessage();
         }
     }
-    // dashBoard用，秀出全部計數 by器材 table-2
+    // dashBoard用，秀出全部計數 by器材 table-2     // 20231215
     function show_stock_byCatalog(){
         $pdo = pdo();
         $sql = "SELECT _local.fab_id, stock.local_id
@@ -51,30 +51,28 @@
     // 各廠有缺少的清單 table-3
     function show_stock_lost(){
         $pdo = pdo();
-        $sql = "SELECT _site.id AS site_id, _site.site_title, _local.id AS local_id, _local.local_title, _catalog.id AS catalog_id, _catalog.title AS catalog_title	
-                    , s.stock_stand
-                    , sum(stock.amount) AS stock_amount 	
-                    , s.sqty AS qty
-                FROM `stock`	
-                LEFT JOIN _catalog ON stock.catalog_id = _catalog.id	
-                LEFT JOIN _local ON stock.local_id = _local.id	
-                LEFT JOIN _site ON _local.site_id = _site.id	
-                LEFT JOIN (	
-                    SELECT concat_ws('_',_local.site_id, stock.local_id, stock.catalog_id) AS tcc
-                        , sum(_s.standard_lv) AS stock_stand	
-                        , sum(stock.amount)-sum(_s.standard_lv) AS sqty
-                    FROM `stock`	
-                    LEFT JOIN _local ON stock.local_id = _local.id		
-                    LEFT JOIN (	
-                            SELECT stock.id, stock.standard_lv	
-                            FROM `stock`	
-                            LEFT JOIN _local _l ON stock.local_id = _l.id	
-                            GROUP BY local_id, catalog_id	
-                            ) _s ON stock.id = _s.id
-                    GROUP BY stock.local_id, stock.catalog_id
-                    ) s ON concat_ws('_',_local.site_id, stock.local_id, stock.catalog_id) = tcc
+        $sql = "SELECT _local.fab_id, _fab.fab_title, _local.local_title, _cata.SN AS cata_SN, _cata.pname AS cata_pname,
+                        s.stock_stand, SUM(stock.amount) AS stock_amount, s.sqty AS qty
+                FROM _stock stock
+                LEFT JOIN _cata ON stock.cata_SN = _cata.SN
+                LEFT JOIN _local ON stock.local_id = _local.id
+                LEFT JOIN _fab ON _local.fab_id = _fab.id
+                LEFT JOIN (
+                    SELECT CONCAT_WS('',_local.fab_id, _stock.local_id, _stock.cata_SN) AS tcc,
+                        SUM(_s.standard_lv) AS stock_stand,
+                        SUM(_stock.amount)-SUM(_s.standard_lv) AS sqty
+                    FROM _stock 
+                    LEFT JOIN _local ON _stock.local_id = _local.id
+                    LEFT JOIN (
+                        SELECT _ss.id, _ss.standard_lv
+                        FROM _stock _ss
+                        LEFT JOIN _local _l ON _ss.local_id = _l.id
+                        GROUP BY local_id, cata_SN
+                        ) _s ON _stock.id = _s.id
+                    GROUP BY _stock.local_id, _stock.cata_SN
+                    ) s ON CONCAT_WS('',_local.fab_id, stock.local_id, stock.cata_SN) = tcc
                 WHERE s.sqty <= 0
-                GROUP BY stock.local_id, stock.catalog_id;";
+                GROUP BY _local.fab_id, _local.local_title, _cata.SN, s.stock_stand, s.sqty ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
@@ -85,39 +83,39 @@
         }
     }
     // 各廠器材存量百分比(缺點：截長補短的問題) table-1 驗證用
-    function show_site_percentage(){
+    function show_fab_percentage(){
         $pdo = pdo();
         // 各廠器材存量百分比(找出有缺的部分取最小值)
         $sql = "SELECT _s.*
                 FROM (
                     SELECT 	
-                        _site.id AS site_id, _site.site_title
+                        _fab.id AS fab_id, _fab.fab_title
                         , s.stock_stand	
                         , sum(stock.amount) AS stock_amount 	
                         , s.sqty
                         , MIN(round(((s.stock_stand + s.sqty )/(s.stock_stand * 2) * 100), 1)) AS percentage 
-                    FROM `stock`	
-                    LEFT JOIN _catalog ON stock.catalog_id = _catalog.id	
+                    FROM `_stock` stock
+                    LEFT JOIN _cata ON stock.cata_SN = _cata.SN	
                     LEFT JOIN _local ON stock.local_id = _local.id	
-                    LEFT JOIN _site ON _local.site_id = _site.id	
+                    LEFT JOIN _fab ON _local.fab_id = _fab.id	
                     LEFT JOIN (	
-                        SELECT concat_ws('_',_local.site_id, stock.local_id, stock.catalog_id) AS tcc	
+                        SELECT concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) AS tcc	
                             , sum(_s.standard_lv) AS stock_stand
                             , sum(stock.amount)-sum(_s.standard_lv) AS sqty	
-                        FROM `stock`	
+                        FROM `_stock` stock	
                         LEFT JOIN _local ON stock.local_id = _local.id	
                         LEFT JOIN (	
                                 SELECT stock.id, stock.standard_lv	
-                                FROM `stock`	
+                                FROM `_stock` stock	
                                 LEFT JOIN _local _l ON stock.local_id = _l.id	
-                                GROUP BY local_id, catalog_id	
+                                GROUP BY local_id, cata_SN	
                                 ) _s ON stock.id = _s.id	
-                        GROUP BY stock.local_id, stock.catalog_id	
-                        ) s ON concat_ws('_',_local.site_id, stock.local_id, stock.catalog_id) = tcc
+                        GROUP BY stock.local_id, stock.cata_SN	
+                        ) s ON concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) = tcc
                     WHERE s.sqty <= 0	
-                    GROUP BY stock.local_id, stock.catalog_id
-                    ORDER BY _site.id , percentage ASC) _s
-                GROUP BY site_id";
+                    GROUP BY stock.local_id, stock.cata_SN
+                    ORDER BY _fab.id , percentage ASC) _s
+                GROUP BY fab_id ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

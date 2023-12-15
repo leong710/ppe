@@ -3,7 +3,7 @@
     // require 不容許回傳值
     // echo print_r($_POST["htmlTable"]);
     // 以下為"PhpSpreadsheet"啟動碼
-    require '../vendor/autoload.php';  // 导入 PhpSpreadsheet 库
+    require '../../libs/vendor/autoload.php';  // 导入 PhpSpreadsheet 库
 
     use PhpOffice\PhpSpreadsheet\Spreadsheet;
     use PhpOffice\PhpSpreadsheet\Writer\Xlsx;

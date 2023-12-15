@@ -2,7 +2,7 @@
     require_once("../pdo.php");
     // 以下為EXCEL檔案上傳
     // 引入PhpSpreadsheet库
-    require '../vendor/autoload.php';
+    require '../../libs/vendor/autoload.php';
     include("../template/header.php");
 
     // echo print_r($_REQUEST);

@@ -201,8 +201,8 @@
         }
         // fun_2 倒數 n秒自動關閉視窗功能
         function CountDown() {
-            let delayTime = 1000;   // 1次1秒
-            let i = 30;             // 10次==10秒
+            let delayTime = 1000;   // 1000=1秒
+            let i = 15;             // 15次==15秒
             const loop = () => {
                 if (i >= 0) {
                     document.getElementById("myMessage").innerHTML = "視窗關閉倒數 "+ i +" 秒";

@@ -1,15 +1,19 @@
 <?php
     require_once("../pdo.php");
+    require_once("../sso.php");
     require_once("function.php");
-    // accessDeniedAdmin();
+    accessDeniedAdmin($sys_id);
     if(!isset($_SESSION)){                                              // 確認session是否啟動
         session_start();
     }
 
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
-    if(isset($_POST["deleteLog"])){
+    if(isset($_POST["deleteLog"])){                 // 刪除整大串
         deleteLog($_REQUEST);
+    }
+    if(isset($_POST["delLog_item"])){               // 刪除小項
+        delLog_item($_REQUEST);
     }
 
     if(isset($_REQUEST["list_ym"])){        
@@ -191,7 +195,7 @@
                                                             <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
                                                             <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
                                                             <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
-                                                            <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                                                            <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                         </form>
                                                     <?php }?>
                                                 
@@ -199,11 +203,21 @@
                                                 <!-- 第2格.Logs 紀錄內容 -->
                                                 <td>
                                                     <table>
-                                                        <?php $i = 1;
+                                                        <?php $i = 0;
                                                             foreach($logs_json AS $l){
                                                                 if(is_object($l)) { $l = (array)$l; } 
-                                                                echo "<tr><td class='".$l["mapp_res"]."'>".$i."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>";
-                                                                echo !empty($l["cname"]) ? $l["cname"]." (".$l["emp_id"].") ".$l["waiting"]."</td>" : "</td>" ;
+                                                                echo "<tr><td class='".$l["mapp_res"]."'>".($i+1)."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>";
+                                                                echo !empty($l["cname"]) ? $l["cname"]." (".$l["emp_id"].") ".$l["waiting"] : "" ;
+                                                                if($sys_id_role == 0){ ?>
+                                                                    <form action="" method="post">
+                                                                        <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
+                                                                        <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">
+                                                                        <input type="hidden" name="log_id"      value="<?php echo $i;?>">
+                                                                        <input type="hidden" name="id"          value="<?php echo $log['id'];?>">
+                                                                        <input type="submit" name="delLog_item" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                                    </form>
+                                                                <?php } 
+                                                                echo "</td>" ;
                                                                 echo "<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
                                                                 $i++;
                                                             } 

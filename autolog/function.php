@@ -1,13 +1,6 @@
 <?php
 
-    function accessDeniedAdmin(){
-        session_start();
-        if(!isset($_SESSION["AUTH"]) || $_SESSION["AUTH"]["role"] != 0){
-            header('location:../../index.php');
-            return;
-        }
-    }
-
+// // // index用到
     // 20230818 嵌入分頁工具
     function show_log_list($request){
         $pdo = pdo();
@@ -18,7 +11,7 @@
             if(!empty($list_ym)){  
                 $sql .= " WHERE SUBSTRING(al.thisDay, 1, 7) = ? ";
             }
-        $sql .= " ORDER BY al.t_stamp DESC ";
+        $sql .= " ORDER BY al.thisDay DESC ";
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
@@ -38,7 +31,6 @@
             echo $e->getMessage();
         }
     }
-
     // 顯示全部by年月 => 供查詢年月份使用
     function show_log_list_ym(){
         $pdo = pdo();
@@ -55,6 +47,7 @@
         }
     }
     
+// // // autoLog CRUD
     // fun-1.storeLog 儲存log = C
     function storeLog($request){
         $pdo = pdo();
@@ -94,10 +87,10 @@
 
             $sql = "UPDATE autolog 
                     SET logs = ? , t_stamp = ? 
-                    WHERE thisDay = ? AND sys = ? ";
+                    WHERE id = ? ";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$logs_enc, $t_stamp, $thisDay, $sys]);
+                $stmt->execute([$logs_enc, $t_stamp, $row["id"]]);
                 $result = "UPDATE sucess";
             }catch(PDOException $e){
                 echo $e->getMessage();
@@ -123,14 +116,13 @@
         }
         return "storeLog ... ".$result;
     }
-        
     // fun-2.showLog 讀取log = R
     function showLog($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT autolog.*
-                FROM autolog
-                WHERE autolog.id = ? ";
+        $sql = "SELECT al.*
+                FROM autolog al
+                WHERE al.id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
@@ -140,7 +132,6 @@
             echo $e->getMessage();
         }
     }
-
     // fun-3.deleteLog 刪除log = D
     function deleteLog($request){
         $pdo = pdo();
@@ -149,30 +140,64 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            return "deleteLog done";
+            $result = "sucess";
         }catch(PDOException $e){
             echo $e->getMessage();
+            $result = "error";
         }
+        return "deleteLog ... ".$result;
     }
-    
-    // fun-4.updateLog 更新log = U
+    // fun-4.updateLog 更新log = U == 暫時用不到
     function updateLog($request){
         $pdo = pdo();
         extract($request);
         $sql = "UPDATE `autolog`
-                SET sys=?, remark=?
-                WHERE id=?";
+                SET thisDay=?, sys=?, logs=?
+                WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$sys, $remark, $id]);
-            return "updateLog done";
+            $stmt->execute([$thisDay, $sys, $logs, $id]);
+            $result = "sucess";
         }catch(PDOException $e){
             echo $e->getMessage();
+            $result = "error";
         }
+        return "updateLog ... ".$result;
     }
 
-    // // // Log tools
-    // 整合+製作記錄JSON_Log檔
+// // // Log tools
+    // 刪除單項log值-20231215
+    function delLog_item($request){
+        $pdo = pdo();
+        extract($request);
+        $query = array('id'=> $id );
+        // 把_receive表單叫近來處理
+            $row = showLog($query);
+            $row_logs_dec = json_decode($row["logs"]);                              // 1.先將-舊logs JSON純文字解碼成物件
+            if(is_object($row_logs_dec)) { $row_logs_dec = (array)$row_logs_dec; }  // 2.將整個logs物件轉成陣列
+            $row_autologs = (array)$row_logs_dec["autoLogs"];                       // 3.將舊logs下的autoLogs轉成陣列，放入$row_autologs
+        // 刪除單項
+            array_splice($row_autologs, $log_id, 1);                                // 用這個刪除順序內的item不會產生index
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_process["thisDay"]  = $row_logs_dec["thisDay"];                   // 1.表單狀態
+            $logs_process["autoLogs"] = $row_autologs;                              // 2.帶入新舊整合好的$row_autoLogs
+            $logs_enc = json_encode($logs_process);                                 // 3.將陣列編碼成儲存用JSON字串
+
+        $sql = "UPDATE autolog 
+                SET logs = ? 
+                WHERE id = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$logs_enc, $id]);
+            $result = "UPDATE sucess";
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $result = "UPDATE error";
+        }
+        return "delLog_item ... ".$result;
+    }
+
+    // 整合+製作記錄JSON_Log檔 == 暫時用不到 = 參考用
     function toLog($request){
         extract($request);
 
@@ -199,3 +224,4 @@
         return $logs;        
         
     }
+        

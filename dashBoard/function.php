@@ -22,22 +22,22 @@
     // dashBoard用，秀出全部計數 by器材 table-2
     function show_stock_byCatalog(){
         $pdo = pdo();
-        $sql = "SELECT _local.site_id, stock.local_id
-                        , stock.catalog_id, _catalog.title AS catalog_title
-                        , sum(s.standard_lv) AS stock_stand
-                        , sum(stock.amount) AS stock_amount 
-                        , sum(stock.amount)-sum(s.standard_lv) AS qty
-                FROM `stock`
-                LEFT JOIN _catalog ON stock.catalog_id = _catalog.id
+        $sql = "SELECT _local.fab_id, stock.local_id
+                    , stock.cata_SN, _cata.pname AS cata_pname
+                    , sum(s.standard_lv) AS stock_stand
+                    , sum(stock.amount) AS stock_amount 
+                    , sum(stock.amount)-sum(s.standard_lv) AS qty
+                FROM `_stock` stock
+                LEFT JOIN _cata ON stock.cata_SN = _cata.SN
                 LEFT JOIN _local ON stock.local_id = _local.id
-                LEFT JOIN _site ON _local.site_id = _site.id
+                LEFT JOIN _fab ON _local.fab_id = _fab.id
                 LEFT JOIN (
-                    SELECT stock.id, stock.standard_lv
-                    FROM `stock`
-                    LEFT JOIN _local _l ON stock.local_id = _l.id
-                    GROUP BY local_id, catalog_id
-                    ) s ON stock.id = s.id
-                GROUP BY _site.fab_id, stock.catalog_id;";
+                    SELECT _s.id, _s.standard_lv
+                    FROM `_stock` _s
+                    LEFT JOIN _local _l ON _s.local_id = _l.id
+                    GROUP BY local_id, cata_SN
+                ) s ON stock.id = s.id
+                GROUP BY _fab.site_id, stock.cata_SN;";
                 // DISTINCT 過濾重複
         $stmt = $pdo->prepare($sql);
         try {

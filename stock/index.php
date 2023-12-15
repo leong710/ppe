@@ -140,31 +140,11 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        tr > td {
-            vertical-align: middle; 
-        }
+
         .body > ul {
             padding-left: 0px;
         }
-        /* 標籤增加陰影辨識度 */
-        .badge {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        /* 膠囊球增加陰影辨識度 */
-        .rounded-pill {
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-        }
+
         /* 凸顯可編輯欄位 */
             .fix_amount:hover {
                 /* font-size: 1.05rem; */

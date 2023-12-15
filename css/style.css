@@ -33,7 +33,7 @@ body {
     background-image: linear-gradient(to top left,#00273b,#00273b);
     /* 背景固定不移動 */
     background-attachment: fixed;
-    }
+}
 table, td, th {
     border: 0px solid #aaa;
     border-collapse: collapse;
@@ -207,9 +207,11 @@ a:hover {
         display: inline-block;
         cursor: pointer;
     }
-    .badge {
-        /* 標籤增加陰影辨識度 */
+    .badge {  /* 標籤增加陰影辨識度 */
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .rounded-pill { /* 膠囊球增加陰影辨識度 */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
     }
 
     #catalog_list img {

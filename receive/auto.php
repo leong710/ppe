@@ -321,15 +321,15 @@
                             user_log['thisTime'] = thisTime;                                      // 小-物件log 紀錄thisTime
     
                             // 發送mapp
-                                // mapp_result_check = push_mapp(user_emp_id, mg_msg);               // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                                if(user_emp_id != '10008048'){                                   // 測試要過濾
-                                    // mapp_result_check = push_mapp(user_emp_id, mg_msg);      // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                                    mapp_result['success']++;
-                                    mapp_result_check = true; 
-                                }else{
-                                    mapp_result['error']++; 
-                                    mapp_result_check = false; 
-                                }
+                            mapp_result_check = push_mapp(user_emp_id, mg_msg);               // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                                // if(user_emp_id != '10008048'){                                   // 測試要過濾
+                                //     // mapp_result_check = push_mapp(user_emp_id, mg_msg);      // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                                //     mapp_result['success']++;
+                                //     mapp_result_check = true; 
+                                // }else{
+                                //     mapp_result['error']++; 
+                                //     mapp_result_check = false; 
+                                // }
     
                             // 標記emp_id位置，顯示OK或NG，並顯示執行訊息
                             if(mapp_result_check){                                              // 判斷是否發送成功

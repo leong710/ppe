@@ -73,6 +73,8 @@
                     <h4>local安全水位設定值</h4>
                 </div>
                 <div class="col-12 col-md-6 py-0 text-end">
+                    <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
                     <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>    
                         <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                     <?php } ?>
@@ -205,6 +207,125 @@
         </div>
     </div>
 </div>
+
+<!-- 彈出畫面模組-API連線說明 -->
+<div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h4 class="modal-title">安全庫存量說明</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 col-md-6 py-0">
+                            <div>
+                                安全庫存評估表
+                            </div>
+                            <table>
+                                <thead> 
+                                    <tr>
+                                        <th>評估內容</th>
+                                        <th>評估等級</th>
+                                        <th>對應分值</br>(參考)</th>
+                                        <th>加權占比</br>(參考)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowspan="3">需求重要性</td>
+                                        <td>A</td>
+                                        <td>90</td>
+                                        <td rowspan="3">40%</td>
+                                    </tr>
+                                    <tr><td>B</td><td>40</td></tr>
+                                    <tr><td>C</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">需求預測性</td>
+                                        <td>高</td>
+                                        <td>90</td>
+                                        <td rowspan="3">20%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>低</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">供應穩定性</td>
+                                        <td>低</td>
+                                        <td>90</td>
+                                        <td rowspan="3">10%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>高</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">採購Lead Time</td>
+                                        <td>>30天</td>
+                                        <td>90</td>
+                                        <td rowspan="3">10%</td>
+                                    </tr>
+                                    <tr><td>10~30天</td><td>60</td></tr>
+                                    <tr><td><10天</td><td>10</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">料件通用性</td>
+                                        <td>高</td>
+                                        <td>90</td>
+                                        <td rowspan="3">20%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>低</td><td>0</td></tr>
+    
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="col-12 col-md-6 py-0">
+                            <div>
+                                安全庫存建議
+                            </div>
+                            <table>
+                                <thead> 
+                                    <tr>
+                                        <th>分數</th>
+                                        <th>安全庫存量建議</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>>80</td>
+                                        <td>一個採購Lead Time的100%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td>40~80</td>
+                                        <td>一個採購Lead Time的50%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td>20~40</td>
+                                        <td>一個採購Lead Time的20%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td><20</td>
+                                        <td>不備安全庫存</td>
+                                    </tr>
+    
+    
+       
+    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">

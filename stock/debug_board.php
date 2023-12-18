@@ -32,6 +32,10 @@
                         echo ">>> stocks</br>";
                         print_r($stocks);
                     }
+                    if($myReceives){
+                        echo ">>> myReceives</br>";
+                        print_r($myReceives);
+                    }
                 echo "</pre>text-end";
             ?>
         </div>

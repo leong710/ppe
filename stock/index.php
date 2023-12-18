@@ -4,6 +4,9 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
             // if(isset($_GET["local_id"])){
                 //     $select_local = select_local($_REQUEST);
 
@@ -66,7 +69,7 @@
         // 1-2 組合查詢條件陣列
             $sort_fab_setting = array(
                 'sfab_id'   => $sfab_id_str,                        // 1-2.將字串sfab_id加入組合查詢陣列中
-                'fab_id' => "All"
+                'fab_id'    => "All"
             );
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
@@ -84,13 +87,15 @@
         }
     // 組合查詢條件陣列
         $list_issue_setting = array(
-            'fab_id' => $sort_fab_id,
-            'cate_no' => $sort_cate_no
+            'fab_id'    => $sort_fab_id,
+            'cate_no'   => $sort_cate_no,
+            'thisYear'  => date('Y')
         );
  
         $stocks = show_stock($list_issue_setting);                  // 依查詢條件儲存點顯示存量
         $categories = show_categories();                            // 取得所有分類item
         $sum_categorys = show_sum_category($list_issue_setting);    // 統計分類與數量
+        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
 
         $sortFab = show_fab($list_issue_setting);                   // 查詢fab的細項結果
         if(empty($sortFab)){                                        // 查無資料時返回指定頁面
@@ -100,27 +105,29 @@
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($stocks);        //計算總筆數
-        $per = 25;                          //每頁筆數
-        $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-            if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
-                $page = 1;	  
-            }else{
-                $page = $_GET['page'];
-            }
-            $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
-            // 合併嵌入分頁工具
-            $list_issue_setting['start'] = $start;
-            $list_issue_setting['per'] = $per;
+            // $per = 25;                          //每頁筆數
+            // $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+            //     if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
+            //         $page = 1;	  
+            //     }else{
+            //         $page = $_GET['page'];
+            //     }
+            //     $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+            //     // 合併嵌入分頁工具
+            //     $list_issue_setting['start'] = $start;
+            //     $list_issue_setting['per'] = $per;
 
-        $div_stocks = show_stock($list_issue_setting);
-        // $div_stocks = stock_page_div($start, $per, $list_issue_setting);
-        $page_start = $start +1;            //選取頁的起始筆數
-        $page_end = $start + $per;          //選取頁的最後筆數
-            if($page_end>$per_total){       //最後頁的最後筆數=總筆數
-                $page_end = $per_total;
-            }
+            // $div_stocks = show_stock($list_issue_setting);
+            // // $div_stocks = stock_page_div($start, $per, $list_issue_setting);
+            // $page_start = $start +1;            //選取頁的起始筆數
+            // $page_end = $start + $per;          //選取頁的最後筆數
+            //     if($page_end>$per_total){       //最後頁的最後筆數=總筆數
+            //         $page_end = $per_total;
+            //     }
     // <!-- 20211215分頁工具 -->
     
+    // 今年年份
+        $thisYear = date('Y');
     // 初始化半年後日期，讓系統判斷與highLight
         $toDay = date('Y-m-d');
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));
@@ -135,6 +142,12 @@
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
+        <!-- data table CSS+JS -->
+        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
+    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
     <!-- mloading JS -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <!-- mloading CSS -->
@@ -159,12 +172,12 @@
                 background-color: #FFFACD;
             }
         /* 警示項目 amount、lot_num */
-            .alert_amount {
+            .alert_itb {
                 background-color: #FFBFFF;
                 color: red;
                 font-size: 1.2em;
             }
-            .alert_lot_num {
+            .alert_it {
                 background-color: #FFBFFF;
                 color: red;
             }
@@ -200,7 +213,7 @@
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
-                                        <?php if($_SESSION[$sys_id]["role"] <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
+                                        <?php if($sys_id_role <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
                                             <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
@@ -213,7 +226,7 @@
                     <!-- 表頭按鈕 -->
                     <div class="col-md-4 py-0 text-end">
                         <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
-                            <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
+                            <?php if($sys_id_role <= 1 || ( $sys_id_role <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
                                 <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
                                 <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
                             <?php } ?>
@@ -240,88 +253,20 @@
                 <!-- by各Local儲存點： -->
                 <div class="col-12 bg-white">
                     <!-- 20211215分頁工具 -->               
-                    <div class="row">
-                        <div class="col-12 col-md-6">	
-                            <?php
-                                //每頁顯示筆數明細
-                                echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
-                            ?>
-                        </div>
-                        <div class="col-12 col-md-6 text-end">
-                            <?php
-                                if($pages>1){  //總頁數>1才顯示分頁選單
-        
-                                    //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
-                                    if($page=='1'){
-                                        echo "首頁 ";
-                                        echo "上一頁 ";		
-                                    }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
-                                    }else if(isset($sortFab["id"])){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=1>首頁 </a> ";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";		
-                                    }else{
-                                        echo "<a href=?page=1>首頁 </a> ";
-                                        echo "<a href=?page=".($page-1).">上一頁 </a> ";		
-                                    }
-        
-                                    //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
-                                    for($i=1 ; $i<=$pages ;$i++){ 
-                                        $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
-                                        $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
-        
-                                        //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
-                                        if($page <= $lnum){
-                                            $rnum = $rnum + ($lnum-$page+1);
-                                        }
-        
-                                        if($page+$rnum > $pages){
-                                            $lnum = $lnum + ($rnum - ($pages-$page));
-                                        }
-                                        //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
-                                        if($page-$lnum <= $i && $i <= $page+$rnum){
-                                            if($i==$page){
-                                                echo '<u><b>'.$i.'</b></u> ';
-                                            }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                                echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
-                                            }else{
-                                                echo '<a href=?page='.$i.'>'.$i.'</a> ';
-                                            }
-                                        }
-                                    }
-                                    //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
-                                    if($page==$pages){
-                                        echo " 下一頁";
-                                        echo " 末頁";
-                                    }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
-                                    }else if(isset($sortFab["id"])){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";
-                                    }else{
-                                        echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?page=".$pages."> 末頁</a>";		
-                                    }
-                                }
-                            ?>
-                        </div>
-                    </div>
-                    <!-- 20211215分頁工具 -->
-                    <table class="table table-striped table-hover">
+                    <table id="stock_list" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>ai</th>
+                                <!-- <th>ai</th> -->
                                 <th><i class="fa fa-check" aria-hidden="true"></i> 儲存點位置</th>
                                 <th>分類</th>
                                 <th>名稱</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="相同儲區&相同品項將安全存量合併成一筆計算">安全</br>存量 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="編輯後按Enter才能儲存">現場</br>存量 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="編輯後按Enter才能儲存">現量</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限</th>
                                 <th>PO no</th>
-                                <th>最後更新 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                <th>最後更新</th>
                             </tr>
                         </thead>
                         <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
@@ -329,10 +274,10 @@
                             <?php 
                                 $check_item ="";
                             ?>
-                            <?php foreach($div_stocks as $stock){ ?>
+                            <?php foreach($stocks as $stock){ ?>
                                 <tr <?php if($check_item != $stock['local_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
-                                    <td style="font-size: 12px;"><?php echo $stock['id'];?></td>
-                                    <td style="text-align: left;"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
+                                    <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
+                                    <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
                                             case "1": echo "bg-primary"; break;
                                             case "2": echo "bg-success"; break;
@@ -343,17 +288,20 @@
                                             case "7": echo "bg-secondary"; break;
                                             default: echo "bg-light text-success"; break;
                                         }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
-                                    <td style="text-align: left;"><?php echo $stock["SN"]."_".$stock['pname'];?></td>
-                                    <td><?php echo $stock['standard_lv'];?></td>
-                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_amount":"" ;?> " contenteditable="true">
+                                    <td class="word_bk"><?php echo $stock["SN"]."_".$stock['pname'];?></td>
+
+                                    <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
+
+                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?> " contenteditable="true">
                                         <?php echo $stock['amount'];?></td>
-                                    <td style="width:20%;text-align: left;"><?php echo $stock['stock_remark'];?></td>
+                                    <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
+                                    <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
                                     <td <?php if($stock["lot_num"] < $half_month){ ?> class="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1 || ( $_SESSION[$sys_id]["role"] <= 2 && 
+                                            <?php if($sys_id_role <= 1 || ( $sys_id_role <= 2 && 
                                                 ($_SESSION[$sys_id]["fab_id"] == $sortFab["id"] || in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
                                                     <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
                                                         onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
@@ -365,75 +313,6 @@
                         </tbody>
                     </table>
                     <!-- 20211215分頁工具 -->               
-                    <div class="row">
-                        <div class="col-12 col-md-6">	
-                            <?php
-                                //每頁顯示筆數明細
-                                echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
-                            ?>
-                        </div>
-                        <div class="col-12 col-md-6 text-end">
-                            <?php
-                                if($pages>1){  //總頁數>1才顯示分頁選單
-    
-                                    //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
-                                    if($page=='1'){
-                                        echo "首頁 ";
-                                        echo "上一頁 ";		
-                                    }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=1>首頁 </a> ";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page-1).">上一頁 </a> ";
-                                    }else if(isset($sortFab["id"])){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=1>首頁 </a> ";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page-1).">上一頁 </a> ";	
-                                    }else{
-                                        echo "<a href=?page=1>首頁 </a> ";
-                                        echo "<a href=?page=".($page-1).">上一頁 </a> ";		
-                                    }
-    
-                                    //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
-                                    for($i=1 ; $i<=$pages ;$i++){ 
-                                        $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
-                                        $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
-    
-                                        //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
-                                        if($page <= $lnum){
-                                            $rnum = $rnum + ($lnum-$page+1);
-                                        }
-    
-                                        if($page+$rnum > $pages){
-                                            $lnum = $lnum + ($rnum - ($pages-$page));
-                                        }
-                                        //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
-                                        if($page-$lnum <= $i && $i <= $page+$rnum){
-                                            if($i==$page){
-                                                echo '<u><b>'.$i.'</b></u> ';
-                                            }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                                echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$i.'>'.$i.'</a> ' ;
-                                            }else{
-                                                echo '<a href=?page='.$i.'>'.$i.'</a> ';
-                                            }
-                                        }
-                                    }
-                                    //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
-                                    if($page==$pages){
-                                        echo " 下一頁";
-                                        echo " 末頁";
-                                    }else if(isset($sortFab["id"]) && isset($sort_cate_no)){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&cate_no=".$sort_cate_no."&page=".$pages."> 末頁</a>";
-                                    }else if(isset($sortFab["id"])){
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?fab_id=".$sortFab["id"]."&page=".$pages."> 末頁</a>";	
-                                    }else{
-                                        echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                        echo "<a href=?page=".$pages."> 末頁</a>";		
-                                    }
-                                }
-                            ?>
-                        </div>
-                    </div>
-                    <!-- 20211215分頁工具 -->
                 </div>
                 <hr>
                  <!-- 尾段：debug訊息 -->
@@ -453,7 +332,7 @@
 
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                        <?php if($sys_id_role <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
                         <?php } ?>
@@ -471,8 +350,8 @@
                                         <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($allLocals as $local){ ?>
-                                                <?php if($_SESSION[$sys_id]["role"] <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                                    <option value="<?php echo $local["id"];?>">
+                                                <?php if($sys_id_role <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                    <option value="<?php echo $local["id"];?>" >
                                                         <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                                 <?php } ?>
                                             <?php } ?>
@@ -502,8 +381,8 @@
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
                                         <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
-                                            <?php echo $_SESSION[$sys_id]["role"] <= 1 ? "":"readonly"; ?> >
-                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] >= 1) ? " *":" - disabled";?></sup></label>
+                                            <?php echo $sys_id_role <= 1 ? "":"readonly"; ?> >
+                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_id_role >= 1) ? " *":" - disabled";?></sup></label>
                                     </div>
                                 </div>
                                 <!-- 右側-批號 -->
@@ -560,7 +439,7 @@
                             <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
                             <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>   
+                            <?php if($sys_id_role <= 2){ ?>   
                                 <span id="modal_button"></span>
                             <?php } ?>
                             <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
@@ -660,12 +539,39 @@
 // // // 開局導入設定檔
     var allLocals   = <?=json_encode($allLocals);?>;                   // 引入所有local的allLocals值
     var low_level   = [];                                              // 宣告low_level變數
-    var stock       = <?=json_encode($div_stocks);?>;                  // 引入div_stocks資料
+    var stock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
     var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
     var swal_json   = <?=json_encode($swal_json);?>;                   // 引入swal_json值
     
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
     var listData = <?=json_encode($stocks);?>;                         // 引入stocks資料
+// 找出Local_id算SN年領用量
+    var myReceives  = <?=json_encode($myReceives);?>;                  // 引入myReceives資料，算年領用量
+    var receiveAmount = [];                                             // 宣告變數陣列，承裝Receives年領用量
+
+    // 彙整出SN年領用量
+    Object(myReceives).forEach(function(row){
+        let csa = JSON.parse(row['cata_SN_amount']);
+        Object.keys(csa).forEach(key =>{
+            let pay = Number(csa[key]['pay']);
+            let l_key = row['local_id'] +'_'+ key;
+            if(receiveAmount[l_key]){
+                receiveAmount[l_key] += pay;
+            }else{
+                receiveAmount[l_key] = pay;
+            }
+            console.log(l_key, pay)
+        })
+    });
+    // 選染到Table上指定欄位
+    Object.keys(receiveAmount).forEach(key => {
+        let value = receiveAmount[key];
+        $('#receive_'+key).empty();
+        $('#receive_'+key).append(value);
+    })
+
+
+    
 
 </script>
 

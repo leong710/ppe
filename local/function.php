@@ -398,18 +398,19 @@
         extract($request);
         // low_level資料前處理
 
-            $catalog_SN = array_filter($catalog_SN);            // 去除陣列中空白元素
-            $amount = array_filter($amount);                    // 去除陣列中空白元素
-            // 小陣列要先編碼才能塞進去大陣列
-                $catalog_SN_enc = json_encode($catalog_SN);
-                $amount_enc = json_encode($amount);
-            //陣列合併
-                $low_level_arr = [];
-                $low_level_arr['catalog_SN'] = $catalog_SN_enc;
-                $low_level_arr['amount'] = $amount_enc;
-            // implode()把陣列元素組合為字串：
-                $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
-
+            $low_level = array_filter($low_level);             // 去除陣列中空白元素
+            // $amount = array_filter($amount);                    // 去除陣列中空白元素
+            // // 小陣列要先編碼才能塞進去大陣列
+            //     $catalog_SN_enc = json_encode($catalog_SN);
+            //     $amount_enc = json_encode($amount);
+            // //陣列合併
+            //     $low_level_arr = [];
+            //     $low_level_arr['catalog_SN'] = $catalog_SN_enc;
+            //     $low_level_arr['amount'] = $amount_enc;
+            // // implode()把陣列元素組合為字串：
+            //     $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
+                $low_level_str = json_encode($low_level);      // 陣列轉成字串進行儲存到mySQL
+            
             $sql = "UPDATE _local
                     SET low_level=?, updated_user=?, updated_at=now()
                     WHERE id=? ";
@@ -420,4 +421,23 @@
                 echo $e->getMessage();
             }
 
+    }
+    // --- stock index  20231218 領用量
+    function show_my_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id  
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND _r.idty = 10 ";  // 10=結案
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id, $thisYear]);
+            $my_receive_lists = $stmt->fetchAll();
+            return $my_receive_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
     }

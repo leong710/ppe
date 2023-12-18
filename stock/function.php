@@ -222,6 +222,43 @@
             echo $e->getMessage();
         }
     }
+    
+    // --- stock index  20231218 領用量
+    function show_my_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id , _s.site_title , _s.site_remark 
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.fab_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND _r.idty = 10 ";  // 10=結案
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $thisYear]);
+            $my_receive_lists = $stmt->fetchAll();
+            return $my_receive_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // // 顯示全部by年月 => 供查詢年月份使用
+    // function show_receive_list_yy(){
+    //     $pdo = pdo();
+    //     $sql = "SELECT DISTINCT SUBSTRING(al.thisDay, 1, 4) AS yy
+    //             FROM `autolog` al
+    //             ORDER BY yy DESC";
+    //     $stmt = $pdo->prepare($sql);
+    //     try {
+    //         $stmt->execute();
+    //         $receive_list_yy = $stmt->fetchAll();
+    //         return $receive_list_yy;
+    //     }catch(PDOException $e){
+    //         echo $e->getMessage();
+    //     }
+    // }
+
 // // // stock  -- end
 
 // // // _cata & _cate

@@ -106,7 +106,7 @@
                 <!-- 表頭：右側 -->
                 <div class="col-12 col-md-4 pb-2">
                     <?php echo isset($buy_ty) ? "buy_ty/廠區規模(限購類別)：".$buy_ty:""; ?>
-                    </br>*.安全水位建議值 = 規模限購 / 2
+                    </br>*.安全水位建議參考說明
                 </div>
             </div>
 
@@ -208,12 +208,12 @@
     </div>
 </div>
 
-<!-- 彈出畫面模組-API連線說明 -->
+<!-- 彈出畫面模組-安全庫存量說明 -->
 <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info">
-                    <h4 class="modal-title">安全庫存量說明</h4>
+                    <h4 class="modal-title">安全庫存量說明 (<sup class="text-danger"> * </sup>參考)</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -227,8 +227,8 @@
                                     <tr>
                                         <th>評估內容</th>
                                         <th>評估等級</th>
-                                        <th>對應分值</br>(參考)</th>
-                                        <th>加權占比</br>(參考)</th>
+                                        <th>加權占比<sup class="text-danger"> *</sup></th>
+                                        <th>對應分值<sup class="text-danger"> *</sup></th>
                                     </tr>
                                 </thead>
                                 <tbody>

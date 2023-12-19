@@ -156,7 +156,7 @@
                                 <!-- class="active" aria-selected="true" -->
                                 <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
                                 <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                    <a class="nav-link" href="low_level.php" title="fab_安全水位設定"><i class="fa-solid fa-ban"></i>&nbsp安全水位設定</a>
+                                    <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp安全存量設定</a>
                                 <?php } ?>
                             </div>
                         </nav>
@@ -459,15 +459,15 @@
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
-                                            <label for="ppty" class="form-label">廠區規模(限購)：</label>
+                                            <label for="ppty" class="form-label">安量倍數(限購)：</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="a" id="buy_a" class="form-check-input" required checked>
-                                            <label for="buy_a" class="form-check-label">&nbspa.3千人以下</label>
+                                            <label for="buy_a" class="form-check-label">&nbspa.安量倍數</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="b" id="buy_b" class="form-check-input" required>
-                                            <label for="buy_b" class="form-check-label">&nbspb.3千人以上</label>
+                                            <label for="buy_b" class="form-check-label">&nbspb.安量倍數</label>
                                         </td>
                                     </tr>
                                 </table>
@@ -730,15 +730,15 @@
                                 <table>
                                     <tr>
                                         <td style="text-align: right;">
-                                            <label for="edit_buy_ty" class="form-label">廠區規模(限購)：</label>
+                                            <label for="edit_buy_ty" class="form-label">安量倍數(限購)：</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="a" id="edit_buy_a" class="form-check-input" required >
-                                            <label for="edit_buy_a" class="form-check-label">&nbspa.3千人以下</label>
+                                            <label for="edit_buy_a" class="form-check-label">&nbspa.安量倍數</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="b" id="edit_buy_b" class="form-check-input" required >
-                                            <label for="edit_buy_b" class="form-check-label">&nbspb.3千人以上</label>
+                                            <label for="edit_buy_b" class="form-check-label">&nbspb.安量倍數</label>
                                         </td>
                                     </tr>
                                 </table>

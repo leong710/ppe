@@ -266,18 +266,30 @@
                                                         ?></td>
                                                     <td>
                                                         <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red":"blue";?>">
-                                                                <b><?php echo "安全: "; echo (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"]:"0";
-                                                                         echo " / 存量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"]:"0"; ?></b>
+                                                                <b><?php echo "安量: "; echo (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"]:"0";
+                                                                         echo " / 現量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"]:"0"; ?></b>
                                                         </div>
                                                         <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
-                                                            placeholder="限購： <?php switch($buy_ty){
-                                                                                        case 'a':echo $catalog['buy_a']; $buy_qty = $catalog['buy_a']; break;
-                                                                                        case 'b':echo $catalog['buy_b']; $buy_qty = $catalog['buy_b']; break;
-                                                                                        default :echo $catalog['buy_a']; $buy_qty = $catalog['buy_a']; break; }
-                                                                                    echo "&nbsp/&nbsp".$catalog["unit"];?>" 
-                                                            min="1" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                            oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                            onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
+                                                            placeholder="<?php switch($buy_ty){
+                                                                                    case 'a':
+                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_a']) : "1"; 
+                                                                                        break;
+                                                                                    case 'b':
+                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_b']) : "1"; 
+                                                                                        break;
+                                                                                    default :
+                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_a']) : "1"; 
+                                                                                        break; }
+                                                                                echo "限購： ".$buy_qty."&nbsp/&nbsp".$catalog["unit"];?>" 
+                                                            min="1" 
+                                                                <?php if($sys_id_role <= 1){ ?>
+                                                                    onblur="add_cart_btn(this.id, this.value);" 
+                                                                <?php } else { ?>
+                                                                    max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
+                                                                    oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
+                                                                    onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" 
+                                                                <?php } ?>
+                                                            >
                                                     </td>
                                                     <td>
                                                         <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>

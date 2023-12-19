@@ -13,7 +13,7 @@
             echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
         }
         $buy_ty = $select_local["buy_ty"];                              // 限購規模
-        $low_level = json_decode($select_local["low_level"]);           // 安全水位
+        $low_level = json_decode($select_local["low_level"]);           // 安全存量
         if(is_object($low_level)) { $low_level = (array)$low_level; } 
 
         $catalogs = show_catalogs();
@@ -29,6 +29,7 @@
         $select_local = array(
             'id' => ''
         );
+        $buy_ty = "";
         $catalogs = [];
         $myReceives = [];
     }
@@ -68,7 +69,7 @@
             <!-- 表頭：衛材訊息 -->
             <div class="row">
                 <div class="col-12 col-md-6 py-0">
-                    <h4>local安全水位設定值</h4>
+                    <h4>安全存量設定</h4>
                 </div>
                 <div class="col-12 col-md-6 py-0 text-end">
                     <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
@@ -103,8 +104,8 @@
                 
                 <!-- 表頭：右側 -->
                 <div class="col-12 col-md-4 pb-2">
-                    <?php echo isset($buy_ty) ? "buy_ty/廠區規模(限購類別)：".$buy_ty:""; ?>
-                    </br>*.安全水位建議參考說明
+                    <?php echo isset($buy_ty) ? "buy_ty/安量倍數：".$buy_ty:""; ?>
+                    </br>*.安全存量建議參考說明
                 </div>
             </div>
             
@@ -119,7 +120,7 @@
                                     <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                     <th><?php echo $thisYear;?>年領用</th>
                                     <th>建議值</th>
-                                    <th>安全存量</th>
+                                    <th style="width: 15%;">新安全存量</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,16 +142,33 @@
                                             <?php echo $catalog["model"] ? "&nbsp型號：".$catalog["model"]:"";?>
                                         </td>
                                         <td id="receive_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">--</td>
-                                        <td id="buy_qt_<?php echo $select_local["id"].'_'.$catalog['SN'];?>"><?php switch($buy_ty){
-                                                    case 'a': $buy_qty = ceil($catalog['buy_a']/2); break;
-                                                    case 'b': $buy_qty = ceil($catalog['buy_b']/2); break;
-                                                    default : $buy_qty = ceil($catalog['buy_a']/2); break; } ?>
+                                        <td id="buy_qt_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">
+                                            <?php switch($buy_ty){
+                                                    case 'a': 
+                                                        $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0";  
+                                                        break;
+                                                    case 'b': 
+                                                        $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
+                                                        break;
+                                                    default : 
+                                                        $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
+                                                        break; } ?>
                                             <label for="catalog_SN_<?php echo $catalog["SN"];?>"><?php echo $buy_qty."&nbsp/&nbsp".$catalog["unit"];?> </label>
                                         </td>
-                                        <td><input type="number" name="low_level[<?php echo $catalog["SN"];?>]" id="<?php echo $select_local["id"].'_'.$catalog['SN'];?>" class="form-control amount t-center" 
-                                                    placeholder="請填最低值" min="1" max="999" maxlength="<?php echo strlen($buy_qty);?>" 
+                                        <td>
+                                            <div class="col-12 text-center py-0 ">
+                                                <b><?php echo "目前安量： "; echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]: $buy_qty;?></b>
+                                            </div>
+                                            <input type="number" name="low_level[<?php echo $catalog["SN"];?>]" id="<?php echo $select_local["id"].'_'.$catalog['SN'];?>" class="form-control amount t-center" 
+                                                placeholder="請填最低值" min="0" 
+                                                <?php if($sys_id_role <= 1){ ?>
+                                                    
+                                                <?php } else { ?>
+                                                    max="9999" maxlength="<?php echo strlen($buy_qty);?>" 
                                                     oninput="if(value.length > <?php echo strlen($buy_qty);?>)value = value.slice(0, <?php echo strlen($buy_qty);?>)"
-                                                    value="<?php echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]:$buy_qty ;?>">
+                                                <?php } ?>
+                                                    value="<?php echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]:$buy_qty ;?>"
+                                                >
                                         </td>
                                     </tr>
                                 <?php } ?>
@@ -323,49 +341,63 @@
 <!-- 有數量自動勾選，沒數量自動取消 -->
 <script>
     // 找出Local_id算SN年領用量
-    var myReceives  = <?=json_encode($myReceives);?>;                  // 引入myReceives資料，算年領用量
-    var receiveAmount = [];                                             // 宣告變數陣列，承裝Receives年領用量
+    var catalogs        = <?=json_encode($catalogs);?>;                  // 引入myReceives資料，算年領用量
+    var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
+    var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量
+    var buy_ty          = '<?=$buy_ty;?>';                               // 取得fab的安全倍數
 
     // 彙整出SN年領用量
     Object(myReceives).forEach(function(row){
         let csa = JSON.parse(row['cata_SN_amount']);
-        Object.keys(csa).forEach(key =>{
+        Object.keys(csa).forEach(key =>{                                // 這裡的key = SN
             let pay = Number(csa[key]['pay']);
             let l_key = row['local_id'] +'_'+ key;
             if(receiveAmount[l_key]){
-                receiveAmount[l_key] += pay;
+                receiveAmount[l_key]['pay'] += pay;
             }else{
-                receiveAmount[l_key] = pay;
+                receiveAmount[l_key] = {
+                    'pay' : pay
+                }
             }
-            console.log(l_key, pay)
+            Object(catalogs).forEach(function(cata){
+                if(cata['SN'] == key){
+                    receiveAmount[l_key]['buy_dm'] = cata['buy_'+buy_ty];
+                    receiveAmount[l_key]['unit'] = cata['unit'];
+                    return;
+                }
+            })
         })
     });
+
     // 選染到Table上指定欄位
     Object.keys(receiveAmount).forEach(key => {
-        let value = receiveAmount[key];
-        $('#receive_'+key).empty();
-        $('#receive_'+key).append(value);
-        $('#buy_qt_'+key).empty();
-        $('#buy_qt_'+key).append(('x1.1 = '+(Math.ceil(value*1.1))));
-
-        document.getElementById(key).value = Math.ceil(value*1.1);
+        let pay = receiveAmount[key]['pay'];                // 領用總數
+        let buy_dm = receiveAmount[key]['buy_dm'];          // 安量倍數
+        let unit = receiveAmount[key]['unit'];              // SN-unit單位
+        let value = Math.ceil(pay * buy_dm);                // 算出建議值
+        $('#receive_'+key).empty();                                             // 清除領用格
+        $('#receive_'+key).append(pay);                                         // 貼上領用總量
+        $('#buy_qt_'+key).empty();                                              // 清除建議值
+        $('#buy_qt_'+key).append('x'+ buy_dm +' = '+ value +' / '+ unit );      // 貼上建議值計算公式
+        document.getElementById('buy_qt_'+key).classList.add('alert_it');       // 將建議值套用css:alert_it
+        document.getElementById(key).value = value;                             // input.value套用
     })
 
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
-        $('#catalog_list').DataTable({
-            "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
-            // 顯示長度
-            "pageLength": 25,
-            // 中文化
-            "language":{
-                url: "../../libs/dataTables/dataTable_zh.json"
-            }
-        });
+        // 停用 dataTable => 原因是它換頁後，前面的數值無法送出...
+        // $('#catalog_list').DataTable({
+        //     "autoWidth": false,
+        //     // 排序
+        //     // "order": [[ 4, "asc" ]],
+        //     // 顯示長度
+        //     "pageLength": 25,
+        //     // 中文化
+        //     "language":{
+        //         url: "../../libs/dataTables/dataTable_zh.json"
+        //     }
+        // });
 
     })
 </script>

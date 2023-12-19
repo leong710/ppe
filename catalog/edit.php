@@ -369,14 +369,14 @@
 
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
-                                    <input type="text" name="buy_a" id="buy_a" class="form-control" placeholder="請購限額" value="<?php echo $catalog["buy_a"];?>">
-                                    <label for="buy_a" class="form-label">a.限購(3千人↓)：</label>
+                                    <input type="text" name="buy_a" id="buy_a" class="form-control" placeholder="x領用倍數" value="<?php echo $catalog["buy_a"];?>">
+                                    <label for="buy_a" class="form-label">安量倍數.a：</label>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
-                                    <input type="text" name="buy_b" id="buy_b" class="form-control" placeholder="請購限額" value="<?php echo $catalog["buy_b"];?>">
-                                    <label for="buy_b" class="form-label">b.限購(3千人↑)：</label>
+                                    <input type="text" name="buy_b" id="buy_b" class="form-control" placeholder="x領用倍數" value="<?php echo $catalog["buy_b"];?>">
+                                    <label for="buy_b" class="form-label">安量倍數.b：</label>
                                 </div>
                             </div>
                         </div>

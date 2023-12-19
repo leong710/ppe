@@ -213,211 +213,218 @@
                         </div>
                     </div>
                 </div>
-                <!-- 1.各廠器材量存量燈號 -->
-                <div class="col-12 justify-content-center rounded my-2 bg-light">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-12 col-md-6 py-0">
-                                <h4>1.各廠器材量存量燈號：</h4>
+
+                <!-- NAV 分頁標籤 -->
+                <div class="row pb-0">
+                    <nav>
+                        <div class="nav nav-tabs py-2" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-tab_1" data-bs-toggle="tab" data-bs-target="#tab_1" type="button" role="tab" aria-controls="tab_1" aria-selected="true" >業務區塊</button>
+                            <button class="nav-link"        id="nav-tab_2" data-bs-toggle="tab" data-bs-target="#tab_2" type="button" role="tab" aria-controls="tab_2" aria-selected="false">業務清單</button>
+                            <button class="nav-link"        id="nav-tab_3" data-bs-toggle="tab" data-bs-target="#tab_3" type="button" role="tab" aria-controls="tab_3" aria-selected="false">預覽與查詢</button>
+                        </div>
+                    </nav>
+                </div>
+       
+                <!-- 內頁 -->
+                <div class="tab-content" id="nav-tabContent">
+                    <!-- 1.各廠器材量存量燈號 -->
+                    <div class="tab-pane bg-white fade p-2 show active" id="tab_1" role="tabpanel" aria-labelledby="nav-tab_1">
+                        <div class="col-12">
+                            <div class="row px-2">
+                                <div class="col-12 col-md-6 py-0">
+                                    <h4>1.各廠器材量存量燈號：</h4>
+                                </div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <button type="submit" id="checkItem" class="btn btn-sm btn-xs btn-success" onclick="open_div(this.id)">openSource</button>
+                                </div>
                             </div>
-                            <div class="col-12 col-md-6 py-0 text-end">
-                                <button type="submit" id="checkItem" class="btn btn-sm btn-xs btn-success" onclick="open_div(this.id)">openSource</button>
+                            <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
+                        </div>
+                        <!--1.各廠器材存量百分比-數據驗證用 -->
+                        <div class="col-12 justify-content-center rounded my-2 cs_a unblock" id="checkItem_div">
+                            <div class="col-12">
+                                <h4>1.各廠器材存量百分比：(數據驗證用-正式版會移除)</h4>
+                            </div>
+                            <div class="col-12">
+                                <table class="w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>id</th>
+                                            <th>fab</th>
+                                            <th>安全存量</th>
+                                            <th>現場存量</th>
+                                            <th>正負差額</th>
+                                            <th>存量成數</th>
+                                            <th>存量燈號</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 定義陣列 -->
+                                        <?php
+                                            $fab_balls = [];     // 燈號
+                                            $caseNum = 0;
+                                        ?>
+                                        <?php foreach($stock_percentages as $stock_percentage){ ?>
+                                            <tr>
+                                                <td><?php echo $stock_percentage["fab_id"];?></td>
+                                                <td><?php echo $stock_percentage["fab_title"];?></td>
+                                                <td><?php echo $stock_percentage["stock_stand"];?></td>
+                                                <td><?php echo $stock_percentage["stock_stand"]+$stock_percentage["sqty"];?></td>
+                                                <td><?php echo $stock_percentage["sqty"];?></td>
+                                                <td><?php echo $stock_percentage["percentage"]."%";?></td>
+                                                <td style="font-size: 1.2em; color: 
+                                                    <?php if($stock_percentage["sqty"] > 0 ){ 
+                                                        if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ ?>
+                                                            blue 
+                                                        <?php } else { ?>
+                                                            green
+                                                        <?php } }?>
+                                                    <?php if($stock_percentage["sqty"] == 0 ){ ?> yellow<?php } ?>
+                                                    <?php if($stock_percentage["sqty"] < 0 ){ ?> red<?php } ?> ;"> 
+                                                    ●
+                                                </td>
+                                            </tr>
+                                        <?php 
+                                            if($stock_percentage["sqty"] > 0 ){ 
+                                                if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ 
+                                                    $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
+                                                } else { 
+                                                    $bar_color = 'rgba(0, 255, 72, 1)';  // 綠色 green
+                                                } }
+                                            if($stock_percentage["sqty"] == 0 ){ 
+                                                $bar_color = 'rgba(255, 204, 0, 1)';   // 黃色yellow 
+                                            } 
+                                            if($stock_percentage["sqty"] < 0 ){  
+                                                $bar_color = 'rgba(255, 99, 132, 1)';   // 紅色red
+                                            } 
+
+                                            array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
+                                        } ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
+                        <!--1.各廠器材存量膯號顯示 -->
+                        <div class="col-12 rounded bg-white text-center" id="toggle">
+                            <?php foreach($fab_balls as $fab_ball){?>
+                                <div class="ball p-1 m-1" style="display:inline-block;background-color:<?php echo $fab_ball['bgc'];?>">
+                                    <a href="../stock/index.php?fab_id=<?php echo $fab_ball['fab_id'];?>">
+                                        <div class="ball2 p-0 m-1">
+                                            <?php echo $fab_ball['fab_title'];?>
+                                        </div>
+                                    </a>
+                                </div>
+                            <?php }?>
+                        </div>
+
                     </div>
-                    <!--1.各廠器材存量百分比-數據驗證用 -->
-                    <div class="col-12 justify-content-center rounded my-2 cs_a unblock" id="checkItem_div">
-                        <div class="col-12">
-                            <h4>1.各廠器材存量百分比：(數據驗證用-正式版會移除)</h4>
+
+                    <!-- 2.器材基存清單 -->
+                    <div class="tab-pane bg-white fade p-2" id="tab_2" role="tabpanel" aria-labelledby="nav-tab_2">
+                        <div class="col-12 mb-1 bg-light">
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0">
+                                    <h4>2.現存清單(全南廠)：</h4>
+                                </div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <a href="#base_stock" id="base_stock" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <span>p.s.安全存量：單一Local算一筆進行合併計算；&nbsp>>&nbsp現場存量：全南廠所有存量(不論效期)。&nbsp>>&nbsp存量成數：(現場存量/安全存量)*100%</span>
+                            </br><span>存量燈號：藍燈(現量>=100%)、綠燈(100%>現量>=80%)、黃燈(80%>現量>=60%)、紅燈(60%>現量)</span>
                         </div>
-                        <div class="col-12">
-                            <table class="w-100">
+                        <div class="col-12 rounded border bg-white " id="base_stock_div">
+                            <table class="w-100 table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th>id</th>
-                                        <th>fab</th>
+                                        <th>SN_器材名稱</th>
                                         <th>安全存量</th>
                                         <th>現場存量</th>
-                                        <th>正負差額</th>
-                                        <th>存量成數</th>
+                                        <th>差額</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="(現場存量/安全存量)*100%">存量成數 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                         <th>存量燈號</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- 定義陣列 -->
-                                    <?php
-                                        $fab_balls = [];     // 燈號
-                                        $caseNum = 0;
-                                    ?>
-                                    <?php foreach($stock_percentages as $stock_percentage){ ?>
+                                    <?php foreach($catalog_stocks as $catalog){ 
+                                        $cata_pc = round($catalog["stock_amount"]/($catalog["stock_stand"])*100,2);
+                                        if($cata_pc >= 100 ){ 
+                                            $cata_color = "blue";
+                                        } else if($cata_pc >= 80){ 
+                                            $cata_color = "green";
+                                        } else if($cata_pc >= 60){ 
+                                            $cata_color = "orange";
+                                        } else {
+                                            $cata_color = "red";
+                                        } ?>
                                         <tr>
-                                            <td><?php echo $stock_percentage["fab_id"];?></td>
-                                            <td><?php echo $stock_percentage["fab_title"];?></td>
-                                            <td><?php echo $stock_percentage["stock_stand"];?></td>
-                                            <td><?php echo $stock_percentage["stock_stand"]+$stock_percentage["sqty"];?></td>
-                                            <td><?php echo $stock_percentage["sqty"];?></td>
-                                            <td><?php echo $stock_percentage["percentage"]."%";?></td>
-                                            <td style="font-size: 1.2em; color: 
-                                                <?php if($stock_percentage["sqty"] > 0 ){ 
-                                                    if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ ?>
-                                                        blue 
-                                                    <?php } else { ?>
-                                                        green
-                                                    <?php } }?>
-                                                <?php if($stock_percentage["sqty"] == 0 ){ ?> yellow<?php } ?>
-                                                <?php if($stock_percentage["sqty"] < 0 ){ ?> red<?php } ?> ;"> 
-                                                ●
-                                            </td>
+                                            <td style="text-align: left;"><a href="../catalog/repo.php?sn=<?php echo $catalog["cata_SN"];?>"><?php echo $catalog["cata_SN"]."_".$catalog["cata_pname"];?></a></td>
+                                            <td><?php echo $catalog["stock_stand"];?></td>
+                                            <td <?php if($cata_pc < 60){ ?> style="background-color:pink; color:red; font-size:1.2em;"<?php }?>><?php echo $catalog["stock_amount"];?></td>
+                                            <td style="color: <?php echo $cata_color;?>;"><?php echo $catalog["qty"];?></td>
+                                            <td style="color: <?php echo $cata_color;?>;"><?php echo $cata_pc."%";?></td>
+                                            <td style="font-size: 1.2em; color: <?php echo $cata_color;?>;"> ●</td>
                                         </tr>
-                                    <?php 
-                                        if($stock_percentage["sqty"] > 0 ){ 
-                                            if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ 
-                                                $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
-                                            } else { 
-                                                $bar_color = 'rgba(0, 255, 72, 1)';  // 綠色 green
-                                            } }
-                                        if($stock_percentage["sqty"] == 0 ){ 
-                                            $bar_color = 'rgba(255, 204, 0, 1)';   // 黃色yellow 
-                                        } 
-                                        if($stock_percentage["sqty"] < 0 ){  
-                                            $bar_color = 'rgba(255, 99, 132, 1)';   // 紅色red
-                                        } 
+                                    <?php }?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                                        array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
+                    <!--3.安全存量警示清單 -->
+                    <div class="tab-pane bg-white fade p-2" id="tab_3" role="tabpanel" aria-labelledby="nav-tab_3">
+                        <div class="col-12 mb-1 bg-light">
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0">
+                                    <h4>3.安全存量警示清單：</h4>
+                                </div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <a href="#fab_loss" id="fab_loss" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <span>p.s.單一品項所有存量(不論效期)等於或低於安全存量時才顯示!</span>
+                        </div>
+                        <div class="col-12 rounded border bg-white block" id="fab_loss_div">
+                            <table class="w-100">
+                                <thead>
+                                    <tr>
+                                        <th>fab_local</th>
+                                        <th>SN_器材名稱</th>
+                                        <th>安全存量</th>
+                                        <th>現場存量</th>
+                                        <th>差額</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="(現場存量/安全存量)*100%">存量成數 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $check_item ="";
+                                        foreach($stock_losts as $stock_lost){ 
+                                            $stock_pc = round($stock_lost["stock_amount"]/($stock_lost["stock_stand"])*100,2);
+                                            if($stock_pc >= 100 ){ 
+                                                $stock_color = "blue";
+                                            } else if($stock_pc >= 80){ 
+                                                $stock_color = "green";
+                                            } else if($stock_pc >= 60){ 
+                                                $stock_color = "orange";
+                                            } else {
+                                                $stock_color = "red";
+                                            } ?>
+                                        <tr <?php if($check_item != $stock_lost['fab_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
+                                            <td style="text-align: left;"><?php echo $stock_lost["fab_title"]."_".$stock_lost["local_title"];?></td>
+                                            <td style="text-align: left;"><a href="../catalog/repo.php?sn=<?php echo $stock_lost["cata_SN"];?>"><?php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></a></td>
+                                            <td><?php echo $stock_lost["stock_stand"];?></td>
+                                            <td <?php if($stock_pc < 60){ ?> style="background-color:pink; color:red;" <?php }?>><?php echo $stock_lost["stock_amount"];?></td>
+                                            <td style="color: <?php echo $stock_color;?>;"><?php echo $stock_lost["qty"];?></td>
+                                            <td style="color: <?php echo $stock_color;?>;"><?php echo $stock_pc."%";?></td>
+                                        </tr>
+                                    <?php $check_item = $stock_lost["fab_title"];
                                     } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <!--1.各廠器材存量膯號顯示 -->
-                    <div class="col-12 rounded bg-white text-center" id="toggle">
-                        <?php foreach($fab_balls as $fab_ball){?>
-                            <div class="ball p-1 m-1" style="display:inline-block;background-color:<?php echo $fab_ball['bgc'];?>">
-                                <a href="../stock/index.php?fab_id=<?php echo $fab_ball['fab_id'];?>">
-                                    <div class="ball2 p-0 m-1">
-                                        <?php echo $fab_ball['fab_title'];?>
-                                    </div>
-                                </a>
-                            </div>
-                        <?php }?>
-                    </div>
                 </div>
-                <!-- 2.器材基存清單 -->
-                <div class="col-12 justify-content-center rounded my-2 bg-light">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-12 col-md-6 py-0">
-                                <h4>2.器材基存清單：</h4>
-                            </div>
-                            <div class="col-12 col-md-6 py-0 text-end">
-                                <a href="#base_stock" id="base_stock" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
-                            </div>
-                        </div>
-                        <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
-                    </div>
-                    <div class="col-12 rounded bg-white unblock" id="base_stock_div">
-                        <table class="w-100">
-                            <thead>
-                                <tr>
-                                    <th>id</th>
-                                    <th>器材名稱</th>
-                                    <th>安全存量</th>
-                                    <th>現場存量</th>
-                                    <th>正負差額</th>
-                                    <th data-toggle="tooltip" data-placement="bottom" title="(現場存量/2倍安全存量)*100%">存量成數 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
-                                    <th>存量燈號</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($catalog_stocks as $catalog){ ?>
-                                    <tr>
-                                        <td><?php echo $catalog["cata_SN"];?></td>
-                                        <td style="text-align: left;"><a href="../catalog/repo.php?id=<?php echo $catalog["cata_SN"];?>"><?php echo $catalog["cata_pname"];?></a></td>
-                                        <td><?php echo $catalog["stock_stand"];?></td>
-                                        <td <?php if($catalog["stock_amount"] < $catalog['stock_stand']){ ?> style="background-color:#FFBFFF;color:red;font-size:1.2em;"  <?php } ?>>
-                                        <?php echo $catalog["stock_amount"];?></td>
-                                        <td style="color: 
-                                            <?php if($catalog["qty"] > 0 ){ 
-                                                if($catalog["qty"]>=$catalog["stock_stand"]){ ?>
-                                                    blue
-                                                <?php } else { ?>
-                                                    green 
-                                                <?php } } ?>
-                                            <?php if($catalog["qty"] < 0 ){ ?> red<?php } ?> ;">
-                                            <?php echo $catalog["qty"];?></td>
-                                        <td style="color: 
-                                                <?php if($catalog["qty"] > 0 ){ 
-                                                if($catalog["qty"]>=$catalog["stock_stand"]){ ?>
-                                                    blue
-                                                <?php } else { ?>
-                                                    green 
-                                                <?php } } ?>
-                                            <?php if($catalog["qty"] < 0 ){ ?> red<?php } ?> ;">
-                                            <!-- <php echo round($catalog["stock_amount"]/($catalog["stock_stand"]*2)*100,2)."%";?> -->
-                                        </td>
-                                        <td style="font-size: 1.2em; color: 
-                                            <?php if($catalog["qty"] > 0 ){ 
-                                                if($catalog["qty"]>=$catalog["stock_stand"]){ ?>
-                                                    blue
-                                                <?php } else { ?>
-                                                    green 
-                                                <?php } } ?>
-                                            <?php if($catalog["qty"] == 0 ){ ?> yellow<?php } ?> 
-                                            <?php if($catalog["qty"] < 0 ){ ?> red<?php } ?> ;"> 
-                                            ●
-                                        </td>
-                                    </tr>
-                                <?php }?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <!--3.安全存量警示清單 -->
-                <div class="col-12 justify-content-center rounded my-2 bg-light">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-12 col-md-6 py-0">
-                                <h4>3.安全存量警示清單：</h4>
-                            </div>
-                            <div class="col-12 col-md-6 py-0 text-end">
-                                <a href="#fab_loss" id="fab_loss" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
-                            </div>
-                        </div>
-                        <span>p.s.單一品項所有存量(不論效期)等於或低於安全存量時才顯示!</span>
-                    </div>
-                    <div class="col-12 rounded bg-white unblock" id="fab_loss_div">
-                        <table class="w-100">
-                            <thead>
-                                <tr>
-                                    <th>fab_local</th>
-                                    <th>器材名稱</th>
-                                    <th>安全存量</th>
-                                    <th>現場存量</th>
-                                    <th>正負差額</th>
-                                    <th data-toggle="tooltip" data-placement="bottom" title="(現場存量/2倍安全存量)*100%">存量成數 <i class="fa fa-info-circle" aria-hidden="true"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $check_item ="";?>
-                                <?php foreach($stock_losts as $stock_lost){ ?>
-                                    <tr <?php if($check_item != $stock_lost['fab_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
-                                        <td style="text-align: left;"><?php echo $stock_lost["fab_title"]."_".$stock_lost["local_title"];?></td>
-                                        <td style="text-align: left;"><a href="../catalog/repo.php?id=<?php echo $stock_lost["cata_SN"];?>"><?php echo $stock_lost["cata_SN"]." ".$stock_lost["cata_pname"];?></a></td>
-                                        <td><?php echo $stock_lost["stock_stand"];?></td>
-                                        <td <?php if($stock_lost["stock_amount"] < $stock_lost['stock_stand']){ ?> style="color:red;" <?php } ?>>
-                                            <?php echo $stock_lost["stock_amount"];?></td>
-                                        <td <?php if($stock_lost["qty"] > 0 ){ ?> style="color: blue;" <?php } ?> 
-                                            <?php if($stock_lost["qty"] < 0 ){ ?> style="color: red;" <?php } ?> >
-                                            <?php echo $stock_lost["qty"];?></td>
-                                        <td><?php echo round($stock_lost["stock_amount"]/($stock_lost["stock_stand"]*2)*100,2)."%";?></td>
-                                    </tr>
-                                    <?php $check_item = $stock_lost["fab_title"];?>
-                                <?php }?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>

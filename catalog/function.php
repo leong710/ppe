@@ -41,7 +41,7 @@
         $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
                 FROM _cata 
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                WHERE _cata.SN = ?";
+                WHERE _cata.SN = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sn]);

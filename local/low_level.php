@@ -47,8 +47,8 @@
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
     <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
         <!-- data table CSS+JS -->
-        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
-        <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
+        <!-- <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css"> -->
+        <!-- <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script> -->
     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
     <!-- mloading JS -->
@@ -65,13 +65,13 @@
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-12 border px-2 rounded my-2" style="background-color: #D4D4D4;">
-            <!-- 表頭：衛材訊息 -->
+        <div class="col-12 border px-3 rounded my-2" style="background-color: #D4D4D4;">
+            <!-- 表頭：按鈕 -->
             <div class="row">
-                <div class="col-12 col-md-6 py-0">
+                <div class="col-12 col-md-6 pb-0">
                     <h4>安全存量設定</h4>
                 </div>
-                <div class="col-12 col-md-6 py-0 text-end">
+                <div class="col-12 col-md-6 pb-0 text-end">
                     <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
                         <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
                     <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>    
@@ -81,8 +81,8 @@
                 </div>
             </div>
 
-            <!-- 表頭 -->
-            <div class="row px-3 py-0">
+            <!-- 表頭：選單 -->
+            <div class="row py-0">
                 <!-- 表頭：左側 -->
                 <div class="col-12 col-md-8 pb-2">
                     <!-- 表頭：左上=選擇廠區 -->
@@ -117,7 +117,7 @@
                             <thead>
                                 <tr>
                                     <th>PIC</th>
-                                    <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                    <th>名稱 / 訊息</th>
                                     <th><?php echo $thisYear;?>年領用</th>
                                     <th>建議值</th>
                                     <th style="width: 15%;">新安全存量</th>
@@ -378,26 +378,24 @@
         $('#receive_'+key).empty();                                             // 清除領用格
         $('#receive_'+key).append(pay);                                         // 貼上領用總量
         $('#buy_qt_'+key).empty();                                              // 清除建議值
-        $('#buy_qt_'+key).append('x'+ buy_dm +' = '+ value +' / '+ unit );      // 貼上建議值計算公式
+        $('#buy_qt_'+key).append('x '+ buy_dm +' =</br>'+ value +' / '+ unit );      // 貼上建議值計算公式
         document.getElementById('buy_qt_'+key).classList.add('alert_it');       // 將建議值套用css:alert_it
         document.getElementById(key).value = value;                             // input.value套用
     })
 
-
     $(document).ready(function () {
-        
         // 停用 dataTable => 原因是它換頁後，前面的數值無法送出...
-        // $('#catalog_list').DataTable({
-        //     "autoWidth": false,
-        //     // 排序
-        //     // "order": [[ 4, "asc" ]],
-        //     // 顯示長度
-        //     "pageLength": 25,
-        //     // 中文化
-        //     "language":{
-        //         url: "../../libs/dataTables/dataTable_zh.json"
-        //     }
-        // });
+            // $('#catalog_list').DataTable({
+            //     "autoWidth": false,
+            //     // 排序
+            //     // "order": [[ 4, "asc" ]],
+            //     // 顯示長度
+            //     "pageLength": 25,
+            //     // 中文化
+            //     "language":{
+            //         url: "../../libs/dataTables/dataTable_zh.json"
+            //     }
+            // });
 
     })
 </script>

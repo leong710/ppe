@@ -65,10 +65,7 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        .unblock{
-            display: none;
-            /* transition: 3s; */
-        }
+
         /* PIC圖片初始設定 */
         .cover_btn {
             max-width: 250px;
@@ -94,25 +91,7 @@
         .cover_btn:hover img {
             transform: scale(1.5);
         }
-        /* 標籤增加陰影辨識度 */
-        .badge {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        /* 膠囊球增加陰影辨識度 */
-        .rounded-pill {
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        tr > td {
-            vertical-align: middle; 
-        }
+
     </style>
     <script>    
         // loading function

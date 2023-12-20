@@ -76,9 +76,6 @@
             background-size: contain;
             padding-top: 50px;
         }
-        .unblock{
-            display: none;
-        }
     </style>
 </head>
 <body>

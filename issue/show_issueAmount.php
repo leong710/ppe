@@ -53,16 +53,7 @@
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
-        .unblock{
-            display: none;
-        }
-        /* 新增與編輯 module表頭顏色 */
-        .add_mode_bgc {          
-            background-color: #ADD8E6;
-        }
-        .edit_mode_bgc {
-            background-color: #FFFACD;
-        }
+
     </style>
 </head>
 <!-- 針對item儲存狀況快照的內容進行反解處理 -->

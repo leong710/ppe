@@ -82,26 +82,14 @@
             transition: opacity 1s;
             animation: none;
         }
-        /*眼睛*/
-        #checkEye {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }
+
         /* 凸顯可編輯欄位 */
             .fix_amount:hover {
                 /* font-size: 1.05rem; */
                 font-weight: bold;
                 text-shadow: 3px 3px 5px rgba(0,0,0,.5);
             }
-        /* 新增與編輯 module表頭顏色 */
-            .add_mode_bgc {          
-                background-color: #ADD8E6;
-            }
-            .edit_mode_bgc {
-                background-color: #FFFACD;
-            }
+            
         /* 警示項目 amount、lot_num */
             .alert_amount {
                 background-color: #FFBFFF;

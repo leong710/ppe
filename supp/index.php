@@ -49,9 +49,6 @@
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
-        .unblock{
-            display: none;
-        }
         .tab-content.active {
             /* display: block; */
             animation: fadeIn 1s;
@@ -59,25 +56,6 @@
         .nav-tabs .nav-link.active {
             /* color: #FFFFFF; */
             background-color: #84C1FF;
-        }
-        .word_bk {
-            text-align: left; 
-            vertical-align: top; 
-            word-break: break-all;
-        }
-        /* 新增與編輯 module表頭顏色 */
-        .add_mode_bgc {          
-            background-color: #ADD8E6;
-        }
-        .edit_mode_bgc {
-            background-color: #FFFACD;
-        }
-        #excelFile{    
-            margin-bottom: 0px;
-            /* text-align: center; */
-        }
-        #excel_iframe{
-            height: 320px;
         }
     </style>
 </head>

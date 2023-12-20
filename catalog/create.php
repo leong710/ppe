@@ -40,26 +40,10 @@
     <link href="../../libs/la_loading/la_loading.css" rel="stylesheet">
     <style>    
         .box {
-            box-sizing: border-box; /*老師推薦用法，寬度自動算，完全不用自己算*/
-            /* width: calc(100%/2);    老師推薦用法，總長除以等份，完全不用自己算 */
-            text-align: center;
-            /* display: inline-block; */
-            display: inline-flex;
-            /* background-color: #fffc4a; */
-            /* font-size: 16px; */
-            vertical-align: top;        /*div框向上對齊*/
-            /* top, middle, bottom, baseline */
             margin: 0px;
             padding:0px;               /*div框的內距，為了不讓兩框文字相連*/
         }
-        table,td,th {
-            border: 0px solid #aaa;
-            border-collapse: collapse;
-            padding: 5px;
-            position: relative;
-            /* font-size: 14px; */
-            text-align: center;
-        }
+
         table thead {
             font-size: 14px;
             text-align: center;
@@ -69,17 +53,7 @@
             /* padding:2px 2px; */
             margin: 5px;
         }
-        tr > th {
-            color: blue;
-        }
-        a {
-            text-decoration: none;
-        }
-        a:hover {
-            /* font-size: 1.05rem; */
-            font-weight:bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
+   
         img {
             max-width: 100%;
             /* max-height: 50%; */
@@ -143,32 +117,7 @@
             display:block; 
             margin:auto;
         }
-        .unblock{
-            display: none;
-        }
-        /* 供應商icon */
-        .tag{
-            display: inline-block;
-            /* 粉紅 */
-            /* background-color: #fa0e7e; */
-            /* 粉藍 */
-            background-color: #0e7efa;
-            font: 14px;
-            color: white;
-            border-radius: 5px;
-            padding: 0px 3px 0px 7px;
-            margin-right: 5px;
-            margin-bottom:5px;
-            /* 粉紅 */
-            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
-            /* 粉藍 */
-            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
-        }
-        .tag .remove {
-            margin: 0 7px 3px;
-            display: inline-block;
-            cursor: pointer;
-        }
+
         /* 限定整體高度 */
         .input-group {
             height: auto;

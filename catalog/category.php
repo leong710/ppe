@@ -27,25 +27,11 @@
 <?php include("../template/nav.php"); ?>
 <style>
     .box {
-        box-sizing: border-box;  
-        /* width: calc(100%/2);    總長除以等份，完全不用自己算 */
-        text-align: center;
-        /* display: inline-block; */
-        display: inline-flex;
-        /* background-color: #fffc4a; */
-        /* font-size: 16px; */
-        vertical-align: top;        /*div框向上對齊*/
-        /* top, middle, bottom, baseline */
         margin: 0px;
         padding:0px;               /*div框的內距，為了不讓兩框文字相連*/
     }
     table,td,th {
-        border: 0px solid #aaa;
-        border-collapse: collapse;
-        padding: 5px;
-        position: relative;
         font-size: 18px;
-        text-align: center;
         vertical-align: middle; 
     }
     table thead > tr > th{
@@ -60,14 +46,6 @@
     table .btn {
         /* padding:2px 2px; */
         margin: 5px;
-    }
-    a {
-        text-decoration: none;
-    }
-    a:hover {
-        /* font-size: 1.05rem; */
-        font-weight:bold;
-        text-shadow: 3px 3px 5px rgba(0,0,0,.5);
     }
 </style>
 <div class="container my-2">

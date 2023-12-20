@@ -164,13 +164,6 @@
                 font-weight: bold;
                 text-shadow: 3px 3px 5px rgba(0,0,0,.5);
             }
-        /* 新增與編輯 module表頭顏色 */
-            .add_mode_bgc {          
-                background-color: #ADD8E6;
-            }
-            .edit_mode_bgc {
-                background-color: #FFFACD;
-            }
         /* 警示項目 amount、lot_num */
             .alert_itb {
                 background-color: #FFBFFF;

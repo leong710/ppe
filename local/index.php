@@ -84,9 +84,6 @@
         // mloading();    // 畫面載入時開啟loading
     </script>
     <style>
-        .unblock{
-            display: none;
-        }
         .tab-content.active {
             /* display: block; */
             animation: fadeIn 1s;
@@ -106,28 +103,7 @@
             /* vertical-align: top;  */
             /* word-break: break-all;  */
         }
-        .tag{
-            display: inline-block;
-            /* 粉紅 */
-            /* background-color: #fa0e7e; */
-            /* 粉藍 */
-            background-color: #0e7efa;
-            font: 14px;
-            color: white;
-            border-radius: 5px;
-            padding: 0px 3px 0px 7px;
-            margin-right: 5px;
-            margin-bottom:5px;
-            /* 粉紅 */
-            /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
-            /* 粉藍 */
-            box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
-        }
-        .tag .remove {
-            margin: 0 7px 3px;
-            display: inline-block;
-            cursor: pointer;
-        }
+
         .input-group {
             /* height: auto; */
             height: 100%;

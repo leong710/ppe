@@ -398,29 +398,31 @@
         extract($request);
         // low_level資料前處理
 
-            $low_level = array_filter($low_level);             // 去除陣列中空白元素
-            // $amount = array_filter($amount);                    // 去除陣列中空白元素
-            // // 小陣列要先編碼才能塞進去大陣列
-            //     $catalog_SN_enc = json_encode($catalog_SN);
-            //     $amount_enc = json_encode($amount);
-            // //陣列合併
-            //     $low_level_arr = [];
-            //     $low_level_arr['catalog_SN'] = $catalog_SN_enc;
-            //     $low_level_arr['amount'] = $amount_enc;
-            // // implode()把陣列元素組合為字串：
-            //     $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
-                $low_level_str = json_encode($low_level);      // 陣列轉成字串進行儲存到mySQL
-            
-            $sql = "UPDATE _local
-                    SET low_level=?, updated_user=?, updated_at=now()
-                    WHERE id=? ";
-            $stmt = $pdo->prepare($sql);
-            try {
-                $stmt->execute([$low_level_str, $updated_user, $local_id]);
-            }catch(PDOException $e){
-                echo $e->getMessage();
-            }
-
+        $low_level = array_filter($low_level);             // 去除陣列中空白元素
+        // $amount = array_filter($amount);                    // 去除陣列中空白元素
+        // // 小陣列要先編碼才能塞進去大陣列
+        //     $catalog_SN_enc = json_encode($catalog_SN);
+        //     $amount_enc = json_encode($amount);
+        // //陣列合併
+        //     $low_level_arr = [];
+        //     $low_level_arr['catalog_SN'] = $catalog_SN_enc;
+        //     $low_level_arr['amount'] = $amount_enc;
+        // // implode()把陣列元素組合為字串：
+        //     $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
+            $low_level_str = json_encode($low_level);      // 陣列轉成字串進行儲存到mySQL
+        
+        $sql = "UPDATE _local
+                SET low_level=?, updated_user=?, updated_at=now()
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$low_level_str, $updated_user, $local_id]);
+            $store_lowLevel = true;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $store_lowLevel = false;
+        }
+        return $store_lowLevel;
     }
     // --- stock index  20231218 領用量
     function show_my_receive($request){
@@ -440,4 +442,22 @@
         }catch(PDOException $e){
             echo $e->getMessage();
         }
+    }
+
+    function update_local_low($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "UPDATE `_stock`
+                SET standard_lv = ?
+                WHERE local_id = ? AND cata_SN = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$standard_lv, $local_id, $cata_SN]);
+            $update_local_low = true;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $update_local_low = false;
+        }
+        return $update_local_low;
     }

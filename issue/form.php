@@ -59,6 +59,7 @@
         $select_local = select_local($_REQUEST);
         $buy_ty = $select_local["buy_ty"];
         $catalogs = read_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $local_low_level = (array) json_decode($select_local["low_level"]);
     
     }else if(!empty($issue_row["in_local"])){
         $query_local = array(
@@ -67,12 +68,15 @@
         $select_local = select_local($query_local);
         $buy_ty = $select_local["buy_ty"];
         $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $local_low_level = (array) json_decode($select_local["low_level"]);
 
     }else{
         $select_local = array(
             'id' => ''
         );
         $catalogs = [];
+        $local_low_level = [];
+
     }
 
     $allLocals = show_allLocal();                   // 所有儲存站點

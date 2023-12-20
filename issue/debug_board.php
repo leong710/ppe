@@ -38,6 +38,10 @@
                         echo ">>> issues</br>";
                         print_r($issues);
                     }
+                    if(isset($local_low_level)){
+                        echo ">>> local_low_level</br>";
+                        print_r($local_low_level);
+                    }
                 echo "</pre>text-end";
             ?>
         </div>

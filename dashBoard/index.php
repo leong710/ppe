@@ -132,7 +132,7 @@
             box-shadow: inset 3px 3px 9px gray;
             /* position: absolute; */
         }
-        #toggle .ball:hover{
+        #toggle .ball:hover {
             /* width: 90px; */
             /* height: 90px; */
             /* 字體變大1.3倍 */
@@ -140,6 +140,13 @@
             /* 向上抬升 */
             transform: translateY(-30%);
         }
+        .nav-link {
+            color: white;
+        }   
+        .nav-link:hover {
+            color: white;
+            font-weight: bold;
+        }   
     </style>
 </head>
 
@@ -183,28 +190,28 @@
                 <!-- 0.實驗性綜合統計數字看板 -->
                 <div class="col-12 justify-content-center rounded bg-light py-0">
                     <div class="row center">
-                        <div class="col-12 col-md-3">
+                        <div class="col-6 col-md-3">
                             <div class="w-100 p-1 box_a"><a href="#site_loss" title="連結下方：安全存量警示清單">
                                 <div class="title">存量警示</div>
                                 <div class="inside my-0">00</div>
                                 <div class="title_end">廠區</div>
                             </div></a>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-6 col-md-3">
                             <div class="w-100 p-1 box_a"><a href="#site_loss" title="連結下方：安全存量警示清單">
                                 <div class="title">器材需求</div>
                                 <div class="inside my-0">00</div>
                                 <div class="title_end">品項</div>
                             </div></a>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-6 col-md-3">
                             <div class="w-100 p-1 box_a"><a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
                                 <div class="title"><?php echo $half;?>未完成點檢</div>
                                 <div class="inside my-0">00</div>
                                 <div class="title_end">廠區</div>
                             </div></a>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-6 col-md-3">
                             <div class="w-100 p-1 box_a"><a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
                                 <div class="title"><?php echo $half;?>點檢達成率</div>
                                 <div class="inside my-0">100</div>
@@ -217,10 +224,10 @@
                 <!-- NAV 分頁標籤 -->
                 <div class="row pb-0">
                     <nav>
-                        <div class="nav nav-tabs py-2" id="nav-tab" role="tablist">
+                        <div class="nav nav-tabs pt-2 pb-0" id="nav-tab" role="tablist">
                             <button class="nav-link active" id="nav-tab_1" data-bs-toggle="tab" data-bs-target="#tab_1" type="button" role="tab" aria-controls="tab_1" aria-selected="true" >業務區塊</button>
-                            <button class="nav-link"        id="nav-tab_2" data-bs-toggle="tab" data-bs-target="#tab_2" type="button" role="tab" aria-controls="tab_2" aria-selected="false">業務清單</button>
-                            <button class="nav-link"        id="nav-tab_3" data-bs-toggle="tab" data-bs-target="#tab_3" type="button" role="tab" aria-controls="tab_3" aria-selected="false">預覽與查詢</button>
+                            <button class="nav-link"        id="nav-tab_2" data-bs-toggle="tab" data-bs-target="#tab_2" type="button" role="tab" aria-controls="tab_2" aria-selected="false">2.現存總清單</button>
+                            <button class="nav-link"        id="nav-tab_3" data-bs-toggle="tab" data-bs-target="#tab_3" type="button" role="tab" aria-controls="tab_3" aria-selected="false">3.安量警示清單</button>
                         </div>
                     </nav>
                 </div>
@@ -231,92 +238,88 @@
                     <div class="tab-pane bg-white fade p-2 show active" id="tab_1" role="tabpanel" aria-labelledby="nav-tab_1">
                         <div class="col-12">
                             <div class="row px-2">
-                                <div class="col-12 col-md-6 py-0">
+                                <div class="col-12 col-md-6 pb-0">
                                     <h4>1.各廠器材量存量燈號：</h4>
                                 </div>
-                                <div class="col-12 col-md-6 py-0 text-end">
+                                <div class="col-12 col-md-6 pb-0 text-end">
                                     <button type="submit" id="checkItem" class="btn btn-sm btn-xs btn-success" onclick="open_div(this.id)">openSource</button>
                                 </div>
-                            </div>
-                            <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
-                        </div>
-                        <!--1.各廠器材存量百分比-數據驗證用 -->
-                        <div class="col-12 justify-content-center rounded my-2 cs_a unblock" id="checkItem_div">
-                            <div class="col-12">
-                                <h4>1.各廠器材存量百分比：(數據驗證用-正式版會移除)</h4>
-                            </div>
-                            <div class="col-12">
-                                <table class="w-100">
-                                    <thead>
-                                        <tr>
-                                            <th>id</th>
-                                            <th>fab</th>
-                                            <th>安全存量</th>
-                                            <th>現場存量</th>
-                                            <th>正負差額</th>
-                                            <th>存量成數</th>
-                                            <th>存量燈號</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- 定義陣列 -->
-                                        <?php
-                                            $fab_balls = [];     // 燈號
-                                            $caseNum = 0;
-                                        ?>
-                                        <?php foreach($stock_percentages as $stock_percentage){ ?>
-                                            <tr>
-                                                <td><?php echo $stock_percentage["fab_id"];?></td>
-                                                <td><?php echo $stock_percentage["fab_title"];?></td>
-                                                <td><?php echo $stock_percentage["stock_stand"];?></td>
-                                                <td><?php echo $stock_percentage["stock_stand"]+$stock_percentage["sqty"];?></td>
-                                                <td><?php echo $stock_percentage["sqty"];?></td>
-                                                <td><?php echo $stock_percentage["percentage"]."%";?></td>
-                                                <td style="font-size: 1.2em; color: 
-                                                    <?php if($stock_percentage["sqty"] > 0 ){ 
-                                                        if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ ?>
-                                                            blue 
-                                                        <?php } else { ?>
-                                                            green
-                                                        <?php } }?>
-                                                    <?php if($stock_percentage["sqty"] == 0 ){ ?> yellow<?php } ?>
-                                                    <?php if($stock_percentage["sqty"] < 0 ){ ?> red<?php } ?> ;"> 
-                                                    ●
-                                                </td>
-                                            </tr>
-                                        <?php 
-                                            if($stock_percentage["sqty"] > 0 ){ 
-                                                if($stock_percentage["sqty"] >= $stock_percentage["stock_stand"]){ 
-                                                    $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
-                                                } else { 
-                                                    $bar_color = 'rgba(0, 255, 72, 1)';  // 綠色 green
-                                                } }
-                                            if($stock_percentage["sqty"] == 0 ){ 
-                                                $bar_color = 'rgba(255, 204, 0, 1)';   // 黃色yellow 
-                                            } 
-                                            if($stock_percentage["sqty"] < 0 ){  
-                                                $bar_color = 'rgba(255, 99, 132, 1)';   // 紅色red
-                                            } 
-
-                                            array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
-                                        } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <!--1.各廠器材存量膯號顯示 -->
-                        <div class="col-12 rounded bg-white text-center" id="toggle">
-                            <?php foreach($fab_balls as $fab_ball){?>
-                                <div class="ball p-1 m-1" style="display:inline-block;background-color:<?php echo $fab_ball['bgc'];?>">
-                                    <a href="../stock/index.php?fab_id=<?php echo $fab_ball['fab_id'];?>">
-                                        <div class="ball2 p-0 m-1">
-                                            <?php echo $fab_ball['fab_title'];?>
-                                        </div>
-                                    </a>
+                                <div class="col-12 py-0">
+                                    <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
                                 </div>
-                            <?php }?>
-                        </div>
+                            </div>
+                            <!--1.各廠器材存量百分比-數據驗證用 -->
+                            <div class="row rounded cs_a unblock" id="checkItem_div">
+                                <div class="col-12">
+                                    <h5>(數據驗證用-正式版會移除)</h5>
+                                    <table class="w-100">
+                                        <thead>
+                                            <tr>
+                                                <th>id</th>
+                                                <th>fab</th>
+                                                <th>安量</th>
+                                                <th>現量</th>
+                                                <th>差額</th>
+                                                <th>成數</th>
+                                                <th>燈號</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- 定義陣列 -->
+                                            <?php
+                                                $fab_balls = [];     // 燈號
+                                                $caseNum = 0;
+                                                foreach($stock_percentages as $stock_percentage){ 
+                                                    $stock_perc_sqty = $stock_percentage["sqty"];
+                                                    if($stock_perc_sqty > 0 ){ 
+                                                        if($stock_perc_sqty >= $stock_percentage["stock_stand"]){ 
+                                                            $stock_perc_color = "blue";
+                                                            $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
+                                                        } else {
+                                                            $stock_perc_color = "green";
+                                                            $bar_color = 'rgba(0, 255, 72, 1)';     // 綠色 green
+                                                        }
+                                                    } else if($stock_perc_sqty == 0){ 
+                                                        $stock_perc_color = "orange";
+                                                        $bar_color = 'rgba(255, 204, 0, 1)';        // 黃色yellow 
+                                                    } else {
+                                                        $stock_perc_color = "red";
+                                                        $bar_color = 'rgba(255, 99, 132, 1)';       // 紅色red
+                                                    }
+                                                    array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
+                                                ?>
+                                                <tr>
+                                                    <td><?php echo $stock_percentage["fab_id"];?></td>                              
+                                                    <td><?php echo $stock_percentage["fab_title"];?></td>
 
+                                                    <td><?php echo $stock_percentage["stock_stand"];?></td>
+                                                    <td><?php echo $stock_percentage["stock_stand"]+$stock_percentage["sqty"];?></td>
+
+                                                    <td><?php echo $stock_percentage["sqty"];?></td>
+                                                    <td><?php echo $stock_percentage["percentage"]."%";?></td>
+
+                                                    <td style="font-size: 1.2em; color:<?php echo $stock_perc_color;?>;"> 
+                                                        ●
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!--1.各廠器材存量膯號顯示 -->
+                            <div class="col-12 rounded bg-white text-center" id="toggle">
+                                <?php foreach($fab_balls as $fab_ball){?>
+                                    <div class="ball p-1 m-1" style="display:inline-block;background-color:<?php echo $fab_ball['bgc'];?>">
+                                        <a href="../stock/index.php?fab_id=<?php echo $fab_ball['fab_id'];?>">
+                                            <div class="ball2 p-0 m-1">
+                                                <?php echo $fab_ball['fab_title'];?>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <?php }?>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 2.器材基存清單 -->
@@ -324,14 +327,16 @@
                         <div class="col-12 mb-1 bg-light">
                             <div class="row">
                                 <div class="col-12 col-md-6 py-0">
-                                    <h4>2.現存清單(全南廠)：</h4>
+                                    <h4>2.現存總清單：</h4>
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <a href="#base_stock" id="base_stock" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
                                 </div>
+                                <div class="col-12 py-0">
+                                    <span>p.s.安全存量：單一Local算一筆進行合併計算；&nbsp>>&nbsp現場存量：全南廠所有存量(不論效期)。&nbsp>>&nbsp存量成數：(現場存量/安全存量)*100%</span>
+                                    </br><span>存量燈號：藍燈(現量>=100%)、綠燈(100%>現量>=80%)、黃燈(80%>現量>=60%)、紅燈(60%>現量)</span>
+                                </div>
                             </div>
-                            <span>p.s.安全存量：單一Local算一筆進行合併計算；&nbsp>>&nbsp現場存量：全南廠所有存量(不論效期)。&nbsp>>&nbsp存量成數：(現場存量/安全存量)*100%</span>
-                            </br><span>存量燈號：藍燈(現量>=100%)、綠燈(100%>現量>=80%)、黃燈(80%>現量>=60%)、紅燈(60%>現量)</span>
                         </div>
                         <div class="col-12 rounded border bg-white " id="base_stock_div">
                             <table class="w-100 table table-striped table-hover">
@@ -381,11 +386,13 @@
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <a href="#fab_loss" id="fab_loss" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
                                 </div>
+                                <div class="col-12 py-0">
+                                    <span>p.s.單一品項所有存量(不論效期)等於或低於安全存量時才顯示!</span>
+                                </div>
                             </div>
-                            <span>p.s.單一品項所有存量(不論效期)等於或低於安全存量時才顯示!</span>
                         </div>
-                        <div class="col-12 rounded border bg-white block" id="fab_loss_div">
-                            <table class="w-100">
+                        <div class="col-12 rounded border bg-white " id="fab_loss_div">
+                            <table class="w-100 table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>fab_local</th>

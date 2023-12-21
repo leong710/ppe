@@ -408,7 +408,6 @@
 
     // 20231128_下載Excel
     var cata      = <?=json_encode($catalogs);?>;                                                   // 引入catalogs資料
-
     function submitDownloadExcel(to_module) {
         // 定義要抓的key=>value
             if(to_module == "cata"){

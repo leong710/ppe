@@ -415,7 +415,7 @@
                                     <div class="modal-footer">
                                         <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                         <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
-                                        <input type="hidden" name="out_user_id"                     value="<?php echo $auth_emp_id;?>">  <!-- out_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="out_user_id"                     value="<?php echo $auth_emp_id;?>">                 <!-- out_user_id/出庫填單人emp_id -->
                                         <input type="hidden" name="out_local"                       value="<?php echo $select_local["id"];?>">          <!-- out_local/出庫廠區 -->    
                                         <input type="hidden" name="form_type"   id="form_type"      value="export">
                                         <input type="hidden" name="action"      id="action"         value="<?php echo $action;?>">

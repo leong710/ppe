@@ -424,7 +424,7 @@
         }
         return $store_lowLevel;
     }
-    // --- stock index  20231218 領用量
+    // --- stock index  20231218 領用量：在low_level表單中顯示cata_SN年領用量
     function show_my_receive($request){
         $pdo = pdo();
         extract($request);
@@ -444,7 +444,26 @@
         }
     }
 
-    function update_local_low($request){
+    // step-1.把stock裡面的cata_SN讀出來By
+    function show_stock_cata_SN($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _s.local_id, _s.cata_SN
+                FROM `_stock` _s
+                WHERE local_id = ?
+                GROUP BY _s.cata_SN ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $show_stock_cata_SN_result = $stmt->fetchAll();
+            return $show_stock_cata_SN_result;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // step-2.更新stock裡面的standard_lv(安全存量)
+    function update_stock_stand_lv($request){
         $pdo = pdo();
         extract($request);
         $sql = "UPDATE `_stock`
@@ -453,11 +472,11 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$standard_lv, $local_id, $cata_SN]);
-            $update_local_low = true;
+            $update_stock_stand_lv_result = true;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            $update_local_low = false;
+            $update_stock_stand_lv_result = false;
         }
-        return $update_local_low;
+        return $update_stock_stand_lv_result;
     }

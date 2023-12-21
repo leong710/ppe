@@ -43,7 +43,7 @@
                 'per' => $per
             );
             // array_push($sort_category, $receive_page_div);
-        $catalogs = show_catalogs($receive_page_div);
+        $catalogs_div = show_catalogs($receive_page_div);
         $page_start = $start +1;  //選取頁的起始筆數
         $page_end = $start + $per;  //選取頁的最後筆數
         if($page_end>$per_total){  //最後頁的最後筆數=總筆數
@@ -109,11 +109,21 @@
     <div class="row justify-content-center">
         <div class="col-xl-12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
             <div class="row">
-                <div class="col-md-6 py-0">
+                <div class="col-md-4 py-0">
                     <h5>Catalog/目錄管理</h5>
                 </div>
+                <div class="col-md-4 py-0 text-end">
+                    <?php if($_SESSION[$sys_id]["role"] <= 2 && $per_total != 0){ ?>
+                        <!-- 下載EXCEL的觸發 -->
+                        <form id="cata_myForm" method="post" action="../_Format/download_excel.php">
+                            <input type="hidden" name="htmlTable" id="cata_htmlTable" value="">
+                            <button type="submit" name="submit" class="btn btn-success" value="cata" onclick="submitDownloadExcel(this.value)" >
+                                <i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                        </form>
+                    <?php } ?>
+                </div>
                 <!-- 表頭按鈕 -->
-                <div class="col-md-6 py-0 text-end">
+                <div class="col-md-4 py-0 text-end">
                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                         <a href="create.php" title="新增catalog" class="btn btn-primary"> <i class="fa fa-plus"></i> 新增品項</a>
                         <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
@@ -219,7 +229,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($catalogs as $catalog){ ?>
+                        <?php foreach($catalogs_div as $catalog){ ?>
                             <tr>
                                 <td><?php echo $catalog["SN"];?></td>
                                 <td style="text-align: left;">
@@ -395,6 +405,48 @@
 
         }
     }
+
+    // 20231128_下載Excel
+    var cata      = <?=json_encode($catalogs);?>;                                                   // 引入catalogs資料
+
+    function submitDownloadExcel(to_module) {
+        // 定義要抓的key=>value
+            if(to_module == "cata"){
+                var item_keys = {
+                    "cate_no"       : "分類編號",
+                    "SN"            : "器材編號", 
+                    "pname"         : "器材名稱", 
+                    "PIC"           : "器材照片", 
+                    "cata_remark"   : "敘述",
+                    "OBM"           : "品牌/製造商", 
+                    "model"         : "型號", 
+                    "size"          : "尺寸範圍", 
+                    "unit"          : "單位", 
+                    "SPEC"          : "規格", 
+                    "part_no"       : "料號", 
+                    "scomp_no"      : "供應商", 
+                    "buy_a"         : "安量倍數A", 
+                    "buy_b"         : "安量倍數B", 
+                    "flag"          : "開關",
+                    "updated_at"    : "最後更新",
+                    "created_at"    : "建檔日期", 
+                    "updated_user"  : "最後編輯"
+                };
+            }else{
+                var item_keys = {};
+            }
+
+        var sort_listData = [];         // 建立整理陣列
+        for(var i=0; i < window[to_module].length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(item_keys).forEach(function(i_key){
+                sort_listData[i][item_keys[i_key]] = window[to_module][i][i_key];
+            })
+        }
+        var htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+    }
+
 
 </script>
 

@@ -68,6 +68,9 @@
             case "issueAmount_PR":
                 $filename_head = "PPE_請購需求單已開PR：{$_REQUEST["pr_no"]}_總表下載";
                 break;
+            case "cata":
+                $filename_head = "PPE_器材目錄管理_總表下載";
+                break;
             default:
                 $filename_head = $to_module;
                 break;

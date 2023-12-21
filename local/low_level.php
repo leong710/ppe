@@ -24,6 +24,7 @@
             'thisYear'  => $thisYear
         );
         $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
+        $stock_cata_SN = show_stock_cata_SN($list_issue_setting);
 
     }else{
         $select_local = array(
@@ -32,6 +33,7 @@
         $buy_ty = "";
         $catalogs = [];
         $myReceives = [];
+        $stock_cata_SN = [];
     }
 
     $allLocals = show_allLocal();
@@ -72,12 +74,12 @@
                     <h4>安全存量設定</h4>
                 </div>
                 <div class="col-12 col-md-6 pb-0 text-end">
-                    <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
-                    <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>    
+                    <?php if(($_SESSION[$sys_id]["role"] <= 2) && !empty($buy_ty)){ ?>    
                         <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                     <?php } ?>
-                    <a class="btn btn-success" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                    <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
+                    <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
                 </div>
             </div>
 
@@ -103,12 +105,13 @@
                 </div>
                 
                 <!-- 表頭：右側 -->
-                <div class="col-12 col-md-4 pb-2">
-                    <?php echo isset($buy_ty) ? "buy_ty/安量倍數：".$buy_ty:""; ?>
-                    </br>*.安全存量建議參考說明
+                <div class="col-12 col-md-4 pb-2 text-end">
+                    <?php if(!empty($buy_ty)){ ?> 
+                        <a href="#" target="_blank" title="Submit" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#update_stock_stand_lv"><i class="fa-solid fa-thumbs-up"></i> 立即同步現有庫存安量</a>
+                    <?php } ?>
                 </div>
             </div>
-            
+
             <div class="row">
                 <!-- 本次create表單form開始 -->
                 <form action="store_lowLevel.php" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false">
@@ -119,7 +122,7 @@
                                     <th>PIC</th>
                                     <th>名稱 / 訊息</th>
                                     <th><?php echo $thisYear;?>年領用</th>
-                                    <th>建議值</th>
+                                    <th>建議值<?php echo (!empty($buy_ty)) ? "_".$buy_ty:"";?></th>
                                     <th style="width: 15%;">新安全存量</th>
                                 </tr>
                             </thead>
@@ -190,7 +193,15 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body px-5">
-                                    <h3>確認完畢，是否送出?</h3>
+                                    <div class="col-12 border rounded ">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="update_stock_stand_lv_option" name="update_stock_stand_lv_option" checked>
+                                            <label class="form-check-label" for="update_stock_stand_lv_option">同步更新現有庫存之安全存量</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <h4>確認完畢，是否送出?</h4>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
@@ -205,6 +216,55 @@
                     </div>
                 </form>
             </div>
+
+            <hr>
+            <!-- 尾段：debug訊息 -->
+            <?php 
+                if(isset($_REQUEST["debug"])){
+                    include("debug_board.php"); 
+                } 
+            ?>
+
+            <!-- 彈出畫面說明模組 update_stock_stand_lv-->
+            <div class="modal fade" id="update_stock_stand_lv" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title">立即同步現有庫存安量</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <form action="#" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false">
+                            <div class="modal-body px-4">
+                                <div class="col-12 py-0 text-center text-danger">
+                                    <h4><b>!! 注意 !!</b><h4>
+                                </div>
+                                <div class="col-12" style="line-height: 1.5; font-size: 20px;">
+                                        <?php if(!empty($stock_cata_SN) && !empty($select_local)){
+                                            echo "此動作將以目前安量，更新到<b>(";
+                                            echo $select_local["fab_title"]."&nbsp(".$select_local["fab_remark"].")_".$select_local["local_title"]."&nbsp(".$select_local["local_remark"].")</b>";
+                                            echo ")，現有庫存品<b>(共".count($stock_cata_SN)." 筆)</b>之安全存量將會被異動";
+                                        } ?>
+                                </div>
+                                <div class="col-12 py-0 text-end">
+                                    <h4>Q：確定送出?</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
+                                <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                    <input type="submit" value="Submit" name="low_level_submit" class="btn btn-primary">
+                                <?php } ?>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

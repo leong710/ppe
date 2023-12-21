@@ -2,10 +2,10 @@
     require_once("function.php");
 
     $webroot = "..";
-    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $auth_cname     = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     
     if(isset($_SESSION[$sys_id])){
+        $auth_emp_id = $_SESSION["AUTH"]["emp_id"];    // 取出$_session引用
+        $auth_cname  = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
         $sys_id_auth = true; 
         $sys_id_role = $_SESSION[$sys_id]["role"];     // 取出$_session引用
     }else{
@@ -14,7 +14,7 @@
     }
 
     // 2023/12/14 這邊待處理
-    if($sys_id_role <= 2){
+    if($sys_id_auth == true && $sys_id_role <= 2){
         //// 2調撥
             $fab_id = $_SESSION[$sys_id]["fab_id"];        // 先給預設值
             $myTrade = show_myTrade($fab_id);              // 查詢器材調撥
@@ -129,20 +129,18 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/supp/"><i class="fa-solid fa-address-book"></i>&nbsp供應商聯絡人管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
-                                    <?php if($sys_id_role <= 0 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/auto.php"><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</a></li>
-                                    <?php } ?>
                                 </ul>
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="nav-link disabled dropdown-toggle" href="#" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_4">
-                                    <li><a class="dropdown-item" href="#">總表</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#">總表</a></li>
+                                    <?php if($sys_id_role <= 0 ){ ?>
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/auto.php"><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</a></li>
+                                    <?php } ?>
                                 </ul>
                             </li>
                         <?php } ?>

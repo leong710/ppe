@@ -14,6 +14,9 @@
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
+    // 去年年份
+    $thisYear = date('Y') ;                        // 這裡要減1才會找出去年的用量
+
         // 刪除表單
         if(!empty($_POST["delete_issue"])){
             $check_delete_result = delete_issue($_REQUEST);
@@ -54,29 +57,37 @@
         $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
     }
 
-    if(!empty($_POST["local_id"])){
-        $_REQUEST["local_id"] = $_POST["local_id"];
+    if(!empty($_REQUEST["local_id"])){
         $select_local = select_local($_REQUEST);
         $buy_ty = $select_local["buy_ty"];
         $catalogs = read_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
         $local_low_level = (array) json_decode($select_local["low_level"]);
-    
-    }else if(!empty($issue_row["in_local"])){
-        $query_local = array(
-            'local_id' => $issue_row["in_local"]
+        // 組合查詢條件陣列
+        $list_issue_setting = array(
+            'local_id'  => $_REQUEST["local_id"],
+            'thisYear'  => $thisYear
         );
-        $select_local = select_local($query_local);
+        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
+
+    }else if(!empty($issue_row["in_local"])){
+        $list_issue_setting = array(
+            'local_id'  => $issue_row["in_local"],
+            'thisYear'  => $thisYear
+        );
+        $select_local = select_local($list_issue_setting);
         $buy_ty = $select_local["buy_ty"];
-        $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $catalogs = read_local_stock($list_issue_setting);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
         $local_low_level = (array) json_decode($select_local["low_level"]);
+        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
 
     }else{
         $select_local = array(
             'id' => ''
         );
+        $buy_ty = "";
         $catalogs = [];
         $local_low_level = [];
-
+        $myReceives = [];
     }
 
     $allLocals = show_allLocal();                   // 所有儲存站點
@@ -232,9 +243,11 @@
                                             <tr>
                                                 <th class="unblock">cate_no</th>
                                                 <th>PIC</th>
-                                                <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                                <th>名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                                 <th>分類</th>
                                                 <th>尺寸</th>
+                                                <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>年總累計">年領用 x <?php echo (!empty($buy_ty)) ? $buy_ty:"?";?></br>= 建議值</th>
+
                                                 <th>需求</th>
                                                 <th><i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
                                             </tr>
@@ -263,36 +276,28 @@
                                                                 <?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span></td>
                                                     <td style="text-align: left; word-break: break-all;">
                                                         <?php 
-                                                            echo $catalog["size"] ? "尺寸：".$catalog["size"]:"--";
-                                                            echo $catalog["unit"] ? "</br>單位：".$catalog["unit"]:"";
-                                                            echo $catalog["OBM"] ? "</br>品牌/製造商：".$catalog["OBM"]:"";
+                                                            echo $catalog["size"]  ? "尺寸：".$catalog["size"]:"--";
+                                                            echo $catalog["unit"]  ? "</br>單位：".$catalog["unit"]:"";
+                                                            echo $catalog["OBM"]   ? "</br>品牌/製造商：".$catalog["OBM"]:"";
                                                             echo $catalog["model"] ? "</br>型號：".$catalog["model"]:""; 
                                                         ?></td>
+                                                    <td id="receive_<?php echo $select_local["id"].'_'.$catalog['SN'];?>"> -- </td>
                                                     <td>
+                                                        <?php $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level[$catalog["SN"]]; ?>
+
                                                         <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red":"blue";?>">
-                                                                <b><?php echo "安量: "; echo (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"]:"0";
-                                                                         echo " / 現量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"]:"0"; ?></b>
+                                                            <b><?php echo "安量:&nbsp".$buy_qty."&nbsp/&nbsp現量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"] : "0"; ?></b>
                                                         </div>
                                                         <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
-                                                            placeholder="<?php switch($buy_ty){
-                                                                                    case 'a':
-                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_a']) : "1"; 
-                                                                                        break;
-                                                                                    case 'b':
-                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_b']) : "1"; 
-                                                                                        break;
-                                                                                    default :
-                                                                                        $buy_qty = (!empty($catalog["stock_stand"])) ? ($catalog["stock_stand"] * $catalog['buy_a']) : "1"; 
-                                                                                        break; }
-                                                                                echo "限購： ".$buy_qty."&nbsp/&nbsp".$catalog["unit"];?>" 
+                                                            placeholder="<?php echo "限購： ".$buy_qty."&nbsp/&nbsp".$catalog["unit"];?>" 
                                                             min="1" 
-                                                                <?php if($sys_id_role <= 1){ ?>
-                                                                    onblur="add_cart_btn(this.id, this.value);" 
-                                                                <?php } else { ?>
-                                                                    max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                                    oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                                    onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" 
-                                                                <?php } ?>
+                                                            <?php if($sys_id_role <= 1){ ?>
+                                                                onblur="add_cart_btn(this.id, this.value);" 
+                                                            <?php } else { ?>
+                                                                max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
+                                                                oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
+                                                                onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" 
+                                                            <?php } ?>
                                                             >
                                                     </td>
                                                     <td>
@@ -561,12 +566,15 @@
 
 <script>
 // // // info modal function
-    var action = '<?=$action;?>';                       // 引入action資料
-    var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
-    var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');
-    var id = '<?=$issue_row["id"]?>';
-
+    var action          = '<?=$action;?>';                               // 引入action資料
+    var catalog         = <?=json_encode($catalogs);?>;                  // 引入catalogs資料
+    var issue_row       = <?=json_encode($issue_row);?>;                 // 引入issue_row資料作為Edit
+    var json            = JSON.parse('<?=json_encode($logs_arr)?>');
+    var id              = '<?=$issue_row["id"]?>';
+    var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
+    var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量
+    var buy_ty          = '<?=$buy_ty;?>';                               // 取得fab的安全倍數
+    
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
     var iframe           = document.getElementById('api');                // 清冊的iframe介面

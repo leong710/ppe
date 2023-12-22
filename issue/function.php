@@ -662,6 +662,26 @@
             echo $e->getMessage();
         }
     }
+   // --- stock index  20231218 領用量：在low_level表單中顯示cata_SN年領用量
+   function show_my_receive($request){
+    $pdo = pdo();
+    extract($request);
+    $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id  
+            FROM `_receive` _r
+            LEFT JOIN _local _l ON _r.local_id = _l.id
+            LEFT JOIN _fab _f ON _l.fab_id = _f.id
+            WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND _r.idty = 10 ";  // 10=結案
+    $stmt = $pdo->prepare($sql);
+    try {
+        $stmt->execute([$local_id, $thisYear]);
+        $my_receive_lists = $stmt->fetchAll();
+        return $my_receive_lists;
+
+    }catch(PDOException $e){
+        echo $e->getMessage();
+    }
+}
+
 // // // Create表單會用到 -- end
 
 // // // process_issue處理交易事件

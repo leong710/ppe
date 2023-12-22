@@ -61,8 +61,21 @@
         .img:checked + label{
             border: 3px solid #f00;
         } 
-
     </style>
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+            }); 
+        }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        // 畫面載入時開啟loading
+        mloading();
+    </script>
 </head>
 
 <div class="container">
@@ -156,7 +169,7 @@
                                                     default : 
                                                         $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
                                                         break; } ?>
-                                            <label for="catalog_SN_<?php echo $catalog["SN"];?>"><?php echo $buy_qty."&nbsp/&nbsp".$catalog["unit"];?> </label>
+                                            <label for="catalog_SN_<?php echo $catalog["SN"];?>"><?php echo $buy_qty."&nbsp/&nbsp".$catalog["unit"];?></label>
                                         </td>
                                         <td>
                                             <div class="col-12 text-center py-0 ">

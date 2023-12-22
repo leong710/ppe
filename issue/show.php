@@ -174,7 +174,7 @@
                         <?php 
                             echo "<h3><span class='badge rounded-pill ";
                                 switch($issue_row['idty']){
-                                    case "0" : echo "bg-info'>待領";                break;
+                                    case "0" : echo "bg-info'>待轉";                break;
                                     case "1" : echo "bg-primary'>待簽";             break;
                                     case "2" : echo "bg-warning text-dark'>退回";   break;
                                     case "3" : echo "bg-dark'>取消";                break;

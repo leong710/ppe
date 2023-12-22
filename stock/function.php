@@ -608,5 +608,29 @@
         }
     }
 
+    // 20231222 doChecj_log()
+    function store_checked($request){
+        $pdo = pdo();
+        extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "store_checked",
+            "content"   => "存量點檢單--"
+        );
+
+        // $logs = JSON_encode($stocks_log);
+        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '送出成功';
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '送出失敗';
+        }
+        return $swal_json;
+    }
 
 

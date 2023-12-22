@@ -182,23 +182,23 @@
                                                 // <!-- 這個工作是將stocks逐筆轉成array，以便進行鋪陳和存檔 -->
                                                 $stock_arr = [];                              // 定義app陣列，單筆
                                                 $stock_arr = array(
-                                                    'local_id' => $stock["local_id"], 
-                                                    'local_title' => $stock["local_title"], 
-                                                    'fab_id' => $stock["fab_id"], 
-                                                    'fab_title' => $stock["fab_title"], 
-                                                    'cate_no' => $stock["cate_no"],
-                                                    'cate_title' => $stock["cate_title"], 
-                                                    'cata_SN' => $stock["cata_SN"], 
-                                                    'pname' => $stock["pname"], 
-                                                    'stock_id' => $stock["id"], 
-                                                    'size' => $stock["size"], 
-                                                    'standard_lv' => $stock["standard_lv"], 
-                                                    'amount' => $stock["amount"],
-                                                    'stock_remark' => $s_remark,
-                                                    'lot_num' => $stock["lot_num"],
-                                                    'po_no' => $stock["po_no"],
-                                                    'updated_at' => $stock["updated_at"],
-                                                    'updated_user' => $stock["updated_user"]
+                                                    'local_id'      => $stock["local_id"], 
+                                                    'local_title'   => $stock["local_title"], 
+                                                    'fab_id'        => $stock["fab_id"], 
+                                                    'fab_title'     => $stock["fab_title"], 
+                                                    'cate_no'       => $stock["cate_no"],
+                                                    'cate_title'    => $stock["cate_title"], 
+                                                    'cata_SN'       => $stock["cata_SN"], 
+                                                    'pname'         => $stock["pname"], 
+                                                    'stock_id'      => $stock["id"], 
+                                                    'size'          => $stock["size"], 
+                                                    'standard_lv'   => $stock["standard_lv"], 
+                                                    'amount'        => $stock["amount"],
+                                                    'stock_remark'  => $s_remark,
+                                                    'lot_num'       => $stock["lot_num"],
+                                                    'po_no'         => $stock["po_no"],
+                                                    'updated_at'    => $stock["updated_at"],
+                                                    'updated_user'  => $stock["updated_user"]
                                                 );
                                                 $stock_enc = JSON_encode($stock_arr);           // 小陣列要先編碼才能塞進去大陣列forStore儲存
                                                 // $stock_dec = JSON_decode($stock_enc);           // 小陣列要先編碼才能塞進去大陣列forStore儲存
@@ -217,11 +217,11 @@
                                     $logs_str = implode("_," , $stocksLog_arr);               // 陣列轉成字串進行儲存到mySQL
                                 ?>
                                 <textarea type="hidden" name="stocks_log" readonly style="display:none"><?php echo $logs_str;?></textarea>
-                                <input type="hidden" name="fab_id" value="<?php echo $stock["fab_id"];?>">
-                                <input type="hidden" name="emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                                <input type="hidden" name="cname" value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
-                                <input type="hidden" name="checked_year" value="<?php echo $today_year;?>">
-                                <input type="hidden" name="half" value="<?php echo $half;?>">
+                                <input    type="hidden" name="fab_id"         value="<?php echo $stock["fab_id"];?>">
+                                <input    type="hidden" name="emp_id"         value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                                <input    type="hidden" name="cname"          value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
+                                <input    type="hidden" name="checked_year"   value="<?php echo $today_year;?>">
+                                <input    type="hidden" name="half"           value="<?php echo $half;?>">
     
                             <!-- 彈出畫面說明模組 saveSubmit-->
                             <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

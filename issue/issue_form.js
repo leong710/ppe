@@ -288,6 +288,10 @@
             // document.getElementById('buy_qt_'+key).classList.add('alert_it');       // 將建議值套用css:alert_it
             // document.getElementById(key).value = value;                             // input.value套用
         })
+
+        let sinn = '<b>** 自動帶入 年領用累計 與 建議值 ... 完成</b>~';
+        inside_toast(sinn);
+
     }
 
 

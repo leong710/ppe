@@ -4,6 +4,13 @@
     require_once("function.php");
     accessDenied($sys_id);
 
+    // 複製本頁網址藥用
+    if(isset($_SERVER["HTTP_REFERER"])){
+        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
+    }else{
+        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
+    }
+
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
@@ -241,6 +248,10 @@
                                     <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
                         <?php  } ?>
+                        <li class="nav-item">
+                            <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
+                                <i class="fa fa-download" aria-hidden="true"></i>&nbsp點檢表&nbsp<span class="badge bg-secondary"> ? </span></button>
+                        </li>
                     </ul>
                 </div>
                 <!-- by各Local儲存點： -->
@@ -501,6 +512,71 @@
                         <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 彈出畫面模組 所屬區域器材儲存量總表for年檢用 -->
+<div class="modal fade" id="checkList" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h5 class="modal-title">衛材儲存量總表年檢：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form action="store_checkList.php" method="post">
+                    <div class="modal-body p-4">
+                        <div class="col-12 rounded bg-light">
+                            <div class="row">
+                                <div class="col-md-7 py-0">
+                                    <div>
+                                        點檢廠區：<?php echo $sortFab["fab_title"]; echo $sortFab["fab_remark"] ? " (".$sortFab["fab_remark"].")":"";?></br>
+                                        點檢日期：<?php echo date('Y-m-d H:i'); ?> (實際以送出時間為主)
+                                    </div>
+                                </div>
+                                <div class="col-md-5 py-0">
+                                    <div>
+                                        點檢人員：<?php echo $_SESSION["AUTH"]["cname"];?></br>
+                                        點檢年度：<?php echo $today_year." / ".$half;?>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 ">
+                                    <label for="checked_remark" class="form-check-label" >點檢備註說明：</label>
+                                    <textarea name="checked_remark" id="checked_remark" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 py-0 text-end">
+                                <h5>
+                                    <input type="checkbox" name="iAgree" value="0" id="iAgree" class="form-check-input" required>
+                                    <label for="iAgree" class="form-label">我已確認完畢，現況數量無誤!</label>
+                                </h5>
+                            </div>
+                        </div>
+                        <!-- 最後編輯資訊 -->
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="text-end">
+                            <input type="hidden" name="action"          value="store_checkList">
+                            <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
+                            <input type="hidden" name="fab_id"          value="<?php echo $sortFab["id"];?>">
+                            <input type="hidden" name="emp_id"          value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                            <input type="hidden" name="cname"           value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
+                            <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
+                            <input type="hidden" name="half"            value="<?php echo $half;?>">
+                            <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <?php if($sys_id_role <= 2){ ?>   
+                                <input type="submit" value="Submit" name="submit" class="btn btn-primary">
+                            <?php } ?>
+                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
+                            <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+    
             </div>
         </div>
     </div>

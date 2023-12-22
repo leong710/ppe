@@ -7,7 +7,7 @@
     // 去年年份
     $thisYear = date('Y') ;                        // 這裡要減1才會找出去年的用量
 
-    if(isset($_POST["local_id"])){
+    if(isset($_REQUEST["local_id"])){
         $select_local = select_local($_REQUEST);
         if(empty($select_local)){                           // 查無資料時返回指定頁面
             echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
@@ -20,7 +20,7 @@
 
         // 組合查詢條件陣列
         $list_issue_setting = array(
-            'local_id'  => $_POST["local_id"],
+            'local_id'  => $_REQUEST["local_id"],
             'thisYear'  => $thisYear
         );
         $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單

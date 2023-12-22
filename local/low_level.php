@@ -24,7 +24,7 @@
             'thisYear'  => $thisYear
         );
         $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
-        $stock_cata_SN = show_stock_cata_SN($list_issue_setting);
+        $stock_cata_SN = show_stock_cata_SN($list_issue_setting);   // 列出目前stock中對象local裡的cata_SN清單
 
     }else{
         $select_local = array(
@@ -205,9 +205,10 @@
                                 </div>
                                 <div class="modal-footer">
                                     <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                    <input type="hidden" name="action"          value="store_lowLevel">
                                     <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
                                     <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                        <input type="submit" value="Submit" name="low_level_submit" class="btn btn-primary">
+                                        <input type="submit" name="low_level_submit" value="Submit" class="btn btn-primary">
                                     <?php } ?>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
@@ -234,7 +235,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                        <form action="#" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false">
+                        <form action="store_lowLevel.php" method="post" >
                             <div class="modal-body px-4">
                                 <div class="col-12 py-0 text-center text-danger">
                                     <h4><b>!! 注意 !!</b><h4>
@@ -253,9 +254,10 @@
                             
                             <div class="modal-footer">
                                 <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                <input type="hidden" name="action"          value="update_stock_stand_lv">
                                 <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
                                 <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                    <input type="submit" value="Submit" name="low_level_submit" class="btn btn-primary">
+                                    <input type="submit" name="stand_lv_submit" value="Submit" class="btn btn-primary">
                                 <?php } ?>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>

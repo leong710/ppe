@@ -396,8 +396,12 @@
     function store_lowLevel($request){
         $pdo = pdo();
         extract($request);
+        
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "store_lowLevel",
+            "content"   => "安全存量設定--"
+        );
         // low_level資料前處理
-
         $low_level = array_filter($low_level);             // 去除陣列中空白元素
         // $amount = array_filter($amount);                    // 去除陣列中空白元素
         // // 小陣列要先編碼才能塞進去大陣列
@@ -417,12 +421,15 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$low_level_str, $updated_user, $local_id]);
-            $store_lowLevel = true;
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '儲存成功';
+
         }catch(PDOException $e){
             echo $e->getMessage();
-            $store_lowLevel = false;
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '儲存失敗';
         }
-        return $store_lowLevel;
+        return $swal_json;
     }
     // --- stock index  20231218 領用量：在low_level表單中顯示cata_SN年領用量
     function show_my_receive($request){
@@ -466,17 +473,24 @@
     function update_stock_stand_lv($request){
         $pdo = pdo();
         extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "update_stock_stand_lv",
+            "content"   => "安全存量設定--"
+        );
+
         $sql = "UPDATE `_stock`
                 SET standard_lv = ?
                 WHERE local_id = ? AND cata_SN = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$standard_lv, $local_id, $cata_SN]);
-            $update_stock_stand_lv_result = true;
-
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '儲存成功';
         }catch(PDOException $e){
             echo $e->getMessage();
-            $update_stock_stand_lv_result = false;
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '儲存失敗';
         }
-        return $update_stock_stand_lv_result;
+        return $swal_json;
     }

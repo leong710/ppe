@@ -160,8 +160,11 @@ a:hover {
 /* 20231206_整合加入 */
     .unblock{
         display: none;
-        /* transition: 3s; */
+    }
+    .unblock_a{
+        display: none;
         opacity: 0;
+        /* transition: 3s; */
         transition: opacity 1s;
         animation: none;
     }

@@ -92,17 +92,31 @@
         }else{
             $sort_cate_no = "All";
         }
+
+        // 今年年份
+        $thisYear = date('Y');
+        // 半年分界線
+        if(date('m') <= 6 ){
+            $half = "H1";
+        }else{
+            $half = "H2";
+        }
     // 組合查詢條件陣列
         $list_issue_setting = array(
-            'fab_id'    => $sort_fab_id,
-            'cate_no'   => $sort_cate_no,
-            'thisYear'  => date('Y')
+            'fab_id'        => $sort_fab_id,
+            'cate_no'       => $sort_cate_no,
+            'thisYear'      => $thisYear,
+            'checked_year'  => $thisYear,               // 建立查詢陣列for顯示今年點檢表
+            'half'          => $half                    // 建立查詢陣列for顯示今年點檢表
         );
  
         $stocks = show_stock($list_issue_setting);                  // 依查詢條件儲存點顯示存量
         $categories = show_categories();                            // 取得所有分類item
         $sum_categorys = show_sum_category($list_issue_setting);    // 統計分類與數量
         $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
+
+        $check_yh_list = check_yh_list($list_issue_setting);        // 查詢自己的點檢紀錄：半年檢
+        $check_yh_list_num = count($check_yh_list);                 // 計算自己的點檢紀錄筆數：半年檢
 
         $sortFab = show_fab($list_issue_setting);                   // 查詢fab的細項結果
         if(empty($sortFab)){                                        // 查無資料時返回指定頁面
@@ -232,6 +246,8 @@
                             <?php } ?>
                         <?php } ?>
                     </div>
+                    <!-- Bootstrap Alarm -->
+                    <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
                 </div>
 
                 <!-- NAV分頁標籤與統計 -->
@@ -248,10 +264,12 @@
                                     <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
                         <?php  } ?>
-                        <li class="nav-item">
-                            <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
-                                <i class="fa fa-download" aria-hidden="true"></i>&nbsp點檢表&nbsp<span class="badge bg-secondary"> ? </span></button>
-                        </li>
+                        <?php if($sys_id_role <= 1){?>
+                            <li class="nav-item">
+                                <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
+                                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
+                            </li>
+                        <?php } ?>
                     </ul>
                 </div>
                 <!-- by各Local儲存點： -->
@@ -566,6 +584,7 @@
                             <input type="hidden" name="cname"           value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
+                            <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
                             <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_id_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
@@ -613,34 +632,15 @@
     var swal_json   = <?=json_encode($swal_json);?>;                   // 引入swal_json值
     
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
-    var listData = <?=json_encode($stocks);?>;                         // 引入stocks資料
+    var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
 // 找出Local_id算SN年領用量
-    var myReceives  = <?=json_encode($myReceives);?>;                  // 引入myReceives資料，算年領用量
-    var receiveAmount = [];                                             // 宣告變數陣列，承裝Receives年領用量
+    var myReceives      = <?=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
+    var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
 
-    // 彙整出SN年領用量
-    Object(myReceives).forEach(function(row){
-        let csa = JSON.parse(row['cata_SN_amount']);
-        Object.keys(csa).forEach(key =>{
-            let pay = Number(csa[key]['pay']);
-            let l_key = row['local_id'] +'_'+ key;
-            if(receiveAmount[l_key]){
-                receiveAmount[l_key] += pay;
-            }else{
-                receiveAmount[l_key] = pay;
-            }
-            console.log(l_key, pay)
-        })
-    });
-    // 選染到Table上指定欄位
-    Object.keys(receiveAmount).forEach(key => {
-        let value = receiveAmount[key];
-        $('#receive_'+key).empty();
-        $('#receive_'+key).append(value);
-    })
-
-
-    
+// 半年檢
+    var check_yh_list_num   = '<?=$check_yh_list_num;?>';
+    var thisYear            = '<?=$thisYear;?>';
+    var half                = '<?=$half;?>';
 
 </script>
 

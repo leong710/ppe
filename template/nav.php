@@ -108,8 +108,7 @@
                                             &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span>
                                         <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-clipboard-list"></i>&nbsp檢點表</a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄</b>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b>
                                         <?php if($numChecked == 0){?>
                                             <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
                                         <?php }?></a></li>
@@ -128,7 +127,6 @@
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/low_level.php"><i class="fa-solid fa-retweet"></i>&nbsp安全存量設定</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/supp/"><i class="fa-solid fa-address-book"></i>&nbsp供應商聯絡人管理</a></li>
-                                    <li><hr class="dropdown-divider"></li>
                                 </ul>
                             </li>
 

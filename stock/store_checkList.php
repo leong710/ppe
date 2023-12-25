@@ -1,6 +1,6 @@
 <?php
     require_once("../pdo.php");
-    require_once("function.php");
+    require_once("function_checked.php");
     extract($_REQUEST);
 
     $swal_json = array();
@@ -15,7 +15,7 @@
             }else{
 
                 $stocksLog_arr = [];                                // 定義app陣列，總total
-                $stocks = show_stock($_REQUEST);                    // 調閱器材庫存，依儲存點顯示
+                $stocks = show_stock_forCheck($_REQUEST);           // 調閱器材庫存，依儲存點顯示
 
                 // 鋪設內容
                 foreach($stocks as $stock){
@@ -57,17 +57,10 @@
 
                 $_REQUEST["stocks_log"] = $logs_str;
 
-                store_checked($_REQUEST);
+                $swal_json = store_checked($_REQUEST);
 
-
-
-                $swal_json = store_lowLevel($_REQUEST);
             }
-
-            if(!isset($update_stock_stand_lv_option) || ($update_stock_stand_lv_option != "on")){
-                // 停止向下
-                break;
-            }   // if = on 就繼續往下!
+            break;  // 停止向下
 
         // fun-2.更新現有庫存之安全存量
         case "update_stock_stand_lv":        // 編輯

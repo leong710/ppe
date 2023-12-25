@@ -44,7 +44,7 @@
                         <?php } ?>
                     </div> 
                     <div class=""  style="display:inline-block;">
-                        <a href="<?php echo $_REQUEST["from2"]?>.php" class="btn btn-info">回首頁</a>
+                        <a href="<?php echo $_REQUEST["from2"]?>.php" class="btn btn-secondary">回首頁</a>
                     </div>
                 </div> 
             </div>
@@ -53,15 +53,15 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div>
-                            點檢單號：<?php echo $checked_item["id"];?></br>
+                            點檢單號：<?php echo "aid_".$checked_item["id"];?></br>
                             點檢日期：<?php echo $checked_item["created_at"];?></br>
-                            點檢人員：<?php echo $checked_item["updated_user"];?>
-                            <!-- // 這裡的updated_user指的是點檢表單儲存人 -->
+                            點檢廠區：<?php echo $checked_item["fab_title"]; echo $checked_item["fab_remark"] ? " (".$checked_item["fab_remark"].")":"";?>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div>
-                            fab廠區：<?php echo $checked_item["fab_title"]; echo $checked_item["fab_remark"] ? " (".$checked_item["fab_remark"].")":"";?></br>
+                            <!-- // 這裡的updated_user指的是點檢表單儲存人 -->
+                            點檢人員：<?php echo $checked_item["updated_user"];?></br>
                             點檢年度：<?php echo $checked_item["checked_year"];?></br>
                             上下年度：<?php echo $checked_item["half"];?>
                         </div>
@@ -98,7 +98,7 @@
                 </div>
             </div>
             <div class="col-12 text-end"  style="display:inline-block;">
-                <a href="<?php echo $_REQUEST["from2"]?>.php" class="btn btn-info">回首頁</a>
+                <a href="<?php echo $_REQUEST["from2"]?>.php" class="btn btn-secondary">回首頁</a>
             </div>
         </div>
     </div>

@@ -291,7 +291,6 @@
 
         let sinn = '<b>** 自動帶入 年領用累計 與 建議值 ... 完成</b>~';
         inside_toast(sinn);
-
     }
 
 
@@ -441,7 +440,9 @@
         }
         
         // call fun show 年領用量與建議值
-        show_myReceives();
+        if(catalog.length >= 1){
+            show_myReceives();
+        }
 
         // 確認action不是新表單，就進行Edit模式渲染
         if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染

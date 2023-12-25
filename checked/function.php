@@ -46,18 +46,25 @@
 // // // checked CRUD -- end
 
 
-    // user只顯示自己的清單
+    // user只顯示自己的清單        // 20231225 嵌入分頁工具
     function show_checked($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT checked_log.*, _fab.fab_title 
                 FROM `checked_log`
                 LEFT JOIN _fab ON _fab.id = checked_log.fab_id
-                WHERE checked_log.fab_id = ?
+                -- WHERE checked_log.fab_id = ?
                 ORDER BY created_at DESC";
-        $stmt = $pdo->prepare($sql);
+
+        // 決定是否採用 page_div 20231225
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+        }
         try {
-            $stmt->execute([$fab_id]);
+            // $stmt->execute([$fab_id]);
+            $stmt->execute();
             $checkeds = $stmt->fetchAll();
             return $checkeds;
         }catch(PDOException $e){
@@ -65,23 +72,6 @@
         }
     }
 
-    function checked_page_div($start, $per, $request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT checked_log.*, _fab.fab_title 
-                FROM `checked_log`
-                LEFT JOIN _fab ON _fab.id = checked_log.fab_id
-                WHERE checked_log.fab_id = ?
-                ORDER BY created_at DESC";
-        $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
-        try {
-            $stmt->execute([$fab_id]);
-            $rs = $stmt->fetchAll();
-            return $rs;
-        }catch(PDOException $e){
-            echo $e->getMessage(); 
-        }
-    }
     // fab user index查詢自己的點檢紀錄for顯示點檢表功能
     function check_yh_list($request){
         $pdo = pdo();

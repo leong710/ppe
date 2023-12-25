@@ -608,7 +608,7 @@
         }
     }
 
-    // 20231222 doChecj_log()
+    // 20231222 doCheck_log() ：半年檢
     function store_checked($request){
         $pdo = pdo();
         extract($request);
@@ -633,4 +633,43 @@
         return $swal_json;
     }
 
-
+    // --- stock index  20230725：半年檢
+    function show_stock_forCheck($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _stk.*, 
+                        _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark, 
+                        _cata.pname, _cata.cata_remark, _cata.SN, _cata.size, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
+                FROM `_stock` _stk 
+                LEFT JOIN _local _l ON _stk.local_id = _l.id 
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id 
+                LEFT JOIN _site _s ON _f.site_id = _s.id 
+                LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                WHERE _f.id=?
+                ORDER BY fab_id, local_id, cata_SN, lot_num ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id]);
+            $stocks = $stmt->fetchAll();
+            return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // fab user index查詢自己的點檢紀錄for顯示點檢表功能
+    function check_yh_list($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT *
+                FROM `checked_log`
+                WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $checked_year, $half]);
+            $check_yh_list = $stmt->fetchAll();
+            return $check_yh_list;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }

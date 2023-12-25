@@ -1,5 +1,13 @@
 
 // // // utility fun
+    // Bootstrap Alarm function
+    function alert(message, type) {
+        var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+        var wrapper = document.createElement('div')
+        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        alertPlaceholder.append(wrapper)
+    }
     // fun3-3：吐司顯示字條 // init toast
     function inside_toast(sinn){
         var toastLiveExample = document.getElementById('liveToast');
@@ -243,6 +251,32 @@
         // console.log(listData);
     }
 
+// // // show 年領用量與建議值
+    function show_myReceives(){
+        // 彙整出SN年領用量
+        Object(myReceives).forEach(function(row){
+            let csa = JSON.parse(row['cata_SN_amount']);
+            Object.keys(csa).forEach(key =>{
+                let pay = Number(csa[key]['pay']);
+                let l_key = row['local_id'] +'_'+ key;
+                if(receiveAmount[l_key]){
+                    receiveAmount[l_key] += pay;
+                }else{
+                    receiveAmount[l_key] = pay;
+                }
+                // console.log(l_key, pay)
+            })
+        });
+        // 選染到Table上指定欄位
+        Object.keys(receiveAmount).forEach(key => {
+            let value = receiveAmount[key];
+            $('#receive_'+key).empty();
+            $('#receive_'+key).append(value);
+        })
+
+        let sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
+        inside_toast(sinn);
+    }
 
     $(document).ready(function () {
         
@@ -258,5 +292,19 @@
                 url: "../../libs/dataTables/dataTable_zh.json"
             }
         });
+
+        // call fun show 年領用量與建議值
+        if(stock.length >= 1){
+            show_myReceives();
+        }
+
+        // 假如index找不到當下存在已完成的表單，就alarm它!
+        if (check_yh_list_num == '0') {
+            let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ <i class="fa-solid fa-right-long"></i>&nbsp&nbsp&nbsp';
+                message += '<button type="button" style="background-color: transparent;" data-bs-toggle="modal" data-bs-target="#checkList">'
+                            +'<b><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button></b>';
+
+            alert( message, 'danger')
+        }
 
     })

@@ -535,7 +535,7 @@
     </div>
 
 <!-- 彈出畫面模組 所屬區域器材儲存量總表for年檢用 -->
-<div class="modal fade" id="checkList" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+    <div class="modal fade" id="checkList" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info">

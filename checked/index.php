@@ -101,7 +101,7 @@
                                     <option value="" hidden >-- 年度 / All --</option>
                                     <?php foreach($allchecked_years as $checked_y){ ?>
                                         <option value="<?php echo $checked_y["checked_year"];?>" <?php echo ($checked_y["checked_year"] == $checked_year) ? "selected":"";?>>
-                                            <?php echo $checked_y["checked_year"];?></option>
+                                            <?php echo $checked_y["checked_year"]."y";?></option>
                                     <?php } ?>
                                 </select>
                                 <button type="submit" class="btn btn-outline-secondary">查詢</button>

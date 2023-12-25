@@ -155,7 +155,7 @@
                     <?php }?>
                     <!-- loading 畫面css 2/4-->
                     <a href="#" id="show_loading" data-bs-toggle="modal" data-bs-target="#modal_loading" class="unblock">show_loading</a>
-                    <button type="button" id="history_back" class="main-btn btn btn-success" onclick="history.back()">
+                    <button type="button" id="history_back" class="main-btn btn btn-secondary" onclick="history.back()">
                         <i class="fa fa-external-link" aria-hidden="true"></i> 回上頁
                     </button>
                 </div>
@@ -341,7 +341,7 @@
                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                         <input type="submit" value="儲存" name="submit" class="btn btn-primary">
                     <?php } ?>
-                    <input type="button" value="取消" class="btn btn-danger" onclick="history.back()">
+                    <input type="button" value="取消" class="btn btn-secondary" onclick="history.back()">
                 </div>
             </form>
         </div>
@@ -384,7 +384,7 @@
                     <hr>
                     <div class="text-end">
                         <a href="#" class="selected btn btn-primary">送出</a>
-                        <a href="#" class="cancel btn btn-danger">取消</a>
+                        <a href="#" class="cancel btn btn-secondary">取消</a>
                     </div>
                 </div>
             </div>

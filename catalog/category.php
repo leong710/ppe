@@ -5,48 +5,21 @@
     accessDenied($sys_id);
     // accessDeniedAdmin();
 
-    // 新增
-    if(isset($_POST["submit"])){
-        store_category($_REQUEST);
-    }
-    
-    // 調整flag ==> 20230712改用AJAX
-
-    // 更新
-    if(isset($_POST["edit_cate_submit"])){
-        update_category($_REQUEST);
-    }
-    // 刪除
-    if(isset($_POST["delete_cate"])){
-        delete_category($_REQUEST);
-    }
+    // CRUD
+        if(isset($_POST["submit"])){                // 新增
+            store_category($_REQUEST); }
+        if(isset($_POST["edit_cate_submit"])){      // 更新
+            update_category($_REQUEST); }
+        if(isset($_POST["delete_cate"])){           // 刪除
+            delete_category($_REQUEST); }
+        // 調整flag ==> 20230712改用AJAX
 
     $categories = show_categories();
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <style>
-    .box {
-        margin: 0px;
-        padding:0px;               /*div框的內距，為了不讓兩框文字相連*/
-    }
-    table,td,th {
-        font-size: 18px;
-        vertical-align: middle; 
-    }
-    table thead > tr > th{
-        /* font-size: 14px; */
-        /* background-color: rgb(122, 162, 238); */
-        color: blue;
-        text-align: center;
-        vertical-align: top; 
-        word-break: break-all; 
-        background-color: white;
-    }
-    table .btn {
-        /* padding:2px 2px; */
-        margin: 5px;
-    }
+
 </style>
 <div class="container my-2">
     <div class="row justify-content-center">
@@ -59,9 +32,9 @@
                 </div>
                 <div class="col-md-6 pb-0 text-end">
                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                        <a href="#" target="_blank" title="for新增分類" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_cate"> <i class="fa fa-plus"></i> 新增分類</a>
+                        <button type="button" id="add_cate_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="add_module('cate')" > <i class="fa fa-plus"></i> 新增分類</button>
                     <?php } ?>
-                    <a href="index.php" title="回上層列表" class="btn btn-success"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
+                    <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
                 </div>
             </div>
             <!-- 分類列表 -->
@@ -108,87 +81,21 @@
     </div>
 </div>
 
-<!-- 彈出畫面模組 新增-->
-<div class="modal fade" id="add_cate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- 彈出畫面模組 編輯、新增-->
+<div class="modal fade" id="edit_cate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >
     <div class="modal-dialog">
         <div class="modal-content">
-
-            <form action="" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">新增分類</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body px-5">
-                    <div class="row">
-                        <div class="col-12 py-1">
-                            <div class="form-floating">
-                                <input type="text" name="cate_no" id="cate_no" class="form-control" required placeholder="分類代號">
-                                <label for="cate_no" class="form-label">cate_no/分類代號：</label>
-                            </div>
-                        </div>
-                        <div class="col-12 py-1">
-                            <div class="form-floating">
-                                <input type="text" name="cate_title" id="cate_title" class="form-control" required placeholder="分類名稱">
-                                <label for="cate_title" class="form-label">cate_title/分類名稱：</label>
-                            </div>
-                        </div>
-                        <div class="col-12 py-1">
-                            <div class="form-floating">
-                                <input type="text" name="cate_remark" id="cate_remark" class="form-control" required placeholder="備註說明">
-                                <label for="cate_remark" class="form-label">cate_remark/備註說明：</label>
-                            </div>
-                        </div>
-                        <div class="col-12 py-1">
-                            <table>
-                                <tr>
-                                    <td style="text-align: right;">
-                                        <label for="flag" class="form-label">flag/顯示開關：</label>
-                                    </td>
-                                    <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="On" id="site_On" class="form-check-input" checked>&nbsp
-                                        <label for="site_On" class="form-check-label">On</label>
-                                    </td>
-                                    <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="Off" id="site_Off" class="form-check-input">&nbsp
-                                        <label for="site_Off" class="form-check-label">Off</label>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                            <input type="submit" value="儲存" name="submit" class="btn btn-primary">
-                        <?php } ?>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                    </div>
-                </div>
-            </form>
-
-        </div>
-    </div>
-</div>
-
-<!-- 彈出畫面模組 編輯-->
-<div class="modal fade" id="edit_cate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
             <div class="modal-header">
-                <h5 class="modal-title">編輯分類</h5>
+                <h5 class="modal-title"><span id="modal_action"></span>分類</h5>
+
                 <form action="" method="post">
                     <input type="hidden" name="id" id="cate_delete_id">
                     <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
                         &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <input type="submit" name="delete_cate" value="刪除cate" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                        <span id="modal_delect_btn"></span>
                     <?php } ?>
                 </form>
+
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
@@ -239,11 +146,12 @@
                 <div class="modal-footer">
                     <div class="text-end">
                         <input type="hidden" name="id" id="cate_edit_id" >
-                        <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
+                        <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                         <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                            <input type="submit" value="儲存" name="edit_cate_submit" class="btn btn-primary">
+                            <span id="modal_button"></span>
                         <?php } ?>
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                        <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>
                 </div>
             </form>
@@ -262,8 +170,25 @@
     var cate   = <?=json_encode($categories);?>;                                         // 引入cates資料
     var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];           // 交給其他功能帶入 delete_cate_id
 
+    function add_module(to_module){     // 啟用新增模式
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
+        $('#reset_btn').click();                                                        // reset清除表單
+        var add_btn = '<input type="submit" name="cate_submit" class="btn btn-primary" value="新增">';
+        $('#modal_action').append('新增');                      // model標題
+        $('#modal_button').append(add_btn);                     // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('edit_mode_bgc');
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.add('add_mode_bgc');
+    }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
+        $('#reset_btn').click();                                                        // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
+        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('add_mode_bgc');
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
@@ -286,6 +211,12 @@
 
                 // step3-3.開啟 彈出畫面模組 for user編輯
                 // edit_myTodo_btn.click();
+                var add_btn = '<input type="submit" name="edit_cate_submit" class="btn btn-primary" value="儲存">';
+                var del_btn = '<input type="submit" name="delete_cate" value="刪除cate" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                $('#modal_action').append('編輯');          // model標題
+                $('#modal_delect_btn').append(del_btn);     // 刪除鈕
+                $('#modal_button').append(add_btn);         // 儲存鈕
+                return;
             }
         })
     }

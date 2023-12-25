@@ -150,7 +150,7 @@
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
                                 <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增site" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_site"> <i class="fa fa-plus"></i> 新增site</a>
+                                    <button type="button" id="add_site_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_site" onclick="add_module('site')" > <i class="fa fa-plus"></i> 新增site</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -202,7 +202,7 @@
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
                                 <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增fab" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_fab"> <i class="fa fa-plus"></i> 新增fab</a>
+                                    <button type="button" id="add_fab_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_fab" onclick="add_module('fab')" > <i class="fa fa-plus"></i> 新增fab</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -259,7 +259,7 @@
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
                                 <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                                    <a href="#" target="_blank" title="新增Local" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_local"> <i class="fa fa-plus"></i> 新增Local</a>
+                                    <button type="button" id="add_local_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_local" onclick="add_module('local')" > <i class="fa fa-plus"></i> 新增Local</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -313,66 +313,6 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增site-->
-    <div class="modal fade" id="add_site" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">新增site</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <form action="" method="post">
-                    <div class="modal-body px-4">
-                        <div class="row">
-
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="site_title" class="form-control" id="site_title" required placeholder="site名稱">
-                                    <label for="site_title" class="form-label">site_title/Site名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <div class="form-floating">
-                                    <input type="text" name="site_remark" class="form-control" id="site_remark" required placeholder="註解說明">
-                                    <label for="site_remark" class="form-label">site_remark/註解說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 py-1">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="site_On" class="form-check-input" checked>&nbsp
-                                            <label for="site_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="site_Off" class="form-check-input">&nbsp
-                                            <label for="site_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="0">
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="新增" name="site_submit" class="btn btn-primary">
-                            <?php } ?>
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>
 <!-- 彈出畫面模組 新增fab廠處級-->
     <div class="modal fade" id="add_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -490,98 +430,21 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 新增Local-->
-    <div class="modal fade" id="add_local" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">新增local存放單位</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="post">
-                    <div class="modal-body px-5">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <select name="fab_id" id="fab_id" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
-                                        <option value="" hidden>--請選擇fab廠別--</option>
-                                        <?php foreach($fabs as $fab){ ?>
-                                            <option value="<?php echo $fab["id"];?>" 
-                                                    <?php if($fab["id"] == $_SESSION[$sys_id]["fab_id"]){ ?> selected <?php } ?>>
-                                                    <!-- <php if($fab["flag"] == "Off"){ ?> hidden <php } ?>> -->
-                                                <?php echo $fab["id"]."_".$fab["fab_title"]."(".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? ' -- 已關閉':''; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <label for="fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] > 1) ? " - disabled":" *"; ?></sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="local_title" id="local_title" class="form-control" required placeholder="local名稱">
-                                    <label for="local_title" class="form-label">local_title/名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="local_remark" id="local_remark" class="form-control" required placeholder="註解說明">
-                                    <label for="local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <!-- <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="low_level" id="low_level" class="form-control" required placeholder="安全水位">
-                                    <label for="low_level" class="form-label">low_level/安全水位：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div> -->
-                            <div class="col-12">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="site_On" class="form-check-input" checked>&nbsp
-                                            <label for="site_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="site_Off" class="form-check-input">&nbsp
-                                            <label for="site_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="2">
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="新增" name="local_submit" class="btn btn-primary">
-                            <?php } ?>
-                            <input type="reset" value="清除" class="btn btn-info">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>
-    
-<!-- 彈出畫面模組 編輯site-->
+
+<!-- 彈出畫面模組 新增編輯site-->
     <div class="modal fade" id="edit_site" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯site資訊</h4>
+                    <h4 class="modal-title"><span id="site_modal_action"></span>site資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="site_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_site" value="刪除site" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                            <span id="site_modal_delect_btn"></span>
                         <?php } ?>
                     </form>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -628,8 +491,8 @@
                             <input type="hidden" name="id" id="site_edit_id" >
                             <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="儲存" name="edit_site_submit" class="btn btn-primary">
                             <?php } ?>
+                            <input type="reset" class="btn btn-info" id="site_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -638,19 +501,20 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 編輯fab-->
+<!-- 彈出畫面模組 新增編輯fab-->
     <div class="modal fade" id="edit_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯fab資訊</h4>
+                    <h4 class="modal-title"><span id="fab_modal_action"></span>fab資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="fab_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_fab" value="刪除fab" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                            <span id="fab_modal_delect_btn"></span>
                         <?php } ?>
                     </form>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -768,10 +632,11 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="1">
                             <input type="hidden" name="id" id="fab_edit_id" >
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
+                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="儲存" name="edit_fab_submit" class="btn btn-primary">
+                                <span id="fab_modal_button"></span>
                             <?php } ?>
+                            <input type="reset" class="btn btn-info" id="fab_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -780,17 +645,17 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 編輯Local-->
+<!-- 彈出畫面模組 新增編輯Local-->
     <div class="modal fade" id="edit_local" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">編輯local資訊</h4>
+                    <h4 class="modal-title"><span id="local_modal_action"></span>local資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="local_delete_id">
                         <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <input type="submit" name="delete_local" value="刪除local" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                            <span id="local_modal_delect_btn"></span>
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -853,10 +718,11 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="2">
                             <input type="hidden" name="id" id="local_edit_id" >
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
+                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <input type="submit" value="儲存" name="edit_local_submit" class="btn btn-primary">
+                                <span id="local_modal_button"></span>
                             <?php } ?>
+                            <input type="reset" class="btn btn-info" id="local_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -888,8 +754,25 @@
     var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
 
+    function add_module(to_module){     // 啟用新增模式
+        $('#'+to_module+'_modal_action, #'+to_module+'_modal_button, #'+to_module+'_modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
+        $('#'+to_module+'_reset_btn').click();                                                        // reset清除表單
+        var add_btn = '<input type="submit" name="'+to_module+'_submit" class="btn btn-primary" value="新增">';
+        $('#'+to_module+'_modal_action').append('新增');                      // model標題
+        $('#'+to_module+'_modal_button').append(add_btn);                     // 儲存鈕
+        var reset_btn = document.getElementById(to_module+'_reset_btn');   // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('edit_mode_bgc');
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.add('add_mode_bgc');
+    }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
+        $('#'+to_module+'_modal_action, #'+to_module+'_modal_button, #'+to_module+'_modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
+        $('#'+to_module+'_reset_btn').click();                                                        // reset清除表單
+        var reset_btn = document.getElementById(to_module+'_reset_btn');   // 指定清除按鈕
+        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('add_mode_bgc');
+        document.querySelector("#edit_"+to_module+" .modal-header").classList.add('edit_mode_bgc');
         // 參數說明: to_module = 來源與目的 site、fab、local
         $('#edit_pm_emp_id').value = '';
         $('#selectUserItem').empty();
@@ -929,6 +812,11 @@
 
                 // step3-3.開啟 彈出畫面模組 for user編輯
                 // edit_myTodo_btn.click();
+                var add_btn = '<input type="submit" name="edit_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
+                var del_btn = '<input type="submit" name="delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                $('#'+to_module+'_modal_action').append('編輯');          // model標題
+                $('#'+to_module+'_modal_delect_btn').append(del_btn);     // 刪除鈕
+                $('#'+to_module+'_modal_button').append(add_btn);         // 儲存鈕
             }
         })
     }

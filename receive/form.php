@@ -202,8 +202,7 @@
                                                 <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                                 <th>分類</th>
                                                 <th>尺寸</th>
-                                                <th>需求</th>
-                                                <th><i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
+                                                <th>需求&nbsp<i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -236,10 +235,13 @@
                                                             echo $catalog["OBM"] ? "</br>品牌/製造商：".$catalog["OBM"]:"";
                                                             echo $catalog["model"] ? "</br>型號：".$catalog["model"]:""; 
                                                         ?></td>
-                                                    <td><input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
-                                                            placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)"></td>
                                                     <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="add_btn" value="" title="加入購物車" onclick="add_item(this.name,this.value,'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <div class="input-group">
+                                                            <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount text-center"
+                                                                placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)">
+                                                            <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="btn btn-outline-secondary add_btn" value="" 
+                                                                title="加入購物車" onclick="add_item(this.name,this.value,'off');"><i class="fa fa-plus"></i></button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php } ?>

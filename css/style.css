@@ -299,3 +299,10 @@ a:hover {
     .edit_mode_bgc {
         background-color: #FFFACD;
     }
+    /* 解決所有 input-group 上下分離 */
+    .amount, .add_btn{
+        max-height: 100%;
+        margin-bottom: 0px;
+        vertical-align: middle; 
+        /* padding: 0px; */
+    }

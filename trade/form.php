@@ -235,8 +235,7 @@
                                                 <th style="width: 30%;">名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                                 <th>分類/PO no/批號</th>
                                                 <th>尺寸</th>
-                                                <th>需求</th>
-                                                <th><i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
+                                                <th>需求&nbsp<i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -279,15 +278,16 @@
                                                                 <b><?php echo "安全: "; echo (!empty($catalog["standard_lv"])) ? $catalog["standard_lv"]:"0";
                                                                          echo " / 存量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"]:"0"; ?></b>
                                                         </div>
-                                                        <input type="number" id="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" class="form-control amount t-center"
-                                                            placeholder="上限： <?php echo $catalog['amount']."&nbsp/&nbsp".$catalog["unit"]; $buy_qty = $catalog['amount'];?>" 
-                                                            min="<?php echo $buy_qty == 0 ? '0':'1';?>" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                            oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                            onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
-                                                    </td>
-                                                    <td>
-                                                        <button type="button" name="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" id="<?php echo 'add_'.$catalog['SN'].'_'.$catalog['stk_id'];?>" 
-                                                                class="add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><h5><i class="fa-regular fa-square-plus"></i></h5></button>
+                                                        <div class="input-group">
+                                                            <input type="number" id="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" class="form-control amount t-center"
+                                                                placeholder="上限： <?php echo $catalog['amount']."&nbsp/&nbsp".$catalog["unit"]; $buy_qty = $catalog['amount'];?>" 
+                                                                min="<?php echo $buy_qty == 0 ? '0':'1';?>" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
+                                                                oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
+                                                                onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
+                                                            <button type="button" name="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" id="<?php echo 'add_'.$catalog['SN'].'_'.$catalog['stk_id'];?>" 
+                                                                    class="btn btn-outline-secondary add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><i class="fa fa-plus"></i></button>
+                                                        </div>
+                                            
                                                     </td>
                                                 </tr>
                                             <?php } ?>

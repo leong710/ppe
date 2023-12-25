@@ -178,4 +178,40 @@
             echo $e->getMessage();
         }
     }
+
+    // for cct
+    function show_local(){
+        $pdo = pdo();
+        // 前段-初始查詢語法：全廠+全狀態
+        $sql = "SELECT _l.*, _f.fab_title, _f.fab_remark, _s.site_title, _s.site_remark
+                FROM `_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.flag <> 'off'
+                ORDER BY _f.id, _l.id ASC ";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();               //處理 byAll
+            $locals = $stmt->fetchAll();
+            return $locals;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    function show_catalogs(){   
+        $pdo = pdo();
+        $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
+                FROM _cata 
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                ORDER BY _cata.cate_no, _cata.id ASC "; 
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $catalogs = $stmt->fetchAll();
+            return $catalogs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
     

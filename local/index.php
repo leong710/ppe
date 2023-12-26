@@ -173,8 +173,8 @@
                                         <?php foreach($sites as $site){ ?>
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $site['id']; ?></td>
-                                                <td style="text-align:left;"><?php echo $site['site_title']; ?></td>
-                                                <td style="text-align:left;"><?php echo $site['site_remark']; ?></td>
+                                                <td class="text-start"><?php echo $site['site_title']; ?></td>
+                                                <td class="text-start"><?php echo $site['site_remark']; ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                                     <button type="button" name="site" id="<?php echo $site['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $site['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $site['flag'];?>"><?php echo $site['flag'];?></button>
                                                     <?php }else{ ?>
@@ -216,7 +216,7 @@
                                             <th>fab_title (remark)</th>
                                             <th>buy_ty</th>
                                             <th>sign_code</th>
-                                            <th>pm_emp_id</th>
+                                            <th style="width: 25%;">pm_emp_id</th>
                                             <th>flag</th>
                                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
                                                 <th>action</th>
@@ -228,11 +228,11 @@
                                         <?php foreach($fabs as $fab){ ?>
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $fab['id']; ?></td>
-                                                <td style="text-align:left;"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
-                                                <td style="text-align:left;"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
+                                                <td class="text-start"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
+                                                <td class="text-start"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
                                                 <td <?php echo $fab['buy_ty'] !='a' ? 'style="background-color: yellow;"':'';?>><?php echo $fab['buy_ty']; ?></td>
-                                                <td style="text-align:center;"><?php echo $fab['sign_code']; ?></td>
-                                                <td style="text-align:left; word-break: break-all;"><?php echo $fab['pm_emp_id']; ?></td>
+                                                <td class="text-center"><?php echo $fab['sign_code']; ?></td>
+                                                <td class="word_bk"><?php echo $fab['pm_emp_id']; ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
                                                         <button type="button" name="fab" id="<?php echo $fab['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $fab['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $fab['flag'];?>"><?php echo $fab['flag'];?></button>
                                                     <?php }else{ ?>
@@ -283,8 +283,8 @@
                                         <?php foreach($locals as $local){ ?>
                                             <tr>
                                                 <td style="font-size: 6px;"><?php echo $local['id']; ?></td>
-                                                <td style="text-align:left;"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                                <td style="text-align:left;"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
+                                                <td class="text-start"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
+                                                <td class="text-start"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
                                                 <td><a href="low_level.php?local_id=<?php echo $local['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($local['low_level']) ? "btn-success":"btn-warning";?>">
                                                     <?php echo !empty($local['low_level']) ? "已設定":"未設定";?></a></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>  

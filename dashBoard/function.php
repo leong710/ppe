@@ -191,7 +191,7 @@
                 ORDER BY _f.id, _l.id ASC ";
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
-            $stmt->execute();               //處理 byAll
+            $stmt->execute();                                       //處理 byAll
             $locals = $stmt->fetchAll();
             return $locals;
         }catch(PDOException $e){
@@ -226,12 +226,12 @@
                 FROM `_receive` _r
                     -- LEFT JOIN _local _l ON _r.local_id = _l.id
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                    -- LEFT JOIN _site _s ON _f.site_id = _s.id 
-                 ";
+                    -- LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _r.idty = 10 ";          // 10=結案
         if($receive_mm == "All"){
-            $sql .= " WHERE DATE_FORMAT(_r.created_at,'%Y') = ? ";
+            $sql .= "AND DATE_FORMAT(_r.created_at,'%Y') = ? ";
         }else{
-            $sql .= " WHERE DATE_FORMAT(_r.created_at,'%Y-%m') = ? ";
+            $sql .= "AND DATE_FORMAT(_r.created_at,'%Y-%m') = ? ";
         }
         $stmt = $pdo->prepare($sql);
         try {

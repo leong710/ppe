@@ -93,7 +93,10 @@
                                         <?php echo ($numChecked == 0) ? '<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>':'';
                                               echo ($num !=0) ? '<span class="badge rounded-pill bg-danger">'.$num.'</span>':''; ?></a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
+                                    <?php if($numChecked == 0){?>
+                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
+                                        <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-download"></i>&nbsp請購入庫</a></li>
@@ -108,10 +111,7 @@
                                             &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span>
                                         <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b>
-                                        <?php if($numChecked == 0){?>
-                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
-                                        <?php }?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
                                 </ul>
                             </li>
                         <?php } ?>

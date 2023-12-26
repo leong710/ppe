@@ -82,6 +82,7 @@
                                 <?php if($sys_id_role <= 2 ){ ?>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/cct.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用匯總表</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/cct_fab.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用匯總表_fab</a></li>
                                 <?php } ?>
                             </ul>
                         </li>

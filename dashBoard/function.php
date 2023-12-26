@@ -201,10 +201,11 @@
 
     function show_catalogs(){   
         $pdo = pdo();
-        $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
-                FROM _cata 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                ORDER BY _cata.cate_no, _cata.id ASC "; 
+        $sql = "SELECT _ca.*, _ce.id AS cate_id, _ce.cate_title, _ce.cate_remark, _ce.cate_no, _ce.flag AS cate_flag , _p.price
+                FROM _cata _ca
+                LEFT JOIN _cate _ce ON _ca.cate_no = _ce.cate_no 
+                LEFT JOIN _pno _p ON _ca.SN = _p.cata_SN
+                ORDER BY _ca.cate_no, _ca.id ASC "; 
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
@@ -219,7 +220,7 @@
     function show_receives($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _r.local_id , _r.cata_SN_amount
+        $sql = "SELECT _r.local_id , _r.cata_SN_amount , DATE_FORMAT(_r.created_at, '%m') as mm
                     -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark 
                     -- , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
                     -- , _s.site_title , _s.site_remark
@@ -260,6 +261,23 @@
             $stmt->execute();
             $allReceive_yys = $stmt->fetchAll();
             return $allReceive_yys;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // PM顯示全部by年份 => 供查詢年份使用
+    function show_allReceive_ymm($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT DATE_FORMAT(_r.created_at, '%m') as mm 
+                FROM _receive _r
+                WHERE DATE_FORMAT(_r.created_at,'%Y') = ?
+                ORDER BY mm ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$receive_yy]);
+            $allReceive_ymms = $stmt->fetchAll();
+            return $allReceive_ymms;
         }catch(PDOException $e){
             echo $e->getMessage();
         }

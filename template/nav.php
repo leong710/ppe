@@ -123,6 +123,7 @@
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_3">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pno/"><i class="fa-solid fa-list"></i>&nbsp料號管理</a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/catalog/index.php"><i class="fas fa-th-large"></i>&nbsp器材目錄管理</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp儲存點管理</a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/low_level.php"><i class="fa-solid fa-retweet"></i>&nbsp安全存量設定</a></li>
                                     <li><hr class="dropdown-divider"></li>

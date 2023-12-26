@@ -308,10 +308,10 @@
         $pdo = pdo();
         extract($request);
         // 前段-初始查詢語法：全廠+全狀態
-        $sql = "SELECT _local.*, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag, u.cname
+        $sql = "SELECT _local.*, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag -- , u.cname
                 FROM `_local`
                 LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _local.fab_id
+                -- LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _local.fab_id
                 -- WHERE _local.flag = 'On'
                 ";
         if($fab_id != 'All'){

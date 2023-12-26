@@ -151,7 +151,7 @@
         $thisYear = date('Y');
     // 初始化半年後日期，讓系統判斷與highLight
         $toDay = date('Y-m-d');
-        $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));
+        $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
 
 ?>
 

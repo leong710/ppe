@@ -215,3 +215,52 @@
         }
     }
     
+    // 顯示被選定的_receive表單 20231226
+    function show_receives($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _r.local_id , _r.cata_SN_amount
+                    -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark 
+                    -- , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
+                    -- , _s.site_title , _s.site_remark
+                FROM `_receive` _r
+                    -- LEFT JOIN _local _l ON _r.local_id = _l.id
+                    -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                    -- LEFT JOIN _site _s ON _f.site_id = _s.id 
+                 ";
+        if($receive_mm == "All"){
+            $sql .= " WHERE DATE_FORMAT(_r.created_at,'%Y') = ? ";
+        }else{
+            $sql .= " WHERE DATE_FORMAT(_r.created_at,'%Y-%m') = ? ";
+        }
+        $stmt = $pdo->prepare($sql);
+        try {
+        if($receive_mm == "All"){
+            $stmt->execute([$receive_yy]);
+        }else{
+            $receive_ym = $receive_yy."-".$receive_mm;
+            $stmt->execute([$receive_ym]);
+        }
+            $receives = $stmt->fetchAll();
+            return $receives;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
+    // PM顯示全部by年份 => 供查詢年份使用
+    function show_allReceive_yy(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y') as yy 
+                -- SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') as ym 
+                FROM _receive 
+                ORDER BY yy DESC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $allReceive_yys = $stmt->fetchAll();
+            return $allReceive_yys;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }

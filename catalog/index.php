@@ -101,6 +101,10 @@
                 icon: "../../libs/jquery/loading.gif",
             }); 
         }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         mloading();    // 畫面載入時開啟loading
     </script>
 </head>
@@ -356,10 +360,6 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
-    // All resources finished loading! // 關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
 
     // catalog 切換上架/下架開關 20230712
     let flagBtns = [...document.querySelectorAll('.flagBtn')];

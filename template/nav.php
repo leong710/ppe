@@ -81,7 +81,7 @@
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
                                 <?php if($sys_id_role <= 2 ){ ?>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用統計a</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/cct.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp領用匯總表</a></li>
                                 <?php } ?>
                             </ul>
                         </li>

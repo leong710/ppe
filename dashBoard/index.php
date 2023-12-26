@@ -21,7 +21,7 @@
         exit;
     }
 
-    $stock_percentages = show_fab_percentage();    // 各廠器材存量百分比(缺點：截長補短的問題) table-1 驗證用
+    $stock_percentages = show_fab_percentage();     // 各廠器材存量百分比(缺點：截長補短的問題) table-1 驗證用
     $catalog_stocks = show_stock_byCatalog();       // 器材存量的清單 table-2
     $stock_losts = show_stock_lost();               // 各廠有缺少的清單 table-3
 
@@ -148,6 +148,20 @@
             font-weight: bold;
         }   
     </style>
+    <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                icon: "../../libs/jquery/loading.gif",
+            }); 
+        }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        mloading();    // 畫面載入時開啟loading
+    </script>
 </head>
 
 <body>
@@ -191,32 +205,40 @@
                 <div class="col-12 justify-content-center rounded bg-light py-0">
                     <div class="row center">
                         <div class="col-6 col-md-3">
-                            <div class="w-100 p-1 box_a"><a href="#site_loss" title="連結下方：安全存量警示清單">
-                                <div class="title">存量警示</div>
-                                <div class="inside my-0">00</div>
-                                <div class="title_end">廠區</div>
-                            </div></a>
+                            <a href="#site_loss" title="連結下方：安全存量警示清單">
+                                <div class="w-100 p-1 box_a">
+                                    <div class="title">存量警示</div>
+                                    <div class="inside my-0">00</div>
+                                    <div class="title_end">廠區</div>
+                                </div>
+                            </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="w-100 p-1 box_a"><a href="#site_loss" title="連結下方：安全存量警示清單">
-                                <div class="title">器材需求</div>
-                                <div class="inside my-0">00</div>
-                                <div class="title_end">品項</div>
-                            </div></a>
+                            <a href="#site_loss" title="連結下方：安全存量警示清單">
+                                <div class="w-100 p-1 box_a">
+                                    <div class="title">器材需求</div>
+                                    <div class="inside my-0">00</div>
+                                    <div class="title_end">品項</div>
+                                </div>
+                            </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="w-100 p-1 box_a"><a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
-                                <div class="title"><?php echo $half;?>未完成點檢</div>
-                                <div class="inside my-0">00</div>
-                                <div class="title_end">廠區</div>
-                            </div></a>
+                            <a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
+                                <div class="w-100 p-1 box_a">
+                                    <div class="title"><?php echo $half;?>未完成點檢</div>
+                                    <div class="inside my-0">00</div>
+                                    <div class="title_end">廠區</div>
+                                </div>
+                            </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <div class="w-100 p-1 box_a"><a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
-                                <div class="title"><?php echo $half;?>點檢達成率</div>
-                                <div class="inside my-0">100</div>
-                                <div class="title_end">%百分比</div>
-                            </div></a>
+                            <a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
+                                <div class="w-100 p-1 box_a">
+                                    <div class="title"><?php echo $half;?>點檢達成率</div>
+                                    <div class="inside my-0">100</div>
+                                    <div class="title_end">%百分比</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>

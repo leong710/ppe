@@ -180,7 +180,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-4 py-0">
-                        <h3><i class="fa-solid fa-2"></i>&nbsp<b><?php echo ($trade_row["form_type"] == "import") ? "請購入庫":"調撥出庫" ?></b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b><?php echo ($trade_row["form_type"] == "import") ? "其他入庫":"調撥出庫" ?></b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-4 py-0 t-center">
                         <?php 

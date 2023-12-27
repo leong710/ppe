@@ -123,7 +123,7 @@
                                 <a href="form.php" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
                             <?php } ?>
                             <?php if($sys_id_role <= 1){ ?>
-                                <a href="restock.php" title="PR請購進貨" class="btn btn-success" ><i class="fa-solid fa-download"></i> 請購入庫</a>
+                                <a href="restock.php" title="其他進貨" class="btn btn-success" ><i class="fa-solid fa-download"></i> 其他入庫</a>
                             <?php } ?>
                         <?php } ?>
                     </div>

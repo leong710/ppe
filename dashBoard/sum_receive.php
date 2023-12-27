@@ -1,7 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    require_once("function.php");
+    require_once("sum_function.php");
     accessDenied($sys_id);
 
     // // *** 篩選組合項目~~
@@ -25,7 +25,7 @@
     if($receive_mm == "All"){                               // 確認月選項是否為All
         $allReceive_ymms = show_allReceive_ymm($list_setting);  // 取出receives年份裡的月清單 => 供receives頁面渲染
     }else{
-        $allReceive_ymms = array(                           // 包一個月選項陣列給表頭用
+        $allReceive_ymms = array(                           // 包一個月選項陣列給表頭用 => 供receives頁面渲染
             "0" => array( "mm" => $receive_mm )
         );
     }
@@ -107,7 +107,7 @@
                 <div class="row">
                     <div class="col-md-4 py-1">
                         <div>
-                            <h3><b>領用匯總表_fab</b></h3>
+                            <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用匯總表</b></h3>
                         </div>
                     </div>
                     <div class="col-md-6 py-1">
@@ -244,11 +244,11 @@
 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
-    var receive_lists = <?=json_encode($receive_lists);?>;         // 引入receive_lists資料
-    var receiveAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
-    var catalogs      = <?=json_encode($catalogs);?>;              // 引入catalogs資料
-    var receive_yy    = '<?=$receive_yy;?>';                       // 引用年分
-    var cata_price    = [];
+    var receive_lists = <?=json_encode($receive_lists);?>;          // 引入receive_lists資料
+    var catalogs      = <?=json_encode($catalogs);?>;               // 引入catalogs資料
+    var receive_yy    = '<?=$receive_yy;?>';                        // 引用年分
+    var receiveAmount = [];                                         // 宣告變數陣列，承裝Receives年領用量
+    var cata_price    = [];                                         // 宣告變數陣列，承裝pno年報價
     
     // 把 catalog對應的p_no報價繞出來
     Object(catalogs).forEach(function(cata){
@@ -270,7 +270,7 @@
                 let key_TT = key +'_TT';
                 let l_key_mm = l_key +'_'+ row['mm'];
                 let l_key_fabTT = l_key +'_fabTT';
-                if(receiveAmount[l_key]){               // 第1頁
+                if(receiveAmount[l_key]){                       // 第1頁
                     receiveAmount[l_key] += pay;
                 }else{
                     receiveAmount[l_key] = pay;
@@ -280,18 +280,18 @@
                 }else{
                     receiveAmount[l_key+'_cost'] = pay * cata_price[key];
                 }
-                    if(receiveAmount[key_TT]){            // 第E頁sum
+                    if(receiveAmount[key_TT]){                  // 第E頁sum
                         receiveAmount[key_TT] += pay;
                     }else{
                         receiveAmount[key_TT] = pay;
                     }
-                    if(receiveAmount[key_TT+'_cost']){            // 第E頁sum
+                    if(receiveAmount[key_TT+'_cost']){          // 第E頁sum
                         receiveAmount[key_TT+'_cost'] += pay * cata_price[key];
                     }else{
                         receiveAmount[key_TT+'_cost'] = pay * cata_price[key];
                     }
 
-                if(receiveAmount[l_key_mm]){            // 第n頁byFab/mm
+                if(receiveAmount[l_key_mm]){                    // 第n頁byFab/mm
                     receiveAmount[l_key_mm] += pay;
                 }else{
                     receiveAmount[l_key_mm] = pay;
@@ -306,7 +306,7 @@
                     }else{
                         receiveAmount[l_key_fabTT] = pay;
                     }
-                    if(receiveAmount[l_key_fabTT+'_cost']){            // 第E頁sum
+                    if(receiveAmount[l_key_fabTT+'_cost']){     // 第E頁sum
                         receiveAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
                     }else{
                         receiveAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];

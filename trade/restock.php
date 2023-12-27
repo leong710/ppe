@@ -147,7 +147,7 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>請購入庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-2"></i>&nbsp<b>其他入庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
@@ -316,7 +316,7 @@
 
                                         <div class="col-12 px-2">
                                             <label for="out_remark" class="form-check-label">備註說明：</label>
-                                            <textarea name="remark" id="remark" class="form-control" rows="2">(請購入庫)</textarea>
+                                            <textarea name="remark" id="remark" class="form-control" rows="2">(其他入庫)</textarea>
                                         </div>
 
                                     </div>

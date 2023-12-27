@@ -931,8 +931,8 @@
             // step-2 建立新紀錄到資料庫
                 // $p_amount *= -1;                                                             // 2.發放量餘額 轉負數
                 $cama = array(
-                    'icon'  => ' - ',     // log交易訊息中加減號
-                    'title' => ' 扣帳 '   // log交易訊息 動作
+                    'icon'  => ' + ',     // log交易訊息中加減號
+                    'title' => ' 入帳 '   // log交易訊息 動作
                 );
 
                 $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, lot_num, updated_user, created_at, updated_at)
@@ -940,11 +940,11 @@
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, $lot_num, $updated_user]);
-                    $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 True: id - amount
+                    $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
                 
                 }catch(PDOException $e){
                     echo $e->getMessage();
-                    $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $t_amount;                   // 回傳 False: - id
+                    $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
                 }
         }
         return $process_result;

@@ -162,7 +162,7 @@
                             <table class="w-100 table table-striped table-hover">
                                 <thead class="vlr">
                                     <tr>
-                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">cata_SN / pname</th>
+                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">cata_SN / pname / Total：<span id="all_total_cost"></span></th>
                                         <?php foreach($locals as $local){
                                             echo "<th id='local_{$local["id"]}'>".$local["fab_title"]."</br>（".$local["local_title"]."）"."</th>";
                                         } ?>
@@ -196,7 +196,7 @@
                             $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
                             $b_tab .= "<div class='col-12 bg-white'><table class='w-100 table table-striped table-hover'>";
                             $b_tab .= "<thead><tr>";
-                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]}</th>";
+                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]} -- Total：<span id='{$local["id"]}_fab_total_cost'></span></th>";
                             echo $b_tab;
                                 foreach ($allIssue_ymms as $ymm) {
                                     echo "<th>{$ymm["mm"]}月</th>";
@@ -264,53 +264,66 @@
         // 彙整出SN年需求量
         Object(issue_lists).forEach(function(row){
             let csa = JSON.parse(row['cata_SN_amount']);
-            Object.keys(csa).forEach(key =>{
+            Object.keys(csa).forEach(key =>{                    // key = cats_SN
                 let pay = Number(csa[key]['pay']);
-                let l_key = row['local_id'] +'_'+ key;
-                let key_TT = key +'_TT';
-                let l_key_mm = l_key +'_'+ row['mm'];
-                let l_key_fabTT = l_key +'_fabTT';
-                if(issueAmount[l_key]){                         // 第1頁
-                    issueAmount[l_key] += pay;
-                }else{
-                    issueAmount[l_key] = pay;
-                }
-                if(issueAmount[l_key+'_cost']){                 // 第1頁
-                    issueAmount[l_key+'_cost'] += pay * cata_price[key];
-                }else{
-                    issueAmount[l_key+'_cost'] = pay * cata_price[key];
-                }
-                    if(issueAmount[key_TT]){                    // 第E頁sum
-                        issueAmount[key_TT] += pay;
+                let l_key = row['local_id'] +'_'+ key;          // 第1頁
+                let key_TT = key +'_TT';                        // 第1頁
+                let l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
+                let l_key_fabTT = l_key +'_fabTT';              // 第2頁 
+                let local_id = row['local_id'];
+                // 第1頁
+                    if(issueAmount[l_key]){                         // 第1頁 每個廠的實付數量
+                        issueAmount[l_key] += pay;
                     }else{
-                        issueAmount[key_TT] = pay;
+                        issueAmount[l_key] = pay;
                     }
-                    if(issueAmount[key_TT+'_cost']){            // 第E頁sum
-                        issueAmount[key_TT+'_cost'] += pay * cata_price[key];
+                    if(issueAmount[l_key+'_cost']){                 // 第1頁 每個廠的實付數量金額
+                        issueAmount[l_key+'_cost'] += pay * cata_price[key];
                     }else{
-                        issueAmount[key_TT+'_cost'] = pay * cata_price[key];
+                        issueAmount[l_key+'_cost'] = pay * cata_price[key];
                     }
-
-                if(issueAmount[l_key_mm]){                      // 第n頁byFab/mm
-                    issueAmount[l_key_mm] += pay;
-                }else{
-                    issueAmount[l_key_mm] = pay;
-                }
-                if(issueAmount[l_key_mm+'_cost']){              // 第n頁byFab/mm
-                    issueAmount[l_key_mm+'_cost'] += pay * cata_price[key];
-                }else{
-                    issueAmount[l_key_mm+'_cost'] = pay * cata_price[key];
-                }
-                    if(issueAmount[l_key_fabTT]){               // 第E頁sum
-                        issueAmount[l_key_fabTT] += pay;
+                        if(issueAmount[key_TT]){                    // 第1頁 末端總計實付數量sum
+                            issueAmount[key_TT] += pay;
+                        }else{
+                            issueAmount[key_TT] = pay;
+                        }
+                        if(issueAmount[key_TT+'_cost']){            // 第1頁 末端總計實付數量金額sum
+                            issueAmount[key_TT+'_cost'] += pay * cata_price[key];
+                        }else{
+                            issueAmount[key_TT+'_cost'] = pay * cata_price[key];
+                        }
+                            if(issueAmount['all_total_cost']){                 // 第1頁 TITLE 總計實付數量金額Total
+                                issueAmount['all_total_cost'] += pay * cata_price[key];
+                            }else{
+                                issueAmount['all_total_cost'] = pay * cata_price[key];
+                            }
+                    
+                // 第n頁byFab/mm
+                    if(issueAmount[l_key_mm]){                      // 第n頁byFab/mm 每個廠的實付數量
+                        issueAmount[l_key_mm] += pay;
                     }else{
-                        issueAmount[l_key_fabTT] = pay;
+                        issueAmount[l_key_mm] = pay;
                     }
-                    if(issueAmount[l_key_fabTT+'_cost']){       // 第E頁sum
-                        issueAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
+                    if(issueAmount[l_key_mm+'_cost']){              // 第n頁byFab/mm 每個廠的實付數量金額
+                        issueAmount[l_key_mm+'_cost'] += pay * cata_price[key];
                     }else{
-                        issueAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];
+                        issueAmount[l_key_mm+'_cost'] = pay * cata_price[key];
                     }
+                        if(issueAmount[l_key_fabTT]){               // 第n頁 末端總計實付數量sum
+                            issueAmount[l_key_fabTT] += pay;
+                        }else{
+                            issueAmount[l_key_fabTT] = pay;
+                        }
+                        if(issueAmount[l_key_fabTT+'_cost']){       // 第n頁 末端總計實付數量金額sum
+                            issueAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
+                        }else{
+                            issueAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];
+                        }
+                            if(issueAmount[local_id+'_fab_total_cost']){       // 第n頁 TITLE 總計實付數量金額Total
+                                issueAmount[local_id+'_fab_total_cost'] += pay * cata_price[key];
+                            }else{
+                                issueAmount[local_id+'_fab_total_cost'] = pay * cata_price[key];
+                            }
             })
         });
 
@@ -321,10 +334,8 @@
             $('#'+key).empty();
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);
-
             }else{
                 $('#'+key).append(value);
-
             }
         })
 

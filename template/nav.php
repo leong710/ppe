@@ -136,8 +136,8 @@
                                     <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_4">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
-                                    <li><hr class="dropdown-divider"></li>
                                     <?php if($sys_id_role <= 0 ){ ?>
+                                        <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/auto.php"><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</a></li>
                                     <?php } ?>
                                 </ul>

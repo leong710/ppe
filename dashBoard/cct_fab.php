@@ -16,13 +16,19 @@
             $receive_mm = date('m');                       // 今年月
         }
         $list_setting = array(                             // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
-            'receive_yy'  => $receive_yy,
-            'receive_mm'  => $receive_mm
+            'receive_yy' => $receive_yy,
+            'receive_mm' => $receive_mm
         );
 
     $receive_lists = show_receives($list_setting);          // 調閱點檢表
     $allReceive_yys = show_allReceive_yy();                 // 取出receives年份清單 => 供receives頁面篩選
-    $allReceive_ymms = show_allReceive_ymm($list_setting);  // 取出receives年份裡的月清單 => 供receives頁面渲染
+    if($receive_mm == "All"){                               // 確認月選項是否為All
+        $allReceive_ymms = show_allReceive_ymm($list_setting);  // 取出receives年份裡的月清單 => 供receives頁面渲染
+    }else{
+        $allReceive_ymms = array(                           // 包一個月選項陣列給表頭用
+            "0" => array( "mm" => $receive_mm )
+        );
+    }
 
     $locals = show_local();                                 // 標題用：區域名稱
     $catalogs = show_catalogs();                            // 標題用：器材名稱
@@ -65,6 +71,16 @@
             writing-mode: vertical-lr;
             /* text-orientation: upright; */
             text-align: right;
+        }
+        .sum {
+            font-weight: bold;
+            text-align: right;
+            color: blue;
+        }
+        .sum_title {
+            writing-mode: horizontal-tb;
+            text-align: right;
+            vertical-align: bottom;
         }
 
     </style>
@@ -141,7 +157,7 @@
                 <!-- 內頁 -->
                 <div class="tab-content" id="nav-tabContent">
                     <div class="tab-pane bg-white fade p-2 show active" id="tab_0" role="tabpanel" aria-labelledby="nav-tab_0">
-                        <!-- 表單table -->
+                        <!-- 1.領用彙總表單table -->
                         <div class="col-12 bg-white">
                             <table class="w-100 table table-striped table-hover">
                                 <thead class="vlr">
@@ -155,6 +171,7 @@
                                 </thead>
                                 <tbody>
                                     <?php foreach($catalogs as $catalog){
+                                        // 把年度報價帶出來
                                         $this_price_arr = (array)(json_decode($catalog["price"]));
                                         if(isset($this_price_arr[$receive_yy])){
                                             $this_price = $this_price_arr[$receive_yy];
@@ -166,17 +183,17 @@
                                             foreach($locals as $local){
                                                 echo "<td><div id='{$local["id"]}_{$catalog["SN"]}'></div><div id='{$local["id"]}_{$catalog["SN"]}_cost'></div></td>";
                                             };
-                                            echo "<td><div id='{$catalog["SN"]}_TT'></div><div id='{$catalog["SN"]}_TT_cost'></td>";
+                                            echo "<td class='sum'><div id='{$catalog["SN"]}_TT'></div><div id='{$catalog["SN"]}_TT_cost'></td>";
                                         echo "</tr>";
                                     } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <!-- 1.各廠器材量table -->
+                    <!-- 2.各廠器材量統計 table -->
                     <?php 
                         foreach($locals as $local){
-                            $b_tab = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
+                            $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
                             $b_tab .= "<div class='col-12 bg-white'><table class='w-100 table table-striped table-hover'>";
                             $b_tab .= "<thead><tr>";
                             $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]}</th>";
@@ -184,7 +201,7 @@
                                 foreach ($allReceive_ymms as $ymm) {
                                     echo "<th>{$ymm["mm"]}月</th>";
                                 }
-                                $b_tab = "<th>sum</th>";
+                                $b_tab = "<th class='sum_title'>sum</th>";
                                 $b_tab .= "</tr></thead><tbady>";
                             echo $b_tab;
                             // tbody
@@ -194,7 +211,7 @@
                                     foreach ($allReceive_ymms as $ymm) {
                                         echo "<td><div id='{$local["id"]}_{$catalog["SN"]}_{$ymm["mm"]}'></div><div id='{$local["id"]}_{$catalog["SN"]}_{$ymm["mm"]}_cost'></div></td>";
                                     }
-                                    echo "<td><div id='{$local["id"]}_{$catalog["SN"]}_fabTT'></div><div id='{$local["id"]}_{$catalog["SN"]}_fabTT_cost'></div></td>";
+                                    echo "<td class='sum'><div id='{$local["id"]}_{$catalog["SN"]}_fabTT'></div><div id='{$local["id"]}_{$catalog["SN"]}_fabTT_cost'></div></td>";
 
                                 echo "</tr>";
                             }
@@ -302,7 +319,13 @@
         Object.keys(receiveAmount).forEach(key => {
             let value = receiveAmount[key];
             $('#'+key).empty();
-            $('#'+key).append(value);
+            if(key.includes("cost")){
+                $('#'+key).append('$'+value);
+
+            }else{
+                $('#'+key).append(value);
+
+            }
         })
 
         // let sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';

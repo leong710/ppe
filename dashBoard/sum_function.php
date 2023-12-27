@@ -50,18 +50,18 @@
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
                 WHERE _r.idty = 10 ";          // 10=結案
-        if($receive_mm == "All"){
+        if($report_mm == "All"){
             $sql .= "AND DATE_FORMAT(_r.created_at,'%Y') = ? ";
         }else{
             $sql .= "AND DATE_FORMAT(_r.created_at,'%Y-%m') = ? ";
         }
         $stmt = $pdo->prepare($sql);
         try {
-        if($receive_mm == "All"){
-            $stmt->execute([$receive_yy]);
+        if($report_mm == "All"){
+            $stmt->execute([$report_yy]);
         }else{
-            $receive_ym = $receive_yy."-".$receive_mm;
-            $stmt->execute([$receive_ym]);
+            $report_ym = $report_yy."-".$report_mm;
+            $stmt->execute([$report_ym]);
         }
             $receives = $stmt->fetchAll();
             return $receives;
@@ -96,7 +96,7 @@
                 ORDER BY mm ASC ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$receive_yy]);
+            $stmt->execute([$report_yy]);
             $allReceive_ymms = $stmt->fetchAll();
             return $allReceive_ymms;
         }catch(PDOException $e){
@@ -118,18 +118,18 @@
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
                 WHERE _i.idty = 10 ";          // 10=結案
-        if($issue_mm == "All"){
+        if($report_mm == "All"){
             $sql .= "AND DATE_FORMAT(_i.create_date,'%Y') = ? ";
         }else{
             $sql .= "AND DATE_FORMAT(_i.create_date,'%Y-%m') = ? ";
         }
         $stmt = $pdo->prepare($sql);
         try {
-        if($issue_mm == "All"){
-            $stmt->execute([$issue_yy]);
+        if($report_mm == "All"){
+            $stmt->execute([$report_yy]);
         }else{
-            $issue_ym = $issue_yy."-".$issue_mm;
-            $stmt->execute([$issue_ym]);
+            $report_ym = $report_yy."-".$report_mm;
+            $stmt->execute([$report_ym]);
         }
             $issues = $stmt->fetchAll();
             return $issues;
@@ -164,7 +164,7 @@
                 ORDER BY mm ASC ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$issue_yy]);
+            $stmt->execute([$report_yy]);
             $allIssue_ymms = $stmt->fetchAll();
             return $allIssue_ymms;
         }catch(PDOException $e){

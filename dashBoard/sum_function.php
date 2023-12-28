@@ -49,7 +49,7 @@
                     -- LEFT JOIN _local _l ON _r.local_id = _l.id
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _r.idty = 10 ";          // 10=結案
+                WHERE _r.idty = 10 OR _r.idty = 11 OR _r.idty = 13 ";          // 10=結案 13=已發貨
         if($report_mm == "All"){
             $sql .= "AND DATE_FORMAT(_r.created_at,'%Y') = ? ";
         }else{

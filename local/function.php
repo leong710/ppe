@@ -439,7 +439,7 @@
                 FROM `_receive` _r
                 LEFT JOIN _local _l ON _r.local_id = _l.id
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND _r.idty = 10 ";  // 10=結案
+                WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND (_r.idty = 10 OR _r.idty = 11 OR _r.idty = 13)";  // 10=結案
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id, $thisYear]);

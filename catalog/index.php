@@ -220,10 +220,10 @@
                 </div>
                 
                 <!-- catalog名單 -->
-                <table class="table table-striped table-hover">
+                <table id="catalog_list" class="catalog_list table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>SN</th>
+                            <th>PIC</th>
                             <th>名稱</th>
                             <th>分類</th>
                             <th>尺寸</th>
@@ -235,12 +235,13 @@
                     <tbody>
                         <?php foreach($catalogs_div as $catalog){ ?>
                             <tr>
-                                <td><?php echo $catalog["SN"];?></td>
+                                <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
                                 <td style="text-align: left;">
                                     <div class="row">
                                         <div class="col-12 py-0">
                                             <a href="repo.php?sn=<?php echo $catalog["SN"];?>" title="品名"><h5><?php echo $catalog["pname"];?></h5></a>
-                                            <?php echo $catalog["cata_remark"] ? '( 敘述：'.$catalog["cata_remark"].' )':'</br>';?>
+                                            <?php echo $catalog["SN"] ? 'SN：'.$catalog["SN"]:'';
+                                                  echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?>
                                         </div>
                                         <div class="col-12 py-0 text-center">
                                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>

@@ -590,6 +590,7 @@
         $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id
                 FROM _cata
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
+                WHERE _cata.flag = 'On'
                 ORDER BY _cata.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

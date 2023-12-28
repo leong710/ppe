@@ -12,17 +12,17 @@
             $fun = "myReceive";                                 // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
         }
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];              // 取出$_session引用
+    $sys_role       = $_SESSION[$sys_id]["role"];               // 取出$_session引用
 
     // 2-1.身分選擇功能：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){         
             $is_emp_id = $_REQUEST["emp_id"];                   // 有帶emp_id，套查詢參數
         } else{
-            if($sys_id_role <= 1 ){                     
+            if($sys_role <= 1 ){                     
                 $is_emp_id = "All";                             // 沒帶emp_id，pm、管理員 套用 emp_id = All   => 看全部的申請單
             }else{
-                $is_emp_id = $auth_emp_id;       // 沒帶emp_id，其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
+                $is_emp_id = $auth_emp_id;                      // 沒帶emp_id，其他人、site_user含2以上 = 套自身emp_id    => 只看關於自己的申請單
             }
         }
         
@@ -36,7 +36,7 @@
     // 3.組合查詢陣列
         $basic_query_arr = array(
             'sys_id'    => $sys_id,
-            'role'      => $sys_id_role,
+            'role'      => $sys_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
             'fab_id'    => $is_fab_id,
             'emp_id'    => $auth_emp_id,
@@ -44,40 +44,44 @@
         );
 
     // 4.篩選清單呈現方式，預設allMy
-            $fab_id = $_SESSION[$sys_id]["fab_id"];                                 // 4-1.取fab_id
-            if(!in_array($fab_id, $_SESSION[$sys_id]["sfab_id"])){                  // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
-                array_push($_SESSION[$sys_id]["sfab_id"], $fab_id);
-            }
-    
-            $coverFab_lists = show_coverFab_lists($basic_query_arr);                // 4-2.呼叫fun 用$sign_code模糊搜尋
-            if(!empty($coverFab_lists)){                                            // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
-                foreach($coverFab_lists as $coverFab){ 
-                    if(!in_array($coverFab["id"], $_SESSION[$sys_id]["sfab_id"])){
-                        array_push($_SESSION[$sys_id]["sfab_id"], $coverFab["id"]);
-                    }
+        $sys_fab_id = $_SESSION[$sys_id]["fab_id"];                             // 4-1.*** 取fab_id
+        if(!in_array($sys_fab_id, $_SESSION[$sys_id]["sfab_id"])){              // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+            array_push($_SESSION[$sys_id]["sfab_id"], $sys_fab_id);
+        }
+        $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];                           // 4-3.*** 取sfab_id (此時已包含fab_id)
+
+        $coverFab_lists = show_coverFab_lists($basic_query_arr);                // 4-2.呼叫fun 用$sign_code模糊搜尋
+        if(!empty($coverFab_lists)){                                            // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
+            foreach($coverFab_lists as $coverFab){ 
+                if(!in_array($coverFab["id"], $_SESSION[$sys_id]["sfab_id"])){
+                    array_push($_SESSION[$sys_id]["sfab_id"], $coverFab["id"]);
                 }
             }
+        }
 
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                               // 4-3.取sfab_id
-                // $sfab_id = array_filter($sfab_id);                                  // 4-3.去除空陣列 // 他會把0去掉
-                $sfab_id = implode(",",$sfab_id);                                   // 4-3.sfab_id是陣列，要儲存前要轉成字串
+        $cover_fab_id = $_SESSION[$sys_id]["sfab_id"];                           // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
+        // $cover_fab_id = array_filter($cover_fab_id);                                  // 4-3.去除空陣列 // 他會把0去掉
+        $cover_fab_id = implode(",",$cover_fab_id);                               // 4-3.sfab_id是陣列，要儲存前要轉成字串
 
-            $basic_query_arr["sfab_id"] = $sfab_id;                                 // 4-4.將字串sfab_id加入組合查詢陣列中
-            $basic_query_arr["fab_id"] = 'allMy';
-            $coverFab_lists = show_myFab_lists($basic_query_arr);                   // allMy
-            $basic_query_arr["fab_id"] = $is_fab_id;
-            $myFab_lists = show_myFab_lists($basic_query_arr);                      // allMy
+        $basic_query_arr["sfab_id"] = $cover_fab_id;                             // 4-4.將字串$cover_fab_id加入組合查詢陣列中
+        $basic_query_arr["fab_id"] = 'allMy';
+        $coverFab_lists = show_myFab_lists($basic_query_arr);                   // 4我的轄區 套allMy = (左側)我的轄區清單
+
+        $basic_query_arr["fab_id"] = $is_fab_id;
+        $myFab_lists = show_myFab_lists($basic_query_arr);                      // 4我的轄區 套is_fab_id = 篩選功能
 
     // 5-L1.處理 $_1我待簽清單 
-        $basic_query_arr["fun"] = "inSign" ;                                // 指定fun = inSign
+        $basic_query_arr["fun"] = "inSign" ;                                    // 指定fun = inSign 簽核中
         $my_inSign_lists = show_my_receive($basic_query_arr);
+
     // 5-L2.處理 $_5我的待領清單
-        $basic_query_arr["fun"] = 'myCollect';
+        $basic_query_arr["fun"] = 'myCollect';                                  // 指定fun = myCollect 我的待領
         $my_collect_lists = show_my_receive($basic_query_arr);
+
     // 5-2.處理 fun = myReceive $_2我的申請單
     // 5-3.處理 fun = myFab $_3轄區申請單： fab_id=allMy => emp_id=my ； fab_id = All or fab.id => emp_id = All or is_emp_id
         //  ** 有分頁的要擺在分頁工具前!!
-        $basic_query_arr["fun"] = $fun ;                                    // 指定fun = $fun = myReceive / myFab
+        $basic_query_arr["fun"] = $fun ;                                        // 指定fun = $fun = myReceive / myFab
         $receive_lists = show_my_receive($basic_query_arr);
 
     // <!-- 20211215分頁工具 -->
@@ -116,7 +120,6 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-
         .page_title{
             color: white;
             /* text-shadow:3px 3px 9px gray; */
@@ -197,10 +200,10 @@
                                             <tbody>
                                                 <?php foreach($my_inSign_lists as $my_inSign){ ?>
                                                     <tr>
-                                                        <td title="<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10)." <sup>".$my_inSign['id']."</sup>";?></td>
+                                                        <td title="aid:<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10);?></td>
                                                         <td class="word_bk"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
                                                             <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
-                                                        <td><?php $sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
+                                                        <td><?php $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
                                                             switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
                                                                 case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
                                                                 case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
@@ -250,7 +253,7 @@
                                             <tbody>
                                                 <?php foreach($my_collect_lists as $my_collect){ ?>
                                                     <tr>
-                                                        <td title="<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10)." <sup>".$my_collect['id']."</sup>";?></td>
+                                                        <td title="aid:<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10);?></td>
                                                         <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
                                                             <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"];?></a></td>
                                                     </tr>
@@ -273,7 +276,7 @@
                                 <?php if($fun != 'myFab'){ ?>
                                     <!-- 功能1 -->
                                     <div class="col-12 col-md-12 pb-0">
-                                        <?php if($sys_id_role <= 2){ ?>
+                                        <?php if($sys_role <= 2){ ?>
                                             <a href="?fun=myFab" class="btn btn-warning" data-toggle="tooltip" data-placement="bottom" title="切換到-轄區文件"><i class="fa-solid fa-right-left"></i></a>
                                         <?php } ?>
                                         <h5 style="display: inline;">我的申請文件：<sup>- myReceives </sup></h5>
@@ -286,11 +289,11 @@
                                     </div>
                                     <!-- 篩選功能?? -->
                                     <div class="col-12 col-md-7 pb-0">
-                                        <?php if($sys_id_role <= 2 ){ ?>
+                                        <?php if($sys_role <= 2 ){ ?>
                                             <form action="" method="get">
                                                 <div class="input-group">
                                                     <select name="fab_id" id="sort_fab_id" class="form-select" >$myFab_lists
-                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":""; echo $sys_id_role >= 2 ? "hidden":""; ?>>-- [ All fab ] --</option>
+                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":""; echo $sys_role >= 2 ? "hidden":""; ?>>-- [ All fab ] --</option>
                                                         <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- [ All my fab ] --</option>
                                                         <?php foreach($myFab_lists as $myFab){ ?>
                                                             <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="<?php echo $myFab["fab_title"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
@@ -420,9 +423,13 @@
                                 </thead>
                                 <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                 <tbody>
-                                    <?php foreach($receive_lists as $receive){ ?>
+                                    <?php foreach($receive_lists as $receive){ 
+                                        $pm_emp_id = $receive["pm_emp_id"];                                         // *** 廠區業務窗口
+                                        $pm_emp_id_arr = explode(",",$pm_emp_id);                                   //資料表是字串，要炸成陣列
+                                        $sign_sys_role = (($receive['in_sign'] === $auth_emp_id) || ($sys_role <= 1));
+                                        ?>
                                         <tr>
-                                            <td title="<?php echo $receive['id'];?>"><?php echo substr($receive['created_at'],0,10)." <sup>".$receive['id']."</sup>"; ?></td>
+                                            <td title="aid:<?php echo $receive['id'];?>"><?php echo substr($receive['created_at'],0,10);?></td>
                                             <td><?php echo $receive['fab_title'].' ('.$receive['fab_remark'].')';?></td>
                                             <td class="word_bk"><?php echo $receive["plant"]." / ".$receive["dept"];?></td>
                                             <td><?php echo $receive["cname"]; echo $receive["emp_id"] ? " (".$receive["emp_id"].")":"";?></td>
@@ -434,30 +441,36 @@
                                                         case "3":   echo '<span class="text-danger">緊急</span>';     break;
                                                         // default:    echo '錯誤';   break;
                                                     } ;?></td>
-                                            <td><?php $sys_role = (($receive['in_sign'] == $auth_emp_id) || ($sys_id_role <= 1));
+                                            <td><?php 
                                                     switch($receive['idty']){
-                                                        case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                           break;
-                                                        case "1"    : echo $sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
-                                                        case "2"    : echo "退件";                  break;
+                                                        case "0"    : echo "<span class='badge rounded-pill bg-success'>待續</span>";                                break;
+                                                        case "1"    : echo $sign_sys_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"簽核中";        break;
+                                                        case "2"    : echo (in_array($auth_emp_id, [$receive['emp_id'], $receive['created_emp_id']])) 
+                                                                                    ? '<span class="badge rounded-pill bg-warning text-dark">退件</span>':"退件";                  break;
                                                         case "3"    : echo "取消";                  break;
                                                         case "4"    : echo "編輯";                  break;
                                                         case "10"   : echo "結案";                  break;
                                                         case "11"   : echo "環安主管";              break;
                                                         case "12"   : echo (in_array($auth_emp_id, [$receive['emp_id'], $receive['created_emp_id']]) ||
-                                                            ($receive['fab_id'] == $_SESSION[$sys_id]['fab_id']) || in_array($receive['fab_id'], $_SESSION[$sys_id]['sfab_id'])) 
+                                                                                ($receive['fab_id'] == $sys_fab_id) || in_array($receive['fab_id'], $sys_sfab_id)) 
                                                                                     ? '<span class="badge rounded-pill bg-warning text-dark">待領</span>':"待領";      break;
-                                                        case "13"   : echo "承辦簽核";                  break;
+                                                        case "13"   : echo (in_array($auth_emp_id, $pm_emp_id_arr)) 
+                                                                                    ? '<span class="badge rounded-pill bg-danger">承辦簽核</span>': "承辦簽核";               break;
                                                         default     : echo $receive['idty']."na";   break;
                                                     }; ?>
                                             </td>
                                             <td>
                                                 <!-- Action功能欄 -->
-                                                <?php if((($receive['local_id'] == $_SESSION[$sys_id]['fab_id']) || (in_array($receive['local_id'], $_SESSION[$sys_id]["sfab_id"]))) 
-                                                        && ($receive['idty'] == '1') && $sys_role){ ?> 
+                                                <?php if(in_array($receive['idty'], [1 ]) && $sign_sys_role){ ?> 
                                                     <!-- 待簽：in_local對應人員 -->
                                                     <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
                                                 <!-- siteUser功能 -->
-                                                    <?php } else if((in_array($receive['idty'], [2, 13])) && ($receive['emp_id'] == $auth_emp_id) ){ ?>
+                                                <?php } else if((in_array($receive['idty'], [13 ])) && (in_array($auth_emp_id, $pm_emp_id_arr) || $sign_sys_role 
+                                                        || ( ($receive['local_id'] == $sys_fab_id) || (in_array($receive['local_id'], [$sys_sfab_id])) )
+                                                    )){ ?>
+                                                    <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
+
+                                                <?php } else if((in_array($receive['idty'], [2 ])) && ($receive['emp_id'] == $auth_emp_id) ){ ?>
 
                                                         <a href="show.php?uuid=<?php echo $receive['uuid'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
                                                 <?php } else { ?>
@@ -566,6 +579,11 @@
                             <!-- 20211215分頁工具 -->
                         </div>
                     </div>
+
+                    <!-- 尾段：deBug訊息 -->
+                    <?php if(isset($_REQUEST["debug"])){
+                        include("debug_board.php"); 
+                    } ?>
                 </div>
             </div>
         </div>

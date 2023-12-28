@@ -2,7 +2,7 @@
 <hr>
 <div class="row px-2 block" id="debug">
     <div class="col-12 mb-0 bg-white rounded">
-        <div style="font-size: 8px;">
+        <div style="font-size: 14px;">
             <?php 
                 echo $step ? ">>> 表單身分：".$step."</br>" : "";
                 if(isset($receive_row['idty'])){
@@ -31,6 +31,10 @@
                     if($receive_row){
                         echo ">>> receive_row</br>";
                         print_r($receive_row);
+                    }
+                    if($receive_lists){
+                        echo ">>> receive_lists</br>";
+                        print_r($receive_lists);
                     }
                 echo "</pre>text-end";
             ?>

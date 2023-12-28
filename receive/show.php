@@ -13,9 +13,9 @@
     }
 
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
+    $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];    
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -104,19 +104,19 @@
                 case "10":  // $act = '結案 (Close)'; 
                     break;
                 case "11":                      // $act = '承辦 (Undertake)';
-                    if($receive_row["fab_id"] == $sys_id_fab_id){
+                    if($receive_row["fab_id"] == $sys_fab_id){
                         $step_index = '4';      // 業務承辦
                     }else if($receive_row["in_sign"] == $auth_emp_id){
                         $step_index = '5';      // 環安主管
                     }
                     break;
                 case "12":                      // $act = '待收發貨 (Awaiting collection)'; 
-                    if($receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_id_sfab_id)){
+                    if($receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_sfab_id)){
                         $step_index = '3';      // ppe發放人
                     } 
                     break;
                 case "13":                      // $act = '交貨 (Delivery)';
-                    if($receive_row["fab_id"] == $sys_id_fab_id){
+                    if($receive_row["fab_id"] == $sys_fab_id){
                         $step_index = '4';      // 業務承辦
                     }  
                     break;
@@ -126,14 +126,14 @@
         }
 
         if(!isset($step_index)){
-            if(!isset($sys_id_role) || ($sys_id_role) == 3){
+            if(!isset($sys_role) || ($sys_role) == 3){
                 $step_index = '6';}      // normal
-            if(isset($sys_id_role)){
-                if($sys_id_role == 2){
+            if(isset($sys_role)){
+                if($sys_role == 2){
                     $step_index = '7';}      // PPE窗口
-                if($sys_id_role == 1){
+                if($sys_role == 1){
                     $step_index = '8';}      // PPEpm
-                if($sys_id_role == 0){
+                if($sys_role == 0){
                     $step_index = '9';}      // 系統管理員
             }
         }
@@ -217,28 +217,27 @@
                         填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if( $receive_row['idty'] == 1 && ($receive_row['in_sign'] == $auth_emp_id) || $sys_id_role <= 0 ){ ?>
-                            <?php if(in_array($receive_row['idty'], [ 1, 13, 11])){ // 1.簽核中 13承辦 11主管 ?>
+                        <?php if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ ?>
+                            <?php if(in_array($receive_row['idty'], [ 1 ])){ // 1.簽核中 ?>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
-                            <?php } if(!in_array($receive_row['idty'], [ 13, 11])){ ?>
                                 <?php if( ($receive_row["flow"] != "forward")  ){   ?>
                                     <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (Forwarded)</button>
                                 <?php } ?>
                                 <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_id_sfab_id)); 
+                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_sfab_id)); 
                             if($receive_collect_role){ ?>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
 
                         <?php // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
-                            $receive_delivery_role = ($receive_row['flow'] == 'delivery' && in_array($auth_emp_id, $pm_emp_id_arr));
+                            $receive_delivery_role = ($receive_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
                             if($receive_row['idty'] == 13 && $receive_delivery_role){ ?> 
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦同意 (Approve)</button>
                         <?php } ?>
                         <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
-                            if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id OR $sys_id_role <= 0 )){ ?> 
+                            if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ ?> 
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管同意 (Approve)</button>
                         <?php } ?>
                     </div>
@@ -261,7 +260,7 @@
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
-                                        <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_id_role <= 1) ){ ?>
+                                        <?php if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_role <= 1) ){ ?>
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <a href="form.php?uuid=<?php echo $receive_row['uuid'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
@@ -272,7 +271,7 @@
                                             <?php ;} ?>
                                         <?php ;} ?>
                                         <?php if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
-                                                    && (in_array($receive_row["fab_id"], $sys_id_sfab_id) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
+                                                    && (in_array($receive_row["fab_id"], $sys_sfab_id) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>
@@ -441,7 +440,7 @@
                                         <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="">
                                         <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $receive_row['idty'];?>">
-                                        <?php if($sys_id_role <= 3){ ?>
+                                        <?php if($sys_role <= 3){ ?>
                                             <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

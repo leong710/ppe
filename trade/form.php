@@ -338,7 +338,7 @@
                                             請申請人填入相關資料：
                                         </div>
                                         <div class="col-6 col-md-6 px-2 text-end">
-                                            <?php if($sys_id_role <= 3){ ?>
+                                            <?php if($sys_id_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -372,18 +372,15 @@
                                                 <label for="in_local" class="form-label">in_local/入庫廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- 表列5 說明 -->
-                                    <div class="row">
                                         <hr>
+                                        <!-- 表列5 說明 -->
                                         <div class="col-12 py-1">
                                             備註：
                                             </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
                                             </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
                                         </div>
                                     </div>
-    
+                                    
                                     <div class="row">
                                         <hr>
                                         <div class="col-6 col-md-6 py-1 px-2">

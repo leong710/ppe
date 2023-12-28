@@ -151,7 +151,7 @@
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
                         <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
-                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                        <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
 
@@ -160,7 +160,6 @@
                         出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "trade_aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"];?>
-                        </br>表單身分：<?php echo $step;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <?php if(($sys_id_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
@@ -283,8 +282,14 @@
                                 <div class="col-12 py-4 px-5">
                                     <!-- 表列0 說明 -->
                                     <div class="row">
-                                        <div class="col-12">
+                                        <div class="col-6 col-md-6 px-2">
                                             請申請人填入相關資料：
+                                        </div>
+                                        <div class="col-6 col-md-6 px-2 text-end">
+                                            <?php if($sys_id_role <= 2){ ?>
+                                                <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                                         </div>
                                         <hr>
                                     </div>

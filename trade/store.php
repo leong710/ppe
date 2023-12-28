@@ -65,7 +65,7 @@
 </head>
 
 <body>
-    <div class="col-12">store_<?php echo ($form_type == "import") ? "trade (請購入庫)":"restock (調撥出庫)" ?>...</div>
+    <div class="col-12">store_<?php echo ($form_type == "import") ? "trade (其他入庫)":"restock (調撥出庫)" ?>...</div>
 </body>
 
 <script>    

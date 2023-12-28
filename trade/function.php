@@ -166,9 +166,9 @@
         }else if($form_type == "import"){       // import=入庫，不須執行預扣
             $swal_json = array(                                 // for swal_json
                 "fun"       => "store_restock",
-                "content"   => "請購入庫--"
+                "content"   => "其他入庫--"
             );
-            $out_local = $po_no;                // 因為請購入庫沒有out_local，所以導入pm_no
+            $out_local = $po_no;                // 因為其他入庫沒有out_local，所以導入pm_no
             $process_result = true;             // 但要把$process_result = true;讓寫入工作可以繼續
         }
 
@@ -188,7 +188,7 @@
                 $logs_enc = toLog($logs_request);
 
             // 20231121 追加插入log：1送出=預扣、2退件=回補
-                if(in_array($idty, [1 ,2])){
+                if(in_array($idty, [1 ,2]) && $form_type == "export"){
                     $logs_request["logs"]   = $logs_enc;
                     $logs_request["remark"] = $process_remark;  
                     
@@ -332,9 +332,9 @@
         }else if($form_type == "import"){       // import=入庫，不須執行預扣
             $swal_json = array(                                 // for swal_json
                 "fun"       => "update_restock",
-                "content"   => "請購入庫--"
+                "content"   => "其他入庫--"
             );
-            $out_local = $po_no;                // 因為請購入庫沒有out_local，所以導入pm_no
+            $out_local = $po_no;                // 因為其他入庫沒有out_local，所以導入pm_no
             $process_result = true;             // 但要把$process_result = true;讓寫入工作可以繼續
         }
 
@@ -357,7 +357,7 @@
                 $logs_enc = toLog($logs_request);
 
             // 20231121 追加插入log：1送出=預扣、2退件=回補
-                if(in_array($idty, [1 ,2])){
+                if((in_array($idty, [1 ,2])) && ($form_type == "export")){
                     $logs_request["logs"]   = $logs_enc;
                     $logs_request["remark"] = $process_remark;  
                     
@@ -552,7 +552,7 @@
         }else if($form_type == "import"){           // import=入庫，不須執行預扣
             $swal_json = array(                                 // for swal_json
                 "fun"       => "sign_restock",
-                "content"   => "請購入庫--"
+                "content"   => "其他入庫--"
             );
         }
         
@@ -572,24 +572,24 @@
             // 指向入賬、回補local_id
             switch($idty){      // idty 同意0(入賬)、退回2(回補)、作廢3(回補) 進行選擇性套用!!!!
                 case "0":       // 0同意(入賬)
-                    $t_local  = $trade_row["in_local"];        // 入庫廠區
+                    $t_local  = $trade_row["in_local"];         // 入庫廠區
                     break;
 
                 case "2":       // 2退回(回補)
-                    if($form_type == "export"){             // export=出庫，需要執行預扣庫存
-                        $t_local  = $trade_row["out_local"];       // 出庫廠區
-                    }else if($form_type == "import"){       // import=入庫，不須執行預扣
-                        $t_local  = "";                        // 不處理
+                    if($form_type == "export"){                 // export=出庫，需要執行預扣庫存
+                        $t_local  = $trade_row["out_local"];    // 出庫廠區
+                    }else if($form_type == "import"){           // import=入庫，不須執行預扣
+                        $t_local  = "";                         // 不處理
                     }
                     break;
 
                 case "3":       // 3作廢(不處理)
                 default:        // 預定失效 
-                    $t_local  = "";                        // 不處理
+                    $t_local  = "";                             // 不處理
                     break;
             }
 
-            // export/調撥：0同意(入賬)、2退件(回補)；import/請購：0同意(入賬)；ALL排除簽核3作廢，暫時無須處理!
+            // export/調撥：0同意(入賬)、2退件(回補)；import/其他：0同意(入賬)；ALL排除簽核3作廢，暫時無須處理!
             if( (($form_type == "export") && in_array($idty, [0, 2])) || (($form_type == "import") && ($idty == 0)) ){    // 0同意(入賬)、2退件(回補)；排除簽核3作廢，暫時無須處理!
                 // 逐筆呼叫處理
                 foreach(array_keys($item) as $item_key){
@@ -651,7 +651,7 @@
                 $logs_enc = toLog($logs_request);
 
             // 20231121 追加插入log：1送出=預扣、2退件=回補
-            if(in_array($idty, [0, 1 ,2])){
+            if((in_array($idty, [0, 1 ,2]) && ($form_type == "export")) || (in_array($idty, [0]) && ($form_type == "import"))){     // import=入庫，不須執行預扣
                 $logs_request["logs"]   = $logs_enc;
                 $logs_request["remark"] = $process_remark;               // 簽核command
                 
@@ -880,27 +880,27 @@
         $pdo = pdo();
         extract($process);
         // 先把舊資料叫出來，進行加扣數量參考基準
-        $sql_check = "SELECT _stk.* , _l.low_level , _l.id AS local_id , _l.local_title , _f.id AS fab_id , _f.fab_title , _s.id AS site_id
+        $sql_stk_check = "SELECT _stk.* , _l.low_level , _l.id AS local_id , _l.local_title , _f.id AS fab_id , _f.fab_title , _s.id AS site_id
                       FROM `_stock` _stk
                       LEFT JOIN _local _l ON _stk.local_id = _l.id 
                       LEFT JOIN _fab _f ON _l.fab_id = _f.id 
                       LEFT JOIN _site _s ON _f.site_id = _s.id 
                       WHERE _stk.local_id = ? AND cata_SN = ? ";          
                     //   WHERE _stk.local_id = ? AND cata_SN = ? AND lot_num = ? AND po_no=? ";          
-        $stmt_check = $pdo -> prepare($sql_check);
-        // $stmt_check -> execute([$p_local, $cata_SN, $lot_num, $po_no]);
-        $stmt_check -> execute([$p_local, $cata_SN]);
+        $stmt_stk_check = $pdo -> prepare($sql_stk_check);
+        // $stmt_stk_check -> execute([$p_local, $cata_SN, $lot_num, $po_no]);
+        $stmt_stk_check -> execute([$p_local, $cata_SN]);
 
-        if($stmt_check -> rowCount() >0){       // 已有紀錄
+        if($stmt_stk_check -> rowCount() >0){       // 已有紀錄
             // echo "<script>alert('process_trade:已有紀錄~')</script>";            // deBug
-            $row = $stmt_check -> fetch();
+            $row_stk = $stmt_stk_check -> fetch();
             // 交易狀態：0完成/1待收/2退貨/3取消
             switch($idty){
                 case "0":       // 0完成
                 case "2":       // 2退貨/待收
                 case "3":       // 3取消/入帳
                     // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
-                    $row['amount'] += $p_amount; 
+                    $row_stk['amount'] += $p_amount; 
                     $cama = array(
                         'icon'  => ' + ',     // log交易訊息中加減號
                         'title' => ' 入帳 '   // log交易訊息 動作
@@ -908,7 +908,7 @@
                     break;
                 case "1":       // 1送出/待收
                     // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
-                    $row['amount'] -= $p_amount;
+                    $row_stk['amount'] -= $p_amount;
                     $cama = array(
                         'icon'  => ' - ',     // log交易訊息中加減號
                         'title' => ' 扣帳 '   // log交易訊息 動作
@@ -925,43 +925,38 @@
             $sql = "UPDATE _stock SET amount=?, updated_at=now() WHERE id=? ";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$row['amount'], $row['id']]);
-                $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " " . $row['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row['amount'];      // 回傳 True: id + amount
+                $stmt->execute([$row_stk['amount'], $row_stk['id']]);
+                $process_result['result'] = $row_stk['fab_title'] . "_" . $row_stk['local_title'] . " " . $row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];      // 回傳 True: id + amount
 
             }catch(PDOException $e){
                 echo $e->getMessage();
-                $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " " . $cama['title'] . "id:".($row['id'] * -1);               // 回傳 False: - id
+                $process_result['error'] = $row_stk['fab_title'] . "_" . $row_stk['local_title'] . " " . $cama['title'] . "id:".($row_stk['id'] * -1);               // 回傳 False: - id
 
             }
             return $process_result;
         
         }else{      // 開新紀錄
-            // echo "<script>alert('process_trade:開新紀錄~')</script>";            // deBug
+            // echo "<script>alert('process_trade:開新紀錄~')</script>";             // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
-                $row_check="SELECT _l.* , _l.local_title , _f.fab_title
+                $row_local="SELECT _l.* , _l.local_title , _f.fab_title
                             FROM `_local` _l
                             LEFT JOIN _fab _f ON _l.fab_id = _f.id  
                             WHERE _l.id=? ";          
-                $row = $pdo -> prepare($row_check);
-                try {
-                    $row -> execute([$p_local]);
-                    $row_local = $row->fetch();
+                $row_local_stmt = $pdo -> prepare($row_local);
+                $row_local_stmt -> execute([$p_local]);
 
-                }catch(PDOException $e){
-                    echo $e->getMessage();
-
-                }
-
-            if( $row -> rowCount() >0){                                                 // 有取得local資料
+            if( $row_local_stmt -> rowCount() >0){                                  // 有取得local資料
+                
+                $row_local = $row_local_stmt->fetch();
                 $row_lowLevel = json_decode($row_local["low_level"]);                   // 將local.low_level解碼
                 if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }  // 將物件轉成陣列
                 if(isset($row_lowLevel[$cata_SN])){
-                    $low_level = $row_lowLevel[$cata_SN];                                   // 取得該目錄品項的安全存量值
+                    $low_level = $row_lowLevel[$cata_SN];                           // 取得該目錄品項的安全存量值
                 }else{
-                    $low_level = 0;                                                         // 未取得local資料時，給他一個0
+                    $low_level = 0;                                                 // 未取得local資料時，給他一個0
                 }
             }else{
-                $low_level = 0;                                                         // 未取得local資料時，給他一個0
+                $low_level = 0;                                                     // 未取得local資料時，給他一個0
             }
 
             switch($idty){
@@ -988,17 +983,21 @@
                     );
                     return;
             }
+
+            $lot_num        = "9999-12-31";                                             // 0.批號/效期
+            $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;  // 0.備註
+                // // $stock_remark .= $stk_row_list[$i]['stock_remark'];
             
             // step-2 建立新紀錄到資料庫
             $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_user, created_at, updated_at)
                     VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, '', '', $po_no, $lot_num, $updated_user]);
-                $process_result['result'] = $row['fab_title'] . "_" . $row['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
+                $stmt->execute([$p_local, $cata_SN, $low_level, $p_amount, $stock_remark, '', $po_no, $lot_num, $updated_user]);
+                $process_result['result'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
             }catch(PDOException $e){
                 echo $e->getMessage();
-                $process_result['error'] = $row['fab_title'] . "_" . $row['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
+                $process_result['error'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
             }
         }
         return $process_result;

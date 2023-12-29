@@ -402,7 +402,7 @@
             "content"   => "安全存量設定--"
         );
         // low_level資料前處理
-        $low_level = array_filter($low_level);             // 去除陣列中空白元素
+        // $low_level = array_filter($low_level);             // 去除陣列中空白元素  => 20231229_這會把安量0的給濾除，導致錯誤
         // $amount = array_filter($amount);                    // 去除陣列中空白元素
         // // 小陣列要先編碼才能塞進去大陣列
         //     $catalog_SN_enc = json_encode($catalog_SN);

@@ -281,7 +281,12 @@
                                                         ?></td>
                                                     <td id="receive_<?php echo $select_local["id"].'_'.$catalog['SN'];?>"> -- </td>
                                                     <td>
-                                                        <?php $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level[$catalog["SN"]]; ?>
+                                                        <?php 
+                                                            // 20231229_更新目錄或換約時會出現，找不到的狀況 // 因為low_level儲存時用了array_filter濾除了安量0的項目導致錯誤
+                                                            // $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level[$catalog["SN"]]; 
+                                                            $local_low_level_cata_SN = (!empty($local_low_level[$catalog["SN"]])) ? $local_low_level[$catalog["SN"]] : "0";
+                                                            $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level_cata_SN; 
+                                                        ?>
 
                                                         <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red":"blue";?>">
                                                             <b><?php echo "安量:&nbsp".$buy_qty."&nbsp/&nbsp現量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"] : "0"; ?></b>

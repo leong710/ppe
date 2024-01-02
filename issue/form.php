@@ -154,6 +154,10 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
+        #emp_id, #excelFile{    
+            margin-bottom: 0px;
+            text-align: center;
+        }
 
     </style>
     <script>    
@@ -364,10 +368,54 @@
                                         <hr>
                                     </div>
     
-                                    <!-- 表列1 請購需求單站點 -->
+                                    <!-- 表列1 申請人 -->
                                     <div class="row">
-                                        <!-- 表頭：右側下=選擇入庫廠區 -->
-                                        <div class="col-12 col-md-6 py-3 px-2">
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating input-group">
+                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $auth_emp_id;?>">
+                                                <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
+                                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('emp_id');" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊" ><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機">
+                                                <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 表列2 申請單位 -->
+                                    <div class="row">
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位">
+                                                <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱">
+                                                <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" onblur="this.value = this.value.toUpperCase();">
+                                                <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- 表列3 領用站點 -->
+                                    <div class="row">
+                                        <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" readonly
                                                     value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
@@ -375,11 +423,10 @@
                                                 <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
-                                        <!-- 表頭：右側下=選擇入庫廠區 -->
-                                        <div class="col-12 col-md-6 py-3 px-2">
+                                        <div class="col-6 col-md-4 py-1 px-2">
                                             <div style="display: flex;">
                                                 <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required >
+                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
                                                 <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
                                                 <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
@@ -387,12 +434,27 @@
                                                 <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                             </div>
                                         </div>
+                                        <div class="col-6 col-md-4 py-1 px-2">
+                                            <div class="form-floating">
+                                                <input type="text" name="omager" id="omager" class="form-control" required placeholder="主管工號"
+                                                        data-toggle="tooltip" data-placement="bottom" title="輸入主管工號"
+                                                        onchange="search_fun(this.value);">
+                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> *</sup></label>
+                                                <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
+                                                <div id="omager_badge"></div>
+                                            </div>
+                                            <input type="hidden" name="in_signName" id="in_signName" class="form-control">
+                                        </div>
                                     </div>
-                                    
-
                                     
                                     <!-- 表列5 說明 -->
                                     <div class="row">
+                                        <div class="col-12 px-2">
+                                            <div class="form-floating">
+                                                <textarea name="issue_remark" id="issue_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)"></textarea>
+                                                <label for="issue_remark" class="form-label">issue_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
+                                            </div>
+                                        </div>
                                         <hr>
                                         <div class="col-12 py-1">
                                             備註：

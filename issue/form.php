@@ -323,7 +323,9 @@
                                             <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
                                         </div>
                                         <div class="col-12 col-md-6 text-end">
-                                            <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                            <?php if(!empty($select_local["id"])){ ?>
+                                                <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                     <div class=" rounded border bg-light" id="shopping_cart">

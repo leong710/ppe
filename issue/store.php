@@ -7,16 +7,21 @@
         switch($_REQUEST["action"]){
             case "create": 
                 $swal_json = store_issue($_REQUEST);      
-                break;      // 開單
-
+                break;          // 開單
             case "edit": 
                 $swal_json = update_issue($_REQUEST);     
-                break;      // 編輯
-
-            case "sign": 
-                $swal_json = sign_issue($_REQUEST);       
-                break;      // 簽核
-
+                break;          // 編輯
+            case "sign":        // 簽核
+                if($_REQUEST["idty"] == 5 && empty($_REQUEST["in_sign"])){
+                    $swal_json = array(
+                        "fun" => "sign_issue",
+                        "action" => "error",
+                        "content" => '領用申請--轉呈失敗'
+                    );
+                }else{
+                    $swal_json = sign_issue($_REQUEST);  
+                }     
+                break;
             // case "pr2fab": 
             //     $swal_json = update_pr2fab($_REQUEST);    
             //     break;      // $_POST["pr2fab_submit"] 發貨 => 12
@@ -25,7 +30,7 @@
             //     $swal_json = update_getIssue($_REQUEST);  
             //     break;      // $_POST["getIssue_submit"] 收貨 => 10
 
-            default: 
+            default:             // 預定失效 
                 echo "bg-light text-success";             
                 break;
         }

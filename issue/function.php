@@ -164,7 +164,7 @@
 // // // index 統計數據 -- end
 
 // // // issue需求單 CRUD
-    // 儲存交易表單
+    // 儲存issue交易表單 20240103
     function store_issue($request){
         $pdo = pdo();
         extract($request);
@@ -216,7 +216,7 @@
         }
         return $swal_json;
     }
-    // 顯示被選定的issue表單
+    // 顯示被選定的issue表單 20240103
     function show_issue($request){
         $pdo = pdo();
         extract($request);

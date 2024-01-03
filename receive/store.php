@@ -35,7 +35,11 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
 <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS -->
 <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS -->
-
+<style>
+        body{
+            color: white;
+        }
+    </style>
 <script>    
     
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值

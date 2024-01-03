@@ -91,15 +91,89 @@
         }
     }
 
-    // // // Edit選染
+// // // 第三頁：searchUser function 
+    // fun3-1：search Key_word
+    function search_fun(tag_id, search){
+        mloading("show");                       // 啟用mLoading
+
+        var fun = tag_id+'_badge';
+        $('#'+fun).empty();
+        $('#'+fun+'Name').empty();
+
+        search = search.trim();
+        if(!search || (search.length < 8)){
+            alert("查詢工號字數最少 8 個字以上!!");
+            $("body").mLoading("hide");
+            return false;
+        } 
+
+        $.ajax({
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            method:'get',
+            dataType:'json',
+            data:{
+                functionname: 'showStaff',                          // 操作功能
+                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                search: search                                      // 查詢對象key_word
+            },
+            success: function(res){
+                var res_r = res["result"];
+
+                // 將結果進行渲染
+                if (res_r !== '') {
+                    var obj_val = res_r;                                         // 取Object物件0
+
+                    if(obj_val){     
+                        
+                        if(fun == 'omager_badge'){     // 搜尋申請人上層主管emp_id
+                            $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
+                        }else{
+                            $('#'+fun).append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                            document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
+                        }
+                        
+                    }else{
+                        alert('查無工號：'+ search +' !!');
+                    }
+                }
+            },
+            error (){
+                console.log("search error");
+            }
+        })
+        $("body").mLoading("hide");
+    }
+
+    // fun3-2：in_sign上層主管：移除單項模組
+    $('#in_sign_badge').on('click', '.remove', function() {
+        $(this).closest('.tag').remove();   // 自畫面中移除
+        document.getElementById('in_sign').value = '';            // 將欄位cname清除
+        document.getElementById('in_signName').value = '';        // 將欄位in_signName清除
+        $('#in_sign_badge').empty();
+    });
+
+// // // 第三頁：searchUser function 
+
+
+// // // Edit選染
     function edit_item(){
         // 引入issue_row資料作為Edit
         // var issue_row = <?=json_encode($issue_row);?>;
         var issue_item = {
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
+            "extp"           : "extp/分機",
+            
+            "plant"          : "plant/申請單位", 
+            "dept"           : "dept/部門名稱", 
+            "sign_code"      : "sign_code/部門代號", 
+
             "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
+            "omager"         : "omager/上層主管工號",
+            
+            "receive_remark" : "receive_remark/用途說明",
+
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",
@@ -142,6 +216,12 @@
         document.getElementById('action').value = 'sign';
         document.getElementById('idty').value = idty;
         $('#idty_title').append(idty_title);
+        var forwarded_div = document.getElementById('forwarded');
+        if(forwarded_div && (idty == 5)){
+            forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
+        }else{
+            forwarded_div.classList.add('unblock');              // 按下其他 = 隱藏
+        }
 
         var po_no_form = document.getElementById('po_no_form');
         var po_no_input = '<label for="po_no" class="form-label">PO編號：<sup class="text-danger"> *</sup></label>';
@@ -231,7 +311,7 @@
                 var shopping_count = '(請查閱請購需求';
             }
 
-        var issue_row_cart = JSON.parse(issue_row['item']);   // get申請單品項數量
+        var issue_row_cart = JSON.parse(issue_row['item']);                 // get申請單品項數量
         var i_cunt = 1;                                                     // 各品項前的計數
         var add_cata_item = '[ PPE請購需求 - '+action+' ]';
             add_cata_item += '\n申請日期：'+issue_row['create_date'];
@@ -288,7 +368,11 @@
     $(document).ready(function () {
 
         edit_item();        // 啟動鋪設畫面
-        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+
+        omager_id = document.getElementById("omager").value     // 2.提取上層主管工號
+        if(omager_id){
+            search_fun('omager', omager_id)                     // 3.查詢工號並鋪設姓名
+        }
 
     })
 

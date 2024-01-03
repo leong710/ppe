@@ -210,7 +210,7 @@
         //// **** 儲存receive表單
         $sql = "INSERT INTO _receive(plant, dept, sign_code, emp_id, cname, extp, local_id, ppty, receive_remark
                     , cata_SN_amount, idty, flow, logs, created_emp_id, created_cname, updated_user, omager, in_sign, in_signName
-                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now(),uuid())";
+                    , created_at, updated_at , uuid) VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,?,?,?,?,  ?,?,?,?,  now(),now(),uuid())";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark

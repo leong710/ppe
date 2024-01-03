@@ -75,7 +75,7 @@
                     <!-- 下拉式選單 -->
                     <?php if($sys_id_role >= 0){ ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理</a>
+                            <a class="nav-link active dropdown-toggle" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理</a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDD_1">
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
@@ -88,7 +88,7 @@
 
                         <?php if($sys_id_role <= 2 ){ ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
                                         <?php echo ($numChecked == 0) ? '<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>':'';
                                               echo ($num !=0) ? '<span class="badge rounded-pill bg-danger">'.$num.'</span>':''; ?></a>
@@ -118,7 +118,7 @@
 
                         <?php if($sys_id_role <= 1 ){ ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link active dropdown-toggle" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-sliders"></i>&nbsp進階設定</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_3">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pno/"><i class="fa-solid fa-list"></i>&nbsp料號管理</a></li>
@@ -132,7 +132,7 @@
                             </li>
 
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_4">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>

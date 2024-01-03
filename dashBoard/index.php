@@ -53,6 +53,10 @@
     <script src="../../libs/jquery/jquery.min.js" ></script>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
         .TOP {
             background-image: URL('../images/stock2.jpg');
@@ -374,7 +378,10 @@
                                 </thead>
                                 <tbody>
                                     <?php foreach($catalog_stocks as $catalog){ 
-                                        $cata_pc = round($catalog["stock_amount"]/($catalog["stock_stand"])*100,2);
+                                        // $cata_pc = round($catalog["stock_amount"]/($catalog["stock_stand"])*100,2);   // 預防出錯
+                                        $cata_stock_amount = ( $catalog["stock_amount"] == 0 ? 1 : $catalog["stock_amount"] );
+                                        $cata_stock_stand  = ( $catalog["stock_stand"]  == 0 ? 1 : $catalog["stock_stand"] );
+                                        $cata_pc = round(($cata_stock_amount / $cata_stock_stand)*100,2);
                                         if($cata_pc >= 100 ){ 
                                             $cata_color = "blue";
                                         } else if($cata_pc >= 80){ 
@@ -428,7 +435,10 @@
                                 <tbody>
                                     <?php $check_item ="";
                                         foreach($stock_losts as $stock_lost){ 
-                                            $stock_pc = round($stock_lost["stock_amount"]/($stock_lost["stock_stand"])*100,2);
+                                            // $stock_pc = round($stock_lost["stock_amount"]/($stock_lost["stock_stand"])*100,2);   // 預防出錯
+                                            $stock_lost_amount = ( $stock_lost["stock_amount"] == 0 ? 1 : $stock_lost["stock_amount"] );
+                                            $stock_lost_stand  = ( $stock_lost["stock_stand"]  == 0 ? 1 : $stock_lost["stock_stand"] );
+                                            $stock_pc = round(($stock_lost_amount / $stock_lost_stand)*100,2);
                                             if($stock_pc >= 100 ){ 
                                                 $stock_color = "blue";
                                             } else if($stock_pc >= 80){ 
@@ -487,9 +497,7 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
-</script>
-<!-- 警告視窗 -->
-<script>
+
     // var checkList = document.getElementById("checkList");                       // 檢點表單
     // var alertPlaceholder = document.getElementById("liveAlertPlaceholder");     // Bootstrap Alarm
 
@@ -509,9 +517,9 @@
     //     alert('*** <php echo $today_year;?> 年 <php echo $half;?> 年度 器材儲存量確認開始了! 請務必在指定時間前完成確認~ ', 'danger')
     // }
 
-    window.addEventListener("load", function(event) {
-        setInterval(5000);
-    });
+    // window.addEventListener("load", function(event) {
+    //     setInterval(5000);
+    // });
 </script>
 
 <?php include("../template/footer.php"); ?>

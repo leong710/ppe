@@ -11,6 +11,7 @@
         $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
 
+    $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
@@ -161,7 +162,7 @@
                     <div class="col-12 col-md-6">
                         領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "receive_aid_".$receive_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
                         <!-- </br>表單身分：<php echo $step;?> -->
                     </div>
                     <div class="col-12 col-md-6 text-end">
@@ -308,7 +309,7 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $auth_cname;?>">
                                                 <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -428,8 +429,8 @@
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="created_emp_id"  id="created_emp_id" value="<?php echo $auth_emp_id;?>">
-                                        <input type="hidden" name="created_cname"   id="created_cname"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="created_cname"   id="created_cname"  value="<?php echo $auth_cname;?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
                                         <input type="hidden" name="uuid"            id="uuid"           value="">
                                         <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">

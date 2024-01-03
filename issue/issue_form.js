@@ -319,10 +319,18 @@
     function edit_item(){
         // var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
         var issue_item = {
+            "plant"          : "plant/申請單位", 
+            "dept"           : "dept/部門名稱", 
+            "sign_code"      : "sign_code/部門代號", 
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
+            "extp"           : "extp/分機",
             "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
+            "omager"         : "** omager/上層主管工號",
+            "receive_remark" : "receive_remark/用途說明",
+            "created_emp_id" : "created_emp_id/開單人工號",
+            "created_cname"  : "created_cname/開單人姓名",
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",
@@ -340,6 +348,14 @@
                 Object.keys(issue_row_cart).forEach(function(cart_key){
                     add_item(cart_key, issue_row_cart[cart_key]['need'], 'off');
                 })
+                
+            }else if(receive_key == 'omager'){             //omager 上層主管工號
+                var id_omager = document.getElementById('omager');
+                if(id_omager){
+                    id_omager.value = receive_row[receive_key];
+                }
+                search_fun(receive_row[receive_key]);
+
             }else{
                 var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
@@ -476,6 +492,12 @@
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
+        // 監聽表單內 input 變更事件
+        $('#cname, #plant, #dept, #sign_code, #omager, #extp').change(function() {
+            // 當有變更時，對該input加上指定的class
+            $(this).removeClass('autoinput');
+        });
+        
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 

@@ -11,6 +11,7 @@
         $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
 
+    $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
@@ -195,7 +196,7 @@
                     <div class="col-12 col-md-6">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "issue_aid_".$issue_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇收貨廠區 -->
@@ -237,7 +238,9 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
-                    <form action="store.php" method="post">
+                    <!-- <form action="store.php" method="post"> -->
+                    <form action="./zz/debug.php" method="post">
+
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -379,7 +382,7 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $auth_cname;?>">
                                                 <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -417,7 +420,7 @@
                                     <div class="row">
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" class="form-control" readonly
+                                                <input type="text" name="in_local" id="in_local" class="form-control" readonly
                                                     value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
                                                             echo ($select_local['flag'] == 'Off') ? '(已關閉)':''; ?>">
                                                 <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
@@ -492,15 +495,15 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="cname"                               value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
-                                        <input type="hidden" name="in_user_id"                          value="<?php echo $auth_emp_id;?>">                 <!-- in_user_id/出庫填單人emp_id -->
-                                        <input type="hidden" name="in_local"                            value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
+                                        <input type="hidden" name="created_emp_id"  id="created_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="created_cname"   id="created_cname"  value="<?php echo $auth_cname;?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
+
+                                        <input type="hidden" name="id"              id="id"             value="">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="1">
-                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
-                                        <input type="hidden" name="id"              id="id"             value="">
+
                                         <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>

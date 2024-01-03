@@ -11,7 +11,8 @@
     }else{
         $up_href = $receive_url;                        // 回本頁
     }
-
+    
+    $auth_cname     = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
@@ -50,7 +51,7 @@
         $select_local = array('id' => '');
     }
     $pm_emp_id = $receive_row["pm_emp_id"];         // *** 廠區業務窗口
-    $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
+    $pm_emp_id_arr = explode(",",$pm_emp_id);       // 資料表是字串，要炸成陣列
 
     $catalogs = show_catalogs();                    // 器材=All
 
@@ -127,7 +128,7 @@
 
         if(!isset($step_index)){
             if(!isset($sys_role) || ($sys_role) == 3){
-                $step_index = '6';}      // normal
+                $step_index = '6';}         // normal
             if(isset($sys_role)){
                 if($sys_role == 2){
                     $step_index = '7';}      // PPE窗口
@@ -214,7 +215,7 @@
                     <div class="col-12 col-md-4">
                         需求單號：<?php echo ($receive_row['id'])             ? "receive_aid_".$receive_row['id'] : "(尚未給號)";?></br>
                         開單日期：<?php echo ($receive_row['created_at'])     ? $receive_row['created_at'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
-                        填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($receive_row["created_emp_id"]) ? $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] : $auth_emp_id." / ".$auth_cname;?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ ?>
@@ -228,17 +229,17 @@
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                             $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_sfab_id)); 
                             if($receive_collect_role){ ?>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
 
                         <?php // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
                             $receive_delivery_role = ($receive_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
                             if($receive_row['idty'] == 13 && $receive_delivery_role){ ?> 
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦同意 (Approve)</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦同意 (Approve)</button>
                         <?php } ?>
                         <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
                             if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ ?> 
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管同意 (Approve)</button>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管同意 (Approve)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -432,7 +433,7 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
                                         <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                         <input type="hidden" name="uuid"            id="uuid"           value="<?php echo $receive_row['uuid'];?>">
                                         <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $receive_row['fab_sign_code'];?>">

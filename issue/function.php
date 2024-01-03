@@ -177,21 +177,36 @@
         // item資料前處理
         $item_str = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
 
+        // 開新單送出時，強迫待簽==主管
+        if($idty == 1 && $action == "create"){
+            if(!empty($omager)){
+                $in_sign = $omager;
+            }else{
+                $in_sign = "";
+            }
+        }
+        $flow = "Manager";
+
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step;                // 節點-簽單人角色
             $logs_request["idty"]   = $idty;
-            $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
+            $logs_request["cname"]  = $created_cname." (".$created_emp_id.")";
             $logs_request["logs"]   = "";   
             $logs_request["remark"] = $sign_comm;   
         // 呼叫toLog製作log檔
             $logs = toLog($logs_request);
 
         //// **** 儲存issue表單
-        $sql = "INSERT INTO _issue(create_date, item, in_user_id, in_local, idty, logs, ppty)VALUES(now(),?,?,?,?,?,?)";
+        $sql = "INSERT INTO _issue(plant, dept, sign_code, in_user_id, cname, extp, in_local, ppty, issue_remark, item
+                            , idty, omager, in_sign, in_signName, flow, logs, created_emp_id, created_cname, updated_user
+                            , updated_at, create_date )
+                VALUES( ?,?,?,?,?,  ?,?,?,?,?,  ?,?,?,?,?,   ?,?,?,?,  now(),now() ) ";
+
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$item_str, $in_user_id, $in_local, $idty, $logs, $ppty]);
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $in_local, $ppty, $issue_remark, $item_str
+                            , $idty, $omager, $in_sign, $in_signName, $flow, $logs, $created_emp_id, $created_cname, $updated_user]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
         }catch(PDOException $e){
@@ -208,8 +223,8 @@
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
                         -- , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
                         , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        -- , _fab_o.id AS fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark
-                        , _fab_i.id AS fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark
+                        -- , _fab_o.id AS fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, _fab_o.pm_emp_id as fab_o_pm_emp_id
+                        , _fab_i.id AS fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, _fab_i.sign_code AS fab_i_sign_code, _fab_i.pm_emp_id as fab_i_pm_emp_id
                         -- , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
                         -- , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
@@ -386,6 +401,98 @@
         return $swal_json;
     }
 
+        // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
+        function query_omager($emp_id){
+            $pdo = pdo_hrdb();
+            // extract($request);
+            $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
+                    FROM STAFF u
+                    LEFT JOIN STAFF s ON u.omager = s.emp_id 
+                    where u.emp_id = ? ";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$emp_id]);
+                $query_omager = $stmt->fetch();
+                return $query_omager;
+    
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                return false;
+            }
+        }
+        // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
+        function query_FAB_omager($sign_code){
+            $pdo = pdo_hrdb();
+            // extract($request);
+            $sql = "SELECT _d.OSHORT, _d.OFTEXT, _d.OMAGER, CONCAT(_s.NACHN, _s.VORNA) AS cname
+                    FROM [HCM_VW_DEPT08] _d
+                    LEFT JOIN [HCM_VW_EMP01_hiring] _s ON _d.OMAGER = _s.PERNR
+                    WHERE _d.OSHORT = ? ";
+            $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$sign_code]);
+                $query_omager = $stmt->fetch();
+                return $query_omager;
+    
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                return false;
+            }
+        }
+        // 20231109 當發放人==pm_emp_id則自動簽核，並跳到主管簽核11
+        function idty13pass11($request){
+            $pdo = pdo();
+            extract($request);
+    
+            $swal_json = array(                                 // for swal_json
+                "fun"       => "idty13pass11",
+                "content"   => "自動簽核--"
+            );
+    
+                $receive_row = show_receive($request);            // 調閱原表單
+    
+                $pm_emp_id = $receive_row["pm_emp_id"];
+                $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
+                    // case != 13交貨 && 發貨人沒有在pm_emp_id名單中就返回
+                    // if($idty != 13 && !in_array($updated_emp_id, $pm_emp_id_arr)){ return;}
+                    if($idty != 13 || !in_array($updated_emp_id, $pm_emp_id_arr)){ 
+                        return;
+                    }
+            // $receive_logs["logs"] = $receive_row["logs"];   // 已調閱表單，直接取用logs
+            // if(empty($receive_logs["logs"])){ $receive_logs["logs"] = ""; }
+            // 製作log紀錄前處理：塞進去製作元素
+                $logs_request["action"] = $action;
+                $logs_request["step"]   = "業務承辦";   
+                $logs_request["idty"]   = "11";   
+                $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";
+                $logs_request["logs"]   = $receive_row["logs"];   
+                $logs_request["remark"] = "(自動簽核)";   
+            // 呼叫toLog製作log檔
+                $logs_enc = toLog($logs_request);
+    
+            // 更新_receive表單
+                $sql = "UPDATE _receive 
+                        SET idty = ? , logs = ? , updated_user = ? , updated_at = now() , in_sign = ? , in_signName = ? , flow = ? 
+                        WHERE uuid = ? ";
+    
+                $query_fab_omager = query_fab_omager($receive_row["fab_sign_code"]);    // 尋找FAB的環安主管。
+                $in_sign = $query_fab_omager['OMAGER'];                                 // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $in_signName = $query_fab_omager['cname'];                              // 由 存換成 NULL ==> 業務負責人/負責人主管
+                $flow = 'ESHmanager';                                                   // 由 存換成 ESHmanager
+                $idty_after = '11';                                                     // 由 13交貨 存換成 11承辦
+    
+                $stmt = $pdo->prepare($sql);
+            try {
+                $stmt->execute([$idty_after, $logs_enc, $updated_user, $in_sign, $in_signName, $flow, $uuid]);
+                $swal_json["action"]   = "success";
+                $swal_json["content"] .= $logs_request["step"].'--sign成功';
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                $swal_json["action"]   = "error";
+                $swal_json["content"] .= $logs_request["step"].'--sign失敗';
+            }
+            return $swal_json;
+        }
 // // // issue  -- end
 
 // // // issueAmoun待轉PR總表

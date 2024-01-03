@@ -11,11 +11,12 @@
     }else{
         $up_href = $issue_url;                          // 回本頁
     }
-
+    
+    $auth_cname     = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -41,15 +42,17 @@
     }
 
     if(!empty($issue_row["in_local"])){                    // edit issue表單，get已選擇出庫廠區站點
-        $query_in_local = array(
+        $query_local = array(
             'local_id' => $issue_row["in_local"]
         );
-        $select_in_local = select_local($query_in_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
+        $select_in_local = select_local($query_local);   // 讀出已被選擇出庫廠區站點的器材存量限制
 
     }else{
-        $select_local = array('id' => '');
         $select_in_local = array('id' => '');
     }
+
+    $pm_emp_id = $issue_row["fab_i_pm_emp_id"];         // *** 廠區業務窗口
+    $pm_emp_id_arr = explode(",",$pm_emp_id);       // 資料表是字串，要炸成陣列
 
     $catalogs = show_catalogs();                    // 器材=All
     // $allLocals = show_allLocal();                   // 所有儲存站點
@@ -75,49 +78,74 @@
         ];
 
         // 決定表單開啟 $step身份
-        if(isset($issue_row["in_user_id"]) && ($issue_row["in_user_id"] == $auth_emp_id)){
+        if($issue_row["created_emp_id"] == $auth_emp_id){
+            $step_index = '0';      // 填單人
+        } else if($issue_row["in_user_id"] == $auth_emp_id){
             $step_index = '1';      // 申請人
         }      
 
         if($issue_row["idty"] < 10){            // ** 未交貨後的頭銜
             // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
             switch($issue_row["idty"]){
-                case 0 :   // $act = '同意 (Approve)';
-                    break;
-                case 1 :   // $act = '送出 (Submit)';
-                    if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
-                        $step_index = '7';      // ppe site user
+                case "0":   // $act = '同意 (Approve)';
+                    // break;
+                case "1":   // $act = '送出 (Submit)';
+                    // if(( $fab_i_id == $sys_fab_id) || (in_array($fab_i_id, $sys_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
+                    //     $step_index = '7';      // ppe site user
+                    // }
+
+                    if($issue_row["in_sign"] == $auth_emp_id){
+                        if($issue_row["omager"] == $auth_emp_id){
+                            $step_index = '2';      // 申請人主管
+                        }else if( ($issue_row["flow"] == "forward")  ){   
+                            $step_index = '10';     // 轉呈簽核
+                        }
                     }
                     break;
-                case 2 :   // $act = '退回 (Reject)';
-                case 3 :   // $act = '作廢 (Abort)'; 
-                case 4 :   // $act = '編輯 (Edit)';  
-                case 5 :   // $act = '轉呈 (Forwarded)';
-                case 6 :   // $act = '暫存 (Save)';  
+                case "2":   // $act = '退回 (Reject)';
+                case "3":   // $act = '作廢 (Abort)'; 
+                case "4":   // $act = '編輯 (Edit)';  
+                case "5":   // $act = '轉呈 (Forwarded)';
+                case "6":   // $act = '暫存 (Save)';  
                 default:    // $act = '錯誤 (Error)';         
                     break;
             }
         } else if($issue_row["idty"] >= 10){    // ** 已交貨後的頭銜
             // 表單交易狀態：0完成/1待收/2退貨/3取消/12發貨
             switch($issue_row["idty"]){
-                case 10 :  // $act = '結案 (Close)'; 
-                case 11 :  // $act = '承辦 (Undertake)';
-                case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
-                case 13 :  // $act = '交貨 (Delivery)';
+                case "10":                      // $act = '結案 (Close)'; 
+                    break;
+                case "11":                      // $act = '承辦 (Undertake)';
+                    if($issue_row["fab_id"] == $sys_fab_id){
+                        $step_index = '4';      // 業務承辦
+                    }else if($issue_row["in_sign"] == $auth_emp_id){
+                        $step_index = '5';      // 環安主管
+                    }
+                    break;
+                case "12":                      // $act = '待收發貨 (Awaiting collection)'; 
+                    if($issue_row['flow'] == 'collect' && in_array($issue_row["fab_id"], $sys_sfab_id)){
+                        $step_index = '3';      // ppe發放人
+                    } 
+                    break;
+                case "13":                      // $act = '交貨 (Delivery)';
+                    if($issue_row["fab_id"] == $sys_fab_id){
+                        $step_index = '4';      // 業務承辦
+                    }  
+                    break;
                 default:    // $act = '錯誤 (Error)';         
                     break;
             }
         }
 
         if(!isset($step_index)){
-            if(!isset($sys_id_role) || ($sys_id_role) == 3){
-                $step_index = '6';}      // normal
-            if(isset($sys_id_role)){
-                if($sys_id_role == 2){
+            if(!isset($sys_role) || ($sys_role) == 3){
+                $step_index = '6';}         // normal
+            if(isset($sys_role)){
+                if($sys_role == 2){
                     $step_index = '7';}      // PPE窗口
-                if($sys_id_role == 1){
+                if($sys_role == 1){
                     $step_index = '8';}      // PPEpm
-                if($sys_id_role == 0){
+                if($sys_role == 0){
                     $step_index = '9';}      // 系統管理員
             }
             if($action == 'create'){
@@ -185,12 +213,15 @@
                                     default  : echo "'>na";                         break; 
                                 }
                             // echo "<sup> ".$trade_row['idty']."</sup>";
+                            echo !empty($issue_row['in_sign']) ? "：".$issue_row['in_sign']." " :"";
+                            echo !empty($issue_row['flow']) ? " / ".$issue_row['flow']." " :"";
                             // echo " ... ".$step;
                             echo "</span></h3>";
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
 
@@ -198,22 +229,32 @@
                     <div class="col-12 col-md-4">
                         需求單號：<?php echo ($issue_row['id'])          ? "issue_aid_".$issue_row['id'] : "(尚未給號)"; ?></br>
                         開單日期：<?php echo ($issue_row['create_date']) ? $issue_row['create_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)"; ?></br>
-                        填單人員：<?php echo ($issue_row["in_user_id"])  ? $issue_row["in_user_id"]." / ".$issue_row["cname_i"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($issue_row["created_emp_id"])  ? $issue_row["created_emp_id"]." / ".$issue_row["created_cname"] : $auth_emp_id." / ".$auth_cname;?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
-                        <?php if($issue_row['idty'] == 1){  // 1.簽核中  ?>
-                            <?php if($sys_id_role <= 1 ){ ?>
+                        <?php if( (($issue_row['idty'] == 1) && ($issue_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ ?>
+                            <?php if(in_array($issue_row['idty'], [ 1 ])){  // 1.簽核中  ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
+                                <?php if( ($issue_row["flow"] != "forward")  ){   ?>
+                                    <button type="button" class="btn btn-info"    data-bs-toggle="modal" data-bs-target="#submitModal" value="5" onclick="submit_item(this.value, this.innerHTML);">轉呈 (Forwarded)</button>
+                                <?php } ?>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                            $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
-                            $issue_collect_role = FALSE ;
-                            if($_SESSION[$sys_id]["role"] <= 1 && $issue_row['idty'] == 11 ){ 
-                                $issue_collect_role = TRUE ;?>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
-                        <?php }else if($issue_role && $issue_row['idty'] == 13 ){                             ;?>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="12" onclick="submit_item(this.value, this.innerHTML);">驗收 (Acceptance)</button>
+                            // $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
+                            $issue_collect_role = ($issue_row['idty'] == 12 && $issue_row['flow'] == 'collect' && in_array($issue_row["fab_id"], $sys_sfab_id)); 
+                            if($issue_collect_role){ ?>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
+                        <?php } ?>
+
+                        <?php // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
+                            $issue_delivery_role = ($issue_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
+                            if( $issue_row['idty'] == 13 && $issue_delivery_role){ ?>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="11" onclick="submit_item(this.value, this.innerHTML);">承辦同意 (Approve)</button>
+                        <?php } ?>
+                        <?php // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close);
+                            if( $issue_row['idty'] == 11 && ( $issue_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ ?>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">主管同意 (Approve)</button>
                         <?php } ?>
                     </div>
                 </div>
@@ -221,11 +262,11 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
+                    <!-- <form action="store.php" method="post"> -->
+                    <form action="./zz/debug.php" method="post">
 
                         <!-- 3.申請單成立 -->
-                        <div class="bg-white rounded" id="nav-review" >
+                        <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
                             <div class="col-12 py-3 px-5">
                                 <div class="row">
                                     <!-- 表頭 -->
@@ -234,26 +275,73 @@
                                         <button type="button" id="info_btn" class="op_tab_btn" value="info" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
-                                        <?php if((($sys_id_role <= 1) || ($issue_row['in_user_id'] == $auth_emp_id))){ ?> 
+                                        <!-- 限定表單所有人：created_emp_id開單人、emp_id申請人、ppe pm、admin -->
+                                        <?php if( ($sys_role <= 1) || ($issue_row['in_user_id'] == $auth_emp_id) || ($issue_row['created_emp_id'] == $auth_emp_id) ){ ?> 
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                             <?php ;} ?>
-                                            <!-- 表單狀態：2退回 4編輯 6暫存 -->
-                                            <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
+                                            <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
+                                            <?php if(in_array($issue_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
                                                 <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
-                                        <?php if(in_array($issue_row['idty'],[11 , 13]) && (in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]) || in_array($auth_emp_id, [$issue_row['in_user_id']]) || $_SESSION[$sys_id]["role"] <= 1 ) ){ ?>
+                                        <?php if($issue_row['idty'] == 12 && $issue_row['flow'] == 'collect'  // 12.待領、待收
+                                                    && (in_array($issue_row["fab_i_id"], $sys_sfab_id) || in_array($auth_emp_id, [$issue_row['in_user_id'], $issue_row['created_emp_id']])) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>
                                     <hr>
                                     <!-- 相關資訊說明 -->
                                     <div class="col-12 py-1" id="info_table"> 
+
+                                        <!-- 表列1 申請人 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="in_user_id" id="in_user_id" class="form-control" required placeholder="工號" readonly >
+                                                    <label for="in_user_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="cname" id="cname_i" class="form-control" required placeholder="申請人姓名" readonly >
+                                                    <label for="cname_i" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機" readonly >
+                                                    <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 表列2 申請單位 -->
+                                        <div class="row">
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位" readonly >
+                                                    <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱" readonly >
+                                                    <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" readonly >
+                                                    <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <!-- 表列3 領用站點 -->
                                         <div class="row">
-                                            <div class="col-12 col-md-6 py-1 px-2">
+                                            <div class="col-6 col-md-4 py-1 px-2">
                                                 <div class="form-floating">
                                                 <input type="text" class="form-control" id="local_id" readonly
                                                         value="<?php echo $select_in_local['id'].'：'.$select_in_local['site_title'].' '.$select_in_local['fab_title'].'_'.$select_in_local['local_title']; 
@@ -261,7 +349,7 @@
                                                     <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                                 </div>
                                             </div>
-                                            <div class="col-12 col-md-6 py-1 px-2">
+                                            <div class="col-6 col-md-4 py-1 px-2">
                                                 <div style="display: flex;">
                                                     <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
                                                     <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
@@ -272,12 +360,22 @@
                                                     <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                                 </div>
                                             </div>
+                                            <div class="col-6 col-md-4 py-1 px-2">
+                                                <div class="form-floating">
+                                                    <input type="text" name="omager" id="omager" class="form-control" required disabled placeholder="主管工號">
+                                                    <label for="omager" class="form-label">omager/主管工號：<sup class="text-danger"> *</sup></label>
+                                                    <div id="omager_badge"></div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <!-- 表列5 說明 -->
                                         <div class="row">
                                             <div class="col-12 col-md-12 py-2 px-2">
-                    
+                                                <div class="form-floating">
+                                                    <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
+                                                    <label for="receive_remark" class="form-label">receive_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
+                                                </div>
                                             </div>
                                             <hr>
                                             <div class="col-12 py-1">
@@ -333,6 +431,20 @@
                                         </div>
                                         
                                         <div class="modal-body px-5">
+                                            <!-- 第二排的功能 : 搜尋功能 -->
+                                            <div class="row unblock" id="forwarded">
+                                                <div class="col-12" id="searchUser_table">
+                                                    <div class="input-group search" id="select_inSign_Form">
+                                                        <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
+                                                        <span class="input-group-text form-label">轉呈</span>
+                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                                                aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
+                                                        <div id="in_sign_badge"></div>
+                                                        <input type="hidden" name="in_signName" id="in_signName" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            </div>
                                             <!-- 第二排的功能 -->
                                             <div class="row">
                                                 <div class="col-12 py-0 block" id="po_no_form">
@@ -344,14 +456,15 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
                                             <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                             <input type="hidden" name="id"              id="id"             value="">
+                                            <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $issue_row['fab_i_sign_code'];?>">
                                             <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                             <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="idty"            id="idty"           value="">
                                             <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $issue_row["idty"];?>">
-                                            <?php if($sys_id_role <= 2){ ?>
+                                            <?php if($sys_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -379,14 +492,14 @@
                                             <th>Signer</th>
                                             <th>Time Signed</th>
                                             <th>Status</th>
-                                            <th >Comment</th>
+                                            <th>Comment</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 6px;" class="text-end">
+                            <div style="font-size: 10px;" class="text-end">
                                 logs-end
                             </div>
                         </div>

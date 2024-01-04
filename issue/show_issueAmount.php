@@ -187,6 +187,7 @@
                         <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
                         <input type="hidden" name="idty"                                value="11">
                         <input type="hidden" name="step"                                value="PR開單">
+                        <input type="hidden" name="flow"                                value="collect">
                         <input type="hidden" name="issue2pr"                            value="<?php echo implode(',',$issue_SN_list);?>">
                         <input type="submit" name="issue2pr_submit"                     value="Submit" class="btn btn-primary">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

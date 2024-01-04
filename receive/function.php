@@ -367,7 +367,7 @@
         $sql = "UPDATE _receive 
                 SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
 
-            if($idty == 0){                                   // case = 0同意
+            if($idty == 0){                                         // case = 0同意
                 $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $in_sign = NULL;                                        // 由 存換成 NULL
                 $in_signName = NULL;                                    // 由 存換成 NULL
@@ -395,7 +395,7 @@
                 $flow = "edit";                                           // 由 存換成 NULL
                 $idty_after = "1";                                      // 由 4編輯 存換成 1送出
 
-            }else if($idty == 5){                                         // case = 5轉呈
+            }else if($idty == 5){                                    // case = 5轉呈
                 $sql .= " , in_sign = ? , in_signName=? , flow = ? ";
                 $idty_after = "1";                                      // 由 5轉呈 存換成 1送出
 

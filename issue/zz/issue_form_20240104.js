@@ -141,168 +141,50 @@
 
 // // // searchUser function 
     // 第一-階段：search Key_word
-    function search_fun(search){
+    function search_fun(){
         mloading("show");                       // 啟用mLoading
-        // 使用開單人工號查詢
-        if(search == 'emp_id'){
-            var fun = search;
-            search = $('#emp_id').val().trim();
-            $('#plant, #dept, #sign_code, #cname, #extp').empty();
-
-        // 查詢上層主管工號
-        }else{
-            var fun = 'omager_badge';
-            search = search.trim();
-            $('#omager_badge').empty();
-        }
+        let search = $('#emp_id').val().trim();
+        $('#cname').empty();
 
         if(!search || (search.length < 8)){
             alert("查詢工號字數最少 8 個字以上!!");
             $("body").mLoading("hide");
             return false;
         } 
-
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',
             method:'get',
-            async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                functionname: 'showStaff',                          // 操作功能
+                functionname: 'search',                     // 操作功能
                 uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                                      // 查詢對象key_word
+                search: search                              // 查詢對象key_word
             },
             success: function(res){
-                var obj_val = res["result"];
-
+                var res_r = res["result"];
                 // 將結果進行渲染
-                if (obj_val !== '') {
-                    // 搜尋申請人emp_id
-                    if(fun == 'emp_id'){     
-                        var input_cname = document.getElementById('cname');             // 申請人姓名
-                        var input_plant = document.getElementById('plant');             // 申請單位
-                        var input_dept = document.getElementById('dept');               // 部門名稱
-                        var input_sign_code = document.getElementById('sign_code');     // 部門代號
-                        var input_extp = document.getElementById('extp');               // 分機
-                        var input_omager = document.getElementById('omager');           // 上層主管
-                        var input_in_signName = document.getElementById('in_signName'); // 待簽姓名
-
-                        if(obj_val){
-
-                            input_cname.value = obj_val.cname;                          // 將欄位帶入數值 = cname
-
-                            if(obj_val.comid3 != ' '){
-                                input_extp.value = obj_val.comid3;                      // 將欄位帶入數值 = extp/comid3分機
-                                $("#extp").addClass("autoinput");
-                            }else{
-                                input_extp.value = '';
-                                $("#extp").removeClass("autoinput");
-                            }
-
-                            if(obj_val.emp_dept == obj_val.dept_d){
-                                input_plant.value = obj_val.dept_b + '/' + obj_val.dept_c;  // 申請單位 = dept_b處30 + dept_c部20
-                            }else{
-                                input_plant.value = obj_val.dept_b;                         // 申請單位 = dept_b 處30
-                            }
-                            
-                            input_dept.value = obj_val.emp_dept;                        // 部門名稱 = 所屬單位
-                            input_sign_code.value = obj_val.dept_no;                    // 部門代號 = dept_no 部門代號
-
-                            if(obj_val.omager){
-                                $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
-                                $('#omager_badge').empty();
-                                input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
-                                $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
-                                input_in_signName.value = obj_val.s2_cname;             // 帶入待簽人姓名
-
-                                showDelegation(obj_val.omager);                         // 呼叫查詢代理簽核程式，有結果就置換，沒有就保持!!
-
-                            }else{
-                                input_omager.value = '';
-                                input_in_signName.value = '';
-                            }
-                            $("#cname, #plant, #dept, #sign_code, #omager").addClass("autoinput");
-
-                            var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
-                            inside_toast(sinn);
-
-                        }else{
-                            // alert("查無工號["+search+"]!!");
-                            input_cname.value = '';                         // 將欄位cname清除
-                            input_plant.value = '';
-                            input_dept.value = '';
-                            input_sign_code.value = '';
-                            input_extp.value = '';
-                            var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
-                            inside_toast(sinn);
-                        }
-                        
-                    // 搜尋申請人上層主管emp_id    
-                    }else{                    
-                        if(obj_val){ 
-                            console.log(fun,'obj_val:', obj_val);                           
-                            $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
-                            $("#omager").addClass("autoinput");
-                            document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
-                            var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入上層主管資訊...完成!!';
-                            inside_toast(sinn);
-
-                        }else{
-                            document.getElementById('omager').value = '';                         // 將欄位cname清除
-                            document.getElementById('in_signName').value = '';                    // 將欄位cname清除
-                            var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
-                            inside_toast(sinn);
-                        }
+                if (res_r !== '') {
+                    let obj_val = res_r[0];                                         // 取Object物件0
+                    var input_cname = document.getElementById('cname');
+                    if(obj_val && input_cname){
+                        input_cname.value = obj_val.cname;              // 將欄位帶入數值 = cname
+                        var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入資訊...完成!!';
+                        inside_toast(sinn);
+                    }else{
+                        // alert("查無工號["+search+"]!!");
+                        input_cname.value = '';                         // 將欄位cname清除
+                        var sinn = '查無工號&nbsp<b>'+ search +'</b>&nbsp!!';
+                        inside_toast(sinn);
                     }
                 }
+
             },
-            error(err){
-                console.log("search error:", err);
+            error (){
+                console.log("search error");
             }
         })
         $("body").mLoading("hide");
     }
-
-    // fun3-1A 用上層主管工號查詢簽核代理人
-    function showDelegation(search){
-        $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
-            async: false,                                                       // ajax取得數據包後，可以return的重要參數
-            dataType:'json',
-            data:{
-                functionname: 'showDelegation',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                                      // 查詢對象key_word
-            },
-            success: function(res){
-                var obj_val = res["result"];
-                // 搜尋申請人上層主管emp_id其簽核代理人 將結果進行渲染
-                if(obj_val){  
-                    $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
-                    $('#omager_badge').empty();
-                    document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
-                    $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
-                    $("#omager").addClass("autoinput");
-
-                    document.getElementById('in_signName').value = obj_val.DEPUTYCNAME;             // 將欄位帶入待簽人姓名                          
-
-                }
-            },
-            error(err){
-                console.log("showDelegation search error:", err);
-            }
-        })
-    }
-
-    // fun3-2：omager上層主管：移除單項模組
-    $('#omager_badge').on('click', '.remove', function() {
-        $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
-        document.getElementById('omager').value = '';          // 將欄位cname清除
-        document.getElementById('in_signName').value = '';     // 將欄位in_signName清除
-        $('#omager').removeClass('autoinput');                 // 移除外框提示
-        // $('#omager_badge').empty();
-    });
 
     function inside_toast(sinn){
         // init toast
@@ -319,18 +201,10 @@
     function edit_item(){
         // var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
         var issue_item = {
-            "plant"          : "plant/申請單位", 
-            "dept"           : "dept/部門名稱", 
-            "sign_code"      : "sign_code/部門代號", 
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
-            "extp"           : "extp/分機",
             "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
-            "omager"         : "** omager/上層主管工號",
-            "receive_remark" : "receive_remark/用途說明",
-            "created_emp_id" : "created_emp_id/開單人工號",
-            "created_cname"  : "created_cname/開單人姓名",
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",
@@ -348,14 +222,6 @@
                 Object.keys(issue_row_cart).forEach(function(cart_key){
                     add_item(cart_key, issue_row_cart[cart_key]['need'], 'off');
                 })
-                
-            }else if(issue_key == 'omager'){             //omager 上層主管工號
-                var id_omager = document.getElementById('omager');
-                if(id_omager){
-                    id_omager.value = issue_row[issue_key];
-                }
-                search_fun(issue_row[issue_key]);
-
             }else{
                 var row_key = document.querySelector('#'+issue_key);
                 if(row_key){
@@ -492,12 +358,6 @@
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
-        // 監聽表單內 input 變更事件
-        $('#cname, #plant, #dept, #sign_code, #omager, #extp').change(function() {
-            // 當有變更時，對該input加上指定的class
-            $(this).removeClass('autoinput');
-        });
-        
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 

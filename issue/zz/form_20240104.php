@@ -11,9 +11,8 @@
         $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
 
-    $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
     // 去年年份
     $thisYear = date('Y') ;                        // 這裡要減1才會找出去年的用量
@@ -119,13 +118,13 @@
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if($sys_role == 3){
+            if($sys_id_role == 3){
                 $step_index = '6';}         // noBody
-            if($sys_role == 2){
+            if($sys_id_role == 2){
                 $step_index = '7';}         // ppe site user
-            if($sys_role == 1){
+            if($sys_id_role == 1){
                 $step_index = '8';}         // ppe pm
-            if($sys_role == 0){
+            if($sys_id_role == 0){
                 $step_index = '9';}         // 系統管理員
             if($action == 'create'){
                 $step_index = '0';}         // 填單人
@@ -155,10 +154,6 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-        #emp_id, #excelFile{    
-            margin-bottom: 0px;
-            text-align: center;
-        }
 
     </style>
     <script>    
@@ -196,7 +191,7 @@
                     <div class="col-12 col-md-6">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "issue_aid_".$issue_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇收貨廠區 -->
@@ -205,7 +200,7 @@
                                 <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                     <option value="" hidden>--請選擇 需求 儲存點--</option>
                                     <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                         <?php } ?>
@@ -215,7 +210,7 @@
                             </div>
                         </form>
 
-                        <?php if(($sys_role <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
+                        <?php if(($sys_id_role <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $issue_row["id"];?>">
                                 <input type="submit" name="delete_issue" value="刪除 (Delete)" title="刪除申請單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
@@ -239,8 +234,6 @@
                     </nav>
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
-
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -302,7 +295,7 @@
                                                             <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
                                                                 placeholder="<?php echo "限購： ".$buy_qty."&nbsp/&nbsp".$catalog["unit"];?>" 
                                                                 min="1" 
-                                                                <?php if($sys_role <= 1){ ?>
+                                                                <?php if($sys_id_role <= 1){ ?>
                                                                     onblur="add_cart_btn(this.id, this.value);" 
                                                                 <?php } else { ?>
                                                                     max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
@@ -330,9 +323,7 @@
                                             <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
                                         </div>
                                         <div class="col-12 col-md-6 text-end">
-                                            <?php if(!empty($select_local["id"])){ ?>
-                                                <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
-                                            <?php } ?>
+                                            <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
                                         </div>
                                     </div>
                                     <div class=" rounded border bg-light" id="shopping_cart">
@@ -363,7 +354,7 @@
                                             請申請人填入相關資料：
                                         </div>
                                         <div class="col-6 col-md-6 px-2 text-end">
-                                            <?php if($sys_role <= 3){ ?>
+                                            <?php if($sys_id_role <= 3){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -371,54 +362,10 @@
                                         <hr>
                                     </div>
     
-                                    <!-- 表列1 申請人 -->
+                                    <!-- 表列1 請購需求單站點 -->
                                     <div class="row">
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating input-group">
-                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $auth_emp_id;?>">
-                                                <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
-                                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('emp_id');" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊" ><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $auth_cname;?>">
-                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機">
-                                                <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 表列2 申請單位 -->
-                                    <div class="row">
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位">
-                                                <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱">
-                                                <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" onblur="this.value = this.value.toUpperCase();">
-                                                <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                
-                                    <!-- 表列3 領用站點 -->
-                                    <div class="row">
-                                        <div class="col-6 col-md-4 py-1 px-2">
+                                        <!-- 表頭：右側下=選擇入庫廠區 -->
+                                        <div class="col-12 col-md-6 py-3 px-2">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" readonly
                                                     value="<?php echo $select_local['id'].'：'.$select_local['site_title'].' '.$select_local['fab_title'].'_'.$select_local['local_title']; 
@@ -426,10 +373,11 @@
                                                 <label for="in_local" class="form-label">in_local/需求廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
+                                        <!-- 表頭：右側下=選擇入庫廠區 -->
+                                        <div class="col-12 col-md-6 py-3 px-2">
                                             <div style="display: flex;">
                                                 <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
-                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
+                                                <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required >
                                                 <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
                                                 <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
@@ -437,27 +385,12 @@
                                                 <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                             </div>
                                         </div>
-                                        <div class="col-6 col-md-4 py-1 px-2">
-                                            <div class="form-floating">
-                                                <input type="text" name="omager" id="omager" class="form-control" required placeholder="主管工號"
-                                                        data-toggle="tooltip" data-placement="bottom" title="輸入主管工號"
-                                                        onchange="search_fun(this.value);">
-                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> *</sup></label>
-                                                <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
-                                                <div id="omager_badge"></div>
-                                            </div>
-                                            <input type="hidden" name="in_signName" id="in_signName" class="form-control">
-                                        </div>
                                     </div>
+                                    
+
                                     
                                     <!-- 表列5 說明 -->
                                     <div class="row">
-                                        <div class="col-12 px-2">
-                                            <div class="form-floating">
-                                                <textarea name="issue_remark" id="issue_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)"></textarea>
-                                                <label for="issue_remark" class="form-label">issue_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
-                                            </div>
-                                        </div>
                                         <hr>
                                         <div class="col-12 py-1">
                                             備註：
@@ -472,7 +405,7 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($sys_role <= 2){ ?>
+                                            <?php if($sys_id_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -495,16 +428,16 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="created_emp_id"  id="created_emp_id" value="<?php echo $auth_emp_id;?>">
-                                        <input type="hidden" name="created_cname"   id="created_cname"  value="<?php echo $auth_cname;?>">
-                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
-                                        <input type="hidden" name="in_local"        id="in_local"       value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
-                                        <input type="hidden" name="id"              id="id"             value="">
-                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="cname"                               value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
+                                        <input type="hidden" name="in_user_id"                          value="<?php echo $auth_emp_id;?>">                 <!-- in_user_id/出庫填單人emp_id -->
+                                        <input type="hidden" name="in_local"                            value="<?php echo $select_local["id"];?>">          <!-- in_local/出庫廠區 -->   
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="1">
-
-                                        <?php if($sys_role <= 2){ ?>
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="id"              id="id"             value="">
+                                        <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

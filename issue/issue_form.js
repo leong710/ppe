@@ -240,7 +240,7 @@
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
                         if(obj_val){ 
-                            console.log(fun,'obj_val:', obj_val);                           
+                            // console.log(fun,'obj_val:', obj_val);                           
                             $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             $("#omager").addClass("autoinput");
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
@@ -331,6 +331,7 @@
             "receive_remark" : "receive_remark/用途說明",
             "created_emp_id" : "created_emp_id/開單人工號",
             "created_cname"  : "created_cname/開單人姓名",
+            "issue_remark"  : "issue_remark/用途說明",
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",

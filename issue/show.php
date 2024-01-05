@@ -272,13 +272,13 @@
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                             // $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
-                            $issue_collect_role = ($issue_row['idty'] == 11 && $issue_row['flow'] == 'collect' && in_array($issue_row["fab_i_id"], $sys_sfab_id)); 
+                            $issue_collect_role = (($issue_row['idty'] == 11 && $issue_row['flow'] == 'collect') && ($sys_role <= 1)); 
                             if($issue_collect_role){ ?>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
 
                         <?php // 承辦+主管簽核選項 idty=13.交貨delivery => 申請人驗收 (acceptance) => 10.結案 (Close);
-                            $issue_delivery_role = ($issue_row['flow'] == 'acceptance' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
+                            $issue_delivery_role = ($issue_row['flow'] == 'acceptance' && (($issue_row['in_user_id'] == $auth_emp_id) || $sys_role <= 1));
                             if( $issue_row['idty'] == 13 && $issue_delivery_role){ ?>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="10" onclick="submit_item(this.value, this.innerHTML);">申請人同意 (Approve)</button>
                         <?php } ?>
@@ -309,12 +309,12 @@
                                                 <a href="form.php?id=<?php echo $issue_row['id'];?>&action=edit" class="btn btn-primary">編輯 (Edit)</a>
                                             <?php ;} ?>
                                             <!-- 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存 -->
-                                            <?php if(in_array($issue_row['idty'], [ 1, 2, 4, 5, 6 ])){ ?>
+                                            <?php if(in_array($issue_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <button type="button" class="btn bg-warning text-dark" data-bs-toggle="modal" data-bs-target="#submitModal" value="3" onclick="submit_item(this.value, this.innerHTML);">作廢 (Abort)</button>
                                             <?php ;} ?>
                                         <?php ;} ?>
                                         <?php if( (($issue_row['idty'] == 11 && $issue_row['flow'] == 'collect') || ($issue_row['idty'] == 13 && $issue_row['flow'] == 'acceptance'))  // 11待發放、13待驗收
-                                                    && (in_array($issue_row["fab_i_id"], $sys_sfab_id) || in_array($auth_emp_id, [$issue_row['in_user_id'], $issue_row['created_emp_id']])) ){ ?>
+                                                    && (in_array($issue_row["fab_i_id"], $sys_sfab_id) || in_array($auth_emp_id, [$issue_row['in_user_id'], $issue_row['created_emp_id']]) || $sys_role <= 1) ){ ?>
                                             <button type="button" class="btn btn-success" onclick='push_mapp(`<?php echo $auth_emp_id;?>`)' data-toggle="tooltip" data-placement="bottom" title="mapp給自己"><i class="fa-brands fa-facebook-messenger"></i> 推送 (Push)</button>
                                         <?php } ?>
                                     </div>
@@ -400,15 +400,15 @@
                                         <div class="row">
                                             <div class="col-12 col-md-12 py-2 px-2">
                                                 <div class="form-floating">
-                                                    <textarea name="receive_remark" id="receive_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
-                                                    <label for="receive_remark" class="form-label">receive_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
+                                                    <textarea name="issue_remark" id="issue_remark" class="form-control" style="height: 150px;" placeholder="(由申請單位填寫用品/器材請領原由)" disabled></textarea>
+                                                    <label for="issue_remark" class="form-label">issue_remark/用途說明：<sup class="text-danger"> * (由申請單位填寫用品/器材請領原由)</sup></label>
                                                 </div>
                                             </div>
                                             <hr>
                                             <div class="col-12 py-1">
                                                 <b>備註：</b>
                                                 </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                                </br>&nbsp2.簽核：申請人1=>承辦人0=>PR待轉11=>轉PR==>11交貨13==>驗收12+16=>表單結案10。 
+                                                </br>&nbsp2.簽核：申請人=>申請人主管=>PPEpm=>PR待轉=>轉PR=>PPEpm交貨=>申請人驗收=>商品入庫+表單結案。 
                                             </div>
                                         </div>
                                     </div>
@@ -491,7 +491,7 @@
                                             <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
                                             <input type="hidden" name="idty"            id="idty"           value="">
                                             <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $issue_row["idty"];?>">
-                                            <?php if($sys_role <= 2){ ?>
+                                            <?php if(($issue_row['in_sign'] == $auth_emp_id) || ($sys_role <= 2)){ ?>
                                                 <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

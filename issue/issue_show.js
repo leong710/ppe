@@ -172,7 +172,7 @@
             "ppty"           : "** ppty/需求類別",
             "omager"         : "omager/上層主管工號",
             
-            "receive_remark" : "receive_remark/用途說明",
+            "issue_remark"   : "issue_remark/用途說明",
 
             "id"             : "id",
             "item"           : "** item"

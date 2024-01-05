@@ -374,13 +374,11 @@
 
         // 更新_issue表單
         $sql = "UPDATE _issue 
-                SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
+                SET idty = ? , logs = ? , updated_user = ? , updated_at = now() , in_sign = ? , in_signName=? , flow = ? ";
 
                 if($idty == 0){                                             // case = 0同意
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
                     $in_sign     = NULL;                                        // 由 存換成 NULL
                     $in_signName = NULL;                                        // 由 存換成 NULL
-
                     if( in_array($issue_row["flow"], ["Manager", "Forwarded"]) ){   // -- 當簽核者是主管或轉呈：
                         $flow        = 'PPEpm';                                     // 由 存換成 PPEpm
                         $idty_after  = 1;                                           // 由 0同意 存換成 1待簽
@@ -390,33 +388,29 @@
                     }
 
                 }else if($idty == 2){                                       // case = 2退回
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
                     $in_sign     = NULL;                                        // 由 存換成 NULL
                     $in_signName = NULL;                                        // 由 存換成 NULL
                     $flow        = 'Reject';                                    // 由 存換成 NULL
                     $idty_after  = $idty;                                       // 由 換成 2退回
 
                 }else if($idty == 3){                                       // case = 3取消/作廢
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
                     $in_sign     = NULL;                                        // 由 存換成 NULL
                     $in_signName = NULL;                                        // 由 存換成 NULL
                     $flow        = "abort" ;                                    // 由 存換成 NULL
                     $idty_after  = $idty;                                       // 由 換成 3作廢
 
                 }else if($idty == 4){                                       // case = 4編輯/作廢
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
                     $in_sign     = NULL;                                        // 由 存換成 NULL
                     $in_signName = NULL;                                        // 由 存換成 NULL
                     $flow        = "edit";                                      // 由 存換成 NULL
                     $idty_after  = "1";                                         // 由 4編輯 存換成 1送出
 
                 }else if($idty == 5){                                       // case = 5轉呈
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
                     $flow        = 'Forwarded';                                 // 由 存換成 Forwarded
                     $idty_after = "1";                                          // 由 5轉呈 存換成 1送出
 
                 }else if($idty == 10){                                      // case = 10結案 (close)
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? ";
+                    $sql        .= " , in_date = now() ";
                     $in_sign     = NULL;                                        // 由12->11時，即業務窗口簽核，未到主管
                     $in_signName = NULL;                                        // 由 存換成 NULL
                     $flow        = 'close';                                     // 由 存換成 close
@@ -436,7 +430,7 @@
                     // $idty_after = 10;                                            // 存換成 10結案
             
                 }else if($idty == 13){                                      // case = 13交貨 (Delivery)
-                    $sql        .= " , in_sign = ? , in_signName=? , flow = ? , item = ? , out_local = ? , out_user_id = ?  ";
+                    $sql        .= " , item = ? , out_local = ? , out_user_id = ? ";
                         // $query_omager = query_omager($updated_emp_id);       // 尋找業務負責人的環安主管。
                         // $in_sign = $query_omager['omager_emp_id'];           // 由 存換成 NULL ==> 業務負責人/負責人主管
                     $in_sign     = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
@@ -447,6 +441,8 @@
 
                 }else{
                     // *** 2023/10/24 這裏要想一下，主管簽完同意後，要清除in_sign和flow
+                    $sql = "UPDATE _issue 
+                            SET idty = ? , logs = ? , updated_user = ? , updated_at = now() ";
                     $idty_after = $idty;                                        // 由 5轉呈 存換成 1送出
                 }
 

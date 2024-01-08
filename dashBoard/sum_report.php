@@ -25,7 +25,7 @@
             // $report_mm = date('m');                         // 今月
             $report_mm = "All";                             // 今月
         }
-        $list_setting = array(                              // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
+        $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
             'report_yy' => $report_yy,
             'report_mm' => $report_mm
         );
@@ -33,21 +33,21 @@
     switch($form){
         case "receive" :
             $report_title = "領用";
-            $report_lists = show_receives($list_setting);           // 調閱點檢表
-            $allReport_yys = show_allReceive_yy();                  // 取出receives年份清單 => 供receives頁面篩選
-            $allReport_ymms = show_allReceive_ymm($list_setting);   // 取出receives年份裡的月清單 => 供receives頁面渲染
+            $report_lists = show_receives($query_arr);           // 調閱點檢表
+            $allReport_yys = show_allReceive_yy();               // 取出receives年份清單 => 供receives頁面篩選
+            $allReport_ymms = show_allReceive_ymm($query_arr);   // 取出receives年份裡的月清單 => 供receives頁面渲染
             break;
         case "issue" :
             $report_title = "需求";
-            $report_lists = show_issues($list_setting);             // 調閱點檢表
-            $allReport_yys = show_allIssue_yy();                    // 取出issues年份清單 => 供issues頁面篩選
-            $allReport_ymms = show_allIssue_ymm($list_setting);     // 取出issues年份裡的月清單 => 供issues頁面渲染
+            $report_lists = show_issues($query_arr);             // 調閱點檢表
+            $allReport_yys = show_allIssue_yy();                 // 取出issues年份清單 => 供issues頁面篩選
+            $allReport_ymms = show_allIssue_ymm($query_arr);     // 取出issues年份裡的月清單 => 供issues頁面渲染
          break;
         default:    // $act = '錯誤 (Error)';  以receive替代錯誤 
             $report_title = "領用(form_error)";
-            $report_lists = show_receives($list_setting);           // 調閱點檢表
-            $allReport_yys = show_allReceive_yy();                  // 取出receives年份清單 => 供receives頁面篩選
-            $allReport_ymms = show_allReceive_ymm($list_setting);   // 取出receives年份裡的月清單 => 供receives頁面渲染      
+            $report_lists = show_receives($query_arr);           // 調閱點檢表
+            $allReport_yys = show_allReceive_yy();               // 取出receives年份清單 => 供receives頁面篩選
+            $allReport_ymms = show_allReceive_ymm($query_arr);   // 取出receives年份裡的月清單 => 供receives頁面渲染      
         break;
     }
 
@@ -280,11 +280,16 @@
     
     // 把 catalog對應的p_no報價繞出來
     Object(catalogs).forEach(function(cata){
-         let cata_yy_p = JSON.parse(cata['price'])[report_yy];
-         if(cata_yy_p == undefined){
+        // var cata_yy_p = JSON.parse(cata['price'])[report_yy];
+        var cata_p = JSON.parse(String(cata['price']));
+        if((cata_p === 0) || (cata_p === null)){
+            cata_p = {};
+        }
+        cata_yy_p = cata_p[report_yy];
+        if(cata_yy_p === undefined || cata_yy_p === 0){
             cata_yy_p = 1;
-         }
-         cata_price[cata['SN']] = Number(cata_yy_p);
+        }
+        cata_price[cata['SN']] = Number(cata_yy_p);
     })
     // console.log('cata_price:', cata_price)
 

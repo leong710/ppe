@@ -86,7 +86,6 @@
                     // if(( $fab_i_id == $sys_fab_id) || (in_array($fab_i_id, $sys_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
                     //     $step_index = '7';      // ppe site user
                     // }
-
                     if($issue_row["in_sign"] == $auth_emp_id){
                         if($issue_row["flow"] == "Manager"){  
                             $step_index = '2';      // 2.申請人主管
@@ -555,14 +554,12 @@
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
-
     var catalogs            = <?=json_encode($catalogs);?>;                 // 引入catalogs資料
     var action              = '<?=$action;?>';                              // 引入action資料
     var issue_row           = <?=json_encode($issue_row);?>;                // 引入issue_row資料作為Edit
     var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
     var json                = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
     var issue_url           = '<?=$issue_url;?>';                           // push訊息 // 本文件網址
-
 </script>
 
 <script src="issue_show.js?v=<?=time();?>"></script>

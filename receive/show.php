@@ -247,7 +247,7 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <form action="store.php" method="post">
+                    <form action="store.php" method="post" >
                     <!-- <form action="./zz/debug.php" method="post"> -->
                                             
                         <!-- 3.申請單成立 -->

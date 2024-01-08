@@ -171,6 +171,22 @@
             echo $e->getMessage();
         }
     }
+    // 取出年份清單 => 供面篩選
+    function show_receive_GB_year(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT year(_r.created_at) AS _year
+                FROM `_receive` _r
+                GROUP BY _r.created_at
+                ORDER BY _r.created_at DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $checked_years = $stmt->fetchAll();
+            return $checked_years;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // // // index +統計數據 -- end
 
 // // // 領用單 CRUD

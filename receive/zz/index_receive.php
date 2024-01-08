@@ -86,7 +86,7 @@
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($receive_lists);     // 計算總筆數
-        $per = 25;                              // 每頁筆數
+        $per = 3;                              // 每頁筆數
         $pages = ceil($per_total/$per);         // 計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){              // !isset 判斷有沒有$_GET['page']這個變數
             $page = 1;	  

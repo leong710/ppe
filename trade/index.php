@@ -34,9 +34,16 @@
         }else{
             $is_fab_id = "allMy";                               // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
         }
-        
+        // *** 篩選組合項目~~
+        if(isset($_REQUEST["_year"])){
+            $_year = $_REQUEST["_year"];
+        }else{
+            // $_year = date('Y');                         // 今年
+            $_year = "All";                                // 全年
+        }
     // 組合查詢陣列
         $query_arr = array(
+            '_year'     => $_year,
             'sys_id'    => $sys_id,
             'role'      => $sys_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
@@ -47,6 +54,8 @@
         );
 
         $row_lists    = show_trade_list($query_arr);
+        $trade_years  = show_trade_GB_year();               // 取出trade年份清單 => 供首頁面篩選
+        $my_inSign_lists = [];
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);        // 計算總筆數
@@ -110,7 +119,7 @@
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-md-6 py-1 page_title">
-                        <h3><b><?php echo $form_type;?> 表單匯總：</b></h3>
+                        <h3><b>PPE表單匯總：</b><?php echo $form_type;?> </h3>
                     </div>
                     <div class="col-md-6 py-1">
      
@@ -142,22 +151,30 @@
                 <div class="col-12 bg-white">
                     <!-- tab head -->
                     <div class="row">
-                        <div class="col-12 col-md-4 py-1">
+                        <div class="col-12 col-md-3 py-1">
 
                         </div>
-                        <div class="col-6 col-md-4 py-1">
-                            <form action="" method="get">
+                        <div class="col-6 col-md-6 py-1">
+                            <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
-                                    <select name="emp_id" id="sort_emp_id" class="form-select" onchange="this.form.submit()">
+                                    <select name="_year" class="form-select">
+                                        <option value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
+                                        <?php foreach($trade_years as $trade_year){ ?>
+                                            <option value="<?php echo $trade_year["_year"];?>" <?php if($trade_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                                <?php echo $trade_year["_year"]."y";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <select name="emp_id" id="sort_emp_id" class="form-select">
                                         <option value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
                                         <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>
+                                    <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-6 col-md-4 py-1 text-end">
+                        <div class="col-6 col-md-3 py-1 text-end">
                             <?php if($sys_role <= 2){ ?>
                                 <a href="form.php?action=create" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
                             <?php } ?>
@@ -166,200 +183,245 @@
                             <?php } ?>
                         </div>
                     </div>
-                    <?php if($per_total > 0){ ?>
-                        <!-- 20211215分頁工具 -->               
-                        <div class="row">
-                            <div class="col-12 col-md-6 pt-0">	
-                                <?php
-                                    //每頁顯示筆數明細
-                                    echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
-                                ?>
-                            </div>
-                            <div class="col-12 col-md-6 pt-0 text-end">
-                                <?php
-                                    if($pages>1){  //總頁數>1才顯示分頁選單
-    
-                                        //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
-                                        if($page=='1'){
-                                            echo "首頁 ";
-                                            echo "上一頁 ";	
-                                        }else if(isset($is_emp_id)){
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=1>首頁 </a> ";
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".($page-1).">上一頁 </a> ";
-                                        }else{
-                                            echo "<a href=?page=1>首頁 </a> ";
-                                            echo "<a href=?page=".($page-1).">上一頁 </a> ";		
-                                        }
-    
-                                        //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
-                                        for($i=1 ; $i<=$pages ;$i++){ 
-                                            $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
-                                            $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
-    
-                                            //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
-                                            if($page <= $lnum){
-                                                $rnum = $rnum + ($lnum-$page+1);
+                    <!-- tab body -->
+                    <div class="row">
+
+                        <!-- 右邊清單 -->
+                        <div class="col-12 px-3">
+                            <!-- 20211215分頁工具 -->               
+                            <div class="row">
+                                <div class="col-12 col-md-6 pt-1">	
+                                    <?php
+                                        //每頁顯示筆數明細
+                                        echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                    ?>
+                                </div>
+                                <div class="col-12 col-md-6 pt-1 text-end">
+                                    <?php
+                                        if($pages>1){  //總頁數>1才顯示分頁選單
+        
+                                            //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                            if($page=='1'){
+                                                echo "首頁 ";
+                                                echo "上一頁 ";		
+                                            }else{
+                                                $page_h = "<a href=?page=1";
+                                                $page_u = "<a href=?page=".($page-1);
+                                                    if(isset($_year)){
+                                                        $page_h .= "&_year=".$_year;
+                                                        $page_u .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($is_emp_id)){
+                                                        $page_h .= "&emp_id=".$is_emp_id;
+                                                        $page_u .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                echo $page_h.">首頁 </a> ";
+                                                echo $page_u.">上一頁 </a> ";	
                                             }
-    
-                                            if($page+$rnum > $pages){
-                                                $lnum = $lnum + ($rnum - ($pages-$page));
-                                            }
-                                            //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
-                                            if($page-$lnum <= $i && $i <= $page+$rnum){
-                                                if($i==$page){
-                                                    echo $i.' ';
-                                                }else if(isset($is_emp_id)){
-                                                    echo '<a href=?emp_id='.$is_emp_id.'&page='.$i.'>'.$i.'</a> ';
-                                                }else{
-                                                    echo '<a href=?page='.$i.'>'.$i.'</a> ';
+        
+                                            //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                            for($i=1 ; $i<=$pages ;$i++){ 
+                                                $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                                $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+        
+                                                //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                                if($page <= $lnum){
+                                                    $rnum = $rnum + ($lnum-$page+1);
+                                                }
+        
+                                                if($page+$rnum > $pages){
+                                                    $lnum = $lnum + ($rnum - ($pages-$page));
+                                                }
+                                                //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                                if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                    if($i==$page){
+                                                        echo $i.' ';
+                                                    }else{
+                                                        $page_n = '<a href=?page='.$i;
+                                                        if(isset($_year)){
+                                                            $page_n .= "&_year=".$_year;
+                                                        }
+                                                        if(isset($is_emp_id)){
+                                                            $page_n .= "&emp_id=".$is_emp_id;
+                                                        }
+                                                        echo $page_n.'>'.$i.'</a> ';
+                                                    }
                                                 }
                                             }
+                                            //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                            if($page==$pages){
+                                                echo " 下一頁";
+                                                echo " 末頁";	
+                                            }else{
+                                                $page_d = "<a href=?page=".($page+1);
+                                                $page_e = "<a href=?page=".$pages;
+                                                    if(isset($_year)){
+                                                        $page_d .= "&_year=".$_year;
+                                                        $page_e .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($is_emp_id)){
+                                                        $page_d .= "&emp_id=".$is_emp_id;
+                                                        $page_e .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                echo $page_d."> 下一頁</a> ";
+                                                echo $page_e."> 末頁</a> ";
+                                            }
                                         }
-                                        //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
-                                        if($page==$pages){
-                                            echo " 下一頁";
-                                            echo " 末頁";
-                                        }else if(isset($is_emp_id)){
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".($page+1)."> 下一頁</a>";
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".$pages."> 末頁</a>";		
-                                        }else{
-                                            echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                            echo "<a href=?page=".$pages."> 末頁</a>";		
-                                        }
-                                    }
-                                ?>
+                                    ?>
+                                </div>
                             </div>
-                        </div>
-                        <!-- 20211215分頁工具 -->
-                        <table id="trade_lists" class="table table-hover">
-                            <thead>
-                                <tr class="table-danger text-danger">
-                                    <th>發貨日期</th>
-                                    <th>發貨廠區</th>
-                                    <th>發貨人</th>
-                                    <th>收貨廠區</th>
-                                    <th>收貨人</th>
-                                    <th>收貨日期</th>
-                                    <th>狀態</th>
-                                    <th>action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($row_lists_div as $row){ ?>
-                                    <tr>
-                                        <!-- <td style="font-size: 10px;"><php echo $row['id']; ?></td> -->
-                                        <td title="aid: <?php echo $row['id'];?>"><?php echo substr($row['out_date'],0,10); ?></td>
-                                        <td style="font-size: 14px; word-break: break-all;">
-                                            <?php if(!empty($row["fab_o_title"])){ echo $row['fab_o_title'].'('.$row['fab_o_remark'].')';
-                                                }else{
-                                                    echo "<b>".($row["out_local"])."</b>";
-                                                }?>
-                                        </td>
-                                        <td><?php echo $row['cname_o'];?></td>
-                                        <td class="t-left"><?php echo $row["fab_i_title"].'('.$row['fab_i_remark'].')'.'_'.$row["local_i_title"];?></td>
-                                        <td><?php echo $row['cname_i'];?></td>
-                                        <td style="font-size: 10px;"><?php echo substr($row['in_date'],0,10); ?></td>
-                                        <td><?php $fab_role = ($row['fab_i_id'] == $sys_fab_id || (in_array($row['fab_i_id'], $sys_sfab_id)));
-                                            switch($row['idty']){
-                                                case "0"    : echo "完成";                  break;
-                                                case "1"    : echo $fab_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽"; break;
-                                                case "2"    : echo "退件";                  break;
-                                                case "3"    : echo "取消";                  break;
-                                                case "4"    : echo "編輯";                  break;
-                                                // case "10"   : echo "pr進貨";                break;
-                                                case "10"   : echo "結案";                  break;
-                                                default     : echo $row['idty']."na";       break;
-                                            }?></td>
-                                        <td>
-                                            <!-- Action功能欄 -->
-                                            <?php if((($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) 
-                                                    && ($row['idty'] == '1')){ ?> 
-                                                <!-- 待簽：in_local對應人員 -->
-                                                <a href="show.php?id=<?php echo $row['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>
-                                            <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id)))
-                                                    && ($row['idty'] == '2')){ ?>
-                                                <!-- 待簽：out_local對應人員 -->
-                                                <a href="show.php?id=<?php echo $row['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
-                                            <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_o_id'], $sys_sfab_id)))
-                                                    && ($row['idty'] == '4')){ ?>
-                                                <!-- 待簽：out_local對應人員 -->
-                                                <a href="form.php?id=<?php echo $row['id'];?>&action=edit" class="btn btn-sm btn-xs btn-success">編輯</a>
-                                            <?php }else{ ?>
-                                                <!-- siteUser功能 -->
-                                                <a href="show.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
-                                            <?php }?>
-                                        </td>
+                            <!-- 20211215分頁工具 -->
+                            <table id="trade_lists" class="table table-hover">
+                                <thead>
+                                    <tr class="table-danger text-danger">
+                                        <th>發貨日期</th>
+                                        <th>發貨廠區</th>
+                                        <th>發貨人</th>
+                                        <th>收貨廠區</th>
+                                        <th>收貨人</th>
+                                        <th>收貨日期</th>
+                                        <th>狀態</th>
+                                        <th>action</th>
                                     </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                        <!-- 20211215分頁工具 -->               
-                        <div class="row">
-                            <div class="col-12 col-md-6 pt-0">	
-                                <?php
-                                    //每頁顯示筆數明細
-                                    echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
-                                ?>
-                            </div>
-                            <div class="col-12 col-md-6 pt-0 text-end">
-                                <?php
-                                    if($pages>1){  //總頁數>1才顯示分頁選單
-    
-                                        //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
-                                        if($page=='1'){
-                                            echo "首頁 ";
-                                            echo "上一頁 ";	
-                                        }else if(isset($is_emp_id)){
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=1>首頁 </a> ";
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".($page-1).">上一頁 </a> ";
-                                        }else{
-                                            echo "<a href=?page=1>首頁 </a> ";
-                                            echo "<a href=?page=".($page-1).">上一頁 </a> ";		
-                                        }
-    
-                                        //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
-                                        for($i=1 ; $i<=$pages ;$i++){ 
-                                            $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
-                                            $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
-    
-                                            //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
-                                            if($page <= $lnum){
-                                                $rnum = $rnum + ($lnum-$page+1);
+                                </thead>
+                                <tbody>
+                                    <?php foreach($row_lists_div as $row){ ?>
+                                        <tr>
+                                            <!-- <td style="font-size: 10px;"><php echo $row['id']; ?></td> -->
+                                            <td title="aid: <?php echo $row['id'];?>"><?php echo substr($row['out_date'],0,10); ?></td>
+                                            <td style="font-size: 14px; word-break: break-all;">
+                                                <?php if(!empty($row["fab_o_title"])){ echo $row['fab_o_title'].'('.$row['fab_o_remark'].')';
+                                                    }else{
+                                                        echo "<b>".($row["out_local"])."</b>";
+                                                    }?>
+                                            </td>
+                                            <td><?php echo $row['cname_o'];?></td>
+                                            <td class="t-left"><?php echo $row["fab_i_title"].'('.$row['fab_i_remark'].')'.'_'.$row["local_i_title"];?></td>
+                                            <td><?php echo $row['cname_i'];?></td>
+                                            <td style="font-size: 10px;"><?php echo substr($row['in_date'],0,10); ?></td>
+                                            <td><?php $fab_role = ($row['fab_i_id'] == $sys_fab_id || (in_array($row['fab_i_id'], $sys_sfab_id)));
+                                                switch($row['idty']){
+                                                    case "0"    : echo "完成";                  break;
+                                                    case "1"    : echo $fab_role ? '<span class="badge rounded-pill bg-danger">待簽</span>':"待簽"; break;
+                                                    case "2"    : echo "退件";                  break;
+                                                    case "3"    : echo "取消";                  break;
+                                                    case "4"    : echo "編輯";                  break;
+                                                    // case "10"   : echo "pr進貨";                break;
+                                                    case "10"   : echo "結案";                  break;
+                                                    default     : echo $row['idty']."na";       break;
+                                                }?></td>
+                                            <td>
+                                                <!-- Action功能欄 -->
+                                                <?php if((($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) 
+                                                        && ($row['idty'] == '1')){ ?> 
+                                                    <!-- 待簽：in_local對應人員 -->
+                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>
+                                                <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id)))
+                                                        && ($row['idty'] == '2')){ ?>
+                                                    <!-- 待簽：out_local對應人員 -->
+                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
+                                                <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_o_id'], $sys_sfab_id)))
+                                                        && ($row['idty'] == '4')){ ?>
+                                                    <!-- 待簽：out_local對應人員 -->
+                                                    <a href="form.php?id=<?php echo $row['id'];?>&action=edit" class="btn btn-sm btn-xs btn-success">編輯</a>
+                                                <?php }else{ ?>
+                                                    <!-- siteUser功能 -->
+                                                    <a href="show.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
+                                                <?php }?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <?php if($per_total <= 0){ ?>
+                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選 <?php echo $_year." 或 ".$is_emp_id;?> 的文件! ] </div>
+                            <?php } ?>
+                            <hr>
+                            <!-- 20211215分頁工具 -->               
+                            <div class="row">
+                                <div class="col-12 col-md-6 pt-1">	
+                                    <?php
+                                        //每頁顯示筆數明細
+                                        echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                    ?>
+                                </div>
+                                <div class="col-12 col-md-6 pt-1 text-end">
+                                    <?php
+                                        if($pages>1){  //總頁數>1才顯示分頁選單
+        
+                                            //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                            if($page=='1'){
+                                                echo "首頁 ";
+                                                echo "上一頁 ";		
+                                            }else{
+                                                $page_h = "<a href=?page=1";
+                                                $page_u = "<a href=?page=".($page-1);
+                                                    if(isset($_year)){
+                                                        $page_h .= "&_year=".$_year;
+                                                        $page_u .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($is_emp_id)){
+                                                        $page_h .= "&emp_id=".$is_emp_id;
+                                                        $page_u .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                echo $page_h.">首頁 </a> ";
+                                                echo $page_u.">上一頁 </a> ";	
                                             }
-    
-                                            if($page+$rnum > $pages){
-                                                $lnum = $lnum + ($rnum - ($pages-$page));
-                                            }
-                                            //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
-                                            if($page-$lnum <= $i && $i <= $page+$rnum){
-                                                if($i==$page){
-                                                    echo $i.' ';
-                                                }else if(isset($is_emp_id)){
-                                                    echo '<a href=?emp_id='.$is_emp_id.'&page='.$i.'>'.$i.'</a> ';
-                                                }else{
-                                                    echo '<a href=?page='.$i.'>'.$i.'</a> ';
+        
+                                            //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                            for($i=1 ; $i<=$pages ;$i++){ 
+                                                $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                                $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+        
+                                                //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                                if($page <= $lnum){
+                                                    $rnum = $rnum + ($lnum-$page+1);
+                                                }
+        
+                                                if($page+$rnum > $pages){
+                                                    $lnum = $lnum + ($rnum - ($pages-$page));
+                                                }
+                                                //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                                if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                    if($i==$page){
+                                                        echo $i.' ';
+                                                    }else{
+                                                        $page_n = '<a href=?page='.$i;
+                                                        if(isset($_year)){
+                                                            $page_n .= "&_year=".$_year;
+                                                        }
+                                                        if(isset($is_emp_id)){
+                                                            $page_n .= "&emp_id=".$is_emp_id;
+                                                        }
+                                                        echo $page_n.'>'.$i.'</a> ';
+                                                    }
                                                 }
                                             }
+                                            //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                            if($page==$pages){
+                                                echo " 下一頁";
+                                                echo " 末頁";	
+                                            }else{
+                                                $page_d = "<a href=?page=".($page+1);
+                                                $page_e = "<a href=?page=".$pages;
+                                                    if(isset($_year)){
+                                                        $page_d .= "&_year=".$_year;
+                                                        $page_e .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($is_emp_id)){
+                                                        $page_d .= "&emp_id=".$is_emp_id;
+                                                        $page_e .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                echo $page_d."> 下一頁</a> ";
+                                                echo $page_e."> 末頁</a> ";
+                                            }
                                         }
-                                        //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
-                                        if($page==$pages){
-                                            echo " 下一頁";
-                                            echo " 末頁";
-                                        }else if(isset($is_emp_id)){
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".($page+1)."> 下一頁</a>";
-                                            echo "<a href=?emp_id=".$is_emp_id."&page=".$pages."> 末頁</a>";		
-                                        }else{
-                                            echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                            echo "<a href=?page=".$pages."> 末頁</a>";		
-                                        }
-                                    }
-                                ?>
+                                    ?>
+                                </div>
                             </div>
+                            <!-- 20211215分頁工具 -->
                         </div>
-                        <!-- 20211215分頁工具 -->
-                    <?php }else{ ?>
-                        <div class="col-12 border rounded bg-white text-center text-danger"> [ 您沒有待簽核的文件! ] </div>
-                    <?php } ?>
+                    </div>
                 </div>
             </div>
         </div>

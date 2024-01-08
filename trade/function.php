@@ -1,9 +1,12 @@
 <?php
 // // // Trade index
-    // 20230724 在trad_list秀出所有Trad清單 // 20230818 嵌入分頁工具
+    // 20230724 在trad_list秀出所有Trad清單 // 20230818 嵌入分頁工具    20240108
     function show_trade_list($request){
         $pdo = pdo();
         extract($request);
+        if(!isset($_year)){
+            $_year = "All";
+        }
         $sql = "SELECT _trade.*, users_o.cname as cname_o, users_i.cname as cname_i
                         , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
                         , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
@@ -19,10 +22,17 @@
                 LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
                 LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id
-                ";
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+        if($_year != 'All'){
+            $sql .= " WHERE year(_trade.out_date) = ? ";
+        }
+
         if($emp_id != 'All'){
-            $sql .= " WHERE _trade.out_user_id=? OR _trade.in_user_id=? OR _fab_o.id=? OR _fab_i.id=? ";      //處理 byUser
+            if($_year != 'All'){
+                $sql .= " AND ( _trade.out_user_id=? OR _trade.in_user_id=? OR _fab_o.id=? OR _fab_i.id=? ) ";        //處理 byUser
+            }else{
+                $sql .= " WHERE ( _trade.out_user_id=? OR _trade.in_user_id=? OR _fab_o.id=? OR _fab_i.id=? ) ";      //處理 byUser
+            }
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY out_date DESC";
@@ -35,13 +45,20 @@
 
         try {
             if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id, $fab_id, $fab_id]);       //處理 byUser
+                if($_year != 'All'){
+                    $stmt->execute([$_year, $emp_id, $emp_id, $fab_id, $fab_id]);       //處理 byUser & byYear
+                }else{
+                    $stmt->execute([ $emp_id, $emp_id, $fab_id, $fab_id]);              //處理 byUser &byAll
+                }
             }else{
-                $stmt->execute();               //處理 byAll
+                if($_year != 'All'){
+                    $stmt->execute([$_year]);              //處理 byYear
+                }else{
+                    $stmt->execute();                      //處理 byAll
+                }
             }
             $trades = $stmt->fetchAll();
             return $trades;
-
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -102,6 +119,72 @@
             }
             $sum_issue_ship = $stmt->fetchAll();
             return $sum_issue_ship;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // // 20240108 在index表頭顯示我的待簽清單：    // 統計看板--左上：我的待簽清單 / 轄區申請單
+    // // 參數說明：
+    // //     2 $fun == 'inSign'       => 我的待簽清單     不考慮 $fab_id
+    // function show_my_inSign($request){
+    //     $pdo = pdo();
+    //     extract($request);
+
+    //     $sql = "SELECT DISTINCT _t.* 
+    //                 , _l_i.local_title AS in_local_title, _l_i.local_remark AS in_local_remark
+    //                 , _f_i.id AS in_fab_id , _f_i.fab_title AS in_fab_title, _f_i.fab_remark AS in_fab_reamrk, _f_i.sign_code AS in_fab_sign_code , _f_i.pm_emp_id AS in_fab_pm_emp_id 
+    //                 , _s_i.site_title AS in_site_title, _s_i.site_remark AS in_site_reamrk 
+    //                 , _l_o.local_title AS out_local_title, _l_o.local_remark AS out_local_remark
+    //                 , _f_o.id AS out_fab_id , _f_o.fab_title AS out_fab_title, _f_o.fab_remark AS out_fab_reamrk, _f_o.sign_code AS out_fab_sign_code , _f_o.pm_emp_id AS out_fab_pm_emp_id 
+    //                 , _s_o.site_title AS out_site_title, _s_o.site_remark AS out_site_reamrk 
+    //             FROM `_trade` _t
+    //             LEFT JOIN _local _l_i ON _t.in_local = _l_i.id
+    //             LEFT JOIN _fab _f_i ON _l_i.fab_id = _f_i.id
+    //             LEFT JOIN _site _s_i ON _f_i.site_id = _s_i.id
+    //             LEFT JOIN _local _l_o ON _t.out_local = _l_o.id
+    //             LEFT JOIN _fab _f_o ON _l_o.fab_id = _f_o.id
+    //             LEFT JOIN _site _s_o ON _f_o.site_id = _s_o.id;
+    //              ";
+
+    //     if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+    //         // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
+    //         $sql .= " WHERE (_t.idty IN (1, 11) AND _t.in_sign = ? ) OR (_t.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
+    //     }
+        
+    //     // 後段-堆疊查詢語法：加入排序
+    //     $sql .= " ORDER BY _r.created_at DESC";
+
+    //     // 決定是否採用 page_div 20230803
+    //     if(isset($start) && isset($per)){
+    //         $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+    //     }else{
+    //         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+    //     }
+    //     try {
+    //         if(in_array( $fun , ['inSign', 'myTrade'])){            // 處理 $_2我待簽清單inSign、$_1我申請單myTrade
+    //             $stmt->execute([$emp_id]);
+    //         } else {                                                // $_5我的待領清單myCollect 'myCollect'
+    //             $stmt->execute();
+    //         }
+    //         $my_inSign_lists = $stmt->fetchAll();
+    //         return $my_inSign_lists;
+
+    //     }catch(PDOException $e){
+    //         echo $e->getMessage();
+    //     }
+    // }
+    // 取出年份清單 => 供面篩選
+    function show_trade_GB_year(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT year(_t.out_date) AS _year
+                FROM `_trade` _t
+                GROUP BY _t.out_date
+                ORDER BY _t.out_date DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $checked_years = $stmt->fetchAll();
+            return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
         }

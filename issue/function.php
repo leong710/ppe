@@ -19,13 +19,25 @@
                 LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
                 LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
-                WHERE year(_issue.create_date) = ? ";
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+        if($_year != 'All'){
+            $sql .= " WHERE year(_issue.create_date) = ? ";
+        }
+
         if($emp_id != 'All'){
             if($_SESSION[$sys_id]["role"] <= 1){
-                $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
+                if($_year != 'All'){
+                    $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
+                }else{
+                    $sql .= " WHERE ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
+                }
+
             }else{
-                $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
+                if($_year != 'All'){
+                    $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
+                }else{
+                    $sql .= " WHERE ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
+                }
             }
         }
         // 後段-堆疊查詢語法：加入排序
@@ -39,9 +51,17 @@
      
         try {
             if($emp_id != 'All'){
-                $stmt->execute([$_year, $emp_id, $emp_id]);         //處理 by User 
+                if($_year != 'All'){
+                    $stmt->execute([$_year, $emp_id, $emp_id]);         //處理 by User 
+                }else{
+                    $stmt->execute([$emp_id, $emp_id]);                 //處理 by User 
+                }
             }else{
-                $stmt->execute([$_year]);                           //處理 by All
+                if($_year != 'All'){
+                    $stmt->execute([$_year]);                           //處理 by All
+                }else{
+                    $stmt->execute();                                   //處理 by All
+                }
             }
             $issues = $stmt->fetchAll();
             return $issues;
@@ -162,7 +182,49 @@
             echo $e->getMessage();
         }
     }
-    // 取出PNO年份清單 => 供Part_NO料號頁面篩選
+    // 20231019 在index表頭顯示我的待簽清單：    // 統計看板--左上：我的待簽清單 / 轄區申請單
+    // 參數說明：2 $fun == 'inSign'       => 我的待簽清單     不考慮 $fab_id
+    function show_my_inSign($request){
+        $pdo = pdo();
+        extract($request);
+
+        $sql = "SELECT DISTINCT _i.* 
+                        , _l.local_title , _l.local_remark 
+                        , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id 
+                        , _s.site_title , _s.site_remark 
+                FROM `_issue` _i
+                LEFT JOIN _local _l ON _i.in_local = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id ";
+
+        if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+            // $sql .= " WHERE (_i.idty IN (1, 11, 13) AND _i.in_sign = ? ) ";
+            $sql .= " WHERE (_i.idty IN (1, 11) AND _i.in_sign = ? ) OR (_i.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
+        }
+        
+        // 後段-堆疊查詢語法：加入排序
+            $sql .= " ORDER BY _i.create_date DESC";
+
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
+        try {
+            if(in_array( $fun , ['inSign', 'myIssue'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myIssue
+                $stmt->execute([$emp_id]);
+            } else {                                                // $_5我的待領清單myCollect 'myCollect'
+                $stmt->execute();
+            }
+            $my_inSign_lists = $stmt->fetchAll();
+            return $my_inSign_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 取出年份清單 => 供面篩選
     function show_issue_GB_year(){
         $pdo = pdo();
         $sql = "SELECT DISTINCT year(_i.create_date) AS _year

@@ -22,7 +22,7 @@
         if(isset($_REQUEST["report_mm"])){
             $report_mm = $_REQUEST["report_mm"];
         }else{
-            // $report_mm = date('m');                         // 今月
+            // $report_mm = date('m');                      // 今月
             $report_mm = "All";                             // 今月
         }
         $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
@@ -224,7 +224,7 @@
                             $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
                             $b_tab .= "<div class='col-12 bg-white'><table class='w-100 table table-striped table-hover'>";
                             $b_tab .= "<thead><tr>";
-                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]} -- Total：<span id='{$local["id"]}_fab_total_cost'></span></th>";
+                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]}({$local["local_title"]}_{$local["local_remark"]}) -- Total：<span id='{$local["id"]}_fab_total_cost'></span></th>";
                             echo $b_tab;
                                 foreach ($allReport_ymms as $ymm) {
                                     echo "<th>{$ymm["mm"]}月</th>";
@@ -273,10 +273,11 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
     var report_lists = <?=json_encode($report_lists);?>;          // 引入report_lists資料
-    var catalogs      = <?=json_encode($catalogs);?>;               // 引入catalogs資料
+    var catalogs     = <?=json_encode($catalogs);?>;              // 引入catalogs資料
     var report_yy    = '<?=$report_yy;?>';                        // 引用年分
-    var reportAmount = [];                                         // 宣告變數陣列，承裝Receives年領用量
-    var cata_price    = [];                                         // 宣告變數陣列，承裝pno年報價
+    var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
+    var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
+    console.log('report_lists:', report_lists)
     
     // 把 catalog對應的p_no報價繞出來
     Object(catalogs).forEach(function(cata){
@@ -296,14 +297,14 @@
     // function show_reports(){
         // 彙整出SN年領用量
         Object(report_lists).forEach(function(row){
-            let csa = JSON.parse(row['cata_SN_amount']);
+            var csa = JSON.parse(row['cata_SN_amount']);
             Object.keys(csa).forEach(key =>{                    // key = cats_SN
-                let pay = Number(csa[key]['pay']);
-                let l_key = row['local_id'] +'_'+ key;          // 第1頁
-                let key_TT = key +'_TT';                        // 第1頁
-                let l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
-                let l_key_fabTT = l_key +'_fabTT';              // 第2頁 
-                let local_id = row['local_id'];
+                var pay = Number(csa[key]['pay']);
+                var l_key = row['local_id'] +'_'+ key;          // 第1頁
+                var key_TT = key +'_TT';                        // 第1頁
+                var l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
+                var l_key_fabTT = l_key +'_fabTT';              // 第2頁 
+                var local_id = row['local_id'];
                 // 第1頁
                     if(reportAmount[l_key]){                       // 第1頁 每個廠的實付數量
                         reportAmount[l_key] += pay;
@@ -363,16 +364,17 @@
         // console.log('reportAmount:', reportAmount)
         // 選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {
-            let value = reportAmount[key];
+            var value = reportAmount[key];
             $('#'+key).empty();
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);
             }else{
+                console.log('key:', key);
                 $('#'+key).append(value);
             }
         })
 
-        // let sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
+        // var sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
         // inside_toast(sinn);
     // }
 

@@ -41,7 +41,8 @@
     function show_receives($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _r.local_id , _r.cata_SN_amount , DATE_FORMAT(_r.created_at, '%m') as mm
+        // $sql = "SELECT _r.local_id , _r.cata_SN_amount , DATE_FORMAT(_r.created_at, '%m') as mm , DATE_FORMAT(_r.created_at, '%Y') as yy 
+        $sql = "SELECT _r.local_id , _r.cata_SN_amount , month(_r.created_at) as mm , year(_r.created_at) as yy 
                     -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark 
                     -- , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
                     -- , _s.site_title , _s.site_remark
@@ -49,11 +50,11 @@
                     -- LEFT JOIN _local _l ON _r.local_id = _l.id
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _r.idty = 10 OR _r.idty = 11 OR _r.idty = 13 ";          // 10=結案 13=已發貨
+                WHERE( _r.idty = 10 OR _r.idty = 11 OR _r.idty = 13) ";          // 10=結案 13=已發貨
         if($report_mm == "All"){
-            $sql .= "AND DATE_FORMAT(_r.created_at,'%Y') = ? ";
+            $sql .= "AND year(_r.created_at) = ? ";
         }else{
-            $sql .= "AND DATE_FORMAT(_r.created_at,'%Y-%m') = ? ";
+            $sql .= "AND year(_r.created_at) = ? AND month(_r.created_at) = ?";
         }
         $stmt = $pdo->prepare($sql);
         try {
@@ -61,7 +62,7 @@
             $stmt->execute([$report_yy]);
         }else{
             $report_ym = $report_yy."-".$report_mm;
-            $stmt->execute([$report_ym]);
+            $stmt->execute([$report_yy ,$report_mm]);
         }
             $receives = $stmt->fetchAll();
             return $receives;

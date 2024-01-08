@@ -14,22 +14,29 @@
         $is_emp_id = "All";    // 預設值=All
         
         // 2-1.身分選擇功能：定義user進來要看到的項目
-            if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
-                $is_emp_id = $_REQUEST["emp_id"];
+        if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
+            $is_emp_id = $_REQUEST["emp_id"];
 
-            }else if($sys_role >=2){                    // 沒帶查詢，含2以上=套自身主fab_id
-                $is_emp_id = $auth_emp_id;
-            }
-
+        }else if($sys_role >=2){                    // 沒帶查詢，含2以上=套自身主fab_id
+            $is_emp_id = $auth_emp_id;
+        }
+        // *** 篩選組合項目~~
+        if(isset($_REQUEST["_year"])){
+            $_year = $_REQUEST["_year"];
+        }else{
+            $_year = date('Y');                         // 今年
+        }
         
     // 組合查詢陣列
         $query_arr = array(
+            '_year'     => $_year,
             'sys_id'    => $sys_id,
             'emp_id'    => $is_emp_id
         );
 
         $row_lists       = show_issue_list($query_arr);
         $sum_issues_ship = show_sum_issue_ship($query_arr);    // 統計看板--下：轉PR單
+        $issue_years     = show_issue_GB_year();               // 取出issue年份清單 => 供首頁面篩選
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);        // 計算總筆數
@@ -125,22 +132,30 @@
                 <div class="col-12 bg-white">
                     <!-- tab head -->
                     <div class="row">
-                        <div class="col-12 col-md-4 py-1">
+                        <div class="col-12 col-md-3 py-1">
 
                         </div>
-                        <div class="col-6 col-md-4 py-1">
-                            <form action="" method="get">
+                        <div class="col-6 col-md-6 py-1 text-end">
+                            <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
-                                    <select name="emp_id" id="sort_emp_id" class="form-select" onchange="this.form.submit()">
+                                    <select name="_year" id="groupBy_cate" class="form-select">
+                                        <option value="" hidden >-- 年度 / All --</option>
+                                        <?php foreach($issue_years as $issue_year){ ?>
+                                            <option value="<?php echo $issue_year["_year"];?>" <?php if($issue_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                                <?php echo $issue_year["_year"]."y";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <select name="emp_id" id="sort_emp_id" class="form-select" >
                                         <option value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
                                         <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>
+                                    <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-6 col-md-4 py-1 text-end">
+                        <div class="col-6 col-md-3 py-1 text-end">
                             <?php if($sys_role <= 2){ ?>
                                 <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
                             <?php } ?>
@@ -154,11 +169,11 @@
                         <!-- 左邊統計 -->
                         <div class="col-12 col-md-3 px-1">
                             <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
-                                <h5>轉PR單：<sup class="text-danger"> * Limit 10</sup></h5>
+                                <h5>已轉PR清單：<sup class="text-danger"> * Limit 25</sup></h5>
                                 <table class="table">
                                     <thead>
                                         <tr class="table-dark">
-                                            <th>in_date</th>
+                                            <th>結單日期</th>
                                             <th>PR單</th>
                                         </tr>
                                     </thead>
@@ -173,10 +188,17 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="my-2 p-3 rounded bg-success text-white">
+                                <div>
+                                    <span><b>簡易表單流程：</br></b>1.(user)填單+送出 => 2.主管簽核 => 3.PM簽核 => 4.(PM)待轉PR+PR開單確認 5.轉PR => 6.(PM)交貨 => 7.(user)驗收 => 8.表單結案~</span>
+                                </div>
+                                <div>
+                                    <span class="text-end">** PM交貨時，請確實填寫交貨數量，表單送出交貨後，無法退件或取消。</span>
+                                </div>
+                            </div>
                         </div>
                         <!-- 右邊清單 -->
                         <div class="col-12 col-md-9 px-1">
-                            <?php if($per_total > 0){ ?>
                                 <div class="border rounded px-3 py-2" style="background-color: #D4D4D4;">
                                     <!-- 20211215分頁工具 -->               
                                     <div class="row">
@@ -250,7 +272,7 @@
                                                 <th>需求者</th>
                                                 <th>發貨廠區</th>
                                                 <th>發貨人</th>
-                                                <th>簽單日期</th>
+                                                <th>結單日期</th>
                                                 <th>類別</th>
                                                 <th>貨態</th>
                                                 <th>狀態</th>
@@ -312,6 +334,10 @@
                                             <?php } ?>
                                         </tbody>
                                     </table>
+                                    <?php if($per_total <= 0){ ?>
+                                        <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選的文件! ] </div>
+                                    <?php } ?>
+                                    <hr>
                                     <!-- 20211215分頁工具 -->               
                                     <div class="row">
                                         <div class="col-12 col-md-6 pt-0">	
@@ -377,9 +403,7 @@
                                     </div>
                                     <!-- 20211215分頁工具 -->
                                 </div>
-                            <?php }else{ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 您沒有待簽核的文件! ] </div>
-                            <?php } ?>
+              
                         </div>
                     </div>
                 </div>

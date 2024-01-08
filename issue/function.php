@@ -1,6 +1,6 @@
 <?php
 // // // index 統計數據
-    // 20230719 在issue_list秀出所有issue清單
+    // 20230719 在issue_list秀出所有issue清單   20240108
     function show_issue_list($request){
         $pdo = pdo();
         extract($request);
@@ -19,12 +19,13 @@
                 LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
                 LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
+                LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
+                WHERE year(_issue.create_date) = ? ";
         if($emp_id != 'All'){
             if($_SESSION[$sys_id]["role"] <= 1){
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ";      //處理 byUser
+                $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
             }else{
-                $sql .= " WHERE _issue.out_user_id=? OR _issue.in_user_id=? ";      //處理 byUser
+                $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
             }
         }
         // 後段-堆疊查詢語法：加入排序
@@ -38,9 +39,9 @@
      
         try {
             if($emp_id != 'All'){
-                $stmt->execute([$emp_id, $emp_id]);         //處理 by User 
+                $stmt->execute([$_year, $emp_id, $emp_id]);         //處理 by User 
             }else{
-                $stmt->execute();                           //處理 by All
+                $stmt->execute([$_year]);                           //處理 by All
             }
             $issues = $stmt->fetchAll();
             return $issues;
@@ -87,7 +88,7 @@
             $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
                         (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship AND ( _i2.out_user_id=? OR _i2.in_user_id=? )) AS ship_count
                     FROM `_issue`
-                    WHERE _issue._ship IS NOT NULL AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";      //處理 byUser
+                    WHERE _issue._ship IS NOT NULL AND ( _issue.out_user_id=? OR _issue.in_user_id=? ) ";      //處理 byUser
         }else{
             $sql = "SELECT DISTINCT _issue._ship, LEFT(_issue.in_date, 10) AS in_date,
                         (SELECT COUNT(*) FROM `_issue` _i2 WHERE _i2._ship = _issue._ship) AS ship_count
@@ -96,12 +97,12 @@
         }
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY _issue._ship DESC";
-        $stmt = $pdo->prepare($sql.' LIMIT 10');    // TOP 10
+        $stmt = $pdo->prepare($sql.' LIMIT 25');    // TOP 25
         try {
             if($emp_id != 'All'){
                 $stmt->execute([$emp_id, $emp_id, $emp_id, $emp_id]);       //處理 byUser
             }else{
-                $stmt->execute();                           //處理 byAll
+                $stmt->execute();                                           //處理 byAll
             }
             $sum_issue_ship = $stmt->fetchAll();
             return $sum_issue_ship;
@@ -157,6 +158,22 @@
             $stmt->execute([$local_id]);
             $stocks = $stmt->fetchAll();
             return $stocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 取出PNO年份清單 => 供Part_NO料號頁面篩選
+    function show_issue_GB_year(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT year(_i.create_date) AS _year
+                FROM `_issue` _i
+                GROUP BY _i.create_date
+                ORDER BY _i.create_date DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $checked_years = $stmt->fetchAll();
+            return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
         }

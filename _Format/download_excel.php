@@ -51,30 +51,63 @@
     // 設定檔案名稱
         switch($to_module){
             case "stock":
-                $filename_head = $data[0]["儲存點"]."_PPE存量總表";
+                $filename_head = "PPE存量總表_".$data[0]["儲存點"];
+                    $columns = ['B', 'C', 'E', 'F', 'G', 'K', 'L', 'M'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
                 break;
             case "supp":
                 $filename_head = "PPE供應商_總表下載";
+                    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'L'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
                 break;
             case "contact":
                 $filename_head = "PPE聯絡人_總表下載";
-                break;
+                    $columns = ['B', 'C', 'D', 'F', 'H'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
+                break;                    
             case "pno":
                 $filename_head = "PPE_Part_NO料號_總表下載";
+                    $columns = ['B', 'C', 'D', 'G', 'H', 'J'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
                 break;
             case "issueAmount":
                 $filename_head = "PPE_請購需求單待轉PR_總表下載";
+                    $columns = ['C', 'H'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
                 break;
             case "issueAmount_PR":
                 $filename_head = "PPE_請購需求單已開PR：{$_REQUEST["pr_no"]}_總表下載";
                 break;
             case "cata":
                 $filename_head = "PPE_器材目錄管理_總表下載";
+                    $columns = ['B', 'C', 'D', 'E', 'F', 'G', 'J', 'P', 'Q'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
+                break;
+            case "sum_report":
+                $filename_head = "PPE_進出量與成本匯總：{$_REQUEST["report_yy"]}{$_REQUEST["report_mm"]}_{$_REQUEST["tab_name"]}_{$_REQUEST["form_type"]}_下載";
+                $spreadsheet->getActiveSheet()->setTitle($_REQUEST["tab_name"]);                    // 定義sheetName
+                $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);         // A欄-自動欄寬
                 break;
             default:
                 $filename_head = $to_module;
                 break;
         }
+
+    // 調整欄列寬高換行
+    $spreadsheet->getActiveSheet()->getStyle('1:1')->getAlignment()->setWrapText(true); // 1列-自動換行
+    $spreadsheet->getActiveSheet()->getRowDimension(1)->setRowHeight(-1);               // 1列-自動欄高
 
     $filename = $filename_head."_".$now.'.xlsx';  // 設定檔名 
 

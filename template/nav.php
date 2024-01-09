@@ -79,10 +79,6 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDD_1">
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
-                                <?php if($sys_id_role <= 2 ){ ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
-                                <?php } ?>
                             </ul>
                         </li>
 
@@ -112,6 +108,10 @@
                                         <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
+                                    <?php if($sys_id_role <= 2 ){ ?>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
+                                    <?php } ?>
                                 </ul>
                             </li>
                         <?php } ?>

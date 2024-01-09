@@ -242,7 +242,7 @@
                                     default  : echo "'>na";                         break; 
                                 }
                             // echo "<sup> ".$trade_row['idty']."</sup>";
-                            echo !empty($issue_row['in_sign']) ? "：".$issue_row['in_sign']." " :"";
+                            echo !empty($issue_row['in_signName']) ? "：".$issue_row['in_signName']." " :"";
                             echo !empty($issue_row['flow']) ? " / ".$issue_row['flow']." " :"";
                             // echo " ... ".$step;
                             echo "</span></h3>";

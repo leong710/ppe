@@ -41,6 +41,7 @@
 
         $query_inSign_arr = array(
             'fun'       => "inSign",
+            'sys_role'  => $sys_role,
             'emp_id'    => $auth_emp_id
         );
         $my_inSign_lists = show_my_inSign($query_inSign_arr);

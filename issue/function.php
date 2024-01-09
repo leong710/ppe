@@ -200,6 +200,9 @@
         if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
             // $sql .= " WHERE (_i.idty IN (1, 11, 13) AND _i.in_sign = ? ) ";
             $sql .= " WHERE (_i.idty IN (1, 11) AND _i.in_sign = ? ) OR (_i.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
+            if($sys_role <= 1 ){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+                $sql .= " OR (_i.idty IN (1, 11) AND _i.flow = 'PPEpm' ) ";
+            }
         }
         
         // 後段-堆疊查詢語法：加入排序

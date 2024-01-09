@@ -233,7 +233,7 @@
                                     default  : echo "'>na";                         break; 
                                 }
                             // echo "<sup> ".$receive_row['idty']."</sup>";
-                            echo !empty($receive_row['in_sign']) ? "：".$receive_row['in_sign']." " :"";
+                            echo !empty($receive_row['in_signName']) ? "：".$receive_row['in_signName']." " :"";
                             echo !empty($receive_row['flow']) ? " / ".$receive_row['flow']." " :"";
                             // echo " ... ".$step;
                             echo "</span></h3>";

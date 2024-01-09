@@ -197,7 +197,7 @@
                                 <?php if($fun == 'myReceive'){ ?>
                                     <!-- 功能1.我的申請文件 -->
                                     <div class="col-12 col-md-5 py-0">
-                                        <?php if($sys_role <= 2){ ?>
+                                        <?php if($sys_role <= 3){ ?>
                                             <a href="?fun=myFab" class="btn btn-warning" data-toggle="tooltip" data-placement="bottom" title="切換到-轄區文件"><i class="fa-solid fa-right-left"></i></a>
                                         <?php } ?>
                                         <h5 style="display: inline;">我的申請文件：<sup>- myReceives </sup></h5>

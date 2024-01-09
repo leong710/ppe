@@ -534,9 +534,9 @@
     
                 <!-- 尾段：deBug訊息 -->
                 <?php 
-                    // if(isset($_REQUEST["debug"])){
+                    if(isset($_REQUEST["debug"])){
                         include("debug_board.php"); 
-                    // } 
+                    } 
                 ?>
             </div>
         </div>

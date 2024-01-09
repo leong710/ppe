@@ -141,10 +141,11 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _f.id , _f.fab_title , _f.fab_remark , _f.flag , _f.sign_code AS fab_sign_code , _f.pm_emp_id
-                FROM _fab AS _f ";
+                FROM _fab AS _f 
+                WHERE _f.flag = 'On' ";
             
         if($fab_id != "All"){
-            $sql .= " WHERE _f.id IN ({$sfab_id}) ";
+            $sql .= " AND _f.id IN ({$sfab_id}) ";
             if($fab_id != "allMy"){
                 $sql .= " OR _f.id = ? ";
             }

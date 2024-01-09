@@ -156,7 +156,7 @@
                                         <?php } ?>
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select" >
-                                        <option value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
+                                        <option value="All" <?php echo $is_emp_id == "All" ? "selected":""; echo $sys_role >= 3 ? "hidden":"";?>>-- [ All user ] --</option>
                                         <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>

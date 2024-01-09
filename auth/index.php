@@ -93,10 +93,10 @@
                     <ul class="nav nav-pills">
                     <!-- <ul class="nav nav-tabs"> -->
                         <li class="nav-item">
-                            <a class="nav-link active" href="#" title="none" id="none"><i class="fa-solid fa-circle-user"></i>&nbsp正常名單</a>
+                            <a class="nav-link active" href="#" title="none" id="none"><i class="fa-solid fa-circle-user"></i>&nbspPM名單</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" title="new" id="new"><i class="fa-solid fa-ghost"></i>&nbsp新人
+                            <a class="nav-link" href="#" title="new" id="new"><i class="fa-solid fa-ghost"></i>&nbsp一般使用者
                                 <?php if($count_users_new !=0){?>
                                     <span class="badge bg-danger"><?php echo $count_users_new;?></span>
                                 <?php }?>
@@ -136,7 +136,7 @@
                             <tr>
                                 <td><?php echo $user_none["id"]; ?></td>
                                 <td class="t_left"><?php echo $user_none["emp_id"]." / ".$user_none["cname"]." / ";?><a href="edit.php?user=<?php echo $user_none["user"];?>"><?php echo $user_none["user"]; ?></a></td>
-                                <td title="<?php echo $user_none["fab_remark"];?>"><?php echo $user_none["fab_id"]."_".$user_none["fab_title"];?></td>
+                                <td class="t_left" title="<?php echo $user_none["fab_remark"];?>"><?php echo $user_none["fab_id"]."_".$user_none["fab_title"]; if($user_none["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                 <td><?php echo $user_none["sfab_id"]; ?></td>
                                 <td <?php if($user_none["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
                                     <?php switch($user_none["role"]){
@@ -164,7 +164,7 @@
                             <tr>
                                 <td><?php echo $user_new["id"]; ?></td>
                                 <td class="t_left"><?php echo $user_new["emp_id"]." / ".$user_new["cname"]." / ";?><a href="edit.php?user=<?php echo $user_new["user"];?>"><?php echo $user_new["user"]; ?></a></td>
-                                <td title="<?php echo $user_new["fab_remark"];?>"><?php echo $user_new["fab_id"]."_".$user_new["fab_title"];?></td>
+                                <td class="t_left" title="<?php echo $user_new["fab_remark"];?>"><?php echo $user_new["fab_id"]."_".$user_new["fab_title"]; if($user_new["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                 <td><?php echo $user_new["sfab_id"]; ?></td>
                                 <td <?php if($user_new["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
                                     <?php switch($user_new["role"]){
@@ -192,7 +192,7 @@
                             <tr>
                                 <td><?php echo $user_pause["id"]; ?></td>
                                 <td class="t_left"><?php echo $user_pause["emp_id"]." / ".$user_pause["cname"]." / ";?><a href="edit.php?user=<?php echo $user_pause["user"];?>"><?php echo $user_pause["user"]; ?></a></td>
-                                <td title="<?php echo $user_pause["fab_remark"];?>"><?php echo $user_pause["fab_id"]."_".$user_pause["fab_title"];?></td>
+                                <td class="t_left" title="<?php echo $user_pause["fab_remark"];?>"><?php echo $user_pause["fab_id"]."_".$user_pause["fab_title"]; if($user_pause["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                 <td><?php echo $user_pause["sfab_id"]; ?></td>
                                 <td <?php if($user_pause["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
                                     <?php switch($user_pause["role"]){

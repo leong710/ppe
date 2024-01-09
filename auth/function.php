@@ -99,7 +99,7 @@
     function showAllUsers($request){
         $pdo = pdo();
         // extract($request);
-        $sql = "SELECT _users.*, _fab.fab_title, _fab.fab_remark 
+        $sql = "SELECT _users.*, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag
                 FROM _users
                 LEFT JOIN _fab ON _users.fab_id = _fab.id ";
 

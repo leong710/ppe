@@ -11,17 +11,15 @@
     $form_type   = "receive";
 
         // 身分選擇功能：定義user進來要看到的項目
-        // $is_emp_id = "All";                      // 預設值=All
-        // $is_fab_id = "All";                      // 預設值=All
-        $is_emp_id = $auth_emp_id;                  // 預設值=自己
-        $is_fab_id = "allMy";                       // 預設值=allMy
+        $is_emp_id = "All";    // 預設值=All
+        $is_fab_id = "All";    // 預設值=All
         
         // 1.決定開啟表單的功能：
         if(isset($_REQUEST["fun"]) && $_REQUEST["fun"] != "myReceive"){
-            // $fun = $_REQUEST["fun"];             // 有帶fun，套查詢參數
-            $fun = "myFab";                         // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
+            // $fun = $_REQUEST["fun"];                         // 有帶fun，套查詢參數
+            $fun = "myFab";                                     // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
         }else{
-            $fun = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
+            $fun = "myReceive";                                 // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
         }
         // 2-1.身分選擇功能：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
@@ -32,9 +30,9 @@
 
         // 2-2.檢視廠區內表單
         if(isset($_REQUEST["fab_id"])){
-            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
+            $is_fab_id = $_REQUEST["fab_id"];                   // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
         }else{
-            $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is + coverFab)
+            $is_fab_id = "allMy";                               // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
         }
         // // *** 篩選組合項目~~
         // if(isset($_REQUEST["_year"])){
@@ -49,12 +47,12 @@
             // 'sys_id'    => $sys_id,
             'role'      => $sys_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
-            'emp_id'    => $auth_emp_id,
             'fab_id'    => $is_fab_id,
+            'emp_id'    => $auth_emp_id,
             'is_emp_id' => $is_emp_id
         );
 
-    // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
+    // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
         if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
             array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
         }
@@ -162,7 +160,7 @@
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-md-6 py-1 page_title">
-                        <h3><b>PPE表單匯總：</b><?php echo $form_type." <sup>-- ".$fun."</sup>";?> </h3>
+                        <h3><b>PPE表單匯總：</b><?php echo $form_type;?> </h3>
                     </div>
                     <div class="col-md-6 py-1">
      
@@ -250,110 +248,114 @@
                     </div>
                     <!-- tab body -->
                     <div class="row">
-                        <!-- L左邊 -->
-                        <div class="col-12 col-md-4 px-1">
-                            <div class="row">
-                                <div class="col-6 col-md-12 pt-0">
-                                    <!-- L1.我的待簽清單 -->
-                                    <div class="rounded bg-light px-3 py-2 bsod">
-                                        <div class="col-12 px-0 pb-0">
-                                            <h5><i class="fa-brands fa-stack-overflow"></i> 我的待簽清單：<sup>- inSign </sup>
-                                                <?php echo count($my_inSign_lists) >0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_inSign_lists)."</sup></span>" :"" ;?>
-                                            </h5>
-                                        </div>
-                                        <div class="col-12 px-0 pb-1 pt-0">
-                                            <!-- <簡易表單流程> -->
-                                            <div class="rounded bg-success text-white p-2">
-                                                <span><b>簡易表單流程：</b>
-                                                <button type="button" id="sign_remark_btn" class="op_tab_btn" value="sign_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                                <div id="sign_remark">
-                                                    1.(user)填寫需求單+送出 =>  2.待簽/申請人主管簽核 =>  3.待領/申請人領貨+發貨人確認送出 =>
-                                                    4.待簽/業務負責人簽核 =>  5.待簽/環安主管簽核 => 表單結案~
-                                                    <div class="text-end">** 簽核時若遇退件，請user重新編輯後再送單。</div>
+                        <?php if($fun == 'myFab'){ ?>
+                            <!-- L左邊 -->
+                            <div class="col-12 col-md-4 px-1">
+                                <div class="row">
+                                    <div class="col-6 col-md-12 pt-0">
+                                        <!-- L1.我的待簽清單 -->
+                                        <div class="rounded bg-light px-3 py-2 bsod">
+                                            <div class="col-12 px-0 pb-0">
+                                                <h5><i class="fa-brands fa-stack-overflow"></i> 我的待簽清單：<sup>- inSign </sup>
+                                                    <?php echo count($my_inSign_lists) >0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_inSign_lists)."</sup></span>" :"" ;?>
+                                                </h5>
+                                            </div>
+                                            <div class="col-12 px-0 pb-1 pt-0">
+                                                <!-- <簡易表單流程> -->
+                                                <div class="rounded bg-success text-white p-2">
+                                                    <span><b>簡易表單流程：</b>
+                                                    <button type="button" id="sign_remark_btn" class="op_tab_btn" value="sign_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                                    <div id="sign_remark">
+                                                        1.(user)填寫需求單+送出 =>  2.待簽/申請人主管簽核 =>  3.待領/申請人領貨+發貨人確認送出 =>
+                                                        4.待簽/業務負責人簽核 =>  5.待簽/環安主管簽核 => 表單結案~
+                                                        <div class="text-end">** 簽核時若遇退件，請user重新編輯後再送單。</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <?php if(count($my_inSign_lists) >0){ ?>
-                                            <table class="table">
-                                                <thead>
-                                                    <tr class="table-dark">
-                                                        <th>開單日期</th>
-                                                        <th>提貨廠區/申請單位/申請人</th>
-                                                        <th>狀態</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach($my_inSign_lists as $my_inSign){ ?>
-                                                        <tr>
-                                                            <td title="aid:<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10);?></td>
-                                                            <td class="word_bk"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
-                                                                <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
-                                                            <td><?php $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
-                                                                switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
-                                                                    case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
-                                                                    case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
-                                                                    case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
-                                                                    default     : echo $my_inSign['idty']."--";   break;
-                                                                }; ?>
-                                                            </td>
+                                            <?php if(count($my_inSign_lists) >0){ ?>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr class="table-dark">
+                                                            <th>開單日期</th>
+                                                            <th>提貨廠區/申請單位/申請人</th>
+                                                            <th>狀態</th>
                                                         </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
-                                        <?php }else{ ?>
-                                            <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待簽核的文件! ] </div>
-                                        <?php } ?>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach($my_inSign_lists as $my_inSign){ ?>
+                                                            <tr>
+                                                                <td title="aid:<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['created_at'],0,10);?></td>
+                                                                <td class="word_bk"><a href="show.php?uuid=<?php echo $my_inSign['uuid'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
+                                                                    <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
+                                                                <td><?php $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
+                                                                    switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+                                                                        case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
+                                                                        case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                                        case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                                        default     : echo $my_inSign['idty']."--";   break;
+                                                                    }; ?>
+                                                                </td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                </table>
+                                            <?php }else{ ?>
+                                                <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待簽核的文件! ] </div>
+                                            <?php } ?>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6 col-md-12 pt-0">
-                                    <!-- L2.待領清單 -->
-                                    <div class="rounded bg-light px-3 py-2 bsod">
-                                        <div class="col-12 px-0 pb-0">
-                                            <h5><i class="fa-solid fa-restroom"></i> 廠區待領清單：<sup>- collect </sup>
-                                                <?php echo count($my_collect_lists) != 0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
-                                            </h5>
-                                        </div>
-                                        <div class="col-12 px-0 pb-1 pt-0">
-                                            <!-- <轄區清單> -->
-                                            <div class="rounded bg-success text-white p-2">
-                                                <span><b>轄區清單：</b>
-                                                <button type="button" id="scope_remark_btn" class="op_tab_btn" value="scope_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                                <div id="scope_remark">
-                                                    <ol>
-                                                        <?php foreach($coverFab_lists as $coverFab){
-                                                            echo "<li>".$coverFab["id"].".".$coverFab["fab_title"]." (".$coverFab["fab_remark"].")</li>";
-                                                        }?>
-                                                    </ol>
+                                    <div class="col-6 col-md-12 pt-0">
+                                        <!-- L2.待領清單 -->
+                                        <div class="rounded bg-light px-3 py-2 bsod">
+                                            <div class="col-12 px-0 pb-0">
+                                                <h5><i class="fa-solid fa-restroom"></i> 廠區待領清單：<sup>- collect </sup>
+                                                    <?php echo count($my_collect_lists) != 0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
+                                                </h5>
+                                            </div>
+                                            <div class="col-12 px-0 pb-1 pt-0">
+                                                <!-- <轄區清單> -->
+                                                <div class="rounded bg-success text-white p-2">
+                                                    <span><b>轄區清單：</b>
+                                                    <button type="button" id="scope_remark_btn" class="op_tab_btn" value="scope_remark" onclick="op_tab(this.value)" title="訊息收折"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                                    <div id="scope_remark">
+                                                        <ol>
+                                                            <?php foreach($coverFab_lists as $coverFab){
+                                                                echo "<li>".$coverFab["id"].".".$coverFab["fab_title"]." (".$coverFab["fab_remark"].")</li>";
+                                                            }?>
+                                                        </ol>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <?php if(count($my_collect_lists) >0){ ?>
-                                            <table class="table">
-                                                <thead>
-                                                    <tr class="table-dark">
-                                                        <th>開單日期</th>
-                                                        <th>提貨廠區 / 申請單位 / 申請人</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach($my_collect_lists as $my_collect){ ?>
-                                                        <tr>
-                                                            <td title="aid:<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10);?></td>
-                                                            <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
-                                                                <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"];?></a></td>
+                                            <?php if(count($my_collect_lists) >0){ ?>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr class="table-dark">
+                                                            <th>開單日期</th>
+                                                            <th>提貨廠區 / 申請單位 / 申請人</th>
                                                         </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
-                                        <?php }else{ ?>
-                                            <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待發放的文件! ] </div>
-                                        <?php } ?>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach($my_collect_lists as $my_collect){ ?>
+                                                            <tr>
+                                                                <td title="aid:<?php echo $my_collect['id'];?>"><?php echo substr($my_collect['created_at'],0,10);?></td>
+                                                                <td style="text-align: left; word-break: break-all;"><a href="show.php?uuid=<?php echo $my_collect['uuid'];?>&action=collect" title="aid:<?php echo $my_collect['id'];?>">
+                                                                    <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"];?></a></td>
+                                                            </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                </table>
+                                            <?php }else{ ?>
+                                                <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待發放的文件! ] </div>
+                                            <?php } ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- 右邊清單 -->
-                        <div class="col-12 col-md-8 px-3">
+                            <!-- 右邊清單 -->
+                            <div class="col-12 col-md-8 px-3">
+                        <?php } else { ?>
+                            <div class="col-12 px-3">
+                        <?php } ?>
                             <!-- 20211215分頁工具 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6">	

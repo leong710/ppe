@@ -19,14 +19,14 @@
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id ";
 
-        if($fun == 'myReceive'){                                            // 處理 $_1我申請單  
+        if($fun == 'myReceive'){                                            // 處理 $_1我申請單 -- 右主 
             $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) ";
 
         }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
             // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
             $sql .= " WHERE (_r.idty IN (1, 11) AND _r.in_sign = ? ) OR (_r.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
 
-        }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  
+        }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  -- 右主
             if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
                 if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
                     $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
@@ -100,6 +100,7 @@
         $pdo = pdo();
         $sql = "SELECT _f.*
                 FROM _fab AS _f 
+                WHERE _f.flag = 'On'
                 ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

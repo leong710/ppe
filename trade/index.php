@@ -10,48 +10,69 @@
     $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];  
     $form_type   = "trade";
     
-        // 身分選擇功能：定義user進來要看到的項目
-        $is_emp_id = "All";    // 預設值=All
-        $is_fab_id = "All";    // 預設值=All
+    // 身分選擇功能：定義user進來要看到的項目
+    // $is_emp_id = "All";                          // 預設值=All
+    $is_emp_id = $auth_emp_id;                      // 預設值 = 自己
+    $is_fab_id = "All";                             // 預設值=All
+    // $is_fab_id = "allMy";                           // 預設值=allMy
         
-        // 2-1.身分選擇功能：定義user進來要看到的項目
+    // 2-1.篩選：檢視allMy或All、其他廠區內表單
+        if(isset($_REQUEST["fab_id"])){
+            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
+        }else{
+            $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
+        }
+
+    // 2-2.篩選身分：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
             $is_emp_id = $_REQUEST["emp_id"];
-            // if($is_emp_id == "All"){
-            //     $is_fab_id = "All";
-            // }else{
-            //     $is_fab_id = $sys_fab_id;
-            // }
-
         }else if($sys_role >=2){                    // 沒帶查詢，含2以上=套自身主fab_id
             $is_emp_id = $auth_emp_id;
-            // $is_fab_id = $sys_fab_id;
         }
-
-        // 2-2.檢視廠區內表單
-        if(isset($_REQUEST["fab_id"])){
-            $is_fab_id = $_REQUEST["fab_id"];                   // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
-        }else{
-            $is_fab_id = "allMy";                               // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
-        }
-        // *** 篩選組合項目~~
+        
+    // 2-3.篩選年分~~
         if(isset($_REQUEST["_year"])){
             $_year = $_REQUEST["_year"];
         }else{
             // $_year = date('Y');                         // 今年
             $_year = "All";                                // 全年
         }
+
     // 組合查詢陣列
         $query_arr = array(
-            '_year'     => $_year,
             'sys_id'    => $sys_id,
             'role'      => $sys_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
-            'fab_id'    => $is_fab_id,
             'emp_id'    => $auth_emp_id,
+            'fab_id'    => $is_fab_id,
             'is_emp_id' => $is_emp_id,
-            'fun'       => "myReceive"
+            '_year'     => $_year,
+            // 'fun'       => "myReceive"
         );
+
+    // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
+        if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+            array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
+        }
+        $coverFab_lists = show_coverFab_lists($query_arr);              // 4-2.呼叫fun 用$sign_code模糊搜尋
+        if(!empty($coverFab_lists)){                                    // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
+            foreach($coverFab_lists as $coverFab){ 
+                if(!in_array($coverFab["id"], $sys_sfab_id)){
+                    array_push($sys_sfab_id, $coverFab["id"]);
+                }
+            }
+        }
+
+        $cover_fab_id = $sys_sfab_id;                               // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
+        $cover_fab_id = implode(",",$cover_fab_id);                 // 4-3.sfab_id是陣列，要儲存前要轉成字串
+
+    // 4.(左下)我的轄區清單 = 套 allMy、$cover_fab_id
+        $query_arr["sfab_id"] = $cover_fab_id;                      // 4-4.將字串$cover_fab_id加入組合查詢陣列中
+        $query_arr["fab_id"] = 'All';                               // 管理員、大PM = 全部廠區
+        $myFab_lists = show_myFab_lists($query_arr);                // 我的轄區-篩選功能
+
+        $query_arr["fab_id"]    = $is_fab_id;                      // selectFab
+
 
         $row_lists    = show_trade_list($query_arr);
         $trade_years  = show_trade_GB_year();               // 取出trade年份清單 => 供首頁面篩選
@@ -151,10 +172,7 @@
                 <div class="col-12 bg-white">
                     <!-- tab head -->
                     <div class="row">
-                        <div class="col-12 col-md-3 py-1">
-
-                        </div>
-                        <div class="col-6 col-md-6 py-1">
+                        <div class="col-8 col-md-9 py-1">
                             <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
@@ -165,8 +183,20 @@
                                                 <?php echo $trade_year["_year"]."y";?></option>
                                         <?php } ?>
                                     </select>
+                                    <select name="fab_id" id="sort_fab_id" class="form-select" >
+                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
+                                        <?php } ?>
+                                        <?php foreach($myFab_lists as $myFab){ ?>
+                                            <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
+                                                <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
+                                        <?php } ?>
+                                    </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select">
-                                        <option value="All" <?php echo $is_emp_id == "All" ? "selected":""; echo $sys_role >= 3 ? "hidden":"";?>>-- [ All user ] --</option>
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
+                                        <?php } ?>
                                         <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>
@@ -174,12 +204,12 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-6 col-md-3 py-1 text-end">
-                            <?php if($sys_role <= 2){ ?>
-                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
-                            <?php } ?>
+                        <div class="col-4 col-md-3 py-1 text-end">
                             <?php if($sys_role <= 1){ ?>
                                 <a href="restock.php?action=create" class="btn btn-success" ><i class="fa-solid fa-download"></i> 其他入庫</a>
+                            <?php } ?>                            
+                            <?php if($sys_role <= 2){ ?>
+                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
                             <?php } ?>
                         </div>
                     </div>
@@ -334,7 +364,7 @@
                                 </tbody>
                             </table>
                             <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選 <?php echo $_year." 或 ".$is_emp_id;?> 的文件! ] </div>
+                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo $_year." 或 ".$is_emp_id;?> 的篩選文件! ] </div>
                             <?php } ?>
                             <hr>
                             <!-- 20211215分頁工具 -->               

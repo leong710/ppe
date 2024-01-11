@@ -142,10 +142,8 @@
                 <div class="col-12 bg-white">
                     <!-- tab head -->
                     <div class="row">
-                        <div class="col-12 col-md-3 py-1">
-
-                        </div>
-                        <div class="col-6 col-md-6 py-1 text-end">
+                        <!-- 篩選功能 -->
+                        <div class="col-8 col-md-9 py-1">
                             <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
@@ -157,20 +155,22 @@
                                         <?php } ?>
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select" >
-                                        <option value="All" <?php echo $is_emp_id == "All" ? "selected":""; echo $sys_role >= 3 ? "hidden":"";?>>-- [ All user ] --</option>
-                                        <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
+                                        <?php } ?>
+                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-6 col-md-3 py-1 text-end">
-                            <?php if($sys_role <= 2){ ?>
-                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
-                            <?php } ?>
+                        <div class="col-4 col-md-3 py-1 text-end">
                             <?php if($sys_role <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
+                            <?php } ?>
+                            <?php if($sys_role <= 2){ ?>
+                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
                             <?php } ?>
                         </div>
                     </div>
@@ -416,7 +416,7 @@
                                 </tbody>
                             </table>
                             <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選 <?php echo $_year." 或 ".$is_emp_id;?> 的文件! ] </div>
+                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo $_year." 或 ".$is_emp_id;?> 的篩選文件! ] </div>
                             <?php } ?>
                             <hr>
                             <!-- 20211215分頁工具 -->               

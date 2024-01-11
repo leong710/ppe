@@ -19,24 +19,18 @@
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id ";
 
-        // 1.左上功能--我的待簽清單
-        if($fun == 'inSign'){                                               // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+        if($fun == 'myReceive'){                                            // 處理 $_1我申請單  
+            $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) ";
+
+        }else if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
             // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
             $sql .= " WHERE (_r.idty IN (1, 11) AND _r.in_sign = ? ) OR (_r.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
 
-        // 2.左下功能--廠區待領清單
-        } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
-            $sql .= " -- LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
-                      WHERE _l.fab_id IN ({$sfab_id}) AND _r.idty = 12 ";
-        // 3.1.右主功能 -- 轄區申請單
-        // 3.2.右主功能 -- 我申請單
-        }else if($fun == 'myReceive'){
-
+        }else if($fun == 'myFab'){                                          // 處理 $_3轄區申請單  
             if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
                 if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
-                    // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
-                    //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ?) ";
-                    $sql .= " WHERE _l.fab_id IN ({$sfab_id}) ";
+                    $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                              WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ?) ";
                 }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
                     $sql .= " WHERE _l.fab_id = ? ";
                 }
@@ -49,39 +43,50 @@
                     $sql .= " WHERE ( '{$is_emp_id}' IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
                 }
             }
+
+        } else if($fun == 'myCollect'){                                     // 處理 $_5我的待領清單  
+                // $sql .= " WHERE ? IN (_r.emp_id, _r.created_emp_id) AND _r.idty = 0 ";
+                // $sql .= " WHERE _l.fab_id IN ('{$sfab_id}') AND _r.idty = 0 ";
+                // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ({$sfab_id})) AND _u.emp_id = ? AND _r.idty = 12 ";
+                // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id) OR _l.fab_id IN ({$sfab_id})) AND _r.idty = 12 ";
+                $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
+                          WHERE _l.fab_id IN ({$sfab_id}) AND _r.idty = 12 ";
         }
         
         // 後段-堆疊查詢語法：加入排序
-            if($fun == 'myCollect'){
-                $sql .= " ORDER BY _l.fab_id ASC, _r.created_at ASC";
-            }else{
-                $sql .= " ORDER BY _r.created_at DESC";
-            }
+        if($fun == 'myCollect'){
+            $sql .= " ORDER BY _l.fab_id ASC, _r.created_at ASC";
+        }else{
+            $sql .= " ORDER BY _r.created_at DESC";
+        }
 
         // 決定是否採用 page_div 20230803
-            if(isset($start) && isset($per)){
-                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
-            }else{
-                $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
-            }
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
         try {
-            if(in_array( $fun , ['inSign'])){           // 處理 $_2我待簽清單inSign
+            if(in_array( $fun , ['inSign', 'myReceive'])){           // 處理 $_2我待簽清單inSign、$_1我申請單myReceive
                 $stmt->execute([$emp_id]);
 
-            }else if ($fun == 'myReceive' && $fab_id != 'All') {    // $_1我申請單myReceive
-                if($fab_id != 'allMy'){
-                    $stmt->execute([$fab_id]);
+            }else if ($fun == 'myFab' && $fab_id != 'All') {
+                if($fab_id == 'allMy'){
+                    $stmt->execute([$emp_id]);
                 }else{
-                    $stmt->execute();
+                    $stmt->execute([$fab_id]);
                 }
                 // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
+                
             } else {                                                // $_5我的待領清單myCollect 'myCollect'
                 $stmt->execute();
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            // if($fun == 'myReceive'){  
-                // echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
+            // if($fun == 'inSign'){  
+            //     echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
             // }
             return $my_receive_lists;
 
@@ -95,7 +100,6 @@
         $pdo = pdo();
         $sql = "SELECT _f.*
                 FROM _fab AS _f 
-                WHERE _f.flag = 'On'
                 ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
@@ -141,11 +145,9 @@
                 WHERE _f.flag = 'On' ";
             
         if($fab_id != "All"){
-            $sql .= " AND ( _f.id IN ({$sfab_id}) ";
+            $sql .= " AND _f.id IN ({$sfab_id}) ";
             if($fab_id != "allMy"){
-                $sql .= " OR _f.id = ? ) ";
-            }else{
-                $sql .= " ) ";
+                $sql .= " OR _f.id = ? ";
             }
         }
 

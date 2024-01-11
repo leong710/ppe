@@ -9,52 +9,50 @@
     $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
     $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];  
     $form_type   = "receive";
+    $fun         = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
 
-        // 身分選擇功能：定義user進來要看到的項目
-        // $is_emp_id = "All";                      // 預設值=All
-        // $is_fab_id = "All";                      // 預設值=All
-        $is_emp_id = $auth_emp_id;                  // 預設值=自己
-        $is_fab_id = "allMy";                       // 預設值=allMy
+    // 身分選擇功能：定義user進來要看到的項目
+    $is_emp_id = $auth_emp_id;                  // 預設值 = 自己
+    $is_fab_id = "allMy";                       // 預設值 = allMy = coverFab範圍
         
-        // 1.決定開啟表單的功能：
-        if(isset($_REQUEST["fun"]) && $_REQUEST["fun"] != "myReceive"){
-            // $fun = $_REQUEST["fun"];             // 有帶fun，套查詢參數
-            $fun = "myFab";                         // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
+    // 1.決定開啟表單的功能：
+    // $fun = "myFab";                          // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
+    $fun = "myReceive";                         // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
+
+    // 2-1.篩選：檢視allMy或All、其他廠區內表單
+        if(isset($_REQUEST["fab_id"])){
+            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
         }else{
-            $fun = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
+            // $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is + coverFab)
+            $is_fab_id = "All";                   // 其他預設值 = All   => 全部flag=On的fab
         }
-        // 2-1.身分選擇功能：定義user進來要看到的項目
+        
+    // 2-2.篩選身分：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
             $is_emp_id = $_REQUEST["emp_id"];
         }else if($sys_role >=2){                    // 沒帶查詢，含2以上=套自身主fab_id
             $is_emp_id = $auth_emp_id;
         }
 
-        // 2-2.檢視廠區內表單
-        if(isset($_REQUEST["fab_id"])){
-            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
-        }else{
-            $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is + coverFab)
-        }
-        // // *** 篩選組合項目~~
-        // if(isset($_REQUEST["_year"])){
-        //     $_year = $_REQUEST["_year"];
-        // }else{
-        //     // $_year = date('Y');                       // 今年
-        //     $_year = "All";                              // 預設全年
-        // }
-        
+        // // *** 年分篩選~~
+            // if(isset($_REQUEST["_year"])){
+            //     $_year = $_REQUEST["_year"];
+            // }else{
+            //     // $_year = date('Y');                       // 今年
+            //     $_year = "All";                              // 預設全年
+            // }
+
     // 組合查詢陣列
         $query_arr = array(
             // 'sys_id'    => $sys_id,
             'role'      => $sys_role,
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
             'emp_id'    => $auth_emp_id,
-            'fab_id'    => $is_fab_id,
+            // 'is_fab_id' => $is_fab_id,
             'is_emp_id' => $is_emp_id
         );
-
-    // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
+        
+    // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
         if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
             array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
         }
@@ -66,33 +64,43 @@
                 }
             }
         }
-        $cover_fab_id = $sys_sfab_id;                                   // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
-        // $cover_fab_id = array_filter($cover_fab_id);                 // 4-3.去除空陣列 // 他會把0去掉
-        $cover_fab_id = implode(",",$cover_fab_id);                     // 4-3.sfab_id是陣列，要儲存前要轉成字串
 
-        // 4我的轄區 套allMy = (左側)我的轄區清單
-            $query_arr["sfab_id"] = $cover_fab_id;                      // 4-4.將字串$cover_fab_id加入組合查詢陣列中
-            $query_arr["fab_id"] = 'allMy';
-            $coverFab_lists = show_myFab_lists($query_arr);             // 4我的轄區 套allMy = (左側)我的轄區清單
-        // 4我的轄區 套is_fab_id = 篩選功能
-            $query_arr["fab_id"] = $is_fab_id;
-            $myFab_lists = show_myFab_lists($query_arr);                // 4我的轄區 套is_fab_id = 篩選功能
+        $cover_fab_id = $sys_sfab_id;                               // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
+        // $cover_fab_id = array_filter($cover_fab_id);             // 4-3.去除空陣列 // 他會把0去掉
+        $cover_fab_id = implode(",",$cover_fab_id);                 // 4-3.sfab_id是陣列，要儲存前要轉成字串
 
-    // 5-L1.處理 $_1我待簽清單 
-        $query_arr["fun"] = "inSign" ;                                    // 指定fun = inSign 簽核中
+    // 4.(左下)我的轄區清單 = 套 allMy、$cover_fab_id
+        $query_arr["fab_id"] = 'allMy';
+        $query_arr["sfab_id"] = $cover_fab_id;                      // 4-4.將字串$cover_fab_id加入組合查詢陣列中
+        $coverFab_lists = show_myFab_lists($query_arr);             // (左下)我的轄區清單
+
+    // 4.我的轄區 - 篩選功能 = 套is_fab_id 
+            // if($sys_role <=1 ){
+            //     $query_arr["fab_id"] = 'All';                           // 管理員、大PM = 全部廠區
+            // }else{
+            //     $query_arr["fab_id"] = $is_fab_id;                      // siteUser = coverFab + selectFab
+            //     // 以上做法，一開始只出現我的轄區，選All之後會出現所有廠區，選廠區後會剩下我的轄區+所選廠區
+            //     // $myFab_lists = $coverFab_lists;                      // siteUser = coverFab
+            // }
+        $query_arr["fab_id"] = 'All';                               // 管理員、大PM = 全部廠區
+        $myFab_lists = show_myFab_lists($query_arr);                // 我的轄區-篩選功能
+
+    // 5-L1.我待簽清單 
+        $query_arr["fun"] = "inSign" ;                              // 指定fun = inSign 簽核中
         $my_inSign_lists = show_my_receive($query_arr);
 
-    // 5-L2.處理 $_5我的待領清單
-        $query_arr["fun"] = 'myCollect';                                  // 指定fun = myCollect 我的待領
+    // 5-L2.我的待領清單
+        $query_arr["fun"] = 'myCollect';                            // 指定fun = myCollect 我的待領
         $my_collect_lists = show_my_receive($query_arr);
 
-    // 5-2.處理 fun = myReceive $_2我的申請單
-    // 5-3.處理 fun = myFab $_3轄區申請單： fab_id=allMy => emp_id=my ； fab_id = All or fab.id => emp_id = All or is_emp_id
+    // 5-2.處理 fun = myReceive我的申請單 / myFab轄區申請單： 
+    // 5-3.fab_id=allMy => emp_id=my ； fab_id = All or fab.id => emp_id = All or is_emp_id
         //  ** 有分頁的要擺在分頁工具前!!
-        $query_arr["fun"] = $fun ;                                        // 指定fun = $fun = myReceive / myFab
+        $query_arr["fun"]       = $fun ;                           // 指定fun = $fun = myReceive
+        $query_arr["fab_id"]    = $is_fab_id;                      // selectFab
+        $row_lists              = show_my_receive($query_arr);
 
-        $row_lists      = show_my_receive($query_arr);
-        // $receive_years  = show_receive_GB_year();                         // 取出receive年份清單 => 供首頁面篩選
+        // $receive_years  = show_receive_GB_year();               // 取出receive年份清單 => 供首頁面篩選
     
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);     // 計算總筆數
@@ -162,7 +170,7 @@
                 <!-- 表頭 -->
                 <div class="row">
                     <div class="col-md-6 py-1 page_title">
-                        <h3><b>PPE表單匯總：</b><?php echo $form_type." <sup>-- ".$fun."</sup>";?> </h3>
+                        <h3><b>PPE表單匯總：</b><?php echo $form_type;?> </h3>
                     </div>
                     <div class="col-md-6 py-1">
      
@@ -196,40 +204,30 @@
                     <div class="row">
                         <div class="col-12 col-md-9 py-1">
                             <div class="row">
-                                <?php if($fun == 'myReceive'){ ?>
-                                    <!-- 功能1.我的申請文件 -->
+                                    <!-- 功能1.我的申請文件+我的轄區文件 -->
                                     <div class="col-12 col-md-5 py-0">
-                                        <?php if($sys_role <= 3){ ?>
-                                            <a href="?fun=myFab" class="btn btn-warning" data-toggle="tooltip" data-placement="bottom" title="切換到-轄區文件"><i class="fa-solid fa-right-left"></i></a>
-                                        <?php } ?>
-                                        <h5 style="display: inline;">我的申請文件：<sup>- myReceives </sup></h5>
+                                        <h5 style="display: inline;">我的轄區&申請文件：<sup>- myReceives </sup></h5>
                                     </div>
                                     <!-- 篩選功能?? -->
                                     <div class="col-12 col-md-7 py-0">
-
-                                    </div>
-                                <?php } else { ?>
-                                    <!-- 功能2.我的轄區文件 -->
-                                    <div class="col-12 col-md-5 py-0">
-                                        <a href="?fun=myReceive" class="btn btn-info" data-toggle="tooltip" data-placement="bottom" title="切換到-申請文件"><i class="fa-solid fa-right-left"></i></a>
-                                        <h5 style="display: inline;">我的轄區文件：<sup>- myFab's Receive </sup></h5>
-                                    </div>
-                                    <!-- 篩選功能?? -->
-                                    <div class="col-12 col-md-7 py-0">
-                                        <?php if($sys_role <= 2 ){ ?>
+                                        <!-- <php if($sys_role <= 2 ){ ?> -->
                                             <form action="" method="POST">
                                                 <div class="input-group">
                                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                                     <select name="fab_id" id="sort_fab_id" class="form-select" >$myFab_lists
-                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":""; echo $sys_role >= 2 ? "hidden":""; ?>>-- All fab --</option>
-                                                        <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
+                                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
+                                                        <?php if($sys_role <= 2 ){ ?>
+                                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
+                                                        <?php } ?>
                                                         <?php foreach($myFab_lists as $myFab){ ?>
                                                             <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
                                                                 <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
                                                         <?php } ?>
                                                     </select>
                                                     <select name="emp_id" id="sort_emp_id" class="form-select">
-                                                        <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
+                                                        <?php if($sys_role <= 2 ){ ?>
+                                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
+                                                        <?php } ?>
                                                         <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                                             <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
                                                     </select>
@@ -237,9 +235,8 @@
                                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                                 </div>
                                             </form>
-                                        <?php } ?>
+                                        <!-- <php } ?> -->
                                     </div>
-                                <?php } ?>
                             </div>
                         </div>
                         <div class="col-12 col-md-3 py-1 text-end">
@@ -253,8 +250,8 @@
                         <!-- L左邊 -->
                         <div class="col-12 col-md-4 px-1">
                             <div class="row">
+                                <!-- L1.我的待簽清單 -->
                                 <div class="col-6 col-md-12 pt-0">
-                                    <!-- L1.我的待簽清單 -->
                                     <div class="rounded bg-light px-3 py-2 bsod">
                                         <div class="col-12 px-0 pb-0">
                                             <h5><i class="fa-brands fa-stack-overflow"></i> 我的待簽清單：<sup>- inSign </sup>
@@ -305,8 +302,8 @@
                                         <?php } ?>
                                     </div>
                                 </div>
+                                <!-- L2.廠區待領清單 -->
                                 <div class="col-6 col-md-12 pt-0">
-                                    <!-- L2.待領清單 -->
                                     <div class="rounded bg-light px-3 py-2 bsod">
                                         <div class="col-12 px-0 pb-0">
                                             <h5><i class="fa-solid fa-restroom"></i> 廠區待領清單：<sup>- collect </sup>
@@ -522,7 +519,7 @@
                                 </tbody>
                             </table>
                             <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選的文件! ] </div>
+                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無篩選 <?php echo $is_emp_id;?> 的文件! ] </div>
                             <?php } ?>
                             <hr>
                             <!-- 20211215分頁工具 -->               

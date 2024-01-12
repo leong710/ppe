@@ -155,16 +155,13 @@
                 <div class="col-12 p-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link" href="../issue/" aria-current="page" data-toggle="tooltip" data-placement="bottom" title="issue">
-                                <i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b><span id="nav_bob_1"></span></a>
+                            <a class="nav-link" href="../issue/" ><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b><span id="nav_bob_1"></span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="../trade/" aria-current="page" data-toggle="tooltip" data-placement="bottom" title="trade">
-                                <i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b><span id="nav_bob_2"></span></a>
+                            <a class="nav-link active" href="../trade/" ><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b><span id="nav_bob_2"></span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="../receive/" aria-current="page" data-toggle="tooltip" data-placement="bottom" title="receive">
-                                <i class="fa-solid fa-3"></i>&nbsp<b>領用申請總表</b><span id="nav_bob_3"></span></a>
+                            <a class="nav-link" href="../receive/" ><i class="fa-solid fa-3"></i>&nbsp<b>領用申請總表</b><span id="nav_bob_3"></span></a>
                         </li>
                     </ul>
                 </div>

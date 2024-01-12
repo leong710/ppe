@@ -5,7 +5,7 @@
     accessDenied($sys_id);
 
     // 去年年份
-    $thisYear = date('Y') ;                        // 這裡要減1才會找出去年的用量
+    $thisYear = date('Y')-1 ;                        // 這裡要減1才會找出去年的用量
 
     if(isset($_REQUEST["local_id"])){
         $select_local = select_local($_REQUEST);

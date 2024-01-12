@@ -247,6 +247,7 @@
                                                         <button type="button" id="cata_info_<?php echo $catalog['SN'];?>" value="<?php echo $catalog["SN"].'_'.$catalog['stk_id'];?>" data-bs-toggle="modal" data-bs-target="#cata_info" 
                                                                 class="cata_info_btn" onclick="info_module('catalogs',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
                                                         <?php 
+                                                            echo ($catalog["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";
                                                             echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
                                                             echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';?>
                                                     </td>

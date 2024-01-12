@@ -310,8 +310,8 @@
                                             case "7": echo "bg-secondary"; break;
                                             default: echo "bg-light text-success"; break;
                                         }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
-                                    <td class="word_bk"><?php echo $stock["SN"]."_".$stock['pname'];?></td>
-
+                                    <td class="word_bk"><?php echo $stock["SN"]."_".$stock['pname'];
+                                                              echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?> " contenteditable="true">

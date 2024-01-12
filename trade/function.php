@@ -929,7 +929,7 @@
                         , _f.id AS fab_id, _f.fab_title, _f.fab_remark
                         , _s.id AS site_id, _s.site_title, _s.site_remark
                         , _cata.*
-                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no 
+                        , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no , _cata.flag AS cata_flag 
                 FROM `_stock` _stk 
                 LEFT JOIN _local _l ON _stk.local_id = _l.id 
                 LEFT JOIN _fab _f   ON _l.fab_id = _f.id 

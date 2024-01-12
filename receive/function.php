@@ -951,7 +951,7 @@
                 "p_amount"      => $cata_SN_amount[$ikey]["pay"],
                 "updated_user"  => $updated_user 
             );
-            $process_result = process_cata_amount($process);            // 呼叫處理fun  處理交易事件(單筆)
+            $process_result = process_cata_amount($process);                // 呼叫處理fun  處理交易事件(單筆)
             if($process_result["result"]){                                  // True - 抵扣完成
                 if(empty($process_remark)){
                     $process_remark = "## ".$process_result["result"];

@@ -955,6 +955,7 @@
                         WHERE l.id = ?
                         GROUP BY l.id, s.cata_SN
                     ) ps ON c.SN = ps.cata_SN
+                WHERE c.flag = 'On'
                 ORDER BY cate.id, c.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

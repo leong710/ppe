@@ -34,13 +34,13 @@
             $is_emp_id = $auth_emp_id;
         }
 
-        // // *** 年分篩選~~
-            // if(isset($_REQUEST["_year"])){
-            //     $_year = $_REQUEST["_year"];
-            // }else{
-            //     // $_year = date('Y');                       // 今年
-            //     $_year = "All";                              // 預設全年
-            // }
+    // 2-3.篩選年分~~
+        if(isset($_REQUEST["_year"])){
+            $_year = $_REQUEST["_year"];
+        }else{
+            // $_year = date('Y');                       // 今年
+            $_year = "All";                              // 預設全年
+        }
 
     // 組合查詢陣列
         $query_arr = array(
@@ -49,7 +49,8 @@
             'sign_code' => $_SESSION["AUTH"]["sign_code"],
             'emp_id'    => $auth_emp_id,
             // 'is_fab_id' => $is_fab_id,
-            'is_emp_id' => $is_emp_id
+            'is_emp_id' => $is_emp_id,
+            '_year'     => $_year,
         );
         
     // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
@@ -100,7 +101,7 @@
         $query_arr["fab_id"]    = $is_fab_id;                      // selectFab
         $row_lists              = show_my_receive($query_arr);
 
-        // $receive_years  = show_receive_GB_year();               // 取出receive年份清單 => 供首頁面篩選
+        $receive_years  = show_receive_GB_year();               // 取出receive年份清單 => 供首頁面篩選
     
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);     // 計算總筆數
@@ -202,42 +203,39 @@
                 <div class="col-12 bg-white">
                     <!-- tab head -->
                     <div class="row">
+                        <!-- 篩選功能 -->
                         <div class="col-8 col-md-9 py-1">
-                            <div class="row">
-                                <!-- 取消顯示TITLE.我的申請文件+我的轄區文件 -->
-                                <div class="col-12 col-md-5 py-0">
-
+                            <form action="" method="POST">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
+                                    <select name="_year" id="sort_year" class="form-select">
+                                        <option for="sort_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
+                                        <?php foreach($receive_years as $receive_year){ ?>
+                                            <option for="sort_year" value="<?php echo $receive_year["_year"];?>" <?php if($receive_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                                <?php echo $receive_year["_year"]."y";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <select name="fab_id" id="sort_fab_id" class="form-select" >
+                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
+                                        <?php } ?>
+                                        <?php foreach($myFab_lists as $myFab){ ?>
+                                            <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
+                                                <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <select name="emp_id" id="sort_emp_id" class="form-select">
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
+                                        <?php } ?>
+                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
+                                            <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
+                                    </select>
+                                    <input type="hidden" name="fun" id="fun" value="<?php echo $fun;?>">
+                                    <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
-                                <!-- 篩選功能 -->
-                                <div class="col-12 col-md-7 py-0">
-                                    <!-- <php if($sys_role <= 2 ){ ?> -->
-                                        <form action="" method="POST">
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
-                                                <select name="fab_id" id="sort_fab_id" class="form-select" >
-                                                    <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
-                                                    <?php if($sys_role <= 2 ){ ?>
-                                                        <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
-                                                    <?php } ?>
-                                                    <?php foreach($myFab_lists as $myFab){ ?>
-                                                        <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
-                                                            <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
-                                                    <?php } ?>
-                                                </select>
-                                                <select name="emp_id" id="sort_emp_id" class="form-select">
-                                                    <?php if($sys_role <= 2 ){ ?>
-                                                        <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
-                                                    <?php } ?>
-                                                    <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
-                                                        <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
-                                                </select>
-                                                <input type="hidden" name="fun" id="fun" value="<?php echo $fun;?>">
-                                                <button type="submit" class="btn btn-outline-secondary">查詢</button>
-                                            </div>
-                                        </form>
-                                    <!-- <php } ?> -->
-                                </div>
-                            </div>
+                            </form>
                         </div>
                         <div class="col-4 col-md-3 py-1 text-end">
                             <?php if(isset($sys_role)){ ?>

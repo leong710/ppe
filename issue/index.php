@@ -10,17 +10,24 @@
     $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];  
     $form_type   = "issue";
     
-        // 身分選擇功能：定義user進來要看到的項目
-        $is_emp_id = "All";    // 預設值=All
-        
-        // 2-1.身分選擇功能：定義user進來要看到的項目
+    // 身分選擇功能：定義user進來要看到的項目
+    // $is_emp_id = "All";    // 預設值=All
+    $is_emp_id = $auth_emp_id;                      // 預設值 = 自己
+    $is_fab_id = "All";                             // 預設值=All
+
+    // 2-1.篩選：檢視allMy或All、其他廠區內表單
+        if(isset($_REQUEST["fab_id"])){
+            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
+        }else{
+            $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
+        }
+    // 2-2.篩選身分：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
             $is_emp_id = $_REQUEST["emp_id"];
-
         }else if($sys_role >=2){                    // 沒帶查詢，含2以上=套自身主fab_id
             $is_emp_id = $auth_emp_id;
         }
-        // *** 篩選組合項目~~
+    // 2-3.篩選年分~~
         if(isset($_REQUEST["_year"])){
             $_year = $_REQUEST["_year"];
         }else{
@@ -30,10 +37,37 @@
         
     // 組合查詢陣列
         $query_arr = array(
-            '_year'     => $_year,
             'sys_id'    => $sys_id,
-            'emp_id'    => $is_emp_id
+            'role'      => $sys_role,
+            'sign_code' => $_SESSION["AUTH"]["sign_code"],
+            'emp_id'    => $auth_emp_id,
+            'fab_id'    => $is_fab_id,
+            'is_emp_id' => $is_emp_id,
+            '_year'     => $_year,
         );
+
+    // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
+        if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+            array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
+        }
+        $coverFab_lists = show_coverFab_lists($query_arr);              // 4-2.呼叫fun 用$sign_code模糊搜尋
+        if(!empty($coverFab_lists)){                                    // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
+            foreach($coverFab_lists as $coverFab){ 
+                if(!in_array($coverFab["id"], $sys_sfab_id)){
+                    array_push($sys_sfab_id, $coverFab["id"]);
+                }
+            }
+        }
+
+        $cover_fab_id = $sys_sfab_id;                               // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
+        $cover_fab_id = implode(",",$cover_fab_id);                 // 4-3.sfab_id是陣列，要儲存前要轉成字串
+
+    // 4.(左下)我的轄區清單 = 套 allMy、$cover_fab_id
+        $query_arr["sfab_id"] = $cover_fab_id;                      // 4-4.將字串$cover_fab_id加入組合查詢陣列中
+        $query_arr["fab_id"]  = 'All';                               // 管理員、大PM = 全部廠區
+        $myFab_lists = show_myFab_lists($query_arr);                // 我的轄區-篩選功能
+
+        $query_arr["fab_id"]  = $is_fab_id;                      // selectFab
 
         $row_lists       = show_issue_list($query_arr);
         $sum_issues_ship = show_sum_issue_ship($query_arr);    // 統計看板--下：轉PR單
@@ -83,6 +117,9 @@
             color: white;
             /* text-shadow:3px 3px 9px gray; */
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
+        a, .nav-link {
+            color: black;
         }
         .bsod {
             box-shadow: 3px 3px 5px rgba(0,0,0,.5);
@@ -147,11 +184,21 @@
                             <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
-                                    <select name="_year" class="form-select">
-                                        <option value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
+                                    <select name="_year" id="sort_year" class="form-select">
+                                        <option for="sort_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
                                         <?php foreach($issue_years as $issue_year){ ?>
-                                            <option value="<?php echo $issue_year["_year"];?>" <?php if($issue_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                            <option for="sort_year" value="<?php echo $issue_year["_year"];?>" <?php if($issue_year["_year"] == $_year){ ?>selected<?php } ?>>
                                                 <?php echo $issue_year["_year"]."y";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <select name="fab_id" id="sort_fab_id" class="form-select" >
+                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
+                                        <?php if($sys_role <= 2 ){ ?>
+                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
+                                        <?php } ?>
+                                        <?php foreach($myFab_lists as $myFab){ ?>
+                                            <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
+                                                <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
                                         <?php } ?>
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select" >

@@ -12,7 +12,7 @@
     function show_my_receive($request){
         $pdo = pdo();
         extract($request);
-
+        $stmt_arr = array();
         $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id , _s.site_title , _s.site_remark 
                 FROM `_receive` _r
                 LEFT JOIN _local _l ON _r.local_id = _l.id
@@ -31,23 +31,25 @@
         // 3.1.右主功能 -- 轄區申請單
         // 3.2.右主功能 -- 我申請單
         }else if($fun == 'myReceive'){
-
-            if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
+            if($_year != 'All'){
+                $sql .= " WHERE (year(_r.created_at) = ? )";              // ? = $year
+                array_push($stmt_arr, $_year);
+            }
+            if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階   
+                $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
                 if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
                     // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
                     //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ?) ";
-                    $sql .= " WHERE _l.fab_id IN ({$sfab_id}) ";
+                    $sql .= " _l.fab_id IN ({$sfab_id}) ";
                 }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
-                    $sql .= " WHERE _l.fab_id = ? ";
+                    $sql .= " _l.fab_id = ? ";
+                    array_push($stmt_arr, $fab_id);
                 }
             }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
-
             if($is_emp_id != "All"){                                        // 處理過濾 is_emp_id != All  
-                if($fab_id != "All"){                                       // 處理 fab_id != All 進行二階                  
-                    $sql .= " AND ( '{$is_emp_id}' IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
-                }else{
-                    $sql .= " WHERE ( '{$is_emp_id}' IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
-                }
+                $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
+                $sql .= " ( ? IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
+                array_push($stmt_arr, $is_emp_id);
             }
         }
         
@@ -68,11 +70,11 @@
             if(in_array( $fun , ['inSign'])){           // 處理 $_2我待簽清單inSign
                 $stmt->execute([$emp_id]);
 
-            }else if ($fun == 'myReceive' && $fab_id != 'All') {    // $_1我申請單myReceive
-                if($fab_id != 'allMy'){
-                    $stmt->execute([$fab_id]);
+            }else if ($fun == 'myReceive') {    // $_1我申請單myReceive
+                if(($_year != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
+                    $stmt->execute($stmt_arr);                          //處理 byUser & byYear
                 }else{
-                    $stmt->execute();
+                    $stmt->execute();                                   //處理 byAll
                 }
                 // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
             } else {                                                // $_5我的待領清單myCollect 'myCollect'

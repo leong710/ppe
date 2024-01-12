@@ -3,6 +3,7 @@
     // 20230719 在issue_list秀出所有issue清單   20240108
     function show_issue_list($request){
         $pdo = pdo();
+        $stmt_arr = array();
         extract($request);
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
                        , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
@@ -22,26 +23,30 @@
                 LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
         if($_year != 'All'){
             $sql .= " WHERE year(_issue.create_date) = ? ";
+            array_push($stmt_arr, $_year);
         }
 
-        if($emp_id != 'All'){
-            if($_SESSION[$sys_id]["role"] <= 1){
-                if($_year != 'All'){
-                    $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
-                }else{
-                    $sql .= " WHERE ( _issue.out_user_id=? OR _issue.in_user_id=? OR _issue.idty=1 ) ";     //處理 byUser
-                }
-
-            }else{
-                if($_year != 'All'){
-                    $sql .= " AND ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
-                }else{
-                    $sql .= " WHERE ( _issue.out_user_id=? OR _issue.in_user_id=? )";                      //處理 byUser
-                }
+        if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
+            $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
+            if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
+                $sql .= " (_fab_o.id IN ( {$sfab_id} ) OR _fab_i.id IN ( {$sfab_id} )) ";     // = $sfab_id
+            }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
+                $sql .= " ( ? IN (_fab_o.id, _fab_i.id)) ";             // ? = $fab_id
+                array_push($stmt_arr, $fab_id);
             }
+        }  
+
+        if($is_emp_id != 'All'){
+            $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
+            if($role <= 1){
+                $sql .= " ( ( ? IN (_issue.out_user_id, _issue.in_user_id)) OR _issue.idty=1 ) ";     //處理 byUser
+            }else{
+                $sql .= " ( ? IN (_issue.out_user_id, _issue.in_user_id )) ";                      //處理 byUser
+            }
+            array_push($stmt_arr, $is_emp_id);
         }
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY create_date DESC";
+            $sql .= " ORDER BY _issue.create_date DESC";
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
@@ -50,18 +55,10 @@
             }
      
         try {
-            if($emp_id != 'All'){
-                if($_year != 'All'){
-                    $stmt->execute([$_year, $emp_id, $emp_id]);         //處理 by User 
-                }else{
-                    $stmt->execute([$emp_id, $emp_id]);                 //處理 by User 
-                }
+            if(($_year != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
+                $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{
-                if($_year != 'All'){
-                    $stmt->execute([$_year]);                           //處理 by All
-                }else{
-                    $stmt->execute();                                   //處理 by All
-                }
+                $stmt->execute();                                   //處理 byAll
             }
             $issues = $stmt->fetchAll();
             return $issues;
@@ -222,6 +219,69 @@
             }
             $my_inSign_lists = $stmt->fetchAll();
             return $my_inSign_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
+    function show_coverFab_lists($request){
+        $pdo = pdo();
+        extract($request);
+
+            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+
+        $sql = "SELECT _f.*
+                FROM _fab AS _f 
+                WHERE _f.sign_code LIKE ?
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $coverFab_lists = $stmt->fetchAll();
+            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
+            return $coverFab_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
+        }
+
+    }
+    // 20231019 在index表頭顯示自己fab區域      // 處理 4我的轄區
+    function show_myFab_lists($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _f.id , _f.fab_title , _f.fab_remark , _f.flag , _f.sign_code AS fab_sign_code , _f.pm_emp_id
+                FROM _fab AS _f 
+                WHERE _f.flag = 'On' ";
+            
+        if($fab_id != "All"){
+            $sql .= " AND ( _f.id IN ({$sfab_id}) ";
+            if($fab_id != "allMy"){
+                $sql .= " OR _f.id = ? ) ";
+            }else{
+                $sql .= " ) ";
+            }
+        }
+
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+                
+        try {
+            if($fab_id != "All"){
+                if($fab_id != "allMy"){
+                    $stmt->execute([$fab_id]);
+                }else{
+                    $stmt->execute();
+                }
+            }else{
+                $stmt->execute();
+            }
+            $myFab_lists = $stmt->fetchAll();
+            return $myFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();

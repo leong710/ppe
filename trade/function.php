@@ -3,6 +3,7 @@
     // 20230724 在trad_list秀出所有Trad清單 // 20230818 嵌入分頁工具    20240108
     function show_trade_list($request){
         $pdo = pdo();
+        $stmt_arr = array();
         extract($request);
         if(!isset($_year)){
             $_year = "All";
@@ -24,25 +25,25 @@
                 LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
                 LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id ";
         if($_year != 'All'){
-            $sql .= " WHERE year(_trade.out_date) = ? ";                // ? = $year
+            $sql .= " WHERE (year(_trade.out_date) = ? )";              // ? = $year
+            array_push($stmt_arr, $_year);
         }
-
         if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階                  
             $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
             if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
-                $sql .= " ( {$sfab_id} IN (_fab_o.id, _fab_i.id))";     // = $sfab_id
+                $sql .= " (_fab_o.id IN ( {$sfab_id} ) OR _fab_i.id IN ( {$sfab_id} )) ";     // = $sfab_id
             }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
-                $sql .= " _l.fab_id = ? ";                              // ? = $fab_id
+                $sql .= " ( ? IN (_fab_o.id, _fab_i.id)) ";             // ? = $fab_id
+                array_push($stmt_arr, $fab_id);
             }
         }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
-
         if($is_emp_id != "All"){                                        // 處理過濾 is_emp_id != All  
             $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
-            $sql .= " ( '{$is_emp_id}' IN (_trade.out_user_id, _trade.in_user_id)) ";     // 申請單加上查詢對象的is_emp_id
+            $sql .= " ( ? IN (_trade.out_user_id, _trade.in_user_id)) ";     // 申請單加上查詢對象的is_emp_id
+            array_push($stmt_arr, $is_emp_id);
         }
-
         // 後段-堆疊查詢語法：加入排序
-            $sql .= " ORDER BY out_date DESC";
+            $sql .= " ORDER BY _trade.out_date DESC";
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
@@ -51,22 +52,14 @@
             }
 
         try {
-                echo "</br>{$_year}/{$emp_id}/{$fab_id}：".$sql."</br><hr>";
-
-            if($emp_id != 'All'){
-                if($_year != 'All'){
-                    // $stmt->execute([$_year, $emp_id, $emp_id, $fab_id, $fab_id]);       //處理 byUser & byYear
-                    $stmt->execute([$_year, $emp_id, $fab_id]);       //處理 byUser & byYear
-                }else{
-                    // $stmt->execute([ $emp_id, $emp_id, $fab_id, $fab_id]);              //處理 byUser &byAll
-                    $stmt->execute([ $emp_id, $fab_id]);              //處理 byUser &byAll
-                }
+            // echo "</br>{$_year}/{$emp_id}/{$fab_id}：".$sql."</br><hr>";
+            // echo "<pre>";
+            // print_r($stmt_arr);
+            // echo "</pre>";
+            if(($_year != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
+                $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{
-                if($_year != 'All'){
-                    $stmt->execute([$_year]);              //處理 byYear
-                }else{
-                    $stmt->execute();                      //處理 byAll
-                }
+                $stmt->execute();                                   //處理 byAll
             }
             $trades = $stmt->fetchAll();
             return $trades;

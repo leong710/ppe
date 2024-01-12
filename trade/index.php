@@ -68,15 +68,14 @@
 
     // 4.(左下)我的轄區清單 = 套 allMy、$cover_fab_id
         $query_arr["sfab_id"] = $cover_fab_id;                      // 4-4.將字串$cover_fab_id加入組合查詢陣列中
-        $query_arr["fab_id"] = 'All';                               // 管理員、大PM = 全部廠區
+        $query_arr["fab_id"]  = 'All';                               // 管理員、大PM = 全部廠區
         $myFab_lists = show_myFab_lists($query_arr);                // 我的轄區-篩選功能
 
-        $query_arr["fab_id"]    = $is_fab_id;                      // selectFab
-
+        $query_arr["fab_id"]  = $is_fab_id;                      // selectFab
 
         $row_lists    = show_trade_list($query_arr);
         $trade_years  = show_trade_GB_year();               // 取出trade年份清單 => 供首頁面篩選
-        $my_inSign_lists = [];
+        // $my_inSign_lists = [];
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);        // 計算總筆數
@@ -116,6 +115,9 @@
             color: white;
             /* text-shadow:3px 3px 9px gray; */
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
+        a, .nav-link {
+            color: black;
         }
     </style>
     <script>    
@@ -176,10 +178,10 @@
                             <form action="" method="POST">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
-                                    <select name="_year" class="form-select">
-                                        <option value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
+                                    <select name="_year" id="sort_year" class="form-select">
+                                        <option for="sort_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
                                         <?php foreach($trade_years as $trade_year){ ?>
-                                            <option value="<?php echo $trade_year["_year"];?>" <?php if($trade_year["_year"] == $_year){ ?>selected<?php } ?>>
+                                            <option for="sort_year" value="<?php echo $trade_year["_year"];?>" <?php if($trade_year["_year"] == $_year){ ?>selected<?php } ?>>
                                                 <?php echo $trade_year["_year"]."y";?></option>
                                         <?php } ?>
                                     </select>
@@ -195,9 +197,9 @@
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select">
                                         <?php if($sys_role <= 2 ){ ?>
-                                            <option value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- [ All user ] --</option>
+                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
                                         <?php } ?>
-                                        <option value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
+                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
                                             <?php echo $auth_emp_id."_".$auth_cname;?></option>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>

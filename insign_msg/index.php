@@ -8,10 +8,10 @@
     }
 
     if(isset($_SESSION[$sys_id]["role"])){ 
-        $sys_id_role = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
+        $sys_role = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
     }else{
-        $sys_id_role = false;                                           // 取出$_session引用
-    };
+        $sys_role = false;                                           // 取出$_session引用
+    }
 
     if(!empty($_REQUEST['fun'])){       // 確認有帶數值才執行
         $fun = $_REQUEST['fun'];        // 先抓操作功能   
@@ -83,17 +83,10 @@
             <div class="col-8">
                 <!-- 表頭 -->
                 <div class="row" style="vertical-align:bottom;color:#FFFFFF;">
-                    <div class="col-12 col-md-4 py-0">
-                        <h3><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</h3>
+                    <div class="col-12 col-md-6 py-0">
+                        <h3>待簽清單統計</h3>
                     </div>
-                    <div class="col-6 col-md-4 py-0 text-center">
-                        <div id="myMessage">
-                            <?php if(!empty($fun)){ echo "** 自動模式 **"; }else{ echo "** 手動模式 **"; }?>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-4 py-0 text-end">
-                        <?php if($sys_id_role == 0){ echo "* [管理者模式]"; }else{ echo "* [路人模式]"; }?>
-                        <?php echo $check_ip ? $fa_check:$fa_remove; echo " ".$pc;?>
+                    <div class="col-6 col-md-6 py-0 text-end">
                     </div>
                 </div>
 
@@ -102,12 +95,12 @@
                     <div id="nav-receive" class="col-12 bg-white border rounded">
                         <div class="row">
                             <div class="col-12 col-md-8 py-0 text-primary">
-                                <?php echo "1. ?fun=receive -- 領用申請待簽名單共：".count($inSign_lists)." 筆";?>
+                                <?php echo "請購與領用申請待簽名單共：".count($inSign_lists)." 筆";?>
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($sys_id_role == 0 && $check_ip){ ?>
+                                <?php if($sys_role == 0 && $check_ip){ ?>
                                     <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs btn-primary" data-toggle="tooltip" data-placement="bottom" 
-                                        title="TN PPC(mapp)" onclick="step_0()"><i class="fa fa-paper-plane" aria-hidden="true"></i> 傳送MAPP</button>
+                                        title="TN PPC(mapp)" onclick="step_0()">傳送MAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
                                 <?php } ?>
                                 <button type="button" id="user_lists_btn" title="訊息收折" class="op_tab_btn" value="user_lists" onclick="op_tab(this.value)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                             </div>
@@ -118,14 +111,18 @@
                                 <thead>
                                     <tr>
                                         <th>姓名(工號)</th>
-                                        <th>待簽</th>
+                                        <th>1.請購待簽</th>
+                                        <th>3.領用待簽</th>
+                                        <th>total_waiting</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach($inSign_lists as $inSign_list){ ?>
                                         <tr>
                                             <td id="<?php echo 'id_'.$inSign_list['emp_id'];?>"><?php echo $inSign_list["cname"]." (".$inSign_list["emp_id"].")";?></td>
-                                            <td><?php echo $inSign_list["waiting"];?></td>
+                                            <td><?php echo $inSign_list["issue_waiting"];?></td>
+                                            <td><?php echo $inSign_list["receive_waiting"];?></td>
+                                            <td><?php echo $inSign_list["total_waiting"];?></td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
@@ -142,6 +139,20 @@
                     </div>
                     <!-- append執行訊息 -->
                     <div class="col-12 bg-white border rounded py-2 my-0" id="result">
+                    </div>
+                    <div class="row">
+                        <div class="col-6 col-md-4 py-0">
+   
+                        </div>
+                        <div class="col-6 col-md-4 py-0 text-center">
+                            <div id="myMessage">
+                                <?php if(!empty($fun)){ echo "** 自動模式 **"; }else{ echo "** 手動模式 **"; }?>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 py-0 text-end">
+                            <?php echo ($sys_role == 0) ? "* [管理者模式]" : "* [路人模式]";?>
+                            <?php echo $check_ip ? $fa_check:$fa_remove; echo " ".$pc;?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,9 +182,9 @@
         // var inSign_lists = [];
         var ppe_url  = 'http://tw059332n.cminl.oa/ppe/receive/';
         var int_msg1 = '** 測試 ~ 測試 **\n【環安PPE系統】待您簽核文件提醒\n';
-        var int_msg2 = ' 您有 ';
-        var int_msg3 = ' 件待簽核文件尚未處理，如已簽核完畢，請忽略此訊息！';
-        var int_msg4 = '\n** 請至以下連結查看待簽核文件：\n';
+        var int_msg2 = ' 您共有 ';
+        var int_msg3 = ' 件待簽核文件尚未處理';
+        var int_msg4 = '，如已簽核完畢，請忽略此訊息！\n** 請至以下連結查看待簽核文件：\n';
         var int_msg5 = '\n溫馨提示：\n1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n<此訊息為系統自動發出，請勿回覆>';
         var mapp_result = {
                 'success' : 0,
@@ -246,7 +257,7 @@
                 data:{
                     function : 'storeLog',
                     thisDay  : thisToday,
-                    sys      : 'ppe/receive',
+                    sys      : 'ppe',
                     logs     : logs_msg,
                     t_stamp  : ''
                 },
@@ -299,9 +310,11 @@
                     Object(inSign_lists).forEach(function(user){
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
-                            emp_id  : user['emp_id'],
-                            cname   : user['cname'],
-                            waiting : user['waiting']
+                            emp_id          : user['emp_id'],
+                            cname           : user['cname'],
+                            issue_waiting   : user['issue_waiting'],
+                            receive_waiting : user['receive_waiting'],
+                            waiting         : user['total_waiting']
                         }
     
                         // 確認工號是否有誤
@@ -315,22 +328,26 @@
                             // 組合訊息文字
                             var mg_msg  = int_msg1;
                                 mg_msg += "(" + user['cname'] + ")";
-                                mg_msg += int_msg2 + user['waiting'] + int_msg3;
+                                mg_msg += int_msg2 + user['total_waiting'] + int_msg3 + '(';    // 20240112 新添加 請購和領用
+                                if(user['issue_waiting'] > 0){
+                                    mg_msg += '請購'+user['issue_waiting']+'件'
+                                }
+                                if(user['receive_waiting'] > 0){
+                                    if(user['issue_waiting'] > 0){
+                                        mg_msg += '、';
+                                    }
+                                    mg_msg += '領用'+user['receive_waiting']+'件)'
+                                }else{
+                                    mg_msg += ')';
+                                }
                                 mg_msg += int_msg4 + ppe_url + int_msg5;
                             user_log['mg_msg']   = mg_msg;                                        // 小-物件log 紀錄mg_msg訊息
                             user_log['thisTime'] = thisTime;                                      // 小-物件log 紀錄thisTime
     
                             // 發送mapp
                             mapp_result_check = push_mapp(user_emp_id, mg_msg);               // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                                // if(user_emp_id != '10008048'){                                   // 測試要過濾
-                                //     // mapp_result_check = push_mapp(user_emp_id, mg_msg);      // call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                                //     mapp_result['success']++;
-                                //     mapp_result_check = true; 
-                                // }else{
-                                //     mapp_result['error']++; 
-                                //     mapp_result_check = false; 
-                                // }
-    
+                                // console.log(user_emp_id, mg_msg);                            // 驗證msg用console.log
+                                // mapp_result_check = true;                                    // 驗證msg用console.log
                             // 標記emp_id位置，顯示OK或NG，並顯示執行訊息
                             if(mapp_result_check){                                              // 判斷是否發送成功
                                 user_log['mapp_res'] = 'OK';

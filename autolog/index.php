@@ -7,28 +7,42 @@
         session_start();
     }
 
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
-    if(isset($_POST["deleteLog"])){                 // 刪除整大串
-        deleteLog($_REQUEST);
-    }
-    if(isset($_POST["delLog_item"])){               // 刪除小項
-        delLog_item($_REQUEST);
-    }
+    // 編輯功能
+        if(isset($_POST["deleteLog"])){                 // 刪除整大串
+            deleteLog($_REQUEST);
+        }
+        if(isset($_POST["delLog_item"])){               // 刪除小項
+            delLog_item($_REQUEST);
+        }
 
-    if(isset($_REQUEST["list_ym"])){        
-        $list_ym = $_REQUEST["list_ym"];            // 有收到年份 = 選定的年份
-    }else{
-        $list_ym = date('Y')."/".date('n');         // 預設顯示年份 = 今年今月
-    }
+    // 取得年參數
+        if(isset($_REQUEST["_year"])){
+            $_year = $_REQUEST["_year"];
+        }else{
+            $_year = date('Y');                         // 今年
+        }
+        
+    // 取得月參數
+        if(isset($_REQUEST["_month"])){
+            $_month = $_REQUEST["_month"];
+        }else{
+            $_month = date('m');                      // 今月
+            // $_month = "All";                             // 今月
+        }
+        
+    // 組合查詢陣列
+        $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
+            '_year' => $_year,
+            '_month' => $_month
+        );
 
-    $log_list_query = array(
-        'list_ym' => $list_ym
-    );
-    $log_list = show_log_list($log_list_query);
+    $row_lists    = show_log_list($query_arr);
+    $row_lists_yy = show_log_GB_year();              // 取Logs所有年月作為篩選
 
     // <!-- 20211215分頁工具 -->
-        $per_total = count($log_list);        //計算總筆數
+        $per_total = count($row_lists);        //計算總筆數
         $per = 5;                           //每頁筆數
         $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數
@@ -38,18 +52,16 @@
         }
         $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
-            $log_list_query["start"]  = $start;
-            $log_list_query["per"]    = $per;
+            $query_arr["start"]  = $start;
+            $query_arr["per"]    = $per;
 
-        $log_list = show_log_list($log_list_query);
+        $row_lists_div = show_log_list($query_arr);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
         if($page_end>$per_total){           //最後頁的最後筆數=總筆數
             $page_end = $per_total;
         }
     // <!-- 20211215分頁工具 -->
-
-    $log_list_ym = show_log_list_ym();              // 取Logs所有年月作為篩選
 
 ?>
 
@@ -88,18 +100,30 @@
                             <div class="col-6 col-md-4 py-0">
                                 <form action="" method="post">
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選年份</span>
-                                        <select name="list_ym" id="list_ym" class="form-select" onchange="this.form.submit()">
-                                            <?php foreach($log_list_ym as $log_ym){ ?>
-                                                <option for="list_ym" value="<?php echo $log_ym["yymm"];?>" <?php echo ($log_ym["yymm"] == $list_ym) ? "selected":"";?>><?php echo $log_ym["yymm"];?></option>
+                                        <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
+                                        <select name="_year" id="_year" class="form-select">
+                                            <option for="_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
+                                            <?php foreach($row_lists_yy as $row_list_yy){ ?>
+                                                <option for="_year" value="<?php echo $row_list_yy["_year"];?>" <?php echo ($row_list_yy["_year"] == $_year) ? "selected":"";?>>
+                                                    <?php echo $row_list_yy["_year"]."y";?></option>
                                             <?php } ?>
                                         </select>
+                                        <select name="_month" id="_month" class="form-select">
+                                            <option for="_month" value="All" <?php echo ($_month == "All") ? "selected":"";?> >-- 全年度 / All --</option>
+                                            <?php foreach (range(1, 12) as $item) {
+                                                    // $item_str = str_pad($item, 2, '0', STR_PAD_LEFT);
+                                                    echo "<option for='_month' value='{$item}'";
+                                                    echo ($item == $_month ) ? "selected":"";
+                                                    echo " >{$item}m</option>";
+                                                } ?>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                     </div>
                                 </form>  
                             </div>
                             <div class="col-6 col-md-4 py-0 text-end">
-                                <?php if($sys_id_role <= 0){ ?>
-                                    <a href="../receive/auto.php" title="MAPP發報" class="btn btn-success" ><i class="fa-solid fa-comment-sms"></i>&nbspMAPP待簽發報</a>
+                                <?php if($sys_role <= 0){ ?>
+                                    <a href="../insign_msg/" title="MAPP發報" class="btn btn-success" >待簽清單統計與發報&nbsp<i class="fa-solid fa-comment-sms"></i></a>
                                 <?php } ?>
                                 <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#access_info">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i> API連線說明</a>
@@ -181,7 +205,7 @@
                                     </thead>
                                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
-                                        <?php foreach($log_list as $log){ 
+                                        <?php foreach($row_lists_div as $log){ 
                                               $logs_log = json_decode($log['logs']);                        // 1.把json字串反解成物件或陣列
                                               if(is_object($logs_log)) { $logs_log = (array)$logs_log; }    // 2.判斷 物件轉陣列
                                               $logs_json = $logs_log['autoLogs'];                           // 3.只取autoLogs的部分
@@ -190,7 +214,7 @@
                                                 <!-- 第1格.thisInfo 紀錄敘述 -->
                                                 <td>
                                                     <?php echo "(aid:".$log['id'].")&nbsp".$log['thisDay']."</br>".$log['sys']." => ".count($logs_json)."次"."</br>".$log['t_stamp']; ?>
-                                                    <?php if($sys_id_role == 0){ ?>
+                                                    <?php if($sys_role == 0){ ?>
                                                         <form action="" method="post">
                                                             <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
                                                             <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
@@ -208,7 +232,7 @@
                                                                 if(is_object($l)) { $l = (array)$l; } 
                                                                 echo "<tr><td class='".$l["mapp_res"]."'>".($i+1)."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>";
                                                                 echo !empty($l["cname"]) ? $l["cname"]." (".$l["emp_id"].") ".$l["waiting"] : "" ;
-                                                                if($sys_id_role == 0){ ?>
+                                                                if($sys_role == 0){ ?>
                                                                     <form action="" method="post">
                                                                         <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
                                                                         <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">

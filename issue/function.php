@@ -290,7 +290,7 @@
     // 取出年份清單 => 供面篩選
     function show_issue_GB_year(){
         $pdo = pdo();
-        $sql = "SELECT DISTINCT year(_i.create_date) AS _year
+        $sql = "SELECT DISTINCT year(_i.create_date) AS _year, month(_i.create_date) AS _month
                 FROM `_issue` _i
                 GROUP BY _i.create_date
                 ORDER BY _i.create_date DESC ";

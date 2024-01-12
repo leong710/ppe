@@ -516,7 +516,7 @@
                                 </tbody>
                             </table>
                             <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo $is_emp_id;?> 的篩選文件! ] </div>
+                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo isset($is_emp_id) ? "$is_emp_id":"";?> 的篩選文件! ] </div>
                             <?php } ?>
                             <hr>
                             <!-- 20211215分頁工具 -->               

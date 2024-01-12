@@ -4,13 +4,20 @@
     // 20230818 嵌入分頁工具
     function show_log_list($request){
         $pdo = pdo();
+        $stmt_arr = array();
         extract($request);
-
         $sql = "SELECT al.*
                 FROM `autolog` al ";
-            if(!empty($list_ym)){  
-                $sql .= " WHERE SUBSTRING(al.thisDay, 1, 7) = ? ";
-            }
+        
+        if($_year != 'All'){
+            $sql .= " WHERE year(al.thisDay) = ? ";
+            array_push($stmt_arr, $_year);
+        }
+        if($_month != 'All'){
+            $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
+            $sql .= " month(al.thisDay) = ? ";
+            array_push($stmt_arr, $_month);
+        }
         $sql .= " ORDER BY al.thisDay DESC ";
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
@@ -20,8 +27,8 @@
             }  
        
         try {
-            if(!empty($list_ym)){  
-                $stmt->execute([$list_ym]);
+            if(($_year != 'All') || ($_month != "All")){
+                $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{
                 $stmt->execute();
             }
@@ -31,12 +38,13 @@
             echo $e->getMessage();
         }
     }
-    // 顯示全部by年月 => 供查詢年月份使用
-    function show_log_list_ym(){
+    // 顯示全部by年月 => 供查詢年月份使用 20240112
+    function show_log_GB_year(){
         $pdo = pdo();
-        $sql = "SELECT DISTINCT SUBSTRING(al.thisDay, 1, 7) AS yymm
+        $sql = "SELECT DISTINCT year(al.thisDay) AS _year
                 FROM `autolog` al
-                ORDER BY yymm DESC";
+                GROUP BY al.thisDay
+                ORDER BY _year DESC";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

@@ -412,7 +412,7 @@
                         }
             })
         });
-        // console.log('reportAmount:', reportAmount)
+        console.log('reportAmount:', reportAmount)
 
         // step-3.選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {

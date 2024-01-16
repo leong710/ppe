@@ -37,7 +37,7 @@
         }  
 
         if($is_emp_id != 'All'){
-            $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
+            $sql .= ($_year != "All" || $fab_id != "All" ? " OR ":" WHERE ") ;
             if($role <= 1){
                 $sql .= " ( ( ? IN (_issue.out_user_id, _issue.in_user_id)) OR _issue.idty=1 ) ";     //處理 byUser
             }else{

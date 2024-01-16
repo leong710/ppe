@@ -91,7 +91,8 @@
     function show_allReceive_ymm($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT DISTINCT DATE_FORMAT(_r.created_at, '%m') as mm 
+        $sql = "SELECT DISTINCT month(_r.created_at) as mm 
+                -- SELECT DISTINCT DATE_FORMAT(_r.created_at, '%m') as mm  // 這個01會少了0
                 FROM _receive _r
                 WHERE DATE_FORMAT(_r.created_at,'%Y') = ?
                 ORDER BY mm ASC ";

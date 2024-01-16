@@ -227,7 +227,7 @@
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
+                            <a href="../checked/" title="連結：半年檢紀錄總表">
                                 <div class="w-100 p-1 box_a">
                                     <div class="title"><?php echo $half;?>未完成點檢</div>
                                     <div class="inside my-0">00</div>
@@ -236,7 +236,7 @@
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="../checked/siteList.php" title="連結：半年檢紀錄總表">
+                            <a href="../checked/" title="連結：半年檢紀錄總表">
                                 <div class="w-100 p-1 box_a">
                                     <div class="title"><?php echo $half;?>點檢達成率</div>
                                     <div class="inside my-0">100</div>

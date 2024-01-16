@@ -3,9 +3,6 @@
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
         // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
 
         // 20231128 以下為上傳後"iframe"的部分
             // 監控按下送出鍵後，打開"iframe"

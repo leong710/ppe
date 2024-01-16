@@ -6,7 +6,7 @@
 
     // 先給預設值
         $auth_cname = $_SESSION["AUTH"]["cname"];
-        $sys_id_role = $_SESSION[$sys_id]["role"];          // 取出$_session引用
+        $sys_role = $_SESSION[$sys_id]["role"];          // 取出$_session引用
         $url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
 
     // CRUD
@@ -82,6 +82,20 @@
         }
 
     </style>
+        <script>    
+        // loading function
+        function mloading(){
+            $("body").mLoading({
+                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                icon: "../../libs/jquery/loading.gif",
+            }); 
+        }
+        // All resources finished loading! // 關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        mloading();    // 畫面載入時開啟loading
+    </script>
 </head>
 <body>
     <div class="col-12">
@@ -108,7 +122,7 @@
                         </form>
                     </div>
                     <div class="col-md-4 py-0 text-end">
-                        <?php if($sys_id_role <= 1){ ?>
+                        <?php if($sys_role <= 1){ ?>
                             <div class="row">
                                 <div class="col-6 col-md-4">
                                     <?php if($per_total != 0){ ?>
@@ -149,7 +163,7 @@
                                 </th>
                                 <th style="width: 25%">part_remark</br>註解說明</th>
                                 <th>flag</th>
-                                <th><?php echo ($sys_id_role <= 1) ? "action":""; ?></th>
+                                <th><?php echo ($sys_role <= 1) ? "action":""; ?></th>
                             </tr>
                         </thead>
                         <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
@@ -187,13 +201,13 @@
                                     </td>
 
                                     <td class="word_bk"><?php echo $pno["pno_remark"];?></td>
-                                    <td><?php if($sys_id_role <= 1){ ?>
+                                    <td><?php if($sys_role <= 1){ ?>
                                             <button type="button" name="pno" id="<?php echo $pno['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $pno['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $pno['flag'];?>"><?php echo $pno['flag'];?></button>
                                         <?php }else{ ?>
                                             <span class="btn btn-sm btn-xs <?php echo $pno["flag"] == "On" ? "btn-success":"btn-warning";?>">
                                                 <?php echo $pno["flag"] == "On" ? "On":"Off";?></span>
                                         <?php } ?></td>
-                                    <td><?php if($sys_id_role <= 1){ ?>    
+                                    <td><?php if($sys_role <= 1){ ?>    
                                         <button type="button" id="edit_pno_btn" value="<?php echo $pno["id"];?>" class="btn btn-sm btn-xs btn-info" 
                                             data-bs-toggle="modal" data-bs-target="#edit_pno" onclick="edit_module('pno',this.value)" >編輯</button>
                                     <?php } ?></td>
@@ -212,7 +226,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增、編輯PNO料號 -->
+    <!-- 彈出畫面模組 新增、編輯PNO料號 -->
     <div class="modal fade" id="edit_pno" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -221,7 +235,7 @@
 
                     <form action="" method="post">
                         <input type="hidden" name="id" id="pno_delete_id">
-                        <?php if($sys_id_role <= 1){ ?>
+                        <?php if($sys_role <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
                         <?php } ?>
@@ -313,7 +327,7 @@
                             <input type="hidden" name="page" value="<?php echo isset($_REQUEST['page']) ? $_REQUEST['page'] : '1' ;?>">
                             <input type="hidden" name="id" id="pno_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
-                            <?php if($sys_id_role <= 1){ ?>   
+                            <?php if($sys_role <= 1){ ?>   
                                 <span id="modal_button"></span>
                             <?php } ?>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
@@ -325,7 +339,7 @@
             </div>
         </div>
     </div>
-<!-- 互動視窗 upload_excel -->
+    <!-- 互動視窗 upload_excel -->
     <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
@@ -367,7 +381,7 @@
             </div>
         </div>
     </div>
-<!-- toast -->
+    <!-- toast -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
             <div class="d-flex">
@@ -376,7 +390,7 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
+    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>

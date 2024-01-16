@@ -18,7 +18,7 @@
         }
     }
     
-    function show_myIssue(){                // 衛材需求單
+    function show_myIssue(){                // 1.請購需求單
         $pdo = pdo();
         $sql = "SELECT COUNT(*) AS idty_count
                 FROM `_issue`

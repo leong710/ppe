@@ -4,17 +4,26 @@
     $webroot = "..";
     
     if(isset($_SESSION[$sys_id])){
-        $auth_emp_id = $_SESSION["AUTH"]["emp_id"];    // 取出$_session引用
-        $auth_cname  = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
-        $sys_id_auth = true; 
-        $sys_id_role = $_SESSION[$sys_id]["role"];     // 取出$_session引用
+        $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];    // 取出$_session引用
+        $auth_cname     = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
+        $auth_sign_code = $_SESSION["AUTH"]["sign_code"];
+        $sys_role       = $_SESSION[$sys_id]["role"];     // 取出$_session引用
+        $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
+        $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];  
+        $sys_auth = true; 
     }else{
-        $sys_id_auth = false; 
-        $sys_id_role = false;                          // 取出$_session引用
+        $sys_auth = false; 
+        $sys_role = false;                          // 取出$_session引用
     }
 
+    // init
+    $numTrade   = 0;
+    $numIssue   = 0;
+    $numChecked = 0;
+    $numReceive = 0;
+
     // 2023/12/14 這邊待處理
-    if($sys_id_auth == true && $sys_id_role <= 2){
+    if($sys_auth == true && $sys_role <= 2){
         //// 2調撥
             $fab_id = $_SESSION[$sys_id]["fab_id"];        // 先給預設值
             $myTrade = show_myTrade($fab_id);              // 查詢器材調撥
@@ -46,19 +55,15 @@
                 }
 
             $list_setting = array(    // 組合查詢陣列
-                'fab_id' => $sort_fab_id,
-                'emp_id' => $sort_emp_id,
+                'fab_id'       => $sort_fab_id,
+                'emp_id'       => $sort_emp_id,
                 'checked_year' => $today_year,      // 建立查詢陣列for顯示今年點檢表
-                'half' => $half                     // 建立查詢陣列for顯示今年點檢表
+                'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
             );
 
             $sort_check_list = sort_check_list($list_setting);      // 查詢自己的點檢紀錄
             $numChecked = count($sort_check_list);         // 計算自己的點檢紀錄筆數
 
-    }else{
-        $numTrade = 0;
-        $numIssue = 0;
-        $numChecked = 0;
     }
     $num = $numTrade + $numIssue;
 ?>
@@ -70,19 +75,22 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto   my-2 my-lg-0 navbar-nav-scroll">
-                <?php if($sys_id_auth){ ?>
+                <?php if($sys_auth){ ?>
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i class="fa-regular fa-square-plus"></i>&nbsp外層Link</a></li> -->
                     <!-- 下拉式選單 -->
-                    <?php if($sys_id_role >= 0){ ?>
+                    <?php if($sys_role >= 0){ ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link active dropdown-toggle" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理</a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDD_1">
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
-                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b></a></li>
+                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b>
+                                    <?php if($numReceive !=0){?>
+                                        &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numReceive; ?></span>
+                                    <?php }?></a></li>
                             </ul>
                         </li>
 
-                        <?php if($sys_id_role <= 2 ){ ?>
+                        <?php if($sys_role <= 2 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
@@ -108,7 +116,7 @@
                                         <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/index.php"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
-                                    <?php if($sys_id_role <= 2 ){ ?>
+                                    <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
                                     <?php } ?>
@@ -116,7 +124,7 @@
                             </li>
                         <?php } ?>
 
-                        <?php if($sys_id_role <= 1 ){ ?>
+                        <?php if($sys_role <= 1 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-sliders"></i>&nbsp進階設定</a>
@@ -135,7 +143,7 @@
                                 <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_4">
-                                    <?php if($sys_id_role <= 1 ){ ?>
+                                    <?php if($sys_role <= 1 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/insign_msg/"><i class="fa-solid fa-comment-sms"></i>&nbsp待簽清單統計</a></li>
                                     <?php } ?>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
@@ -149,7 +157,7 @@
             
             <!-- .navbar-toggler, .navbar-collapse 和 .navbar-expand{-sm|-md|-lg|-xl} -->
             <ul class="navbar-nav ms-auto   my-2 my-lg-0 navbar-nav-scroll">
-                <?php if(!$sys_id_auth){ ?>
+                <?php if(!$sys_auth){ ?>
                     <li class="nav-item mx-1"><a href="<?php echo $webroot;?>/auth/login.php" class=""><i class="fa fa-sign-in" aria-hidden="true"></i> 登入</a></li>
                     <!-- <li class="nav-item mx-1 disabled"><a href="<php echo $webroot;?>/auth/register.php" class="btn btn-success">註冊</a></li> -->
                 <?php } else { ?>
@@ -162,16 +170,16 @@
                                         echo '<i class="fa fa-user-secret" aria-hidden="true"></i>';
                                     } 
                                     echo (isset($_SESSION[$sys_id]["site_title"])) ? "(".$_SESSION[$sys_id]["site_title"].") ":"";
-                                    echo $sys_id_auth ? $auth_cname.'<sup class="text-danger"> - '.$sys_id_role.'</sup>':""; 
+                                    echo $sys_auth ? $auth_cname.'<sup class="text-danger"> - '.$sys_role.'</sup>':""; 
                             ?> 你好</a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_reg">
                             <?php   
-                                if($sys_id_auth){  
-                                    if($sys_id_role <= 2){ ?>
+                                if($sys_auth){  
+                                    if($sys_role <= 2){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/edit.php?user=<?php echo $_SESSION["AUTH"]["user"];?>"><i class="fa fa-user-circle" aria-hidden="true"></i> 編輯User資訊</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                 <?php } 
-                                    if($sys_id_role <= 1){ ?>
+                                    if($sys_role <= 1){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/index.php"><i class="fa fa-address-card" aria-hidden="true"></i> 管理使用者</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                 <?php } 

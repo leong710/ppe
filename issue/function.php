@@ -970,9 +970,10 @@
     // 20230721 開啟需求單時，先讀取local衛材存量，供填表單時參考
     function show_catalogs(){
         $pdo = pdo();
-        $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id
+        $sql = "SELECT _cata.*, _cate.cate_title, _cate.cate_no , _cate.id AS cate_id , _pno.*
                 FROM _cata
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
+                LEFT JOIN _pno ON _cata.SN = _pno.cata_SN
                 WHERE _cata.flag = 'On'
                 ORDER BY _cata.id ASC ";
         $stmt = $pdo->prepare($sql);
@@ -984,25 +985,25 @@
             echo $e->getMessage();
         }
     }
-   // --- stock index  20231218 領用量：在low_level表單中顯示cata_SN年領用量
-   function show_my_receive($request){
-    $pdo = pdo();
-    extract($request);
-    $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id  
-            FROM `_receive` _r
-            LEFT JOIN _local _l ON _r.local_id = _l.id
-            LEFT JOIN _fab _f ON _l.fab_id = _f.id
-            WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND (_r.idty = 10 OR _r.idty = 11 OR _r.idty = 13)";  // 10=結案
-    $stmt = $pdo->prepare($sql);
-    try {
-        $stmt->execute([$local_id, $thisYear]);
-        $my_receive_lists = $stmt->fetchAll();
-        return $my_receive_lists;
+    // --- stock index  20231218 領用量：在low_level表單中顯示cata_SN年領用量
+    function show_my_receive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT _r.* , _l.local_title , _l.local_remark , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id  
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                WHERE _r.local_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND (_r.idty = 10 OR _r.idty = 11 OR _r.idty = 13)";  // 10=結案
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id, $thisYear]);
+            $my_receive_lists = $stmt->fetchAll();
+            return $my_receive_lists;
 
-    }catch(PDOException $e){
-        echo $e->getMessage();
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
     }
-}
 
 // // // Create表單會用到 -- end
 

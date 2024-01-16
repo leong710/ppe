@@ -27,7 +27,7 @@
                         // console.log(add_amount['need'], amount_need_length);
                         add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
                         // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
-                        add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+')value='+amount_need+'" >'+'</td></tr>';
+                        add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
                         // add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
                     }else{
                         add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';

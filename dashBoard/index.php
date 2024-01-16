@@ -39,8 +39,7 @@
         'half'         => $half
     );
     // dashBoard-表頭數據用，秀出-site短缺/器材短缺 table-0 左 1、2
-    // $stock_db1 = show_stock_db1();
-    $stock_db1 = [];
+    $stock_db1 = show_stock_db1();
     // dashBoard-表頭數據用，秀出-點檢達成率/未完成site數 table-0 右 3、4
     $stock_db2 = show_stock_db2($check_yh);
 
@@ -211,7 +210,7 @@
                                 <a href="#site_loss" title="連結下方：安全存量警示清單">
                                     <div class="w-100 p-1 box_a">
                                         <div class="title">存量警示</div>
-                                        <div class="inside my-0"><?php ECHO $stock_db1["site_num"];?></div>
+                                        <div class="inside my-0"><?php ECHO $stock_db1["fab_num"];?></div>
                                         <div class="title_end">廠區</div>
                                     </div>
                                 </a>
@@ -220,7 +219,7 @@
                                 <a href="#site_loss" title="連結下方：安全存量警示清單">
                                     <div class="w-100 p-1 box_a">
                                         <div class="title">器材需求</div>
-                                        <div class="inside my-0"><?php ECHO $stock_db1["catalog_num"];?></div>
+                                        <div class="inside my-0"><?php ECHO $stock_db1["cata_num"];?></div>
                                         <div class="title_end">品項</div>
                                     </div>
                                 </a>

@@ -23,13 +23,13 @@
     // dashBoard-表頭數據用，秀出-site短缺/器材短缺 table-0 左
     function show_stock_db1(){
         $pdo = pdo();
-        $sql = "SELECT count(DISTINCT(_fab.id)) AS fab_num, count(DISTINCT(_stock.catalog_id)) AS catalog_num 
+        $sql = "SELECT count(DISTINCT(_fab.id)) AS fab_num, count(DISTINCT(_stock.cata_SN)) AS cata_num 
                 FROM `_stock` 
-                LEFT JOIN _catalog ON _stock.catalog_id = _catalog.id	
-                LEFT JOIN _local   ON _stock.local_id   = _local.id	
-                LEFT JOIN _fab     ON _local.fab_id    = _fab.id	
+                LEFT JOIN _cata  ON _stock.cata_SN  = _cata.SN	
+                LEFT JOIN _local ON _stock.local_id = _local.id	
+                LEFT JOIN _fab   ON _local.fab_id   = _fab.id	
                 LEFT JOIN (	
-                    SELECT concat_ws('_',_local.fab_id, _stock.local_id, _stock.catalog_id) AS tcc
+                    SELECT concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) AS tcc
                         , sum(_s.standard_lv) AS _stock_stand	
                         , sum(_stock.amount)-sum(_s.standard_lv) AS sqty
                     FROM `_stock`	
@@ -38,10 +38,10 @@
                         SELECT _stock.id, _stock.standard_lv	
                         FROM `_stock`	
                         LEFT JOIN _local _l ON _stock.local_id = _l.id	
-                        GROUP BY local_id, catalog_id	
+                        GROUP BY local_id, cata_SN	
                         ) _s ON _stock.id = _s.id
-                    GROUP BY _stock.local_id, _stock.catalog_id
-                    ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.catalog_id) = tcc
+                    GROUP BY _stock.local_id, _stock.cata_SN
+                    ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) = tcc
                 WHERE s.sqty <= 0 ";
         $stmt = $pdo->prepare($sql);
         try {

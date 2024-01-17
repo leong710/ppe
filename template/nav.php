@@ -31,6 +31,7 @@
         $query_arr = array(
             'fab_id'       => $sys_fab_id,
             'emp_id'       => $auth_emp_id,
+            'sign_code'    => $auth_sign_code,
             'checked_year' => $today_year,              // 建立查詢陣列for顯示今年點檢表
             'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
         );
@@ -38,9 +39,9 @@
     // 2023/12/14 這邊待處理
     if($sys_auth == true && $sys_role <= 2){
         //// 3領用
-            $myReceive = show_myReceive($sys_fab_id);   // 3.查詢領用申請
+            $myReceive = show_myReceive($query_arr);   // 3.查詢領用申請
             if(!empty($myReceive)) { 
-                $numReceive = $myReceive["idty_count"];
+                // $numReceive = $myReceive["idty_count"];
             } 
         //// 2調撥
             $myTrade = show_myTrade($query_arr);       // 2.查詢入出庫申請

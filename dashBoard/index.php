@@ -279,30 +279,28 @@
                         <!-- 1.各廠器材量存量燈號 -->
                         <div class="tab-pane bg-white fade p-2 show active" id="tab_1" role="tabpanel" aria-labelledby="nav-tab_1">
                             <div class="col-12">
-                                <div class="row px-2">
-                                    <div class="col-12 col-md-6 pb-0">
-                                        <h4>1.各廠器材量存量燈號：</h4>
+                                <div class="row">
+                                    <div class="col-12 col-md-6 py-0">
+                                        <h4>1.各廠存量燈號：</h4>
                                     </div>
-                                    <div class="col-12 col-md-6 pb-0 text-end">
-                                        <button type="submit" id="checkItem" class="btn btn-sm btn-xs btn-success" onclick="open_div(this.id)">openSource</button>
+                                    <div class="col-12 col-md-6 py-0 text-end">
+                                        <a href="#base_stock" id="checkItem" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-12 py-0">
-                                        <span>p.s.安全存量：單一Local算一筆進行合併計算；現場存量：單一品項全南廠所有存量(不論效期)。</span>
+                                        <span>p.s.紅燈(占比>=30%)、橘燈(30%>占比>0%)、綠燈(占比=0%)</span>
                                     </div>
                                 </div>
                                 <!--1.各廠器材存量百分比-數據驗證用 -->
                                 <div class="row rounded cs_a unblock" id="checkItem_div">
                                     <div class="col-12">
-                                        <h5>(數據驗證用-正式版會移除)</h5>
+                                        <h5>(數據驗證)</h5>
                                         <table class="w-100">
                                             <thead>
                                                 <tr>
-                                                    <th>id</th>
-                                                    <th>fab</th>
-                                                    <th>安量</th>
-                                                    <th>現量</th>
-                                                    <th>差額</th>
-                                                    <th>成數</th>
+                                                    <th>fab / local</th>
+                                                    <th>品項數</th>
+                                                    <th>低於安量數</th>
+                                                    <th>占比</th>
                                                     <th>燈號</th>
                                                 </tr>
                                             </thead>
@@ -312,37 +310,38 @@
                                                     $fab_balls = [];     // 燈號
                                                     $caseNum = 0;
                                                     foreach($stock_percentages as $stock_percentage){ 
-                                                        $stock_perc_sqty = $stock_percentage["sqty"];
-                                                        if($stock_perc_sqty > 0 ){ 
-                                                            if($stock_perc_sqty >= $stock_percentage["stock_stand"]){ 
-                                                                $stock_perc_color = "blue";
-                                                                $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
+                                                        $stock_perc_low_level = $stock_percentage["low_level"];
+                                                        if($stock_perc_low_level > 0 ){ 
+
+                                                            if($stock_percentage["percentage"] >= 30 ){ 
+                                                                $stock_perc_color = "red";
+                                                                $bar_color = 'rgba(255, 99, 132, 1)';       // 紅色red
+
                                                             } else {
+                                                                $stock_perc_color = "orange";
+                                                                $bar_color = 'rgba(255, 204, 0, 1)';        // 黃色yellow 
+                                                            }
+
+                                                        } else if($stock_perc_low_level == 0){ 
                                                                 $stock_perc_color = "green";
                                                                 $bar_color = 'rgba(0, 255, 72, 1)';     // 綠色 green
-                                                            }
-                                                        } else if($stock_perc_sqty == 0){ 
-                                                            $stock_perc_color = "orange";
-                                                            $bar_color = 'rgba(255, 204, 0, 1)';        // 黃色yellow 
+
                                                         } else {
-                                                            $stock_perc_color = "red";
-                                                            $bar_color = 'rgba(255, 99, 132, 1)';       // 紅色red
+                                                            $stock_perc_color = "blue";
+                                                            $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
+                                 
                                                         }
                                                         array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $stock_percentage["fab_id"];?></td>                              
-                                                        <td><?php echo $stock_percentage["fab_title"];?></td>
+                                                        <td title="l_aid:<?php echo $stock_percentage["local_id"];?>">
+                                                            <?php echo $stock_percentage["fab_title"]." / ".$stock_percentage["local_title"]." (".$stock_percentage["local_remark"].")";?></td>
     
-                                                        <td><?php echo $stock_percentage["stock_stand"];?></td>
-                                                        <td><?php echo $stock_percentage["stock_stand"]+$stock_percentage["sqty"];?></td>
-    
-                                                        <td><?php echo $stock_percentage["sqty"];?></td>
+                                                        <td><?php echo $stock_percentage["count_SN"];?></td>
+                                                        <td><?php echo $stock_percentage["low_level"];?></td>
+                                                        
                                                         <td><?php echo $stock_percentage["percentage"]."%";?></td>
-    
-                                                        <td style="font-size: 1.2em; color:<?php echo $stock_perc_color;?>;"> 
-                                                            ●
-                                                        </td>
+                                                        <td style="font-size: 1.2em; color:<?php echo $stock_perc_color;?>;"> ● </td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
@@ -468,7 +467,10 @@
                                                 <td style="text-align: left;"><?php echo $stock_lost["fab_title"]."_".$stock_lost["local_title"];?></td>
                                                 <td style="text-align: left;"><a href="../catalog/repo.php?sn=<?php echo $stock_lost["cata_SN"];?>"><?php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></a></td>
                                                 <td><?php echo $stock_lost["stock_stand"];?></td>
-                                                <td <?php if($stock_pc < 60){ ?> style="background-color:pink; color:red;" <?php }?>><?php echo $stock_lost["stock_amount"];?></td>
+                                                <td style="<?php echo ($stock_pc < 100 && $stock_pc >= 80) ? 'background-color:yellowgreen; color:red;':'';
+                                                                 echo ($stock_pc < 80  && $stock_pc >= 60) ? 'background-color:orange; color:red;':'';
+                                                                 echo ($stock_pc < 60) ? 'background-color:pink; color:red;':'';
+                                                            ?>"><?php echo $stock_lost["stock_amount"];?></td>
                                                 <td style="color: <?php echo $stock_color;?>;"><?php echo $stock_lost["qty"];?></td>
                                                 <td style="color: <?php echo $stock_color;?>;"><?php echo $stock_pc."%";?></td>
                                             </tr>

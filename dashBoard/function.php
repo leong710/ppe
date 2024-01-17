@@ -42,7 +42,7 @@
                         ) _s ON _stock.id = _s.id
                     GROUP BY _stock.local_id, _stock.cata_SN
                     ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) = tcc
-                WHERE s.sqty <= 0 ";
+                WHERE s.sqty < 0 ";  // s.sqty <= 0
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
@@ -79,36 +79,50 @@
     function show_fab_percentage(){
         $pdo = pdo();
         // 各廠器材存量百分比(找出有缺的部分取最小值)
-        $sql = "SELECT _s.*
-                FROM (
-                    SELECT 	
-                        _fab.id AS fab_id, _fab.fab_title
-                        , s.stock_stand	
-                        , sum(stock.amount) AS stock_amount 	
-                        , s.sqty
-                        , MIN(round(((s.stock_stand + s.sqty )/(s.stock_stand * 2) * 100), 1)) AS percentage 
-                    FROM `_stock` stock
-                    LEFT JOIN _cata ON stock.cata_SN = _cata.SN	
-                    LEFT JOIN _local ON stock.local_id = _local.id	
-                    LEFT JOIN _fab ON _local.fab_id = _fab.id	
-                    LEFT JOIN (	
-                        SELECT concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) AS tcc	
-                            , sum(_s.standard_lv) AS stock_stand
-                            , sum(stock.amount)-sum(_s.standard_lv) AS sqty	
-                        FROM `_stock` stock	
-                        LEFT JOIN _local ON stock.local_id = _local.id	
-                        LEFT JOIN (	
-                                SELECT stock.id, stock.standard_lv	
-                                FROM `_stock` stock	
-                                LEFT JOIN _local _l ON stock.local_id = _l.id	
-                                GROUP BY local_id, cata_SN	
-                                ) _s ON stock.id = _s.id	
-                        GROUP BY stock.local_id, stock.cata_SN	
-                        ) s ON concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) = tcc
-                    WHERE s.sqty <= 0	
-                    GROUP BY stock.local_id, stock.cata_SN
-                    ORDER BY _fab.id , percentage ASC) _s
-                GROUP BY fab_id ";
+            // $sql = "SELECT _s.*
+            //         FROM (
+            //             SELECT  _fab.id AS fab_id, _fab.fab_title
+            //                     , s.stock_stand , sum(stock.amount) AS stock_amount , s.sqty
+            //                     , MIN(round(((s.stock_stand + s.sqty )/(s.stock_stand * 2) * 100), 1)) AS percentage 
+            //             FROM `_stock` stock
+            //             LEFT JOIN _cata ON stock.cata_SN = _cata.SN	
+            //             LEFT JOIN _local ON stock.local_id = _local.id	
+            //             LEFT JOIN _fab ON _local.fab_id = _fab.id	
+            //             LEFT JOIN (	
+            //                 SELECT concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) AS tcc	
+            //                     , sum(_s.standard_lv) AS stock_stand
+            //                     , sum(stock.amount)-sum(_s.standard_lv) AS sqty	
+            //                 FROM `_stock` stock	
+            //                 LEFT JOIN _local ON stock.local_id = _local.id	
+            //                 LEFT JOIN (	
+            //                     SELECT stock.id, stock.standard_lv	
+            //                     FROM `_stock` stock	
+            //                     -- LEFT JOIN _local _l ON stock.local_id = _l.id	
+            //                     GROUP BY local_id, cata_SN	
+            //                     ) _s ON stock.id = _s.id	
+            //                 GROUP BY stock.local_id, stock.cata_SN	
+            //                 ) s ON concat_ws('_',_local.fab_id, stock.local_id, stock.cata_SN) = tcc
+            //             WHERE s.sqty <= 0	
+            //             GROUP BY stock.local_id, stock.cata_SN
+            //             ORDER BY _fab.id , percentage ASC
+            //             ) _s
+            //         GROUP BY fab_id ";
+
+        $sql = "SELECT _s.local_id, COUNT(_s.cata_SN) AS count_SN
+                    , SUM(CASE WHEN _s.amount < _s.standard_lv THEN 1 ELSE 0 END) AS low_level
+                    , ROUND((low_level / count_SN * 100), 1) AS percentage
+                    , fab_id, fab_title, fab_remark, local_title, local_remark
+                FROM _stock _s
+                LEFT JOIN (
+                    SELECT local_id, COUNT(cata_SN) AS count_SN
+                        , SUM(CASE WHEN amount < standard_lv THEN 1 ELSE 0 END) AS low_level
+                        , _f.fab_title, _f.fab_remark, _l.fab_id, _l.local_title, _l.local_remark
+                    FROM _stock
+                    LEFT JOIN _local _l ON _stock.local_id = _l.id	
+                    LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                    GROUP BY _stock.local_id
+                    ) AS sub ON _s.local_id = sub.local_id
+                GROUP BY _s.local_id ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

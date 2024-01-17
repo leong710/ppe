@@ -3,17 +3,18 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDenied($sys_id);
-
+    
+    $sys_role    = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
     // 去年年份
-    $thisYear = date('Y')-1 ;                        // 這裡要減1才會找出去年的用量
+    $thisYear = date('Y')-1 ;                                       // 這裡要減1才會找出去年的用量
 
     if(isset($_REQUEST["local_id"])){
         $select_local = select_local($_REQUEST);
-        if(empty($select_local)){                           // 查無資料時返回指定頁面
-            echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
+        if(empty($select_local)){                                   // 查無資料時返回指定頁面
+            echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
         }
-        $buy_ty = $select_local["buy_ty"];                              // 限購規模
-        $low_level = json_decode($select_local["low_level"]);           // 安全存量
+        $buy_ty = $select_local["buy_ty"];                          // 限購規模
+        $low_level = json_decode($select_local["low_level"]);       // 安全存量
         if(is_object($low_level)) { $low_level = (array)$low_level; } 
 
         $catalogs = show_catalogs();
@@ -177,7 +178,7 @@
                                             </div>
                                             <input type="number" name="low_level[<?php echo $catalog["SN"];?>]" id="<?php echo $select_local["id"].'_'.$catalog['SN'];?>" class="form-control amount t-center" 
                                                 placeholder="請填最低值" min="0" 
-                                                <?php if($sys_id_role <= 1){ ?>
+                                                <?php if($sys_role <= 1){ ?>
                                                     
                                                 <?php } else { ?>
                                                     max="9999" maxlength="<?php echo strlen($buy_qty);?>" 

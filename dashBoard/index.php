@@ -267,7 +267,7 @@
                     <div class="row py-0">
                         <nav>
                             <div class="nav nav-tabs pt-2 pb-0" id="nav-tab" role="tablist">
-                                <button class="nav-link active" id="nav-tab_1" data-bs-toggle="tab" data-bs-target="#tab_1" type="button" role="tab" aria-controls="tab_1" aria-selected="true" >業務區塊</button>
+                                <button class="nav-link active" id="nav-tab_1" data-bs-toggle="tab" data-bs-target="#tab_1" type="button" role="tab" aria-controls="tab_1" aria-selected="true" >1.各廠存量燈號</button>
                                 <button class="nav-link"        id="nav-tab_2" data-bs-toggle="tab" data-bs-target="#tab_2" type="button" role="tab" aria-controls="tab_2" aria-selected="false">2.現存總清單</button>
                                 <button class="nav-link"        id="nav-tab_3" data-bs-toggle="tab" data-bs-target="#tab_3" type="button" role="tab" aria-controls="tab_3" aria-selected="false">3.安量警示清單</button>
                             </div>
@@ -287,7 +287,8 @@
                                         <a href="#base_stock" id="checkItem" onclick="open_div(this.id)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-12 py-0">
-                                        <span>p.s.紅燈(占比>=30%)、橘燈(30%>占比>0%)、綠燈(占比=0%)</span>
+                                        <span>ps-1.計算公式：(低於安量數) / (品項總數) * 100% = 占比</span></br>
+                                        <span>ps-2.紅燈(占比>=30%)、橘燈(30%>占比>0%)、綠燈(占比=0%)</span>
                                     </div>
                                 </div>
                                 <!--1.各廠器材存量百分比-數據驗證用 -->
@@ -334,7 +335,7 @@
                                                         array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
                                                     ?>
                                                     <tr>
-                                                        <td title="l_aid:<?php echo $stock_percentage["local_id"];?>">
+                                                        <td style="text-align: left;" title="l_aid:<?php echo $stock_percentage["local_id"];?>">
                                                             <?php echo $stock_percentage["fab_title"]." / ".$stock_percentage["local_title"]." (".$stock_percentage["local_remark"].")";?></td>
     
                                                         <td><?php echo $stock_percentage["count_SN"];?></td>

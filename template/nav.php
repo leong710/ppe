@@ -4,68 +4,60 @@
     $webroot = "..";
     
     if(isset($_SESSION[$sys_id])){
-        $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];    // 取出$_session引用
-        $auth_cname     = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
+        // 取出$_session引用
+        $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];
+        $auth_cname     = $_SESSION["AUTH"]["cname"];
         $auth_sign_code = $_SESSION["AUTH"]["sign_code"];
-        $sys_role       = $_SESSION[$sys_id]["role"];     // 取出$_session引用
+        $sys_role       = $_SESSION[$sys_id]["role"];
         $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
         $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];  
         $sys_auth = true; 
     }else{
         $sys_auth = false; 
-        $sys_role = false;                          // 取出$_session引用
+        $sys_role = false; 
     }
 
     // init
-    $numTrade   = 0;
-    $numIssue   = 0;
-    $numChecked = 0;
-    $numReceive = 0;
+        $numReceive = 0; $numTrade = 0; $numIssue = 0; $numChecked = 0; 
+        // 今年年份
+        $today_year = date('Y');
+        // 半年分界線
+        if(date('m') <= 6 ){
+            $half = "H1";
+        }else{
+            $half = "H2";
+        }
+    // 組合查詢陣列
+        $query_arr = array(
+            'fab_id'       => $sys_fab_id,
+            'emp_id'       => $auth_emp_id,
+            'checked_year' => $today_year,              // 建立查詢陣列for顯示今年點檢表
+            'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
+        );
 
     // 2023/12/14 這邊待處理
     if($sys_auth == true && $sys_role <= 2){
+        //// 3領用
+            $myReceive = show_myReceive($sys_fab_id);   // 3.查詢領用申請
+            if(!empty($myReceive)) { 
+                $numReceive = $myReceive["idty_count"];
+            } 
         //// 2調撥
-            $fab_id = $_SESSION[$sys_id]["fab_id"];        // 先給預設值
-            $myTrade = show_myTrade($fab_id);              // 查詢器材調撥
+            $myTrade = show_myTrade($query_arr);       // 2.查詢入出庫申請
             if(!empty($myTrade)) { 
                 $numTrade = $myTrade["idty_count"];
-            }else{
-                $numTrade = 0;
             } 
         //// 1需求
-            if($_SESSION[$sys_id]['role'] <= 1 ){    // 需求單限pm以上
-                $myIssue = show_myIssue();          // 查詢需求單
-            }
+            $myIssue = show_myIssue();                  // 1.查詢請購需求單
             if(!empty($myIssue)) { 
                 $numIssue = $myIssue["idty_count"];
-            }else{
-                $numIssue = 0;
             }
-        //// 檢點表
-            // 先給預設值
-            $sort_fab_id = $fab_id = $_SESSION[$sys_id]["fab_id"];
-            $sort_emp_id = $emp_id = $_SESSION["AUTH"]["emp_id"];
-            // 今年年份
-                $today_year = date('Y');
-                // 半年分界線
-                if(date('m') <= 6 ){
-                    $half = "H1";
-                }else{
-                    $half = "H2";
-                }
-
-            $list_setting = array(    // 組合查詢陣列
-                'fab_id'       => $sort_fab_id,
-                'emp_id'       => $sort_emp_id,
-                'checked_year' => $today_year,      // 建立查詢陣列for顯示今年點檢表
-                'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
-            );
-
-            $sort_check_list = sort_check_list($list_setting);      // 查詢自己的點檢紀錄
-            $numChecked = count($sort_check_list);         // 計算自己的點檢紀錄筆數
-
+        //// 0檢點表
+            $sort_check_list = sort_check_list($query_arr);  // 查詢自己的點檢紀錄
+            $numChecked = count($sort_check_list);           // 計算自己的點檢紀錄筆數
     }
-    $num = $numTrade + $numIssue;
+
+    $num = $numReceive + $numTrade + $numIssue;
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">

@@ -1,8 +1,14 @@
 <?php
 
     // 在NAV找出自己的資料forAlarm 
-    function show_myTrade($fab_id){        // 衛材調撥單
+    function show_myReceive($request){           // 3.查詢領用申請
         $pdo = pdo();
+        extract($request);
+    }
+
+    function show_myTrade($request){             // 2.查詢入出庫申請
+        $pdo = pdo();
+        extract($request);
         $sql = "SELECT DISTINCT i_local.fab_id AS i_sid,
                     (SELECT COUNT(*) FROM `_trade` t2 WHERE t2.in_local = _trade.in_local AND t2.idty = _trade.idty) AS idty_count
                 FROM `_trade`
@@ -18,7 +24,7 @@
         }
     }
     
-    function show_myIssue(){                // 1.請購需求單
+    function show_myIssue(){                    // 1.查詢請購需求單
         $pdo = pdo();
         $sql = "SELECT COUNT(*) AS idty_count
                 FROM `_issue`
@@ -34,7 +40,7 @@
     }
 
     // fab user index查詢自己的點檢紀錄for顯示點檢表功能
-    function sort_check_list($request){       // 庫存點檢
+    function sort_check_list($request){         // 庫存點檢
         $pdo = pdo();
         extract($request);
         $sql = "SELECT *

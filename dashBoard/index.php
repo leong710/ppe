@@ -468,7 +468,7 @@
                                                 <td style="text-align: left;"><?php echo $stock_lost["fab_title"]."_".$stock_lost["local_title"];?></td>
                                                 <td style="text-align: left;"><a href="../catalog/repo.php?sn=<?php echo $stock_lost["cata_SN"];?>"><?php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></a></td>
                                                 <td><?php echo $stock_lost["stock_stand"];?></td>
-                                                <td style="<?php echo ($stock_pc < 100 && $stock_pc >= 80) ? 'background-color:yellowgreen; color:red;':'';
+                                                <td style="<?php echo ($stock_pc < 100 && $stock_pc >= 80) ? 'background-color:yellow; color:red;':'';
                                                                  echo ($stock_pc < 80  && $stock_pc >= 60) ? 'background-color:orange; color:red;':'';
                                                                  echo ($stock_pc < 60) ? 'background-color:pink; color:red;':'';
                                                             ?>"><?php echo $stock_lost["stock_amount"];?></td>

@@ -12,7 +12,7 @@
     }
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
             // if(isset($_GET["local_id"])){
                 //     $select_local = select_local($_REQUEST);
@@ -81,9 +81,9 @@
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id
-        if(isset($_REQUEST["fab_id"])){    // 有帶查詢，套查詢參數
+        if(isset($_REQUEST["fab_id"])){     // 有帶查詢，套查詢參數
             $sort_fab_id = $_REQUEST["fab_id"];
-        }else{                          // 先給預設值
+        }else{                              // 先給預設值
             $sort_fab_id = $fab_id;
         }
         // 查詢篩選條件：cate_no
@@ -221,13 +221,13 @@
                     </div>
                     <!-- sort/groupBy function -->
                     <div class="col-md-4 py-0">
-                        <form action="" method="get">
+                        <form action="" method="POST">
                             <div class="input-group">
                                 <span class="input-group-text">篩選</span>
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
-                                        <?php if($sys_id_role <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
+                                        <?php if($sys_role <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
                                             <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
@@ -240,7 +240,7 @@
                     <!-- 表頭按鈕 -->
                     <div class="col-md-4 py-0 text-end">
                         <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
-                            <?php if($sys_id_role <= 1 || ( $sys_id_role <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
+                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
                                 <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
                                 <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
                             <?php } ?>
@@ -264,7 +264,7 @@
                                     <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
                         <?php  } ?>
-                        <?php if($sys_id_role <= 1){?>
+                        <?php if($sys_role <= 1){?>
                             <li class="nav-item">
                                 <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
                                     <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
@@ -283,7 +283,10 @@
                                 <th>分類</th>
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="編輯後按Enter才能儲存">現量</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="
+                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && 
+                                        ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限</th>
@@ -314,7 +317,9 @@
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
-                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?> " contenteditable="true">
+                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
+                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
+                                            ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
@@ -323,7 +328,7 @@
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_id_role <= 1 || ( $sys_id_role <= 2 && 
+                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
                                                 ($_SESSION[$sys_id]["fab_id"] == $sortFab["id"] || in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
                                                     <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
                                                         onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
@@ -354,7 +359,7 @@
 
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <?php if($sys_id_role <= 1){ ?>
+                        <?php if($sys_role <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
                         <?php } ?>
@@ -372,7 +377,7 @@
                                         <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($allLocals as $local){ ?>
-                                                <?php if($sys_id_role <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                <?php if($sys_role <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                                     <option value="<?php echo $local["id"];?>" >
                                                         <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                                 <?php } ?>
@@ -403,8 +408,8 @@
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
                                         <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
-                                            <?php echo $sys_id_role <= 1 ? "":"readonly"; ?> >
-                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_id_role >= 1) ? " *":" - disabled";?></sup></label>
+                                            <?php echo $sys_role <= 1 ? "":"readonly"; ?> >
+                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role >= 1) ? " *":" - disabled";?></sup></label>
                                     </div>
                                 </div>
                                 <!-- 右側-批號 -->
@@ -461,7 +466,7 @@
                             <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
                             <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($sys_id_role <= 2){ ?>   
+                            <?php if($sys_role <= 2){ ?>   
                                 <span id="modal_button"></span>
                             <?php } ?>
                             <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
@@ -586,7 +591,7 @@
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
                             <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
                             <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($sys_id_role <= 2){ ?>   
+                            <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
                             <?php } ?>
                             <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->

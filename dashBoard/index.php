@@ -10,13 +10,35 @@
 		accessDenied_sys($sys_id);                  // 套用sys_id權限
     }
 
-    if(isset($_SESSION[$sys_id])){
-        $login_AUTH = TRUE;
-    }else{
-        $login_AUTH = FALSE;
+    $login_AUTH = (isset($_SESSION[$sys_id])) ? true : false ;
+
+    // 20240118 識別登入人員是否是台南環安處轄下人員
+    if(isset($_SESSION["AUTH"]) && !isset($_SESSION["AUTH"]["dept"])){      // 條件：有登入session 但沒有dept 就執行識別
+        // 1.製作南環安處部門signCode清單arr
+        $tnesh_dept_arr = [];                                               // 建立陣列容器
+            $tnesh_dept = show_tnesh_dept();                                    // 呼叫fun取得hrdb台南環安處部門清單
+            if(!empty($tnesh_dept)){                                            
+                foreach($tnesh_dept as $tnesh_dept_row){                        // 把sign_code繞出來 到陣列容器
+                    array_push($tnesh_dept_arr, $tnesh_dept_row["sign_code"]);
+                }
+            }
+        // 2.比對身分並給予標記
+        $auth_signCode =  $_SESSION["AUTH"]["sign_code"];                   // 取得session裡的signCode
+            if(in_array($auth_signCode, $tnesh_dept_arr)){                      // 陣列比對
+                // echo $auth_signCode." -- we are Family!!";
+                $_SESSION["AUTH"]["dept"] = "tnESH";
+            }else{
+                // echo $auth_signCode." -- you are 7-11 ~~";
+                $_SESSION["AUTH"]["dept"] = "";
+            }
+        // 3.依身分給予適當role
+        if ($_SESSION["AUTH"]["dept"] == "tnESH" && $_SESSION[$sys_id]["role"] == 3){
+            $_SESSION[$sys_id]["role"] = 2.5;
+        }        
     }
+
     // 讓一般nobody用戶帶到 我的申請文件
-    if($login_AUTH && $_SESSION[$sys_id]["role"] >= 3){
+    if($login_AUTH && $_SESSION[$sys_id]["role"] >= 3 && empty($_SESSION["AUTH"]["dept"])){
         header("refresh:0;url=../receive/");
         exit;
     }

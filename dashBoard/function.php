@@ -197,5 +197,21 @@
     }
 
 
-
+    // 20231004-改用msSQL-hrDB -R
+    function show_tnesh_dept(){
+        $pdo = pdo_hrdb();
+        $sql = "SELECT DISTINCT dp.sign_code , d1.OSSTEXT AS up_sign_dept -- , u.cname AS dept_sir
+                  FROM DEPT dp
+                  LEFT JOIN HCM_VW_DEPT08 d1 ON dp.up_dep = d1.OSDEPNO
+                  -- LEFT JOIN STAFF u ON dp.emp_id = u.emp_id 
+                  ORDER BY dp.sign_code ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $depts = $stmt->fetchAll();
+            return $depts;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 

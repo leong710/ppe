@@ -186,7 +186,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="../issue/" ><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b><span id="nav_bob_1"></span></a>
                         </li>
-                        <?php if($sys_role <= 2 ){ ?>
+                        <?php if($sys_role <= 2.5 ){ ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="../trade/" ><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b><span id="nav_bob_2"></span></a>
                             </li>

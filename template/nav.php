@@ -29,9 +29,9 @@
         }
     // 組合查詢陣列
         $query_arr = array(
-            'fab_id'       => $sys_fab_id,
-            'emp_id'       => $auth_emp_id,
-            'sign_code'    => $auth_sign_code,
+            'fab_id'       => isset($sys_fab_id    ) ? $sys_fab_id     : "",
+            'emp_id'       => isset($auth_emp_id   ) ? $auth_emp_id    : "",
+            'sign_code'    => isset($auth_sign_code) ? $auth_sign_code : "",
             'checked_year' => $today_year,              // 建立查詢陣列for顯示今年點檢表
             'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
         );
@@ -41,7 +41,7 @@
         //// 3領用
             $myReceive = show_myReceive($query_arr);   // 3.查詢領用申請
             if(!empty($myReceive)) { 
-                // $numReceive = $myReceive["idty_count"];
+                $numReceive = $myReceive["idty_count"];
             } 
         //// 2調撥
             $myTrade = show_myTrade($query_arr);       // 2.查詢入出庫申請
@@ -58,7 +58,8 @@
             $numChecked = count($sort_check_list);           // 計算自己的點檢紀錄筆數
     }
 
-    $num = $numReceive + $numTrade + $numIssue;
+    $num3 = $numReceive;
+    $num12 = $numIssue + $numTrade;
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -73,10 +74,12 @@
                     <!-- 下拉式選單 -->
                     <?php if($sys_role >= 0){ ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link active dropdown-toggle" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理</a>
+                            <a class="nav-link active dropdown-toggle" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-cart-plus"></i>&nbsp領用管理
+                                <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDD_1">
                                 <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
-                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>我的領用申請</b>
+                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>領用申請總表</b>
                                     <?php if($numReceive !=0){?>
                                         &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numReceive; ?></span>
                                     <?php }?></a></li>
@@ -88,7 +91,7 @@
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
                                         <?php echo ($numChecked == 0) ? '<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>':'';
-                                              echo ($num !=0) ? '<span class="badge rounded-pill bg-danger">'.$num.'</span>':''; ?></a>
+                                              echo ($num12 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num12.'</span>':''; ?></a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/index.php"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
                                     <?php if($numChecked == 0){?>

@@ -80,7 +80,13 @@
 
     function show_formplan(){
         $pdo = pdo();
-        $sql = "SELECT * FROM _formplan ORDER BY id ASC";
+        $sql = "SELECT * ,
+                    CASE
+                        WHEN NOW() BETWEEN start_time AND end_time THEN 'true'
+                        ELSE 'false'
+                    END AS onGoing 
+                FROM _formplan 
+                ORDER BY id ASC";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

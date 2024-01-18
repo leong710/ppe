@@ -44,6 +44,7 @@
             'fab_id'    => $is_fab_id,
             'is_emp_id' => $is_emp_id,
             '_year'     => $_year,
+            'form_type' => $form_type
         );
 
     // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
@@ -72,6 +73,16 @@
         $row_lists       = show_issue_list($query_arr);
         $sum_issues_ship = show_sum_issue_ship($query_arr);    // 統計看板--下：轉PR單
         $issue_years     = show_issue_GB_year();               // 取出issue年份清單 => 供首頁面篩選
+        $formplans       = show_formplan($query_arr);          // 查詢表單計畫 20240118
+            $_inplan     = "off";                                                  // 預設值給他空值 
+            foreach($formplans as $plan){                                       // 遍歷每一筆計畫
+                // 假如計畫啟動中 + 區間 = Off
+                if($plan["onGoing"] == "true" && $plan["_inplan"] != "Off"){
+                    $_inplan = "On";                             // 就以off為主
+                }else{
+                    $_inplan = "Off";                             // 就以off為主
+                }
+            }
 
         $query_inSign_arr = array(
             'fun'       => "inSign",
@@ -150,7 +161,7 @@
                         <h3><b>PPE表單匯總：</b><?php echo $form_type;?></h3>
                     </div>
                     <div class="col-md-6 py-1">
-     
+                        <?php echo "_inplan: ".$_inplan; ?>
                     </div>
                 </div>
                 <!-- Bootstrap Alarm -->
@@ -215,7 +226,7 @@
                             <?php if($sys_role <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
                             <?php } ?>
-                            <?php if($sys_role <= 2){ ?>
+                            <?php if($sys_role <= 2 && $_inplan == 'On'){ ?>
                                 <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
                             <?php } ?>
                         </div>

@@ -303,6 +303,36 @@
             echo $e->getMessage();
         }
     }
+    // 查詢表單計畫
+    function show_formplan($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _fp.* ,
+                    CASE
+                        WHEN NOW() BETWEEN _fp.start_time AND _fp.end_time THEN 'true'
+                        ELSE 'false'
+                    END AS onGoing 
+                FROM _formplan _fp
+                WHERE (_fp.flag = 'On') AND ( NOW() BETWEEN _fp.start_time AND _fp.end_time) ";
+        if(!empty($form_type)){
+            $sql .= " AND _fp._type = ? ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _fp.updated_at DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            // echo $sql;
+            if(!empty($form_type)){
+                $stmt->execute([$form_type]);
+            }else{
+                $stmt->execute();
+            }
+            $formplans = $stmt->fetchAll();
+            return $formplans;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // // // index 統計數據 -- end
 
 // // // issue需求單 CRUD

@@ -28,16 +28,25 @@
     <div class="row justify-content-center">
         <div class="col-xl-12 col-10 border rounded bg-white p-4 ">
             <div class="row">
-                <div class="col-md-6 pb-0">
+                <div class="col-md-6">
                     <div>
                         <h5>formPlan 表單計畫列表 - 共 <?php echo count($formplans);?> 筆</h5>
                     </div>
                 </div>
-                <div class="col-md-6 pb-0 text-end">
+                <div class="col-md-6 text-end">
                     <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_formplan_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module()" > <i class="fa fa-plus"></i> 新增</button>
                     <?php } ?>
                     <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
+                </div>
+                <div class="col-md-12 rounded bg-warning">
+                    <div>
+                        <span><b>!! 重要提醒 !!：相同表單 不同計畫 的 [起始時間]和[結束時間] 絕對不能重疊，以免造成錯誤!!</b></span>
+                    </div>
+                    <div>
+                        <span>表單計畫1的[起始時間1月1日]到[結束時間1月31日]，同表單計畫2的[起始時間]到[結束時間]就不能重疊到表單計畫1的時間區間，意思就是表單計畫2只能選在2月1日~12月31日之間。</span>
+                        <span></br>倘若發生重疊，計畫區間的_inplan 如有設定值Off，將以Off值為主。請特別注意!!</span>
+                    </div>
                 </div>
             </div>
             <!-- 分類列表 -->
@@ -66,7 +75,7 @@
                                 <td><?php echo $plan["remark"];?></td>
                                 <td><?php echo date('Y-m-d H:i', strtotime($plan["start_time"]));?></td>
                                 <td><?php echo date('Y-m-d H:i', strtotime($plan["end_time"]));?></td>
-                                <td><?php echo $plan["_inplan"];?></td>
+                                <td class="<?php echo $plan["onGoing"] == "true" ? "bg-warning":"bg-secondary text-white";?>" ><?php echo $plan["_inplan"];?></td>
                                 <td><?php if($sys_role <= 1){ ?>
                                         <button type="button" name="_formplan" id="<?php echo $plan['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $plan['flag'];?>"><?php echo $plan['flag'];?></button>
                                     <?php }else{ ?>

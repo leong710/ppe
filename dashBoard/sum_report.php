@@ -331,9 +331,10 @@
 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
-    var report_lists = <?=json_encode($report_lists);?>;          // 引入report_lists資料
-    var catalogs     = <?=json_encode($catalogs);?>;              // 引入catalogs資料
-    var report_yy    = '<?=$report_yy;?>';                        // 引用年分
+    var report_lists = <?=json_encode($report_lists)?>;           // 引入report_lists資料
+    var catalogs     = <?=json_encode($catalogs)?>;               // 引入catalogs資料
+    var form_type    = '<?=$form?>';                              // 引入catalogs資料
+    var report_yy    = '<?=$report_yy?>';                         // 引用年分
     var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
     var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
     

@@ -12,7 +12,7 @@
     }
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
         // 刪除表單
         if(!empty($_POST["delete_trade"])){
@@ -105,13 +105,13 @@
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if(!isset($sys_id_role) ||($sys_id_role) == 3){
+            if(!isset($sys_role) ||($sys_role) >= 2.5){
                 $step_index = '6';}         // noBody
-            if(isset($sys_id_role) && ($sys_id_role) == 2){
+            if(isset($sys_role) && ($sys_role) == 2){
                 $step_index = '7';}         // ppe site user
-            if(isset($sys_id_role) && ($sys_id_role) == 1){
+            if(isset($sys_role) && ($sys_role) == 1){
                 $step_index = '8';}         // ppe pm
-            if(isset($sys_id_role) && ($sys_id_role) == 0){
+            if(isset($sys_role) && ($sys_role) == 0){
                 $step_index = '9';}         // 系統管理員
             if($action == 'create'){
                 $step_index = '0';}         // 填單人
@@ -187,7 +187,7 @@
                                 <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                     <option value="" hidden>--請選擇 出貨 儲存點--</option>
                                     <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                         <?php } ?>
@@ -198,7 +198,7 @@
                         </form>
 
                         <!-- 表單狀態限制在'3作廢'才可以刪除 -->
-                        <?php if(($sys_id_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] === 3)){ ?>
+                        <?php if(($sys_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] === 3)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $trade_row["id"];?>">
                                 <input type="submit" name="delete_trade" value="刪除 (Delete)" title="刪除調撥單" class="btn btn-danger" onclick="return confirm('確認徹底刪除此單？')">
@@ -339,7 +339,7 @@
                                             請申請人填入相關資料：
                                         </div>
                                         <div class="col-6 col-md-6 px-2 text-end">
-                                            <?php if($sys_id_role <= 2){ ?>
+                                            <?php if($sys_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -388,7 +388,7 @@
                                             
                                         </div>
                                         <div class="col-6 col-md-6 py-1 px-2 text-end">
-                                            <?php if($sys_id_role <= 2){ ?>
+                                            <?php if($sys_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -420,7 +420,7 @@
                                         <input type="hidden" name="idty"        id="idty"           value="1">
                                         <input type="hidden" name="step"        id="step"           value="<?php echo $step;?>">
                                         <input type="hidden" name="id"          id="id"             value="">
-                                        <?php if($sys_id_role <= 2){ ?>
+                                        <?php if($sys_role <= 2){ ?>
                                             <button type="submit" value="1" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

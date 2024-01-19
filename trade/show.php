@@ -13,7 +13,7 @@
     }
 
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
     $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
 
@@ -108,6 +108,7 @@
                 case 5 :   // $act = '轉呈 (Forwarded)';
                 case 6 :   // $act = '暫存 (Save)';  
                 default:    // $act = '錯誤 (Error)';         
+                    $step_index = '6';      // 6.normal
                     break;
             }
 
@@ -119,19 +120,20 @@
                 case 12 :  // $act = '待收發貨 (Awaiting collection)'; 
                 case 13 :  // $act = '交貨 (Delivery)';
                 default:    // $act = '錯誤 (Error)';         
+                    $step_index = '6';      // 6.normal
                     break;
             }
         }
 
         if(!isset($step_index)){
-            if(!isset($sys_id_role) || ($sys_id_role) == 3){
+            if(!isset($sys_role) || ($sys_role) >= 2.5){
                 $step_index = '6';}      // normal
-            if(isset($sys_id_role)){
-                if($sys_id_role == 2){
+            if(isset($sys_role)){
+                if($sys_role == 2){
                     $step_index = '7';}      // PPE窗口
-                if($sys_id_role == 1){
+                if($sys_role == 1){
                     $step_index = '8';}      // PPEpm
-                if($sys_id_role == 0){
+                if($sys_role == 0){
                     $step_index = '9';}      // 系統管理員
             }
         }
@@ -214,7 +216,7 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
-                            <?php if(($trade_row["in_local"] == $sys_id_fab_id || in_array($trade_row["in_local"], $sys_id_sfab_id)) || $sys_id_role <= 1 ){ ?>
+                            <?php if(($trade_row["in_local"] == $sys_id_fab_id || in_array($trade_row["in_local"], $sys_id_sfab_id)) || $sys_role <= 1 ){ ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
@@ -238,7 +240,7 @@
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <!-- 限定表單所有人：開單人、ppe pm、admin -->
-                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_id_role <= 1 || (( $fab_o_id == $sys_id_fab_id) || (in_array($fab_o_id, $sys_id_sfab_id)))){ ?>
+                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_role <= 1 || (( $fab_o_id == $sys_id_fab_id) || (in_array($fab_o_id, $sys_id_sfab_id)))){ ?>
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <?php if($trade_row["form_type"] == "import"){ ?>
@@ -358,7 +360,7 @@
                                             <input type="hidden" name="form_type"       id="form_type"      value="">
                                             <input type="hidden" name="idty"            id="idty"           value="">
                                             <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $trade_row["idty"];?>">
-                                            <?php if($sys_id_role <= 2){ ?>
+                                            <?php if($sys_role <= 2){ ?>
                                                 <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                             <?php } ?>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

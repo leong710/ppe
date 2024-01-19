@@ -125,7 +125,7 @@
             $step_index = '2';}             // 申請人主管
         
         if(empty($step_index)){
-            if($sys_role == 3){
+            if($sys_role >= 2.5){
                 $step_index = '6';}         // noBody
             if($sys_role == 2){
                 $step_index = '7';}         // ppe site user

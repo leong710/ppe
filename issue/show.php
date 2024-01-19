@@ -167,7 +167,7 @@
         }
 
         if(!isset($step_index)){
-            if(!isset($sys_role) || ($sys_role) == 3){
+            if(!isset($sys_role) || ($sys_role) >= 2.5){
                 $step_index = '6';}         // normal
             if(isset($sys_role)){
                 if($sys_role == 2){

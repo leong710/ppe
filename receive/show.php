@@ -148,7 +148,8 @@
                 }  
                 break;
             default:    // $act = '錯誤 (Error)';         
-                return;
+                    $step_index = '6';      // 6.normal
+                    return;
         }
     } else {
         if($issue_row["created_emp_id"] == $auth_emp_id){

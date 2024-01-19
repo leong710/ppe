@@ -187,7 +187,7 @@
                     -- LEFT JOIN _local _l ON _t.local_id = _l.id
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _t.form_type = 'import' AND _t.idty = 0 ";          // 0=結案
+                WHERE _t.form_type = 'import' AND _t.idty = 10 ";          // 10=結案
         if($report_mm == "All"){
             $sql .= "AND DATE_FORMAT(_t.out_date,'%Y') = ? ";
         }else{
@@ -213,7 +213,7 @@
         $pdo = pdo();
         $sql = "SELECT DISTINCT DATE_FORMAT(_t.out_date, '%Y') as yy 
                 FROM _trade _t
-                WHERE _t.form_type = 'import' AND _t.idty = 0 
+                WHERE _t.form_type = 'import' AND _t.idty = 10 
                 ORDER BY yy DESC ";
         $stmt = $pdo->prepare($sql);
         try {
@@ -230,7 +230,7 @@
         extract($request);
         $sql = "SELECT DISTINCT DATE_FORMAT(_t.out_date, '%m') as mm 
                 FROM _trade _t
-                WHERE _t.form_type = 'import' AND _t.idty = 0 AND DATE_FORMAT(_t.out_date,'%Y') = ?
+                WHERE _t.form_type = 'import' AND _t.idty = 10 AND DATE_FORMAT(_t.out_date,'%Y') = ?
                 ORDER BY mm ASC ";
         $stmt = $pdo->prepare($sql);
         try {

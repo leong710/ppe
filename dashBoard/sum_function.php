@@ -173,3 +173,71 @@
             echo $e->getMessage();
         }
     }
+
+// // // for sum_trade(import)
+    // 顯示被選定的_trade表單 20231226
+    function show_trades($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _t.in_local as local_id , _t.item as cata_SN_amount , DATE_FORMAT(_t.out_date, '%m') as mm
+                    -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark 
+                    -- , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
+                    -- , _s.site_title , _s.site_remark
+                FROM `_trade` _t
+                    -- LEFT JOIN _local _l ON _t.local_id = _l.id
+                    -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                    -- LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _t.form_type = 'import' AND _t.idty = 0 ";          // 0=結案
+        if($report_mm == "All"){
+            $sql .= "AND DATE_FORMAT(_t.out_date,'%Y') = ? ";
+        }else{
+            $sql .= "AND DATE_FORMAT(_t.out_date,'%Y-%m') = ? ";
+        }
+        $stmt = $pdo->prepare($sql);
+        try {
+        if($report_mm == "All"){
+            $stmt->execute([$report_yy]);
+        }else{
+            $report_ym = $report_yy."-".$report_mm;
+            $stmt->execute([$report_ym]);
+        }
+            $issues = $stmt->fetchAll();
+            return $issues;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
+    // PM顯示全部by年份 => 供查詢年份使用
+    function show_allTrade_yy(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT DATE_FORMAT(_t.out_date, '%Y') as yy 
+                FROM _trade _t
+                WHERE _t.form_type = 'import' AND _t.idty = 0 
+                ORDER BY yy DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $alltrade_yys = $stmt->fetchAll();
+            return $alltrade_yys;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // PM顯示全部by年份 => 供查詢年份使用
+    function show_allTrade_ymm($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT DATE_FORMAT(_t.out_date, '%m') as mm 
+                FROM _trade _t
+                WHERE _t.form_type = 'import' AND _t.idty = 0 AND DATE_FORMAT(_t.out_date,'%Y') = ?
+                ORDER BY mm ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$report_yy]);
+            $allTrade_ymms = $stmt->fetchAll();
+            return $allTrade_ymms;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }

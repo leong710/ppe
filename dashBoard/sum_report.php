@@ -10,7 +10,7 @@
         }else{
             $form = 'receive';                              
         }
-        if(!in_array($form,["receive", "issue"])){          // report表單類別--防呆
+        if(!in_array($form, ["receive", "issue", "trade"])){          // report表單類別--防呆
             $form = 'receive';
         }
 
@@ -42,6 +42,12 @@
             $report_lists = show_issues($query_arr);             // 調閱點檢表
             $allReport_yys = show_allIssue_yy();                 // 取出issues年份清單 => 供issues頁面篩選
             $allReport_ymms = show_allIssue_ymm($query_arr);     // 取出issues年份裡的月清單 => 供issues頁面渲染
+         break;
+        case "trade" :
+            $report_title = "進貨";
+            $report_lists = show_trades($query_arr);             // 調閱點檢表
+            $allReport_yys = show_allTrade_yy();                 // 取出issues年份清單 => 供issues頁面篩選
+            $allReport_ymms = show_allTrade_ymm($query_arr);     // 取出issues年份裡的月清單 => 供issues頁面渲染
          break;
         default:    // $act = '錯誤 (Error)';  以receive替代錯誤 
             $report_title = "領用(form_error)";
@@ -149,6 +155,7 @@
                                 <select name="form" id="groupBy_form" class="form-select">
                                     <option value="receive" <?php echo ($form == "receive") ? "selected":"";?> >receive領用</option>
                                     <option value="issue"   <?php echo ($form == "issue")   ? "selected":"";?> >issue需求</option>
+                                    <option value="trade"   <?php echo ($form == "trade")   ? "selected":"";?> >trade進貨</option>
                                 </select>
                                 <select name="report_yy" id="groupBy_report_yy" class="form-select">
                                     <?php foreach($allReport_yys as $aR_yy){ ?>
@@ -330,6 +337,8 @@
     var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
     var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
     
+    console.log('report_lists:', report_lists);
+
     // cata目錄、報價、領用量、渲染
     function show_reports(){
         // step-1.把 catalog對應的p_no報價繞出來

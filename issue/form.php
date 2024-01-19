@@ -14,9 +14,15 @@
     $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $form_type   = "issue";
+    // 組合查詢陣列
+    $query_arr = array(
+        'form_type' => $form_type
+    );
+    extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
     // 去年年份
-    $thisYear = date('Y') ;                        // 這裡要減1才會找出去年的用量
+    $thisYear = date('Y')-1 ;                       // 這裡要減1才會找出去年的用量
 
         // 刪除表單
         if(!empty($_POST["delete_issue"])){
@@ -193,28 +199,33 @@
                 </div>
 
                 <div class="row px-2">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-5">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "issue_aid_".$issue_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
-                    <div class="col-12 col-md-6 text-end">
+                    <div class="col-12 col-md-7 text-end">
                         <!-- 表頭：右側上=選擇收貨廠區 -->
-                        <form action="" method="post">
-                            <div class="form-floating">
-                                <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
-                                    <option value="" hidden>--請選擇 需求 儲存點--</option>
-                                    <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                            <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
-                                                <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                        <?php } ?>
-                                    <?php } ?>
-                                </select>
-                                <label for="select_local_id" class="form-label">in_local/需求廠區：</label>
+                        <?php if($action == 'create' && !$_inplan){ ?>
+                            <div class="col-12 text-center text-danger">
+                                <h3>表單尚未開放申請，請洽PPE大PM</h3>
                             </div>
-                        </form>
-
+                        <?php } else { ?>
+                            <form action="" method="post">
+                                <div class="form-floating">
+                                    <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
+                                        <option value="" hidden>--請選擇 需求 儲存點--</option>
+                                        <?php foreach($allLocals as $allLocal){ ?>
+                                            <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
+                                                    <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                            <?php } ?>
+                                        <?php } ?>
+                                    </select>
+                                    <label for="select_local_id" class="form-label">in_local/需求廠區：</label>
+                                </div>
+                            </form>
+                        <?php } ?>
                         <?php if(($sys_role <= 1 ) && (isset($issue_row['idty']) && $issue_row['idty'] != 0)){ ?>
                             <form action="" method="post">
                                 <input type="hidden" name="id" value="<?php echo $issue_row["id"];?>">

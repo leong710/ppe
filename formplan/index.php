@@ -24,9 +24,9 @@
 <style>
 
 </style>
-<div class="container my-2">
+<div class="col-12">
     <div class="row justify-content-center">
-        <div class="col-xl-12 col-10 border rounded bg-white p-4 ">
+        <div class="col-xl-10 col-12 border rounded bg-white p-4 ">
             <div class="row">
                 <div class="col-md-6">
                     <div>
@@ -41,11 +41,11 @@
                 </div>
                 <div class="col-md-12 rounded bg-warning">
                     <div>
-                        <span><b>!! 重要提醒 !!：相同表單 不同計畫 的 [起始時間]和[結束時間] 絕對不能重疊，以免造成錯誤!!</b></span>
+                        <span><b>!! 重要提醒 !!：相同表單 不同計畫 的 [起始時間]和[結束時間] 重疊的問題，避免造成錯誤!!</b></span>
                     </div>
                     <div>
                         <span>表單計畫1的[起始時間1月1日]到[結束時間1月31日]，同表單計畫2的[起始時間]到[結束時間]就不能重疊到表單計畫1的時間區間，意思就是表單計畫2只能選在2月1日~12月31日之間。</span>
-                        <span></br>倘若發生重疊，計畫區間的_inplan 如有設定值Off，將以Off值為主。請特別注意!!</span>
+                        <span></br>倘若發生重疊，計畫區間的_inplan如有設定值Off，將以Off值為主。請特別注意!!</span>
                     </div>
                 </div>
             </div>
@@ -59,8 +59,8 @@
                             <th>_type</th>
                             <th>remark</th>
                             <th>start_time</th>
-                            <th>end_time</th>
                             <th>_inplan</th>
+                            <th>end_time</th>
                             <th>flag</th>
                             <?php if($sys_role <= 1){ ?>
                                 <th>action</th>
@@ -74,8 +74,8 @@
                                 <td><?php echo $plan["_type"];?></td>
                                 <td><?php echo $plan["remark"];?></td>
                                 <td><?php echo date('Y-m-d H:i', strtotime($plan["start_time"]));?></td>
+                                <td><span class='badge rounded-pill <?php echo $plan["onGoing"] == "true" ? "bg-danger":"bg-secondary text-white";?>'><?php echo $plan["_inplan"];?></span></td>
                                 <td><?php echo date('Y-m-d H:i', strtotime($plan["end_time"]));?></td>
-                                <td class="<?php echo $plan["onGoing"] == "true" ? "bg-warning":"bg-secondary text-white";?>" ><?php echo $plan["_inplan"];?></td>
                                 <td><?php if($sys_role <= 1){ ?>
                                         <button type="button" name="_formplan" id="<?php echo $plan['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $plan['flag'];?>"><?php echo $plan['flag'];?></button>
                                     <?php }else{ ?>

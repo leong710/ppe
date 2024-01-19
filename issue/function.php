@@ -303,7 +303,7 @@
             echo $e->getMessage();
         }
     }
-    // 查詢表單計畫
+    // 20240119 查詢表單計畫 step-0
     function show_formplan($request){
         $pdo = pdo();
         extract($request);
@@ -333,6 +333,36 @@
             echo $e->getMessage();
         }
     }
+    // 20240119 查詢表單計畫 step-1 回饋 true / false
+    function show_plan($query_arr){
+        $formplans = show_formplan($query_arr);         // 查詢表單計畫 20240118 == 讓表單呈現 ON 或 Off
+        $s_time = date("Y-m-d");
+        $e_time = date("Y-m-d");
+        $_inplan = null;
+        foreach($formplans as $plan){                   // 遍歷每一筆計畫
+            if($plan["onGoing"] == "true"){             // 假如計畫啟動中 + 區間 = Off
+                if($plan["_inplan"] == "Off"){
+                    $_inplan = false ;                  // 任何一個計畫的_inplan為Off，設為false
+                    break;                              // 跳出迴圈，因為已經確定結果
+                } else {
+                    $_inplan = true ;                   // 反之就以on為主
+                    if($plan["start_time"] < $s_time){
+                        $s_time = $plan["start_time"];
+                    }
+                    if($plan["end_time"] > $e_time){
+                        $e_time = $plan["end_time"];
+                    }
+                } 
+            } 
+        }
+        $result = array(
+            "start_time" => $s_time,
+            "end_time"   => $e_time,
+            "_inplan"    => $_inplan
+        );
+        return $result;
+    }
+
 // // // index 統計數據 -- end
 
 // // // issue需求單 CRUD

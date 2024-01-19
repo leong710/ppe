@@ -73,16 +73,8 @@
         $row_lists       = show_issue_list($query_arr);
         $sum_issues_ship = show_sum_issue_ship($query_arr);    // 統計看板--下：轉PR單
         $issue_years     = show_issue_GB_year();               // 取出issue年份清單 => 供首頁面篩選
-        $formplans       = show_formplan($query_arr);          // 查詢表單計畫 20240118
-            $_inplan     = "off";                                                  // 預設值給他空值 
-            foreach($formplans as $plan){                                       // 遍歷每一筆計畫
-                // 假如計畫啟動中 + 區間 = Off
-                if($plan["onGoing"] == "true" && $plan["_inplan"] != "Off"){
-                    $_inplan = "On";                             // 就以off為主
-                }else{
-                    $_inplan = "Off";                             // 就以off為主
-                }
-            }
+        // $_inplan         = show_plan($query_arr);              // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
+        extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
         $query_inSign_arr = array(
             'fun'       => "inSign",
@@ -160,12 +152,11 @@
                     <div class="col-md-6 py-1 page_title">
                         <h3><b>PPE表單匯總：</b><?php echo $form_type;?></h3>
                     </div>
-                    <div class="col-md-6 py-1">
-                        <?php echo "_inplan: ".$_inplan; ?>
+                    <div class="col-md-6 py-1 text-end">
                     </div>
                 </div>
                 <!-- Bootstrap Alarm -->
-                <div id="liveAlertPlaceholder" class="col-11 mb-0 p-0"></div>
+                <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>
 
                 <!-- NAV 分頁標籤 -->
                 <div class="col-12 p-0">
@@ -226,7 +217,7 @@
                             <?php if($sys_role <= 1){ ?>
                                 <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
                             <?php } ?>
-                            <?php if($sys_role <= 2 && $_inplan == 'On'){ ?>
+                            <?php if($sys_role <= 2 && $_inplan){ ?>
                                 <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
                             <?php } ?>
                         </div>
@@ -587,6 +578,12 @@
 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
+    // init
+    var sys_role    = '<?=$sys_role?>';
+    var _inplan     = '<?=$_inplan?>';
+    var start_time  = '<?=$start_time?>';
+    var end_time    = '<?=$end_time?>';
+                                    
     // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
@@ -601,10 +598,26 @@
             tab_table.style.display = "none";
         }
     }
+    // Bootstrap Alarm function
+    function alert(message, type) {
+        var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+        var wrapper = document.createElement('div')
+        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
+                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        alertPlaceholder.append(wrapper)
+    }
 
     $(document).ready(function () {
         op_tab('sign_remark');
         // op_tab('scope_remark');
+
+        // 假如index找不到當下存在已完成的表單，就alarm它!
+        if (_inplan && (sys_role <= 2)) {
+            let message  = '*** PPE請購需求開放申請時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp有需求請務必在指定時間前完成申請&nbsp~&nbsp';
+            message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<a href="form.php?action=create">'+'<b>打開請購需求單</b></a>';
+            alert( message, 'danger')
+        }
+
     })
 </script>
 

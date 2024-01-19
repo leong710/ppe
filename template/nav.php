@@ -116,7 +116,7 @@
                                         <?php }?></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
-                                    <?php if($sys_role <= 2 ){ ?>
+                                    <?php if($sys_role <= 2.5 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
                                     <?php } ?>

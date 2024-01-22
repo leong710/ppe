@@ -61,3 +61,11 @@ Local儲存點聯絡人是根據user的廠區自動產生
 圖片有標紅框的才有選到，沒標紅框的記得點圖片讓它選定。
 安全水位若已設定完畢，中途目錄如有新增項目，它會沒有設定值，需要手動再幫它選擇和更新。
 
+<i class="fa-solid fa-shower"></i> 沖身
+
+<i class="fa-solid fa-prescription-bottle-medical"></i> 眼杯
+<i class="fa-solid fa-prescription-bottle"></i> 六佛靈
+<i class="fa-solid fa-spray-can"></i> 噴劑
+
+<i class="fa-solid fa-kit-medical"></i> 急救包
+<i class="fa-solid fa-hand-holding-medical"></i> 手心+

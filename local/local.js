@@ -71,7 +71,7 @@
     for(let flagBtn of flagBtns){
         flagBtn.onclick = e => {
             let swal_content = e.target.name+'_id:'+e.target.id+'=';
-            // console.log('e:',e.target.name,e.target.id);
+            console.log('e:',e.target.name,e.target.id);
             $.ajax({
                 url:'api.php',
                 method:'post',

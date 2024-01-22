@@ -36,6 +36,8 @@
                         $cheng_flag = changeFab_flag($su);
                     }else if($su['table'] == "local"){
                         $cheng_flag = changeLocal_flag($su);
+                    }else if($su['table'] == "ptlocal"){
+                        $cheng_flag = changePTLocal_flag($su);
                     }else{
                         $cheng_flag = array(
                             'table' => $su['table'], 

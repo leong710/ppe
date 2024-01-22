@@ -6,9 +6,9 @@
     // accessDeniedAdmin();
 
     // CRUD
-        if(isset($_POST["submit"])){                // 新增
+        if(isset($_POST["submit_cate"])){                // 新增
             store_category($_REQUEST); }
-        if(isset($_POST["edit_cate_submit"])){      // 更新
+        if(isset($_POST["edit_cate"])){      // 更新
             update_category($_REQUEST); }
         if(isset($_POST["delete_cate"])){           // 刪除
             delete_category($_REQUEST); }
@@ -173,7 +173,7 @@
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
         $('#reset_btn').click();                                                        // reset清除表單
-        var add_btn = '<input type="submit" name="cate_submit" class="btn btn-primary" value="新增">';
+        var add_btn = '<input type="submit" name="submit_cate" value="新增" class="btn btn-primary">';
         $('#modal_action').append('新增');                      // model標題
         $('#modal_button').append(add_btn);                     // 儲存鈕
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
@@ -211,8 +211,8 @@
 
                 // step3-3.開啟 彈出畫面模組 for user編輯
                 // edit_myTodo_btn.click();
-                var add_btn = '<input type="submit" name="edit_cate_submit" class="btn btn-primary" value="儲存">';
-                var del_btn = '<input type="submit" name="delete_cate" value="刪除cate" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                var add_btn = '<input type="submit" name="edit_cate" value="儲存" class="btn btn-primary">';
+                var del_btn = '<input type="submit" name="delete_cate" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
                 $('#modal_action').append('編輯');          // model標題
                 $('#modal_delect_btn').append(del_btn);     // 刪除鈕
                 $('#modal_button').append(add_btn);         // 儲存鈕

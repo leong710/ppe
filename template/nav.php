@@ -97,6 +97,7 @@
                                     <?php if($numChecked == 0){?>
                                             <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
                                         <?php }?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>

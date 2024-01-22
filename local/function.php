@@ -86,7 +86,7 @@
 
     function show_site($request){       // 已加入分頁功能
         $pdo = pdo();
-            extract($request);
+        extract($request);
         $sql = "SELECT _site.*
                 FROM _site
                 ORDER BY _site.id ASC";
@@ -199,7 +199,7 @@
 
     function show_fab($request){       // 已加入分頁功能
         $pdo = pdo();
-            extract($request);
+        extract($request);
         $sql = "SELECT _fab.*, _site.site_title, _site.site_remark, _site.flag AS site_flag
                 FROM _fab
                 LEFT JOIN _site ON _site.id = _fab.site_id
@@ -339,6 +339,124 @@
     }
 // Local
 
+// pt_Local 20240122 for 除汙劑/應變器材
+    // local項目--新增 20240122
+    function store_ptlocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "INSERT INTO pt_local(fab_id, local_title, local_remark, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,now(),now())";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $local_title, $local_remark, $flag, $updated_user,]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // from edit_ptlocal.php 依ID找出要修改的ptlocal內容
+    function edit_ptlocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT * FROM pt_local WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $ptlocal = $stmt->fetch();
+            return $ptlocal;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    //from edit_ptLocal.php call update_ptLocal 修改完成的edit_ptLocal 進行Update
+    function update_ptlocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "UPDATE pt_local
+                SET fab_id=?, local_title=?, local_remark=?, flag=?, updated_user=?, updated_at=now()
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $local_title, $local_remark, $flag, $updated_user, $id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    function delete_ptlocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM pt_local WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 隱藏或開啟
+    function changePTLocal_flag($request){
+        $pdo = pdo();
+        extract($request);
+
+        $sql_check = "SELECT pt_local.* FROM pt_local WHERE id=?";
+        $stmt_check = $pdo -> prepare($sql_check);
+        $stmt_check -> execute([$id]);
+        $row = $stmt_check -> fetch();
+
+        if($row['flag'] == "Off" || $row['flag'] == "chk"){
+            $flag = "On";
+        }else{
+            $flag = "Off";
+        }
+
+        $sql = "UPDATE pt_local SET flag=? WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$flag, $id]);
+            $Result = array(
+                'table' => $table, 
+                'id'    => $id,
+                'flag'  => $flag
+            );
+            return $Result;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    function show_ptlocal($request){      // 已加入分頁功能
+        $pdo = pdo();
+        extract($request);
+        // 前段-初始查詢語法：全廠+全狀態
+        $sql = "SELECT pt_local.*, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag -- , u.cname
+                FROM `pt_local`
+                LEFT JOIN _fab ON pt_local.fab_id = _fab.id
+                -- LEFT JOIN (SELECT * FROM _users WHERE role != '' AND role != 3) u ON u.fab_id = _local.fab_id
+                -- WHERE _local.flag = 'On'
+                ";
+        if($fab_id != 'All'){
+            $sql .= " WHERE pt_local.fab_id=? ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _fab.id, pt_local.id ASC ";
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
+        try {
+            if($fab_id == 'All'){
+                $stmt->execute();               //處理 byAll
+            }else{
+                $stmt->execute([$fab_id]);      //處理 byFab
+            }
+            $ptlocals = $stmt->fetchAll();
+            return $ptlocals;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+// pt_Local
 
     // 設定low_level時用全local區域 20230707_updated
     function show_allLocal(){

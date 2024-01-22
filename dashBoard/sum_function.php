@@ -180,14 +180,15 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _t.in_local as local_id , _t.item as cata_SN_amount , DATE_FORMAT(_t.out_date, '%m') as mm
+                FROM `_trade` _t
+                WHERE _t.form_type = 'import' AND _t.idty = 10 
                     -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark 
                     -- , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
                     -- , _s.site_title , _s.site_remark
-                FROM `_trade` _t
                     -- LEFT JOIN _local _l ON _t.local_id = _l.id
                     -- LEFT JOIN _fab _f ON _l.fab_id = _f.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _t.form_type = 'import' AND _t.idty = 10 ";          // 10=結案
+                    ";          // 10=結案
         if($report_mm == "All"){
             $sql .= "AND DATE_FORMAT(_t.out_date,'%Y') = ? ";
         }else{

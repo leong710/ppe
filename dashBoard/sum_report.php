@@ -44,7 +44,7 @@
             $allReport_ymms = show_allIssue_ymm($query_arr);     // 取出issues年份裡的月清單 => 供issues頁面渲染
          break;
         case "trade" :
-            $report_title = "進貨";
+            $report_title = "進貨(不含調撥)";
             $report_lists = show_trades($query_arr);             // 調閱點檢表
             $allReport_yys = show_allTrade_yy();                 // 取出issues年份清單 => 供issues頁面篩選
             $allReport_ymms = show_allTrade_ymm($query_arr);     // 取出issues年份裡的月清單 => 供issues頁面渲染
@@ -152,7 +152,7 @@
                         <form action="" method="post">
                             <div class="input-group">
                                 <span class="input-group-text">篩選 表單/年/月</span>
-                                <select name="form" id="groupBy_form" class="form-select">
+                                <select name="form" id="groupBy_form" class="form-select" onchange="submit()">
                                     <option value="receive" <?php echo ($form == "receive") ? "selected":"";?> >receive領用</option>
                                     <option value="issue"   <?php echo ($form == "issue")   ? "selected":"";?> >issue需求</option>
                                     <option value="trade"   <?php echo ($form == "trade")   ? "selected":"";?> >trade進貨</option>
@@ -177,6 +177,7 @@
                         </form>
                     </div>
                 </div>
+
                 <!-- Bootstrap Alarm -->
                 <div id="liveAlertPlaceholder" class="col-11 mb-0 p-0"></div>
 
@@ -200,6 +201,7 @@
                         <!-- 1.領用彙總表單table -->
                         <div class="col-12 bg-white">
                             <div class="row">
+                                <!-- Banner -->
                                 <div class="col-12 col-md-6 py-0"></div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <div style="display: inline-block;" class="px-3">
@@ -338,7 +340,7 @@
     var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
     var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
     
-    console.log('report_lists:', report_lists);
+    // console.log('report_lists:', report_lists);
 
     // cata目錄、報價、領用量、渲染
     function show_reports(){
@@ -361,7 +363,15 @@
         Object(report_lists).forEach(function(row){
             var csa = JSON.parse(row['cata_SN_amount']);
             Object.keys(csa).forEach(key =>{                    // key = cats_SN
-                var pay = Number(csa[key]['pay']);
+                // 適用於tarde，主要是儲存訊息與其他不同，需要調整!
+                if(form_type == 'trade' && key.search(",") != -1){      // 確認表單是Trade，且SN含有','
+                    var pay = csa[key];                                 // 先取得 valus，但value含有其他訊息
+                    pay = Number(pay.split(',')[0]);                    // 分割，取位置0它是數量
+                    key = key.split(',')[0];                            // 再來分割SN並取0
+                }else{
+                    var pay = Number(csa[key]['pay']);                  // 如果不是就照舊
+                }
+                // console.log('key:', key, pay)
                 var l_key = row['local_id'] +'_'+ key;          // 第1頁
                 var key_TT = key +'_TT';                        // 第1頁
                 var l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
@@ -431,7 +441,6 @@
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);
             }else{
-                // console.log('key:', key);
                 $('#'+key).append(value);
             }
         })

@@ -157,7 +157,7 @@
                                         <div class="col-12 py-0 text-center">
                                             <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                                                 <button type="button" name="catalog" id="<?php echo $catalog['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $catalog['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $catalog['flag'];?>"><?php echo $catalog['flag'];?></button>
-                                                <a href="edit.php?sn=<?php echo $catalog["SN"];?>&img=<?php echo $catalog["PIC"];?>" class="btn btn-sm btn-xs btn-info" title="最後編輯：<?php echo $catalog["updated_at"]." / by: ".$catalog["updated_user"];?>">編輯</a>
+                                                <a href="edit.php?sn=<?php echo $catalog["SN"];?>&img=<?php echo $catalog["PIC"];?>&cate_no=<?php echo $sort_cate_no;?>" class="btn btn-sm btn-xs btn-info" title="最後編輯：<?php echo $catalog["updated_at"]." / by: ".$catalog["updated_user"];?>">編輯</a>
                                             <?php } ?>
                                         </div>
                                     </div>

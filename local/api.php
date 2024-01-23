@@ -23,9 +23,9 @@
             // fun-1.cheng_flag myjob快速切換上架On/下架Off 
             case 'cheng_flag':
                 // 宣告查詢陣列內容
-                $su['table'] = (isset($_POST['table'])) ? $_POST['table'] : $_GET['table'];
-                $su['id'] = (isset($_POST['id'])) ? $_POST['id'] : $_GET['id'];  
-                $su['flag'] = (isset($_POST['flag'])) ? $_POST['flag'] : $_GET['flag'];
+                $su['table'] = (isset($_REQUEST['table'])) ? $_REQUEST['table'] : "";
+                $su['id']    = (isset($_REQUEST['id']))    ? $_REQUEST['id']    : "";  
+                $su['flag']  = (isset($_REQUEST['flag']))  ? $_REQUEST['flag']  : "";
 
                 if(empty($su['id']) || empty($su['table'])) {
                     $aResult['error'] = $function.' - 參數錯誤!';
@@ -41,8 +41,8 @@
                     }else{
                         $cheng_flag = array(
                             'table' => $su['table'], 
-                            'id' => $su['id'],
-                            'flag' => $su['flag']
+                            'id'    => $su['id'],
+                            'flag'  => $su['flag']
                         );
                     }
                     $aResult['result'] = $cheng_flag;

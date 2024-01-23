@@ -1,6 +1,6 @@
 <?php 
     require_once("../pdo.php");
-    require_once("function.php");
+    require_once("pt_local_function.php");
 
     // api function --- start
     header('Access-Control-Allow-Origin: *');    // 添加這行，允許跨網域!!
@@ -21,20 +21,20 @@
             // fun-1.cheng_flag myjob快速切換上架On/下架Off 
             case 'cheng_flag':
                 // 宣告查詢陣列內容
-                $su['table'] = (isset($_POST['table'])) ? $_POST['table'] : $_GET['table'];
-                $su['id'] = (isset($_POST['id'])) ? $_POST['id'] : $_GET['id'];  
-                $su['flag'] = (isset($_POST['flag'])) ? $_POST['flag'] : $_GET['flag'];
+                $su['table'] = (isset($_REQUEST['table'])) ? $_REQUEST['table'] : "";
+                $su['id']    = (isset($_REQUEST['id']))    ? $_REQUEST['id']    : "";  
+                $su['flag']  = (isset($_REQUEST['flag']))  ? $_REQUEST['flag']  : "";
 
                 if(empty($su['id']) || empty($su['table'])) {
                     $aResult['error'] = $function.' - 參數錯誤!';
                 } else {
-                    if($su['table'] == "pno"){
-                        $cheng_flag = changePno_flag($su);
+                    if($su['table'] == "pt_local"){
+                        $cheng_flag = changePTLocal_flag($su);
                     }else{
                         $cheng_flag = array(
                             'table' => $su['table'], 
-                            'id' => $su['id'],
-                            'flag' => $su['flag']
+                            'id'    => $su['id'],
+                            'flag'  => $su['flag']
                         );
                     }
                     $aResult['result'] = $cheng_flag;

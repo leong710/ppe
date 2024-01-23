@@ -14,7 +14,7 @@
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
-    // add module function --
+    // CRUD module function --
         $swal_json = array();
         // 新增add
         if(isset($_POST["add_ptstock_submit"])){
@@ -29,10 +29,6 @@
             $swal_json = delete_ptstock($_REQUEST);
         }
         
-        $catalogs = show_catalogs();                        // 取得所有catalog項目，供create使用
-        $allLocals = show_ptLocal();                       // 取得所有的Local儲存點，供create使用
-        // $allLocals = show_local($list_issue_setting);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
-
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
             if(isset($_SESSION[$sys_id]["fab_id"])){
@@ -46,8 +42,8 @@
             }
             // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
             if(isset($_SESSION["AUTH"]["sign_code"])){
-                $sort_fab_setting["sign_code"] = $_SESSION["AUTH"]["sign_code"];
-                $coverFab_lists = show_coverFab_lists($sort_fab_setting);
+                $auth_sign_code["sign_code"] = $_SESSION["AUTH"]["sign_code"];
+                $coverFab_lists = show_coverFab_lists($auth_sign_code);
                 if(!empty($coverFab_lists)){
                     foreach($coverFab_lists as $coverFab){
                         array_push($sfab_id, $coverFab["id"]);
@@ -55,57 +51,71 @@
                 }
             }
             // 1-1c sfab_id是陣列，要轉成字串
-            $sfab_id_str = implode(",",$sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
+            $sfab_id_str = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
 
         // 1-2 組合查詢條件陣列
-            $sort_fab_setting = array(
-                'sfab_id'   => $sfab_id_str,                        // 1-2.將字串sfab_id加入組合查詢陣列中
-                'fab_id'    => "All"
-            );
-            $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
-
-    // 查詢篩選條件：fab_id
-        if(isset($_REQUEST["fab_id"])){     // 有帶查詢，套查詢參數
-            $sort_fab_id = $_REQUEST["fab_id"];
-        }else{                              // 先給預設值
-            $sort_fab_id = $fab_id;
-        }
-        // 查詢篩選條件：cate_no
-        if(isset($_REQUEST["cate_no"])){
-            $sort_cate_no = $_REQUEST["cate_no"];
-        }else{
-            $sort_cate_no = "All";
-        }
+            if($sys_role <=1 ){
+                $sort_sfab_id = "All";                // All
+                // $sort_sfab_id = $sfab_id_str;         // test
+            }else{
+                $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
+            }
 
         // 今年年份
-        $thisYear = date('Y');
-        // 半年分界線
-        if(date('m') <= 6 ){
-            $half = "H1";
-        }else{
-            $half = "H2";
-        }
+            $thisYear = date('Y');
+            // 半年分界線
+            if(date('m') <= 6 ){
+                $half = "H1";
+            }else{
+                $half = "H2";
+            }
+
+        // 查詢篩選條件：fab_id
+            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
+                $select_fab_id = $_REQUEST["select_fab_id"];
+            }else{                              // 先給預設值
+                if($sys_role <=1 ){
+                    $select_fab_id = "All";                // All
+                }else{
+                    $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
+                }
+            }
+        
     // 組合查詢條件陣列
-        $list_issue_setting = array(
-            'fab_id'        => $sort_fab_id,
-            'cate_no'       => $sort_cate_no,
+        $query_arr = array(
+            'select_fab_id' => $select_fab_id,
+            'sfab_id'       => $sort_sfab_id,
             'thisYear'      => $thisYear,
             'checked_year'  => $thisYear,               // 建立查詢陣列for顯示今年點檢表
             'half'          => $half                    // 建立查詢陣列for顯示今年點檢表
         );
  
-        $stocks = show_stock($list_issue_setting);                  // 依查詢條件儲存點顯示存量
-        $categories = show_categories();                            // 取得所有分類item
-        $sum_categorys = show_sum_category($list_issue_setting);    // 統計分類與數量
-        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
+        // init.1_index fab_list：role <=1 ? All+all_fab : sFab_id+allMy => select_fab_id
+            $fabs = show_fab_list($query_arr);               // index FAB查詢清單用
 
-        $check_yh_list = check_yh_list($list_issue_setting);        // 查詢自己的點檢紀錄：半年檢
-        $check_yh_list_num = count($check_yh_list);                 // 計算自己的點檢紀錄筆數：半年檢
+        // init.2_create：local by select_fab_id / edit：local by All/allMy
+            // $create_locals = show_local2create($query_arr);   // create：取得select_fab_id下的Local儲存點
+            // $edit_locals = show_local2edit($query_arr);       // edit：取得sFab_id下所有的Local儲存點
+            $locals = show_select_local($query_arr);
 
-        $sortFab = show_fab($list_issue_setting);                   // 查詢fab的細項結果
-        if(empty($sortFab)){                                        // 查無資料時返回指定頁面
-            echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
-        }
+        // init.3_create/edit catalog by cate_no = J
+            $catalogs  = show_ptcatalogs();                   // 取得所有catalog - J項目，供create使用
+
+        // init.4_
+            $stocks     = show_ptstock($query_arr);            // 依查詢條件儲存點顯示存量
+        // init.5_
+            // $myReceives = show_my_receive($query_arr);         // 列出這個fab_id、今年度的領用單
+        // init.6_
+            // $check_yh_list = check_yh_list($query_arr);        // 查詢自己的點檢紀錄：半年檢
+            // $check_yh_list_num = count($check_yh_list);                 // 計算自己的點檢紀錄筆數：半年檢
+        // init.7_
+            $select_fab = [];
+            if($select_fab_id != 'All' && $select_fab_id != "allMy"){
+                $select_fab = show_select_fab($query_arr);                   // 查詢fab的細項結果
+            }
+            // if(empty($select_fab)){                                        // 查無資料時返回指定頁面
+            //     echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
+            // }
 
 
     // <!-- 20211215分頁工具 -->
@@ -119,11 +129,11 @@
             //     }
             //     $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
             //     // 合併嵌入分頁工具
-            //     $list_issue_setting['start'] = $start;
-            //     $list_issue_setting['per'] = $per;
+            //     $query_arr['start'] = $start;
+            //     $query_arr['per'] = $per;
 
-            // $div_stocks = show_stock($list_issue_setting);
-            // // $div_stocks = stock_page_div($start, $per, $list_issue_setting);
+            // $div_stocks = show_stock($query_arr);
+            // // $div_stocks = stock_page_div($start, $per, $query_arr);
             // $page_start = $start +1;            //選取頁的起始筆數
             // $page_end = $start + $per;          //選取頁的最後筆數
             //     if($page_end>$per_total){       //最後頁的最後筆數=總筆數
@@ -131,11 +141,26 @@
             //     }
     // <!-- 20211215分頁工具 -->
     
+            // $categories = show_categories();                   // 取得所有分類item
+            // $sum_categorys = show_sum_category($query_arr);    // 統計分類與數量
+            // // 查詢篩選條件：cate_no
+            // if(isset($_REQUEST["cate_no"])){
+            //     $sort_cate_no = $_REQUEST["cate_no"];
+            // }else{
+            //     $sort_cate_no = "All";
+            // }
+
     // 今年年份
         $thisYear = date('Y');
     // 初始化半年後日期，讓系統判斷與highLight
         $toDay = date('Y-m-d');
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
+
+        // echo "<pre>";
+        // print_r($query_arr);
+        // print_r($select_fab);
+        // print_r($select_locals);
+        // echo "</pre>";
 
 ?>
 
@@ -151,8 +176,6 @@
         <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
     <!-- mloading JS -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <!-- mloading CSS -->
@@ -198,57 +221,14 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
-                <div class="row">
-                    <div class="col-md-4 py-0">
-                        <h5><?php echo isset($sortFab["id"]) ? $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>_庫存管理： </h5>
-                    </div>
-                    <!-- sort/groupBy function -->
-                    <div class="col-md-4 py-0">
-                        <form action="" method="POST">
-                            <div class="input-group">
-                                <span class="input-group-text">篩選</span>
-                                <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="" hidden>-- 請選擇local --</option>
-                                    <?php foreach($fabs as $fab){ ?>
-                                        <?php if($sys_role <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
-                                            <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
-                                                <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                        <?php } ?>
-                                    <?php } ?>
-                                </select>
-                                <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
-                            </div>
-                        </form>
-                    </div>
-                    <!-- 表頭按鈕 -->
-                    <div class="col-md-4 py-0 text-end">
-                        <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
-                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
-                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
-                            <?php } ?>
-                        <?php } ?>
-                    </div>
-                    <!-- Bootstrap Alarm -->
-                    <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
-                </div>
-
+            <div class="col_xl_12 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
                 <!-- NAV分頁標籤與統計 -->
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $sort_cate_no == 'All' ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=All">
-                                All&nbsp<span class="badge bg-secondary"><?php echo $per_total;?></span></a>
-                        </li>
-                        <?php foreach($sum_categorys as $sum_cate){ ?>
-                            <li class="nav-item">
-                                <a class="nav-link <?php echo $sort_cate_no == $sum_cate["cate_no"] ? 'active':'';?>" href="?fab_id=<?php echo $sortFab["id"];?>&cate_no=<?php echo $sum_cate["cate_no"];?>">
-                                    <?php echo $sum_cate["cate_no"].".".$sum_cate["cate_title"];?>
-                                    <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
-                            </li>
-                        <?php  } ?>
+                        <li class="nav-item"><a class="nav-link active" href="index.php">除汙器材庫存管理</span></a></li>
                         <?php if($sys_role <= 1){?>
+                            <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
+                            <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
                             <li class="nav-item">
                                 <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
                                     <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
@@ -256,9 +236,48 @@
                         <?php } ?>
                     </ul>
                 </div>
-                <!-- by各Local儲存點： -->
+                <!-- 內頁 -->
                 <div class="col-12 bg-white">
-                    <!-- 20211215分頁工具 -->               
+                    <!-- by各Local儲存點： -->
+                    <div class="row">
+                        <div class="col-md-4 pb-0 ">
+                            <h5><?php echo isset($select_fab["id"]) ? $select_fab["id"].".".$select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"$select_fab_id";?>_除汙器材庫存管理： </h5>
+                        </div>
+                        <!-- sort/groupBy function -->
+                        <div class="col-md-4 pb-0 ">
+                            <form action="" method="POST">
+                                <div class="input-group">
+                                    <span class="input-group-text">篩選</span>
+                                    <select name="select_fab_id" id="select_fab_id" class="form-select" onchange="this.form.submit()">
+                                        <option value="" hidden selected >-- 請選擇local --</option>
+                                        <?php if($sys_role <= 1 ){ ?>
+                                            <option for="select_fab_id" value="All" <?php echo $select_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
+                                        <?php } ?>
+                                        <option for="select_fab_id" value="allMy" <?php echo $select_fab_id == "allMy" ? "selected":"";?> title="<?php echo $sort_sfab_id;?>">
+                                            -- All my fab <?php echo $sfab_id_str ? "(".$sfab_id_str.")":"";?> --</option>
+                                        <?php foreach($fabs as $fab){ ?>
+                                            <option for="select_fab_id" value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $select_fab_id ? "selected":"";?>>
+                                                <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
+                                </div>
+                            </form>
+                        </div>
+                        <!-- 表頭按鈕 -->
+                        <div class="col-md-4 pb-0 text-end">
+                            <?php if(isset($select_fab["id"])){ ?>
+                                <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
+                                    <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                <?php } ?>
+                            <?php } ?>
+                            <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
+                        </div>
+                        <!-- Bootstrap Alarm -->
+                        <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
+                    </div>
+                    <hr>
+                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->               
                     <table id="stock_list" class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -269,7 +288,7 @@
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
                                     <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && 
-                                        ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                        ( ($select_fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
@@ -303,7 +322,7 @@
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
                                         <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                            ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?> contenteditable="true" <?php } ?>>
+                                            ( ($select_fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
@@ -313,9 +332,9 @@
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
                                             <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                                ($_SESSION[$sys_id]["fab_id"] == $sortFab["id"] || in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
-                                                    <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
-                                                        onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
+                                                ($_SESSION[$sys_id]["fab_id"] == $select_fab["id"] || in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
+                                                    <button type="button" id="edit_ptstock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_ptstock" 
+                                                        onclick="edit_module('ptstock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>
                                         <?php } ?></td>
                                 </tr>
@@ -323,26 +342,26 @@
                             <?php } ?>
                         </tbody>
                     </table>
-                    <!-- 20211215分頁工具 -->               
                 </div>
-                <hr>
-                 <!-- 尾段：debug訊息 -->
-                 <?php if(isset($_REQUEST["debug"])){
+                </br>
+                <!-- 尾段：debug訊息 -->
+                <?php if(isset($_REQUEST["debug"])){
+                    echo "<hr>";
                     include("debug_board.php"); 
                 } ?>
             </div>
         </div>
     </div>
    
-<!-- 彈出畫面模組 新增、編輯stock品項 -->
-    <div class="modal fade" id="edit_stock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+<!-- 彈出畫面模組 新增、編輯ptstock品項 -->
+    <div class="modal fade" id="edit_ptstock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp儲存品</h4>
+                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp除汙/器材儲存品</h4>
 
                     <form action="" method="post">
-                        <input type="hidden" name="id" id="stock_delete_id">
+                        <input type="hidden" name="id" id="ptstock_delete_id">
                         <?php if($sys_role <= 1){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
@@ -360,11 +379,9 @@
                                     <div class="form-floating">
                                         <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
-                                            <?php foreach($allLocals as $local){ ?>
-                                                <?php if($sys_role <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                                    <option value="<?php echo $local["id"];?>" >
-                                                        <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                                <?php } ?>
+                                            <?php foreach($locals as $local){ ?>
+                                                <option value="<?php echo $local["id"];?>" >
+                                                    <?php echo $local["id"]."：".$local["fab_title"]."_".$local["local_title"]."(".$local["local_remark"].")"; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                             <?php } ?>
                                         </select>
                                         <label for="edit_local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
@@ -391,9 +408,9 @@
                                 <!-- 左側-數量 -->
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
-                                        <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
-                                            <?php echo $sys_role <= 1 ? "":"readonly"; ?> >
-                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role >= 1) ? " *":" - disabled";?></sup></label>
+                                        <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400" value="1"
+                                            <?php echo $sys_role <= 1 ? " ":"readonly"; ?> >
+                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role <= 1) ? " ":" - disabled";?></sup></label>
                                     </div>
                                 </div>
                                 <!-- 右側-批號 -->
@@ -441,14 +458,13 @@
                             *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
                         <!-- 最後編輯資訊 -->
-                        <div class="col-12 text-end p-0" id="edit_stock_info"></div>
+                        <div class="col-12 text-end p-0" id="edit_ptstock_info"></div>
                     </div>
 
                     <div class="modal-footer">
                         <div class="text-end">
-                            <input type="hidden" name="id" id="stock_edit_id" >
-                            <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
-                            <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
+                            <input type="hidden" name="id" id="ptstock_edit_id" >
+                            <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <span id="modal_button"></span>
@@ -508,7 +524,7 @@
                                     <!-- 下載EXCEL的觸發 -->
                                     <input type="hidden" name="htmlTable" id="htmlTable" value="">
                                     <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" value="stock" onclick="submitDownloadExcel('stock')" >
-                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
+                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>Excel</button>
                                 </div>
                             </div>
                         </form>
@@ -538,7 +554,7 @@
                             <div class="row">
                                 <div class="col-md-7 py-0">
                                     <div>
-                                        點檢廠區：<?php echo $sortFab["fab_title"]; echo $sortFab["fab_remark"] ? " (".$sortFab["fab_remark"].")":"";?></br>
+                                        點檢廠區：<?php echo $select_fab["fab_title"]; echo $select_fab["fab_remark"] ? " (".$select_fab["fab_remark"].")":"";?></br>
                                         點檢日期：<?php echo date('Y-m-d H:i'); ?> (實際以送出時間為主)
                                     </div>
                                 </div>
@@ -568,7 +584,7 @@
                         <div class="text-end">
                             <input type="hidden" name="action"          value="store_checkList">
                             <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
-                            <input type="hidden" name="fab_id"          value="<?php echo $sortFab["id"];?>">
+                            <input type="hidden" name="fab_id"          value="<?php echo $select_fab["id"];?>">
                             <input type="hidden" name="emp_id"          value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
                             <input type="hidden" name="cname"           value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
@@ -614,22 +630,22 @@
 
 <script>
 // // // 開局導入設定檔
-    var allLocals   = <?=json_encode($allLocals);?>;                   // 引入所有local的allLocals值
-    var low_level   = [];                                              // 宣告low_level變數
-    var stock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
-    var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-    var swal_json   = <?=json_encode($swal_json);?>;                   // 引入swal_json值
+    var allLocals     = <?=json_encode($locals);?>;                   // 引入所有local的allLocals值
+    var low_level     = [];                                              // 宣告low_level變數
+    var ptstock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
+    var ptstock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
+    var swal_json     = <?=json_encode($swal_json);?>;                   // 引入swal_json值
     
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
     var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
 // 找出Local_id算SN年領用量
-    var myReceives      = <?=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
-    var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
+    // var myReceives      = <=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
+    // var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
 
 // 半年檢
-    var check_yh_list_num   = '<?=$check_yh_list_num;?>';
-    var thisYear            = '<?=$thisYear;?>';
-    var half                = '<?=$half;?>';
+    // var check_yh_list_num   = '<=$check_yh_list_num;?>';
+    // var thisYear            = '<=$thisYear;?>';
+    // var half                = '<=$half;?>';
 
 </script>
 

@@ -3,6 +3,13 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDenied($sys_id);
+    
+    
+    if(isset($_REQUEST["cate_no"])){
+        $sort_cate_no = $_REQUEST["cate_no"];
+    }else{
+        $sort_cate_no = "All";
+    }
 
     if(isset($_POST["delete"])){
         delete_catalog($_REQUEST);
@@ -12,7 +19,7 @@
 
     if(isset($_POST["submit"])){
         update_catalog($_REQUEST);
-        header("location:../catalog/");
+        header("location:../catalog/?cate_no={$sort_cate_no}");
         exit;
     }
 

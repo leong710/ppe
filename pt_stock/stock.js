@@ -72,7 +72,13 @@
         $('[data-toggle="tooltip"]').tooltip();
         // swl function    
         if(swal_json.length != 0){
-            swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:1000});
+            if(swal_json['action'] == 'error'){
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});
+            }else{
+                var sinn = 'submit - ( '+swal_json['fun']+' : '+swal_json['content']+' ) <b>'+ swal_json['action'] +'</b>&nbsp!!';
+                inside_toast(sinn);
+            }
+
         }
         // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
         // 監聽lot_num是否有輸入值，跟著改變樣態
@@ -84,25 +90,25 @@
     
 // // // add mode function
     function add_module(to_module){     // 啟用新增模式
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info').empty();     // 清除model功能
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_ptstock_info').empty();     // 清除model功能
         $('#reset_btn').click();                                                            // reset清除表單
-        var add_btn = '<input type="submit" name="add_stock_submit" class="btn btn-primary" value="新增">';
+        var add_btn = '<input type="submit" name="add_ptstock_submit" class="btn btn-primary" value="新增">';
         $('#modal_action').append('新增');                      // model標題
         $('#modal_button').append(add_btn);                     // 儲存鈕
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
         reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
-        document.querySelector("#edit_stock .modal-header").classList.remove('edit_mode_bgc');
-        document.querySelector("#edit_stock .modal-header").classList.add('add_mode_bgc');
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.remove('edit_mode_bgc');
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.add('add_mode_bgc');
     }
 // // // edit mode function
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info').empty();     // 清除model功能
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_ptstock_info').empty();     // 清除model功能
         $('#reset_btn').click();                                                            // reset清除表單
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
         reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
-        document.querySelector("#edit_stock .modal-header").classList.remove('add_mode_bgc');
-        document.querySelector("#edit_stock .modal-header").classList.add('edit_mode_bgc');
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.remove('add_mode_bgc');
+        document.querySelector('#edit_'+to_module+' .modal-header').classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
         Object(window[to_module]).forEach(function(row){          
@@ -123,8 +129,8 @@
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
 
-                var add_btn = '<input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存">';
-                var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+                var add_btn = '<input type="submit" name="edit_ptstock_submit" value="儲存" class="btn btn-primary">';
+                var del_btn = '<input type="submit" name="delete_ptstock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
                 $('#modal_action').append('編輯');          // model標題
                 $('#modal_delect_btn').append(del_btn);     // 刪除鈕
                 $('#modal_button').append(add_btn);         // 儲存鈕
@@ -294,17 +300,17 @@
         });
 
         // call fun show 年領用量與建議值
-        if(stock.length >= 1){
-            show_myReceives();
-        }
+        // if(stock.length >= 1){
+        //     show_myReceives();
+        // }
 
         // 假如index找不到當下存在已完成的表單，就alarm它!
-        if (check_yh_list_num == '0') {
-            let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ <i class="fa-solid fa-right-long"></i>&nbsp&nbsp&nbsp';
-                message += '<button type="button" style="background-color: transparent;" data-bs-toggle="modal" data-bs-target="#checkList">'
-                            +'<b><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button></b>';
+        // if (check_yh_list_num == '0') {
+        //     let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ <i class="fa-solid fa-right-long"></i>&nbsp&nbsp&nbsp';
+        //         message += '<button type="button" style="background-color: transparent;" data-bs-toggle="modal" data-bs-target="#checkList">'
+        //                     +'<b><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button></b>';
 
-            alert( message, 'danger')
-        }
+        //     alert( message, 'danger')
+        // }
 
     })

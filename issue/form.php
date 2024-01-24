@@ -652,7 +652,8 @@
     var action          = '<?=$action;?>';                               // 引入action資料
     var catalog         = <?=json_encode($catalogs);?>;                  // 引入catalogs資料
     var issue_row       = <?=json_encode($issue_row);?>;                 // 引入issue_row資料作為Edit
-    var json            = JSON.parse('<?=json_encode($logs_arr)?>');
+    // var json            = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json            = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id              = '<?=$issue_row["id"]?>';
     var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
     var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量

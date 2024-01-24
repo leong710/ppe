@@ -72,7 +72,7 @@
         }
     }
     // 20240123 edit時用role <=0 ? all全區域 : user sFab_id
-    function show_select_local($request){
+    function show_fabs_local($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _l.*, _f.fab_title, _f.fab_remark, _f.flag AS fab_flag, _s.site_title, _s.site_remark
@@ -81,12 +81,13 @@
                 LEFT JOIN _site _s ON _f.site_id = _s.id ";
         if($select_fab_id == "allMy" && $sfab_id != "All"){
             $sql .= " WHERE _l.fab_id IN ({$sfab_id}) ";
-        }else if($select_fab_id != "All"){
+        }else if($select_fab_id != "All" && $select_fab_id != "allMy" ){
             $sql .= " WHERE _l.fab_id = ? ";
         }
         $sql .= " ORDER BY _s.id, _f.id, _l.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
+            // echo $sql;
             if($select_fab_id == "allMy" && $sfab_id != "All"){
                 $stmt->execute();
             }else if($select_fab_id != "All"){
@@ -100,6 +101,42 @@
             echo $e->getMessage();
         }
     }
+    // 設定low_level時用選則區域 20230707_updated
+    function select_local($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _l.*, _f.fab_title, _f.fab_remark, _f.buy_ty , _s.site_title, _s.site_remark
+                FROM `pt_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$select_local_id]);
+            $local = $stmt->fetch();
+            return $local;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20240123 catalog Function
+    function show_ptcatalogs(){
+        $pdo = pdo();
+        $sql = "SELECT _cata.* , _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
+                FROM _cata
+                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                WHERE _cata.cate_no = 'J'
+                ORDER BY _cate.id, _cata.id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $catalogs = $stmt->fetchAll();
+            return $catalogs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
 // pt_Local 20240122 for 除汙劑/應變器材
     // local項目--新增 20240122
     function store_ptlocal($request){
@@ -219,58 +256,41 @@
     }
 // pt_Local
 
-    // 設定low_level時用全local區域 20230707_updated
-    function show_allLocal(){
-        $pdo = pdo();
-        $sql = "SELECT _local.*, _site.site_title, _site.site_remark, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag
-                FROM `_local`
-                LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN _site ON _fab.site_id = _site.id
-                -- WHERE _local.flag='On'
-                ORDER BY _site.id, _fab.id, _local.id ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute();
-            $locals = $stmt->fetchAll();
-            return $locals;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 設定low_level時用選則區域 20230707_updated
-    function select_local($request){
-        $pdo = pdo();
-        extract($request);
-        $sql = "SELECT _local.*, _site.site_title, _site.site_remark, _fab.fab_title, _fab.fab_remark, _fab.buy_ty
-                FROM `_local`
-                LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN _site ON _fab.site_id = _site.id
-                WHERE _local.id=? ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
-            return $local;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
-    // 秀出catalog全部 20230707_updated
-    function show_catalogs(){
-        $pdo = pdo();
-        $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
-                FROM _cata 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                ORDER BY _cate.id, _cata.id ASC";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute();
-            $catalogs = $stmt->fetchAll();
-            return $catalogs;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
+    // // 設定low_level時用全local區域 20230707_updated
+    // function show_allLocal(){
+    //     $pdo = pdo();
+    //     $sql = "SELECT _local.*, _site.site_title, _site.site_remark, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag
+    //             FROM `_local`
+    //             LEFT JOIN _fab ON _local.fab_id = _fab.id
+    //             LEFT JOIN _site ON _fab.site_id = _site.id
+    //             -- WHERE _local.flag='On'
+    //             ORDER BY _site.id, _fab.id, _local.id ASC";
+    //     $stmt = $pdo->prepare($sql);
+    //     try {
+    //         $stmt->execute();
+    //         $locals = $stmt->fetchAll();
+    //         return $locals;
+    //     }catch(PDOException $e){
+    //         echo $e->getMessage();
+    //     }
+    // }
+
+    // // 秀出catalog全部 20230707_updated
+    // function show_catalogs(){
+    //     $pdo = pdo();
+    //     $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
+    //             FROM _cata 
+    //             LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+    //             ORDER BY _cate.id, _cata.id ASC";
+    //     $stmt = $pdo->prepare($sql);
+    //     try {
+    //         $stmt->execute();
+    //         $catalogs = $stmt->fetchAll();
+    //         return $catalogs;
+    //     }catch(PDOException $e){
+    //         echo $e->getMessage();
+    //     }
+    // }
     // 儲存low_level設定值
     function store_lowLevel($request){
         $pdo = pdo();
@@ -294,12 +314,12 @@
         //     $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
             $low_level_str = json_encode($low_level);      // 陣列轉成字串進行儲存到mySQL
         
-        $sql = "UPDATE _local
+        $sql = "UPDATE pt_local
                 SET low_level=?, updated_user=?, updated_at=now()
                 WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$low_level_str, $updated_user, $local_id]);
+            $stmt->execute([$low_level_str, $updated_user, $select_local_id]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '儲存成功';
 
@@ -316,12 +336,12 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _s.local_id, _s.cata_SN
-                FROM `_stock` _s
+                FROM `pt_stock` _s
                 WHERE local_id = ?
                 GROUP BY _s.cata_SN ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$local_id]);
+            $stmt->execute([$select_local_id]);
             $show_stock_cata_SN_result = $stmt->fetchAll();
             return $show_stock_cata_SN_result;
         }catch(PDOException $e){
@@ -339,12 +359,12 @@
             "content"   => "安全存量設定--"
         );
 
-        $sql = "UPDATE `_stock`
+        $sql = "UPDATE `pt_stock`
                 SET standard_lv = ?
                 WHERE local_id = ? AND cata_SN = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$standard_lv, $local_id, $cata_SN]);
+            $stmt->execute([$standard_lv, $select_local_id, $cata_SN]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '儲存成功';
         }catch(PDOException $e){

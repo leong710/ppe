@@ -517,12 +517,13 @@
 <script>
 
 // // // info modal function
-    var action = '<?=$action;?>';                        // 引入action資料
-    var catalogs = <?=json_encode($catalogs);?>;         // 引入catalogs資料
-    var allcatalogs = <?=json_encode($allcatalogs);?>;   // 引入allcatalogs資料
-    var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');
-    var id = '<?=$trade_row["id"]?>';
+    var action      = '<?=$action;?>';                                      // 引入action資料
+    var catalogs    = <?=json_encode($catalogs);?>;                         // 引入catalogs資料
+    var allcatalogs = <?=json_encode($allcatalogs);?>;                      // 引入allcatalogs資料
+    var trade_row   = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
+    // var json        = JSON.parse('<=json_encode($logs_arr)?>');             // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json        = <?=json_encode($logs_arr)?>;                          // 鋪設logs紀錄 240124-改去除JSON.parse
+    var id          = '<?=$trade_row["id"]?>';
 
 </script>
 

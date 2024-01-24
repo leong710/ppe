@@ -558,7 +558,8 @@
     var action              = '<?=$action;?>';                              // 引入action資料
     var issue_row           = <?=json_encode($issue_row);?>;                // 引入issue_row資料作為Edit
     var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
-    var json                = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
+    // var json                = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json                = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var issue_url           = '<?=$issue_url;?>';                           // push訊息 // 本文件網址
 </script>
 

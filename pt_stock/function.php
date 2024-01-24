@@ -276,7 +276,7 @@
 
     // 20240123 create時用自己選定Fab區域的Local list
     // 20240123 edit時用role <=0 ? all全區域 : user sFab_id
-    function show_select_local($request){
+    function show_fabs_local($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _l.*, _f.fab_title, _f.fab_remark, _f.flag AS fab_flag, _s.site_title, _s.site_remark

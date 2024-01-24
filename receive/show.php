@@ -176,6 +176,7 @@
     
     // $step套用身份
     $step = $step_arr[$step_index];
+    print_r($sys_sfab_id);
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -263,6 +264,8 @@
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                             $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_sfab_id)); 
+                            echo "--role:".$receive_row["fab_id"];
+                            echo "--role:".in_array($receive_row["fab_id"], $sys_sfab_id);
                             if($receive_collect_role){ ?>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
@@ -544,7 +547,8 @@
     var action               = '<?=$action;?>';                              // Edit選染    // 引入action資料
     var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染    // 引入receive_row資料作為Edit
     var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
-    var json                 = JSON.parse('<?=json_encode($logs_arr)?>');    // 鋪設logs紀錄
+    // var json               = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json                 = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var receive_url          = '<?=$receive_url;?>';                         // push訊息    // 本文件網址
 </script>
 

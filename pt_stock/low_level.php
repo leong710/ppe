@@ -68,24 +68,33 @@
             'thisYear'        => $thisYear
         );
 
-    if(isset($_REQUEST["local_id"])){
+    // init.1_index fab_list：role <=1 ? All+all_fab : sFab_id+allMy => select_fab_id；吃$sfab_id
+        $fabs = show_fab_list($query_arr);               // index FAB查詢清單用
+    // init.2_create：local by select_fab_id / edit：local by All/allMy；吃
+        $locals = show_fabs_local($query_arr);
+    // init.7_
+        $select_fab = [];
+        if($select_fab_id != 'All' && $select_fab_id != "allMy"){
+            $select_fab = show_select_fab($query_arr);                   // 查詢fab的細項結果
+        }
+
+
+    if(!empty($_REQUEST["select_local_id"])){
         $select_local = select_local($_REQUEST);
         if(empty($select_local)){                                   // 查無資料時返回指定頁面
             echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
+            return;
         }
         $buy_ty = $select_local["buy_ty"];                          // 限購規模
         $low_level = json_decode($select_local["low_level"]);       // 安全存量
         if(is_object($low_level)) { $low_level = (array)$low_level; } 
 
-        $catalogs = show_catalogs();
+        // init.3_create/edit catalog by cate_no = J
+        $catalogs  = show_ptcatalogs();                   // 取得所有catalog - J項目，供create使用
 
-        // 組合查詢條件陣列
-        $list_issue_setting = array(
-            'local_id'  => $_REQUEST["local_id"],
-            'thisYear'  => $thisYear
-        );
-        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
-        $stock_cata_SN = show_stock_cata_SN($list_issue_setting);   // 列出目前stock中對象local裡的cata_SN清單
+        // $myReceives = show_my_receive($query_arr);         // 列出這個fab_id、今年度的領用單
+        $myReceives = [];
+        $stock_cata_SN = show_stock_cata_SN($query_arr);   // 列出目前stock中對象local裡的cata_SN清單
 
     }else{
         $select_local = array(
@@ -97,7 +106,12 @@
         $stock_cata_SN = [];
     }
 
-    $allLocals = show_allLocal();
+        // echo "<pre>";
+        // print_r($_REQUEST);
+        // print_r($query_arr);
+        // print_r($select_fab);
+        // // print_r($select_locals);
+        // echo "</pre>";
 
 ?>
 
@@ -158,174 +172,171 @@
                         <?php } ?>
                     </ul>
                 </div>
-                <!-- 表頭：按鈕 -->
-                <div class="row">
-                    <div class="col-12 col-md-6 pb-0">
-                        <h4>安全存量設定</h4>
-                    </div>
-                    <div class="col-12 col-md-6 pb-0 text-end">
-                        <?php if(($sys_role <= 2) && !empty($buy_ty)){ ?>    
-                            <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
-                        <?php } ?>
-                        <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
-                        <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
-                    </div>
-                </div>
                 <!-- 內頁 -->
-    
-                <!-- 表頭：選單 -->
-                <div class="row py-0">
-                    <!-- 表頭：左側 -->
-                    <div class="col-12 col-md-8 pb-2">
-                        <!-- 表頭：左上=選擇廠區 -->
-                        <form action="" method="post" onsubmit="this.$myLocal.disabled=false">
-                            <div class="input-group">
-                                <span class="input-group-text">篩選</span>
-                                <select name="select_fab_id" id="select_fab_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="" hidden selected >-- 請選擇local --</option>
-                                    <?php if($sys_role <= 1 ){ ?>
-                                        <option for="select_fab_id" value="All" <?php echo $select_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
-                                    <?php } ?>
-                                    <option for="select_fab_id" value="allMy" <?php echo $select_fab_id == "allMy" ? "selected":"";?> title="<?php echo $sort_sfab_id;?>">
-                                        -- All my fab <?php echo $sfab_id_str ? "(".$sfab_id_str.")":"";?> --</option>
-                                    <?php foreach($fabs as $fab){ ?>
-                                        <option for="select_fab_id" value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $select_fab_id ? "selected":"";?>>
-                                            <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                    <?php } ?>
-                                </select>
-                                <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
-                            <!-- </div> -->
-                            <!-- <div class="form-floating"> -->
-                            <!-- <div class="input-group"> -->
-                                <select name="select_local_id" id="select_local_id" class="form-select" required onchange="this.form.submit()">
-                                    <option value="" hidden>--請選擇 low_level 儲存點--</option>
-                                    <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
-                                            <option for="select_local_id" value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
-                                                <?php echo $allLocal["id"].": ".$allLocal["fab_title"]."&nbsp(".$allLocal["fab_remark"].")_".$allLocal["local_title"]."&nbsp(".$allLocal["local_remark"].")"; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                <div class="col-12 bg-white">
+                    <!-- 表頭：按鈕 -->
+                    <div class="row">
+                        <div class="col-12 col-md-6 pb-0">
+                            <h5>安全存量設定</h5>
+                        </div>
+                        <div class="col-12 col-md-6 pb-0 text-end">
+                            <?php if(($sys_role <= 2) && !empty($buy_ty)){ ?>    
+                                <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
+                            <?php } ?>
+                            <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i> 安全庫存量說明</a>
+                            <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
+                        </div>
+                    </div>
+        
+                    <!-- 表頭：選單 -->
+                    <div class="row py-0">
+                        <!-- 表頭：左側 -->
+                        <div class="col-12 col-md-8 pb-2">
+                            <!-- 表頭：左上=選擇廠區 -->
+                            <form action="" method="post">
+                                <div class="input-group">
+                                    <span class="input-group-text">篩選</span>
+                                    <select name="select_fab_id" id="select_fab_id" class="form-select" onchange="submit()">
+                                        <option value="" hidden selected >-- 請選擇 Fab --</option>
+                                        <?php foreach($fabs as $fab){ ?>
+                                            <option for="select_fab_id" value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $select_fab_id ? "selected":"";?>>
+                                                <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
-                                    <?php } ?>
-                                </select>
-                                <!-- <label for="select_local_id" class="form-label">設定廠區：</label> -->
-                            </div>
-                        </form>
+                                    </select>
+                                    <select name="select_local_id" id="select_local_id" class="form-select" required onchange="submit()">
+                                        <?php if(count($locals)>0){ ?>
+                                            <option value="" hidden>-- 請選擇 low_level 儲存點 --</option>
+                                            <?php foreach($locals as $local){ ?>
+                                                <option for="select_local_id" value="<?php echo $local["id"];?>" title="<?php echo $local["fab_title"];?>" <?php echo $local["id"] == $select_local_id ? "selected":""; ?>>
+                                                    <?php echo $local["id"].": ".$local["fab_title"]."&nbsp(".$local["fab_remark"].")_".$local["local_title"]."&nbsp(".$local["local_remark"].")"; if($local["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <option value="" selected >-- 請先建立除汙儲存點 --</option>
+                                        <?php } ?>
+                                    </select>
+                                    <!-- <button type="submit" class="btn btn-outline-secondary">選定</button> -->
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- 表頭：右側 -->
+                        <div class="col-12 col-md-4 pb-2 text-end">
+                            <?php if(!empty($buy_ty)){ ?> 
+                                <a href="#" target="_blank" title="Submit" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#update_stock_stand_lv"><i class="fa-solid fa-thumbs-up"></i> 立即同步現有庫存安量</a>
+                            <?php } ?>
+                        </div>
                     </div>
-                    
-                    <!-- 表頭：右側 -->
-                    <div class="col-12 col-md-4 pb-2 text-end">
-                        <?php if(!empty($buy_ty)){ ?> 
-                            <a href="#" target="_blank" title="Submit" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#update_stock_stand_lv"><i class="fa-solid fa-thumbs-up"></i> 立即同步現有庫存安量</a>
-                        <?php } ?>
-                    </div>
-                </div>
-    
-                <div class="row">
-                    <!-- 本次create表單form開始 -->
-                    <form action="store_lowLevel.php" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false">
-                        <div class="col-12 rounded bg-white">
-                            <table id="catalog_list" class="catalog_list table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>PIC</th>
-                                        <th>名稱 / 訊息</th>
-                                        <th><?php echo $thisYear;?>年領用</th>
-                                        <th>建議值<?php echo (!empty($buy_ty)) ? "_".$buy_ty:"";?></th>
-                                        <th style="width: 15%;">新安全存量</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($catalogs as $catalog){ ?>
+        
+                    <div class="row">
+                        <!-- 本次create表單form開始 -->
+                        <form action="store_lowLevel.php" method="post" onsubmit="this.site_id.disabled=false,this.standard_lv.disabled=false">
+                            <div class="col-12 rounded bg-white">
+                                <table id="catalog_list" class="catalog_list table table-striped table-hover">
+                                    <thead>
                                         <tr>
-                                            <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
-                                            <td style="text-align: left;"><h5><b><?php echo $catalog["SN"].'：'.$catalog["pname"];?></b></h5>
-                                                <span class="badge rounded-pill <?php switch($catalog["cate_id"]){
-                                                                        case "1": echo "bg-primary"; break;
-                                                                        case "2": echo "bg-success"; break;
-                                                                        case "3": echo "bg-warning text-dark"; break;
-                                                                        case "4": echo "bg-danger"; break;
-                                                                        case "5": echo "bg-info text-dark"; break;
-                                                                        case "6": echo "bg-dark"; break;
-                                                                        case "7": echo "bg-secondary"; break;
-                                                                        default: echo "bg-light text-success"; break;
-                                                                    }?>">
-                                                        <?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span>
-                                                <?php echo $catalog["model"] ? "&nbsp型號：".$catalog["model"]:"";?>
-                                            </td>
-                                            <td id="receive_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">--</td>
-                                            <td id="buy_qt_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">
-                                                <?php switch($buy_ty){
-                                                        case 'a': 
-                                                            $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0";  
-                                                            break;
-                                                        case 'b': 
-                                                            $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
-                                                            break;
-                                                        default : 
-                                                            $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
-                                                            break; } ?>
-                                                <label for="catalog_SN_<?php echo $catalog["SN"];?>"><?php echo $buy_qty."&nbsp/&nbsp".$catalog["unit"];?></label>
-                                            </td>
-                                            <td>
-                                                <div class="col-12 text-center py-0 ">
-                                                    <b><?php echo "目前安量： "; echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]: $buy_qty;?></b>
-                                                </div>
-                                                <input type="number" name="low_level[<?php echo $catalog["SN"];?>]" id="<?php echo $select_local["id"].'_'.$catalog['SN'];?>" class="form-control amount t-center" 
-                                                    placeholder="請填最低值" min="0" 
-                                                    <?php if($sys_role <= 1){ ?>
-                                                        
-                                                    <?php } else { ?>
-                                                        max="9999" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                        oninput="if(value.length > <?php echo strlen($buy_qty);?>)value = value.slice(0, <?php echo strlen($buy_qty);?>)"
-                                                    <?php } ?>
-                                                        value="<?php echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]:$buy_qty ;?>"
-                                                    >
-                                            </td>
+                                            <th>PIC</th>
+                                            <th>名稱 / 訊息</th>
+                                            <th><?php echo $thisYear;?>年領用</th>
+                                            <th>建議值<?php echo (!empty($buy_ty)) ? "_".$buy_ty:"";?></th>
+                                            <th style="width: 15%;">新安全存量</th>
                                         </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- 尾段：衛材訊息 -->
-                        <div class="col-12 mb-0">
-                            <div style="font-size: 6px;" class="text-end">
-                                catalog-end
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($catalogs as $catalog){ ?>
+                                            <tr>
+                                                <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
+                                                <td style="text-align: left;"><h5><b><?php echo $catalog["SN"].'：'.$catalog["pname"];?></b></h5>
+                                                    <span class="badge rounded-pill <?php switch($catalog["cate_id"]){
+                                                                            case "1": echo "bg-primary"; break;
+                                                                            case "2": echo "bg-success"; break;
+                                                                            case "3": echo "bg-warning text-dark"; break;
+                                                                            case "4": echo "bg-danger"; break;
+                                                                            case "5": echo "bg-info text-dark"; break;
+                                                                            case "6": echo "bg-dark"; break;
+                                                                            case "7": echo "bg-secondary"; break;
+                                                                            default: echo "bg-light text-success"; break;
+                                                                        }?>">
+                                                            <?php echo $catalog["cate_no"].".".$catalog["cate_title"];?></span>
+                                                    <?php echo $catalog["model"] ? "&nbsp型號：".$catalog["model"]:"";?>
+                                                </td>
+                                                <td id="receive_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">--</td>
+                                                <td id="buy_qt_<?php echo $select_local["id"].'_'.$catalog['SN'];?>">
+                                                    <?php switch($buy_ty){
+                                                            case 'a': 
+                                                                $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0";  
+                                                                break;
+                                                            case 'b': 
+                                                                $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
+                                                                break;
+                                                            default : 
+                                                                $buy_qty = (!empty($low_level[$catalog['SN']])) ? ($low_level[$catalog['SN']]) : "0"; 
+                                                                break; } ?>
+                                                    <label for="catalog_SN_<?php echo $catalog["SN"];?>"><?php echo $buy_qty."&nbsp/&nbsp".$catalog["unit"];?></label>
+                                                </td>
+                                                <td>
+                                                    <div class="col-12 text-center py-0 ">
+                                                        <b><?php echo "目前安量： "; echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]: $buy_qty;?></b>
+                                                    </div>
+                                                    <input type="number" name="low_level[<?php echo $catalog["SN"];?>]" id="<?php echo $select_local["id"].'_'.$catalog['SN'];?>" class="form-control amount t-center" 
+                                                        placeholder="請填最低值" min="0" 
+                                                        <?php if($sys_role <= 1){ ?>
+                                                            
+                                                        <?php } else { ?>
+                                                            max="9999" maxlength="<?php echo strlen($buy_qty);?>" 
+                                                            oninput="if(value.length > <?php echo strlen($buy_qty);?>)value = value.slice(0, <?php echo strlen($buy_qty);?>)"
+                                                        <?php } ?>
+                                                            value="<?php echo !empty($low_level[$catalog['SN']]) ? $low_level[$catalog['SN']]:$buy_qty ;?>"
+                                                        >
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        <!-- 彈出畫面說明模組 saveSubmit-->
-                        <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">local儲存區安全庫存設定值：</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body px-5">
-                                        <div class="col-12 border rounded ">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="update_stock_stand_lv_option" name="update_stock_stand_lv_option" checked>
-                                                <label class="form-check-label" for="update_stock_stand_lv_option">同步更新現有庫存之安全存量</label>
+                            <!-- 尾段：衛材訊息 -->
+                            <div class="col-12 mb-0">
+                                <div style="font-size: 6px;" class="text-end">
+                                    catalog-end
+                                </div>
+                            </div>
+                            <!-- 彈出畫面說明模組 saveSubmit-->
+                            <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">local儲存區安全庫存設定值：</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body px-5">
+                                            <div class="col-12 border rounded ">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="update_stock_stand_lv_option" name="update_stock_stand_lv_option" checked>
+                                                    <label class="form-check-label" for="update_stock_stand_lv_option">同步更新現有庫存之安全存量</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 text-end">
+                                                <h4>確認完畢，是否送出?</h4>
                                             </div>
                                         </div>
-                                        <div class="col-12 text-end">
-                                            <h4>確認完畢，是否送出?</h4>
+                                        <div class="modal-footer">
+                                            <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="action"          value="store_lowLevel">
+                                            <input type="hidden" name="select_fab_id"   value="<?php echo $select_fab_id;?>">
+                                            <input type="hidden" name="select_local_id" value="<?php echo $select_local_id;?>">
+                                            <?php if($sys_role <= 2){ ?>
+                                                <input type="submit" name="low_level_submit" value="Submit" class="btn btn-primary">
+                                            <?php } ?>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="action"          value="store_lowLevel">
-                                        <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
-                                        <?php if($sys_role <= 2){ ?>
-                                            <input type="submit" name="low_level_submit" value="Submit" class="btn btn-primary">
-                                        <?php } ?>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+        
                 </div>
-    
+                
                 <hr>
                 <!-- 尾段：debug訊息 -->
                 <?php 

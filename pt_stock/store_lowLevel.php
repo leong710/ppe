@@ -1,14 +1,15 @@
 <?php
     require_once("../pdo.php");
-    require_once("function.php");
+    // require_once("function.php");
+    require_once("pt_local_function.php");
     extract($_REQUEST);
-
+   
     $swal_json = array();
 
     switch($action){
         // fun-1.更新Local安全存量設定
         case "store_lowLevel":      
-            if(empty($local_id) || empty($low_level)){                          // 資料判斷 
+            if(empty($select_local_id) || empty($low_level)){                          // 資料判斷 
                 echo "<script>alert('參數錯誤_1 !!! (你沒有選Local或填數量)');</script>";
                 header("refresh:0;url=low_level.php");                          // 用script導回上一頁。防止崩煃
                 return;
@@ -42,7 +43,7 @@
                 foreach($stock_cata_SN AS $row){
                     $process_local = array(
                         "standard_lv"   => $low_level[$row["cata_SN"]],
-                        "local_id"      => $local_id,
+                        "select_local_id"      => $select_local_id,
                         "cata_SN"       => $row["cata_SN"]
                     );
                     $swal_json = update_stock_stand_lv($process_local);
@@ -53,6 +54,29 @@
             echo "bg-light text-success"; 
             break;
     }
+
+
+    // 複製本頁網址藥用
+    $up_href = "low_level.php"; // 回本頁
+
+    if(!empty($select_fab_id)){
+        if(stripos($up_href, "?")){
+            $up_href .= "&";
+        }else{
+            $up_href .= "?";
+        }
+        $up_href .= "select_fab_id=".$select_fab_id;
+    }
+    if(!empty($select_local_id)){
+        if(stripos($up_href, "?")){
+            $up_href .= "&";
+        }else{
+            $up_href .= "?";
+        }
+        $up_href .= "select_local_id=".$select_local_id;
+    }
+
+    echo $up_href;
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -88,7 +112,7 @@
 <script>    
     
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
-    var url = 'index.php';
+    var url = '<?=$up_href?>';
 
     $(document).ready(function () {
         

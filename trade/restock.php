@@ -514,7 +514,8 @@
     var action      = '<?=$action;?>';                               // Edit選染 // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                  // 第一頁：info modal function 引入catalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                 // Edit選染 // 引入trade_row資料作為Edit
-    var json        = JSON.parse('<?=json_encode($logs_arr)?>');     // 鋪設logs紀錄
+    // var json        = JSON.parse('<=json_encode($logs_arr)?>');      // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json        = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id          = '<?=$trade_row["id"]?>';                       // 鋪設logs紀錄
 
     

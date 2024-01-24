@@ -46,8 +46,8 @@
 
     // 1-2 組合查詢條件陣列
         if($sys_role <=1 ){
-            $sort_sfab_id = "All";                // All
-            // $sort_sfab_id = $sfab_id_str;         // test
+            $sort_sfab_id = "All";                // All = admin/pm
+            // $sort_sfab_id = $sfab_id_str;         // test = user
         }else{
             $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
         }
@@ -72,7 +72,7 @@
     // init.1_index fab_list：role <=1 ? All+all_fab : sFab_id+allMy => select_fab_id
         $fabs = show_fab_list($query_arr);               // index FAB查詢清單用
     // init.2_create：local by select_fab_id / edit：local by All/allMy
-        $ptlocals = show_select_local($query_arr);
+        $ptlocals = show_fabs_local($query_arr);
     // init.7_
         $select_fab = [];
         if($select_fab_id != 'All' && $select_fab_id != "allMy"){
@@ -95,6 +95,10 @@
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
+        <!-- data table CSS+JS -->
+        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
     <!-- mloading JS -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <!-- mloading CSS -->
@@ -175,7 +179,7 @@
                     </div>
                     <hr>
                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
-                    <table id="stock_list" class="table table-striped table-hover">
+                    <table id="local_list" class="table table-striped table-hover">
                         <thead>
                             <tr class="">
                                 <th>ai</th>
@@ -296,6 +300,7 @@
                             <input type="hidden" name="activeTab" value="3">
                             <input type="hidden" name="id" id="ptlocal_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
                             <?php if($sys_role <= 1){ ?>   
                                 <span id="ptlocal_modal_button"></span>
                             <?php } ?>

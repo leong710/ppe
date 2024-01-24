@@ -167,6 +167,18 @@
     })
 
     $(document).ready(function(){
+        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
+        $('#local_list').DataTable({
+            "autoWidth": false,
+            // 排序
+            // "order": [[ 4, "asc" ]],
+            // 顯示長度
+            "pageLength": 25,
+            // 中文化
+            "language":{
+                url: "../../libs/dataTables/dataTable_zh.json"
+            }
+        });
         // 切換指定NAV分頁
 
             //激活选项卡

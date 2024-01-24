@@ -571,11 +571,12 @@
 
 <script>
 // 開局設定init
-    var catalog = <?=json_encode($catalogs);?>;                     // 第一頁：info modal function 引入catalogs資料
-    var action = '<?=$action;?>';                                   // Edit選染 // 引入action資料
-    var receive_row = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
-    var json = JSON.parse('<?=json_encode($logs_arr)?>');           // 鋪設logs紀錄
-    var uuid = '<?=$receive_row["uuid"]?>';                         // 鋪設logs紀錄
+    var catalog          = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料
+    var action           = '<?=$action;?>';                              // Edit選染 // 引入action資料
+    var receive_row      = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
+    // var json           = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json             = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
+    var uuid             = '<?=$receive_row["uuid"]?>';                  // 鋪設logs紀錄
 
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)

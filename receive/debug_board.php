@@ -28,14 +28,20 @@
                         print_r($_REQUEST);
                         echo "<hr>";
                     }
+                    if($sys_sfab_id){
+                        echo ">>> sys_sfab_id</br>";
+                        print_r($sys_sfab_id);
+                    }
                     if($receive_row){
                         echo ">>> receive_row</br>";
                         print_r($receive_row);
                     }
-                    if($receive_lists){
+                    if(isset($receive_lists)){
                         echo ">>> receive_lists</br>";
                         print_r($receive_lists);
                     }
+
+
                 echo "</pre>text-end";
             ?>
         </div>

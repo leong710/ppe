@@ -121,15 +121,6 @@
             //     }
     // <!-- 20211215分頁工具 -->
     
-            // $categories = show_categories();                   // 取得所有分類item
-            // $sum_categorys = show_sum_category($query_arr);    // 統計分類與數量
-            // // 查詢篩選條件：cate_no
-            // if(isset($_REQUEST["cate_no"])){
-            //     $sort_cate_no = $_REQUEST["cate_no"];
-            // }else{
-            //     $sort_cate_no = "All";
-            // }
-
     // 今年年份
         $thisYear = date('Y');
     // 初始化半年後日期，讓系統判斷與highLight
@@ -311,12 +302,12 @@
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
-                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
+                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>"
                                         <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
-                                    <td <?php if($stock["lot_num"] < $half_month){ ?> class="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
+                                    <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
@@ -333,7 +324,7 @@
                     </table>
                 </div>
                 </br>
-                
+
                 <!-- 尾段：debug訊息 -->
                 <?php if(isset($_REQUEST["debug"])){
                     echo "<hr>";

@@ -470,7 +470,7 @@
                                             <td><?php 
                                                     switch($row['ppty']){
                                                         case "0":   echo '<span class="text-primary">臨時</span>';    break;
-                                                        case "1":   echo '定期';                                      break;
+                                                        case "1":   echo '一般';                                      break;
                                                         case "3":   echo '<span class="text-danger">緊急</span>';     break;
                                                         // default:    echo '錯誤';   break;
                                                     } ;?></td>

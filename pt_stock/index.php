@@ -31,28 +31,8 @@
         
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
-            if(isset($_SESSION[$sys_id]["fab_id"])){
-                $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
-            }else{
-                $fab_id = "0";
-            }
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
-            if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
-                array_push($sfab_id, $fab_id);
-            }
-            // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
-            if(isset($_SESSION["AUTH"]["sign_code"])){
-                $auth_sign_code["sign_code"] = $_SESSION["AUTH"]["sign_code"];
-                $coverFab_lists = show_coverFab_lists($auth_sign_code);
-                if(!empty($coverFab_lists)){
-                    foreach($coverFab_lists as $coverFab){
-                        array_push($sfab_id, $coverFab["id"]);
-                    }
-                }
-            }
-            // 1-1c sfab_id是陣列，要轉成字串
-            $sfab_id_str = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
-
+            $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
+        
         // 1-2 組合查詢條件陣列
             if($sys_role <=1 ){
                 $sort_sfab_id = "All";                // All
@@ -161,17 +141,6 @@
         // print_r($select_fab);
         // print_r($select_locals);
         // echo "</pre>";
-
-        // // logs紀錄鋪設前處理 
-        $log_str = '[{"step":"\u586b\u55ae\u4eba","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:42:39","action":"\u9001\u51fa (Submit)","remark":"01\/12_2024H1_TEST_\u8acb\u8cfc\u5b89\u5168\u91cf\/-\/+(\u7121\u6cd5\u586b\u5beb\u8d85\u904e\u5b89\u5168\u91cf)"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:45:33","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:48:27","action":"\u9000\u56de (Reject)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42PPE PM\u7c3d\u6838\u9000\u4ef6"},{"step":"\u7533\u8acb\u4eba-\u7de8\u8f2f","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:56:07","action":"\u9001\u51fa (Submit)","remark":"01\/12_\u6e2c\u8a66\u91cd\u65b0\u9001\u55ae"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:56:43","action":"\u540c\u610f (Approve)","remark":"\t01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:00:12","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66PPE PM\u7c3d\u6838"},{"step":"PR\u958b\u55ae","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:11:49","action":"\u8f49PR","remark":"1000720752"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:14:01","action":"\u4ea4\u8ca8 (Delivery)","remark":"4502718544\uff1a(\u8acb\u8cfc\u5165\u5eab)01\/12_\u6e2c\u8a66\u4ea4\u8ca81430\u500b"}]';
-        $logs_dec = json_decode($log_str);
-        $logs_arr = (array) $logs_dec;
-        // echo "<pre>";
-        // // print_r($query_arr);
-        // // print_r($select_fab);
-        // print_r($logs_arr);
-        // echo "</pre>";
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -354,37 +323,6 @@
                     </table>
                 </div>
                 </br>
-
-                <!-- 尾段logs訊息 -->
-                <div class="col-12 pt-0 rounded bg-light" id="logs_div">
-                    <div class="row">
-                        <div class="col-6 col-md-6">
-                            表單記錄：
-                        </div>
-                        <div class="col-6 col-md-6">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 py-1 px-4">
-                            <table class="for-table logs table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Step</th>
-                                        <th>Signer</th>
-                                        <th>Time Signed</th>
-                                        <th>Status</th>
-                                        <th >Comment</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div style="font-size: 6px;" class="text-end">
-                            logs-end
-                        </div>
-                    </div>
-                </div>
 
                 <!-- 尾段：debug訊息 -->
                 <?php if(isset($_REQUEST["debug"])){
@@ -681,13 +619,6 @@
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
     var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
     
-    // var json            = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄
-    // var json            = JSON.parse('<=$log_str?>');    // 鋪設logs紀錄
-    // var json            = '<=$log_str?>';    // 鋪設logs紀錄
-    var json            = <?=json_encode($logs_arr)?>;        // 鋪設logs紀錄
-    // json            = JSON.parse(json);    // 鋪設logs紀錄
-    console.log('json:', json);
-
 // 找出Local_id算SN年領用量
     // var myReceives      = <=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
     // var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量

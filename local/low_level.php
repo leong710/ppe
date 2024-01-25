@@ -5,6 +5,10 @@
     accessDenied($sys_id);
     
     $sys_role    = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
+    // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
+        // 1-1a 將fab_id加入sfab_id
+        $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
+
     // 去年年份
     $thisYear = date('Y')-1 ;                                       // 這裡要減1才會找出去年的用量
 
@@ -107,7 +111,7 @@
                             <select name="local_id" id="local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                 <option value="" hidden>--請選擇 low_level 儲存點--</option>
                                 <?php foreach($allLocals as $allLocal){ ?>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                    <?php if($_SESSION[$sys_id]["role"] <= 1 || (in_array($allLocal["fab_id"], $sfab_id))){ ?>  
                                         <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                             <?php echo $allLocal["id"].": ".$allLocal["fab_title"]."&nbsp(".$allLocal["fab_remark"].")_".$allLocal["local_title"]."&nbsp(".$allLocal["local_remark"].")"; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                     <?php } ?>

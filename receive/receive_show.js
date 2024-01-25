@@ -19,7 +19,8 @@
             var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。form-control
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                    var input_cb = '<input type="checkbox" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount['need']+'" checked onchange="check_item(this.id)" disabled >';
+                    // 240125-這裡前面加一個fack的checkbox
+                    var input_cb = '<input type="checkbox" class="select_item" checked disabled ><input type="hidden" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" value="'+add_amount['need']+'" >';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
                     if(receive_collect_role){
                             var amount_need = add_amount['need'];               // 加工：取需求量

@@ -14,22 +14,6 @@
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
-            // if(isset($_GET["local_id"])){
-                //     $select_local = select_local($_REQUEST);
-
-                // }else{
-                //     $select_local = array(
-                //         'id' => '0',
-                //         'fab_id' => '0'
-                //     );
-                // }
-
-                // if(empty($select_local)){              // 查無資料時返回指定頁面
-                //     header("location:../");     // 用這個，因為跳太快
-                //     exit;
-                // }
-                // // create時用自己區域 // 將自己的fab_id設為初始值 
-
     // add module function --
         $swal_json = array();
         // 新增add
@@ -51,25 +35,7 @@
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
-            if(isset($_SESSION[$sys_id]["fab_id"])){
-                $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
-            }else{
-                $fab_id = "0";
-            }
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
-            if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
-                array_push($sfab_id, $fab_id);
-            }
-            // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
-            if(isset($_SESSION["AUTH"]["sign_code"])){
-                $sort_fab_setting["sign_code"] = $_SESSION["AUTH"]["sign_code"];
-                $coverFab_lists = show_coverFab_lists($sort_fab_setting);
-                if(!empty($coverFab_lists)){
-                    foreach($coverFab_lists as $coverFab){
-                        array_push($sfab_id, $coverFab["id"]);
-                    }
-                }
-            }
+        $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
             // 1-1c sfab_id是陣列，要轉成字串
             $sfab_id_str = implode(",",$sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
 
@@ -81,6 +47,11 @@
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id
+        if(isset($_SESSION[$sys_id]["fab_id"])){
+            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
+        }else{
+            $fab_id = "0";
+        }
         if(isset($_REQUEST["fab_id"])){     // 有帶查詢，套查詢參數
             $sort_fab_id = $_REQUEST["fab_id"];
         }else{                              // 先給預設值
@@ -120,7 +91,7 @@
 
         $sortFab = show_fab($list_issue_setting);                   // 查詢fab的細項結果
         if(empty($sortFab)){                                        // 查無資料時返回指定頁面
-            echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
+            // echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
         }
 
 
@@ -239,12 +210,26 @@
                     </div>
                     <!-- 表頭按鈕 -->
                     <div class="col-md-4 py-0 text-end">
-                        <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
-                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?>
-                                <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
-                            <?php } ?>
-                        <?php } ?>
+                        <div class="row">
+                            <div class="col-md-6 py-0 text-end">
+                                <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
+                                    <?php if($sys_role <= 1 ){ ?>
+                                        <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                    <?php } ?>
+                                <?php } ?>
+                            </div>
+                            <div class="col-md-6 py-0 text-end">
+                                <!-- 20231128 下載Excel -->
+                                <?php if($per_total != 0){ ?>
+                                    <form id="myForm" method="post" action="../_Format/download_excel.php">
+                                        <!-- 下載EXCEL的觸發 -->
+                                        <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
+                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                    </form>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </div>
                     <!-- Bootstrap Alarm -->
                     <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
@@ -266,7 +251,7 @@
                         <?php  } ?>
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item">
-                                <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
+                                <button type="button" id="checkList_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
                                     <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
                             </li>
                         <?php } ?>
@@ -284,8 +269,7 @@
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
-                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && 
-                                        ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
@@ -318,8 +302,7 @@
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                            ( ($sortFab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?> contenteditable="true" <?php } ?>>
+                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
@@ -328,8 +311,7 @@
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                                ($_SESSION[$sys_id]["fab_id"] == $sortFab["id"] || in_array($sortFab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
+                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) )){ ?>
                                                     <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
                                                         onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>
@@ -377,7 +359,7 @@
                                         <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($allLocals as $local){ ?>
-                                                <?php if($sys_role <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                <?php if($sys_role <= 1 || (in_array($local["fab_id"], $sfab_id))){ ?>  
                                                     <option value="<?php echo $local["id"];?>" >
                                                         <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                                 <?php } ?>
@@ -476,65 +458,6 @@
                     </div>
                 </form>
     
-            </div>
-        </div>
-    </div>
-
-<!-- 彈出畫面模組 匯出CSV-->
-    <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-info">
-                    <h4 class="modal-title">匯出儲存點存量清單</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4" >
-                    <!-- 20220606 匯出csv -->
-                    <div class="col-12 border rounded add_mode_bgc px-3">
-                        <form id="doCSVform" action="docsv.php" method="post"> 
-                            <div class="row">
-                                <div class="col-12 py-0">
-                                    <label for="" class="form-label">請選擇您要查詢下載的fab：<sup class="text-danger"> *</sup></label>
-                                    <select name="fab_id" id="fab_id" class="form-control" required >
-                                        <option value="All" selected>-- 全部fab --</option>
-                                        <?php foreach($fabs as $fab){ ?>
-                                            <option value="<?php echo $fab["id"];?>">
-                                            <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-6 py-0">
-                                    <label for="" class="form-label">存量狀態：<sup class="text-danger"> *</sup></label>
-                                    <input type="radio" name="state" value="0" id="0" class="form-check-input" checked>
-                                    <label for="0" class="form-check-label">全部</label>&nbsp&nbsp
-                                </div>
-                                <div class="col-12 col-md-6 py-0 text-end">
-                                    <input type="hidden" name="action" value="export"> 
-                                    <button type="submit" class="btn btn-warning" data-bs-dismiss="modal" ><i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspCSV</button>
-                                </div>
-                            </div>
-                        </form> 
-                    </div>
-                    <!-- 20231128 下載Excel -->
-                    <?php if($per_total != 0){ ?>
-                        <hr>
-                        <form id="myForm" method="post" action="../_Format/download_excel.php">
-                            <div class="row">
-                                <div class="col-12 text-end">
-                                    <!-- 下載EXCEL的觸發 -->
-                                    <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                    <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" value="stock" onclick="submitDownloadExcel('stock')" >
-                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>Excel</button>
-                                </div>
-                            </div>
-                        </form>
-                    <?php } ?>
-                </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -16,7 +16,9 @@
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];         // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];          // 取出$_session引用
     $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    // $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
+    $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列，要轉成字串str
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -219,6 +221,7 @@
 </head>
 
 <body>
+    <?php $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 240125-這裡補上防空值 ?>
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
@@ -288,7 +291,7 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <form action="store.php" method="post">
+                    <form action="store.php" method="post" >
                     <!-- <form action="./zz/debug.php" method="post"> -->
 
                         <!-- 3.申請單成立 -->
@@ -381,7 +384,7 @@
                                                     <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
                                                     <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
                                                     <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required disabled >
-                                                    <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
+                                                    <label for="ppty_1" class="form-check-label">&nbsp定期&nbsp&nbsp</label>
                                                     <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
                                                     <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                                 </div>
@@ -531,7 +534,7 @@
                         </div>
                     </div>
                 </div>
-    
+                
                 <!-- 尾段：deBug訊息 -->
                 <?php 
                     if(isset($_REQUEST["debug"])){
@@ -543,9 +546,9 @@
     </div>
 
     <!-- goTop滾動畫面DIV 2/4-->
-        <div id="gotop">
-            <i class="fas fa-angle-up fa-2x"></i>
-        </div>
+    <div id="gotop">
+        <i class="fas fa-angle-up fa-2x"></i>
+    </div>
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->

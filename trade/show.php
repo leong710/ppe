@@ -12,10 +12,12 @@
         $up_href = $trade_url;                          // 回本頁
     }
 
-    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_id_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_id_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
+    // $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
+    // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
+    $sys_sfab_id = get_sfab_id($sys_id, "arr");
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -55,7 +57,6 @@
     }
 
     if(!empty($trade_row["in_local"])){                    // edit trade表單，get已選擇出庫廠區站點
-
         $query_in_local = array(
             'local_id' => $trade_row["in_local"]
         );
@@ -98,7 +99,7 @@
                 case 0 :   // $act = '同意 (Approve)';
                     break;
                 case 1 :   // $act = '送出 (Submit)';
-                    if(( $fab_i_id == $sys_id_fab_id) || (in_array($fab_i_id, $sys_id_sfab_id))){
+                    if(( $fab_i_id == $sys_fab_id) || (in_array($fab_i_id, $sys_sfab_id))){
                         $step_index = '7';      // ppe site user
                     }
                     break;
@@ -176,6 +177,7 @@
 </head>
 
 <body>
+    <?php $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 240125-這裡補上防空值 ?>
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
@@ -216,7 +218,7 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
-                            <?php if(($trade_row["fab_i_id"] == $sys_id_fab_id || in_array($trade_row["fab_i_id"], $sys_id_sfab_id)) || $sys_role <= 1 ){ ?>
+                            <?php if(($trade_row["fab_i_id"] == $sys_fab_id || in_array($trade_row["fab_i_id"], $sys_sfab_id)) || $sys_role <= 1 ){ ?>
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
@@ -240,7 +242,7 @@
                                     </div>
                                     <div class="col-6 col-md-6 text-end">
                                         <!-- 限定表單所有人：開單人、ppe pm、admin -->
-                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_role <= 1 || (( $fab_o_id == $sys_id_fab_id) || (in_array($fab_o_id, $sys_id_sfab_id)))){ ?>
+                                        <?php if( $trade_row['out_user_id'] == $auth_emp_id || $sys_role <= 1 || (( $fab_o_id == $sys_fab_id) || (in_array($fab_o_id, $sys_sfab_id)))){ ?>
                                             <!-- 表單狀態：2退回 4編輯 6暫存 -->
                                             <?php if(in_array($trade_row['idty'], [ 2, 4, 6 ])){ ?>
                                                 <?php if($trade_row["form_type"] == "import"){ ?>
@@ -401,7 +403,7 @@
                         </div>
                     </div>
                 </div>
-    
+                
                 <!-- 尾段：deBug訊息 -->
                 <?php if(isset($_REQUEST["debug"])){
                     include("debug_board.php"); 
@@ -412,9 +414,9 @@
     </div>
 
     <!-- goTop滾動畫面DIV 2/4-->
-        <div id="gotop">
-            <i class="fas fa-angle-up fa-2x"></i>
-        </div>
+    <div id="gotop">
+        <i class="fas fa-angle-up fa-2x"></i>
+    </div>
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->

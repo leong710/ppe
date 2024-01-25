@@ -443,7 +443,7 @@
                                                 <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
                                                 <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
-                                                <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
+                                                <label for="ppty_1" class="form-check-label">&nbsp定期&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
                                                 <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
                                             </div>

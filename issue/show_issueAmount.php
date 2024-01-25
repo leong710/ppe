@@ -111,7 +111,7 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <!-- <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;"> -->
-            <div class="col-12 rounded p-4 my-2" style="background-color: rgba(200, 255, 255, .6);">
+            <div class="col-12 rounded p-4" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表單表頭功能鍵 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-4">
@@ -127,10 +127,9 @@
                                 <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
                                     <input type="hidden" name="htmlTable" id="htmlTable" value="">
                                     <button type="submit" name="submit" class="btn btn-success" value="issueAmount" onclick="submitDownloadExcel(this.value)" >
-                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
+                                        <i class="fa fa-upload" aria-hidden="true"></i> 匯出&nbspExcel</button>
                                 </form>
                             <?php } ?>
-                            <a href="docsv.php?action=export&ppty=All" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
                             <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                         </div>
                     </div> 

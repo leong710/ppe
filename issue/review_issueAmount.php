@@ -135,11 +135,10 @@
                                         <input type="hidden" name="htmlTable"   id="htmlTable"  value="">
                                         <input type="hidden" name="pr_no"       value="<?php echo $pr_no;?>">
                                         <button type="submit" name="submit" class="btn btn-success" value="issueAmount_PR" onclick="submitDownloadExcel(this.value)" >
-                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
+                                            <i class="fa fa-upload" aria-hidden="true"></i> 匯出&nbspExcel</button>
                                     </form>
                                 <?php } ?>
                             <?php } ?>
-                            <a href="docsv.php?action=export_review&pr_no=<?php echo $pr_no;?>" title="匯出CSV" class="btn btn-success"> <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
                             <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
                         </div>
                     </div> 
@@ -223,36 +222,6 @@
         </div>
     </div>
 
-    <!-- 彈出畫面模組2 匯出CSV-->
-    <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">匯出需求總表(csv)</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <!-- 20220606測試匯出csv -->
-                <form id="addform" action="docsv.php?action=export" method="post"> 
-                    <div class="modal-body p-4" >
-                        <div class="col-12">
-                            <label for="" class="form-label">請選擇您要匯出的需求類別：<sup class="text-danger"> *</sup></label>
-                            <select name="ppty" id="ppty" class="form-control" required >
-                                <option value="0" hidden>0_臨時需求</option>
-                                <option value="1" selected>1_定期需求</option>
-                                <option value="All" hidden>All_全部</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="submit" class="btn btn-success" value="匯出CSV" onclick="doCSV.hide()"> 
-                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form> 
-            </div>
-        </div>
-    </div>
     <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-1x"></i>

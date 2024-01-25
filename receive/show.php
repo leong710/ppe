@@ -16,7 +16,9 @@
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
-    $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];    
+    // $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];    
+    // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
+    $sys_sfab_id = get_sfab_id($sys_id, "arr");
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -55,22 +57,7 @@
 
     $catalogs = show_catalogs();                    // 器材=All
 
-        // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
-            if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
-                array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
-            }
-            // 組合查詢陣列
-            $query_arr = array(
-                'sign_code' => $_SESSION["AUTH"]["sign_code"],
-            );
-            $coverFab_lists = show_coverFab_lists($query_arr);              // 4-2.呼叫fun 用$sign_code模糊搜尋
-            if(!empty($coverFab_lists)){                                    // 4-2.當清單不是空值時且不在sfab_id，就把部門代號id套入sfab_id
-                foreach($coverFab_lists as $coverFab){ 
-                    if(!in_array($coverFab["id"], $sys_sfab_id)){
-                        array_push($sys_sfab_id, $coverFab["id"]);
-                    }
-                }
-            }
+
 
     // 身份陣列
     $step_arr = [
@@ -176,7 +163,7 @@
     
     // $step套用身份
     $step = $step_arr[$step_index];
-    print_r($sys_sfab_id);
+
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -212,6 +199,7 @@
 </head>
 
 <body>
+    <?php $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 240125-這裡補上防空值 ?>
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
@@ -263,9 +251,7 @@
                                 <button type="button" class="btn btn-danger"  data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                            $receive_collect_role = ($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect' && in_array($receive_row["fab_id"], $sys_sfab_id)); 
-                            echo "--role:".$receive_row["fab_id"];
-                            echo "--role:".in_array($receive_row["fab_id"], $sys_sfab_id);
+                            $receive_collect_role = (($receive_row['idty'] == 12) && ($receive_row['flow'] == 'collect') && (in_array($receive_row["fab_id"], $sys_sfab_id))); 
                             if($receive_collect_role){ ?>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
                         <?php } ?>
@@ -520,7 +506,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- 尾段：deBug訊息 -->
                 <?php if(isset($_REQUEST["debug"])){
                     include("debug_board.php"); 
@@ -531,10 +517,9 @@
     </div>
 
     <!-- goTop滾動畫面DIV 2/4-->
-        <div id="gotop">
-            <i class="fas fa-angle-up fa-2x"></i>
-        </div>
-
+    <div id="gotop">
+        <i class="fas fa-angle-up fa-2x"></i>
+    </div>
 </body>
 
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->

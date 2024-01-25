@@ -22,27 +22,7 @@
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
-        if(isset($_SESSION[$sys_id]["fab_id"])){
-            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
-        }else{
-            $fab_id = "0";
-        }
-        $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
-        if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
-            array_push($sfab_id, $fab_id);
-        }
-        // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
-        if(isset($_SESSION["AUTH"]["sign_code"])){
-            $auth_sign_code["sign_code"] = $_SESSION["AUTH"]["sign_code"];
-            $coverFab_lists = show_coverFab_lists($auth_sign_code);
-            if(!empty($coverFab_lists)){
-                foreach($coverFab_lists as $coverFab){
-                    array_push($sfab_id, $coverFab["id"]);
-                }
-            }
-        }
-        // 1-1c sfab_id是陣列，要轉成字串
-        $sfab_id_str = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
+        $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
 
     // 1-2 組合查詢條件陣列
         if($sys_role <=1 ){

@@ -136,7 +136,40 @@
             echo $e->getMessage();
         }
     }
-
+    // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
+    function get_sfab_id($sys_id, $type){
+        // 1-1a 將fab_id加入sfab_id
+        if(isset($_SESSION[$sys_id]["fab_id"])){
+            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
+        }else{
+            $fab_id = "0";
+        }
+        $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
+        if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+            array_push($sfab_id, $fab_id);
+        }
+        // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
+        if(isset($_SESSION["AUTH"]["sign_code"])){
+            $auth_sign_code["sign_code"] = $_SESSION["AUTH"]["sign_code"];
+            $coverFab_lists = show_coverFab_lists($auth_sign_code);
+            if(!empty($coverFab_lists)){
+                foreach($coverFab_lists as $coverFab){
+                    if(!in_array($coverFab["id"], $sfab_id)){
+                        array_push($sfab_id, $coverFab["id"]);
+                    }
+                }
+            }
+        }
+        // 根據需求類別進行編碼 arr=陣列、str=字串
+        if($type == "str"){
+            $result = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
+        }else{
+            $result = $sfab_id;
+        }
+        // 1-1c sfab_id是陣列，要轉成字串
+        return $result;
+    }
+    
 // pt_Local 20240122 for 除汙劑/應變器材
     // local項目--新增 20240122
     function store_ptlocal($request){

@@ -314,21 +314,4 @@
         // }
 
 
-       // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var json = '{"step":"\u586b\u55ae\u4eba","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:42:39","action":"\u9001\u51fa (Submit)","remark":"01\/12_2024H1_TEST_\u8acb\u8cfc\u5b89\u5168\u91cf\/-\/+(\u7121\u6cd5\u586b\u5beb\u8d85\u904e\u5b89\u5168\u91cf)"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:45:33","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:48:27","action":"\u9000\u56de (Reject)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42PPE PM\u7c3d\u6838\u9000\u4ef6"},{"step":"\u7533\u8acb\u4eba-\u7de8\u8f2f","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:56:07","action":"\u9001\u51fa (Submit)","remark":"01\/12_\u6e2c\u8a66\u91cd\u65b0\u9001\u55ae"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:56:43","action":"\u540c\u610f (Approve)","remark":"\t01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:00:12","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66PPE PM\u7c3d\u6838"},{"step":"PR\u958b\u55ae","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:11:49","action":"\u8f49PR","remark":"1000720752"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:14:01","action":"\u4ea4\u8ca8 (Delivery)","remark":"4502718544\uff1a(\u8acb\u8cfc\u5165\u5eab)01\/12_\u6e2c\u8a66\u4ea4\u8ca81430\u500b"}';
-        // var json = JSON.parse('[{"step":"\u586b\u55ae\u4eba","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:42:39","action":"\u9001\u51fa (Submit)","remark":"01\/12_2024H1_TEST_\u8acb\u8cfc\u5b89\u5168\u91cf\/-\/+(\u7121\u6cd5\u586b\u5beb\u8d85\u904e\u5b89\u5168\u91cf)"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:45:33","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:48:27","action":"\u9000\u56de (Reject)","remark":"01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42PPE PM\u7c3d\u6838\u9000\u4ef6"},{"step":"\u7533\u8acb\u4eba-\u7de8\u8f2f","cname":"\u65bd\u6631\u4e1e (10009261)","datetime":"2024-01-12 16:56:07","action":"\u9001\u51fa (Submit)","remark":"01\/12_\u6e2c\u8a66\u91cd\u65b0\u9001\u55ae"},{"step":"\u7533\u8acb\u4eba\u4e3b\u7ba1","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 16:56:43","action":"\u540c\u610f (Approve)","remark":"\t01\/12_\u6e2c\u8a66\u8acb\u8cfc\u9700\u6c42\u4e3b\u7ba1\u7c3d\u6838"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:00:12","action":"\u540c\u610f (Approve)","remark":"01\/12_\u6e2c\u8a66PPE PM\u7c3d\u6838"},{"step":"PR\u958b\u55ae","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:11:49","action":"\u8f49PR","remark":"1000720752"},{"step":"PPEpm","cname":"\u912d\u7fbd\u6df3 (13085117)","datetime":"2024-01-12 17:14:01","action":"\u4ea4\u8ca8 (Delivery)","remark":"4502718544\uff1a(\u8acb\u8cfc\u5165\u5eab)01\/12_\u6e2c\u8a66\u4ea4\u8ca81430\u500b"}]');
-        // var id = '<=$trade_row["id"]?>';
-        // console.log('json:', json);
-
-
-        var forTable = document.querySelector('.logs tbody');
-        for (var i = 0, len = json.length; i < len; i++) {
-            json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
-            forTable.innerHTML += 
-                '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
-                    '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td></tr>';
-        }
-
-
     })

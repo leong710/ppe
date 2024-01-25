@@ -245,7 +245,7 @@
                                             $this_price = 0;
                                         }
                                         echo "<tr>";
-                                            if($sys_role <= 0){
+                                            if($sys_role <= 1){
                                                 echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]} (\${$this_price})</td>";
                                             }else{
                                                 echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]}</td>";

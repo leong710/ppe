@@ -610,6 +610,31 @@
         }
         return $swal_json;
     }
+    // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
+    function show_coverFab_lists($request){
+        $pdo = pdo();
+        extract($request);
+
+            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+
+        $sql = "SELECT _f.*
+                FROM _fab AS _f 
+                WHERE _f.sign_code LIKE ?
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $coverFab_lists = $stmt->fetchAll();
+            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
+            return $coverFab_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
+        }
+
+    }
     // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     function get_sfab_id($sys_id, $type){
         // 1-1a 將fab_id加入sfab_id

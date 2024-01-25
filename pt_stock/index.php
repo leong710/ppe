@@ -279,8 +279,7 @@
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
-                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && 
-                                        ( ($select_fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
@@ -295,7 +294,7 @@
                                 $check_item ="";
                             ?>
                             <?php foreach($stocks as $stock){ ?>
-                                <tr <?php if($check_item != $stock['local_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
+                                <tr <?php if($check_item != $stock['local_id']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
                                     <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
@@ -313,8 +312,7 @@
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                            ( ($select_fab["id"] == $_SESSION[$sys_id]["fab_id"]) || (in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) ) ) ){ ?> contenteditable="true" <?php } ?>>
+                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
@@ -323,20 +321,19 @@
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && 
-                                                ($_SESSION[$sys_id]["fab_id"] == $select_fab["id"] || in_array($select_fab["id"], $_SESSION[$sys_id]["sfab_id"])) )){ ?>
+                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) )){ ?>
                                                     <button type="button" id="edit_ptstock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_ptstock" 
                                                         onclick="edit_module('ptstock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>
                                         <?php } ?></td>
                                 </tr>
-                                <?php $check_item = $stock['local_title'];?>
+                                <?php $check_item = $stock['local_id'];?>
                             <?php } ?>
                         </tbody>
                     </table>
                 </div>
                 </br>
-
+                
                 <!-- 尾段：debug訊息 -->
                 <?php if(isset($_REQUEST["debug"])){
                     echo "<hr>";

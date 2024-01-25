@@ -146,9 +146,9 @@
                             </thead>
                             <tbody>
                                 <?php foreach($catalogs as $catalog){ ?>
-                                    <tr>
+                                    <tr <?php echo ($catalog["flag"] == "Off") ? "class='unblock'":"";?>>
                                         <td><img src="../catalog/images/<?php echo $catalog["PIC"];?>" class="img-thumbnail"></td>
-                                        <td style="text-align: left;"><h5><b><?php echo $catalog["SN"].'：'.$catalog["pname"];?></b></h5>
+                                        <td style="text-align: left;"><h5><b><?php echo $catalog["SN"].'：'.$catalog["pname"]; echo ($catalog["flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></b></h5>
                                             <span class="badge rounded-pill <?php switch($catalog["cate_id"]){
                                                                     case "1": echo "bg-primary"; break;
                                                                     case "2": echo "bg-success"; break;

@@ -245,12 +245,25 @@
                         </div>
                         <!-- 表頭按鈕 -->
                         <div class="col-md-4 pb-0 text-end">
-                            <?php if(isset($select_fab["id"])){ ?>
-                                <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
-                                    <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                <?php } ?>
-                            <?php } ?>
-                            <button type="button" id="doCSV_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#doCSV"><i class="fa fa-download" aria-hidden="true"></i>&nbsp匯出清單</button>
+                            <div class="row">
+                                <div class="col-md-6 py-0 text-end">
+                                    <?php if(isset($select_fab["id"])){ ?>
+                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
+                                            <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 單筆新增</button>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                                <div class="col-md-6 py-0 text-end">
+                                    <!-- 20231128 下載Excel -->
+                                    <?php if($per_total != 0){ ?>
+                                        <form id="myForm" method="post" action="../_Format/download_excel.php">
+                                            <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                            <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
+                                                <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                        </form>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         </div>
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
@@ -456,65 +469,6 @@
                     </div>
                 </form>
     
-            </div>
-        </div>
-    </div>
-
-<!-- 彈出畫面模組 匯出CSV-->
-    <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-info">
-                    <h4 class="modal-title">匯出儲存點存量清單</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4" >
-                    <!-- 20220606 匯出csv -->
-                    <div class="col-12 border rounded add_mode_bgc px-3">
-                        <form id="doCSVform" action="docsv.php" method="post"> 
-                            <div class="row">
-                                <div class="col-12 py-0">
-                                    <label for="" class="form-label">請選擇您要查詢下載的fab：<sup class="text-danger"> *</sup></label>
-                                    <select name="fab_id" id="fab_id" class="form-control" required >
-                                        <option value="All" selected>-- 全部fab --</option>
-                                        <?php foreach($fabs as $fab){ ?>
-                                            <option value="<?php echo $fab["id"];?>">
-                                            <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-6 py-0">
-                                    <label for="" class="form-label">存量狀態：<sup class="text-danger"> *</sup></label>
-                                    <input type="radio" name="state" value="0" id="0" class="form-check-input" checked>
-                                    <label for="0" class="form-check-label">全部</label>&nbsp&nbsp
-                                </div>
-                                <div class="col-12 col-md-6 py-0 text-end">
-                                    <input type="hidden" name="action" value="export"> 
-                                    <button type="submit" class="btn btn-warning" data-bs-dismiss="modal" ><i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspCSV</button>
-                                </div>
-                            </div>
-                        </form> 
-                    </div>
-                    <!-- 20231128 下載Excel -->
-                    <?php if($per_total != 0){ ?>
-                        <hr>
-                        <form id="myForm" method="post" action="../_Format/download_excel.php">
-                            <div class="row">
-                                <div class="col-12 text-end">
-                                    <!-- 下載EXCEL的觸發 -->
-                                    <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                    <button type="submit" name="submit" class="btn btn-success" data-bs-dismiss="modal" value="stock" onclick="submitDownloadExcel('stock')" >
-                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbsp<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>Excel</button>
-                                </div>
-                            </div>
-                        </form>
-                    <?php } ?>
-                </div>
-                <div class="modal-footer">
-                    <div class="text-end">
-                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

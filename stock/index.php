@@ -222,7 +222,6 @@
                                 <!-- 20231128 下載Excel -->
                                 <?php if($per_total != 0){ ?>
                                     <form id="myForm" method="post" action="../_Format/download_excel.php">
-                                        <!-- 下載EXCEL的觸發 -->
                                         <input type="hidden" name="htmlTable" id="htmlTable" value="">
                                         <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
                                             <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>

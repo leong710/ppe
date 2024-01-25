@@ -186,6 +186,8 @@
                     <nav>
                         <div class="nav nav-tabs pt-2 pb-0" id="nav-tab" role="tablist">
                             <button class="nav-link active" id="nav-tab_0" data-bs-toggle="tab" data-bs-target="#tab_0" type="button" role="tab" aria-controls="tab_0" aria-selected="true" >領用匯總表</button>
+                            <button class="nav-link " id="nav-tab_cost" data-bs-toggle="tab" data-bs-target="#tab_cost" type="button" role="tab" aria-controls="tab_cost" aria-selected="true" >領用匯總表</button>
+                            
                             <?php foreach($locals as $local){
                                 $a_btn  = "<button type='button' class='nav-link' data-bs-toggle='tab' role='tab' aria-selected='false' "; 
                                 $a_btn .= "id='nav-tab_{$local["id"]}' data-bs-target='#tab_{$local["id"]}' aria-controls='tab_{$local["id"]}' >{$local["fab_title"]}</button>";
@@ -207,7 +209,7 @@
                                     <div style="display: inline-block;" class="px-3">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="On" id="tab_0_flag_Switch" name="tab_0" onchange="groupBy_flag(this.name);">
-                                            <label class="form-check-label" for="tab_0_flag_Switch">遮蔽sum空值</label>
+                                            <label class="form-check-label" for="tab_0_flag_Switch" >遮蔽sum空值</label>
                                         </div>
                                     </div>
                                     <div style="display: inline-block;">
@@ -228,6 +230,65 @@
                             <table class="w-100 table table-striped table-hover tab_0" id="tab_0_table">
                                 <thead class="vlr">
                                     <tr>
+                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">cata_SN / pname / Total：</th>
+                                        <?php foreach($locals as $local){
+                                            echo "<th id='local_{$local["id"]}'>".$local["fab_title"]."</br>（".$local["local_title"]."）"."</th>";
+                                        } ?>
+                                        <th style="writing-mode: horizontal-tb; vertical-align: bottom; ">sum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($catalogs as $catalog){
+                                        // 把年度報價帶出來
+                                        $this_price_arr = (array)(json_decode($catalog["price"]));
+                                        if(isset($this_price_arr[$report_yy])){
+                                            $this_price = $this_price_arr[$report_yy];
+                                        }else{
+                                            $this_price = 0;
+                                        }
+                                        echo "<tr>";
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]} (\${$this_price})</td>";
+                                            foreach($locals as $local){
+                                                echo "<td><div id='{$local["id"]}_{$catalog["SN"]}'></div></td>";
+                                            };
+                                            echo "<td class='sum'><div id='{$catalog["SN"]}_TT'></div></td>";
+                                        echo "</tr>";
+                                    } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- 2.成本彙總表單table -->
+                    <div class="tab-pane bg-white fade p-2 " id="tab_cost" role="tabpanel" aria-labelledby="nav-tab_cost">
+                        <div class="col-12 bg-white">
+                            <!-- Banner -->
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0"></div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <div style="display: inline-block;" class="px-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="On" id="tab_cost_flag_Switch" name="tab_cost" onchange="groupBy_flag(this.name);">
+                                            <label class="form-check-label" for="tab_cost_flag_Switch" >遮蔽sum空值</label>
+                                        </div>
+                                    </div>
+                                    <div style="display: inline-block;">
+                                        <!-- 20240109 下載Excel -->
+                                        <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
+                                            <input type="hidden" name="htmlTable" id="tab_0_htmlTable" value="">
+                                            <input type="hidden" name="submit" value="sum_report">
+                                            <input type="hidden" name="tab_name" value="sum_report">
+                                            <input type="hidden" name="form_type" value="<?php echo $form;?>">
+                                            <input type="hidden" name="report_yy" value="<?php echo $report_yy;?>">
+                                            <input type="hidden" name="report_mm" value="<?php echo $report_mm;?>">
+                                            <button type="submit" name="tab_0" class="btn btn-success" onclick="downloadExcel(this.name)" >
+                                                <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="w-100 table table-striped table-hover tab_cost" id="tab_cost_table">
+                                <thead class="vlr">
+                                    <tr>
                                         <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">cata_SN / pname / Total：<span id="all_total_cost"></span></th>
                                         <?php foreach($locals as $local){
                                             echo "<th id='local_{$local["id"]}'>".$local["fab_title"]."</br>（".$local["local_title"]."）"."</th>";
@@ -245,33 +306,18 @@
                                             $this_price = 0;
                                         }
                                         echo "<tr>";
-                                            if($sys_role <= 0){
-                                                echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]} (\${$this_price})</td>";
-                                            }else{
-                                                echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
-                                            }
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]} (\${$this_price})</td>";
                                             foreach($locals as $local){
-                                                echo "<td><div id='{$local["id"]}_{$catalog["SN"]}'></div><div id='{$local["id"]}_{$catalog["SN"]}_cost'></div></td>";
+                                                echo "<td><div id='{$local["id"]}_{$catalog["SN"]}_cost'></div></td>";
                                             };
-                                            echo "<td class='sum'><div id='{$catalog["SN"]}_TT'></div><div id='{$catalog["SN"]}_TT_cost'></div></td>";
+                                            echo "<td class='sum'><div id='{$catalog["SN"]}_TT_cost'></div></td>";
                                         echo "</tr>";
                                     } ?>
                                 </tbody>
-                                <tfoot>
-                                    <?php
-                                        echo "<tr class='bg-success text-white'>";                       
-                                            echo "<td class='text-end'>Cost Sum：</td>";
-                                            foreach($locals as $local){
-                                                echo "<td><div id='sum_{$local["id"]}_cost'> </div></td>";
-                                            };
-                                            echo "<td class='text-end'><div id='sum_TT_cost'> </div></td>";
-                                        echo "</tr>";
-                                    ?>
-                                </tfoot>
                             </table>
                         </div>
                     </div>
-                    <!-- 2.各廠器材量統計 table -->
+                    <!-- 3.各廠器材量統計 table -->
                     <?php 
                         foreach($locals as $local){
                             $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
@@ -403,14 +449,6 @@
                     }else{
                         reportAmount[l_key+'_cost'] = pay * cata_price[key];
                     }
-
-                    // 第1頁 tfoot每個廠的實付總金額
-                    if(reportAmount['sum_'+local_id+'_cost']){               
-                        reportAmount['sum_'+local_id+'_cost'] += pay * cata_price[key];
-                    }else{
-                        reportAmount['sum_'+local_id+'_cost'] = pay * cata_price[key];
-                    }
-
                         if(reportAmount[key_TT]){                  // 第1頁 末端總計實付數量sum
                             reportAmount[key_TT] += pay;
                         }else{
@@ -426,36 +464,33 @@
                             }else{
                                 reportAmount['all_total_cost'] = pay * cata_price[key];
                             }
-
-                            // 第1頁 tfoot total實付總金額
-                            reportAmount['sum_TT_cost'] = reportAmount['all_total_cost']; 
                             
                 // 第n頁byFab/mm
-                    if(reportAmount[l_key_mm]){                        // 第n頁byFab/mm 每個廠的實付數量
-                        reportAmount[l_key_mm] += pay;
+                if(reportAmount[l_key_mm]){                        // 第n頁byFab/mm 每個廠的實付數量
+                    reportAmount[l_key_mm] += pay;
+                }else{
+                    reportAmount[l_key_mm] = pay;
+                }
+                if(reportAmount[l_key_mm+'_cost']){                // 第n頁byFab/mm 每個廠的實付數量金額
+                    reportAmount[l_key_mm+'_cost'] += pay * cata_price[key];
+                }else{
+                    reportAmount[l_key_mm+'_cost'] = pay * cata_price[key];
+                }
+                    if(reportAmount[l_key_fabTT]){                 // 第n頁 末端總計實付數量sum
+                        reportAmount[l_key_fabTT] += pay;
                     }else{
-                        reportAmount[l_key_mm] = pay;
+                        reportAmount[l_key_fabTT] = pay;
                     }
-                    if(reportAmount[l_key_mm+'_cost']){                // 第n頁byFab/mm 每個廠的實付數量金額
-                        reportAmount[l_key_mm+'_cost'] += pay * cata_price[key];
+                    if(reportAmount[l_key_fabTT+'_cost']){         // 第n頁 末端總計實付數量金額sum
+                        reportAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
                     }else{
-                        reportAmount[l_key_mm+'_cost'] = pay * cata_price[key];
+                        reportAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];
                     }
-                        if(reportAmount[l_key_fabTT]){                 // 第n頁 末端總計實付數量sum
-                            reportAmount[l_key_fabTT] += pay;
+                        if(reportAmount[local_id+'_fab_total_cost']){       // 第n頁 TITLE 總計實付數量金額Total
+                            reportAmount[local_id+'_fab_total_cost'] += pay * cata_price[key];
                         }else{
-                            reportAmount[l_key_fabTT] = pay;
+                            reportAmount[local_id+'_fab_total_cost'] = pay * cata_price[key];
                         }
-                        if(reportAmount[l_key_fabTT+'_cost']){         // 第n頁 末端總計實付數量金額sum
-                            reportAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
-                        }else{
-                            reportAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];
-                        }
-                            if(reportAmount[local_id+'_fab_total_cost']){       // 第n頁 TITLE 總計實付數量金額Total
-                                reportAmount[local_id+'_fab_total_cost'] += pay * cata_price[key];
-                            }else{
-                                reportAmount[local_id+'_fab_total_cost'] = pay * cata_price[key];
-                            }
             })
         });
         // console.log('reportAmount:', reportAmount)
@@ -463,7 +498,6 @@
         // step-3.選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {
             var value = reportAmount[key];
-            // console.log("key", key, value);
             $('#'+key).empty();
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);

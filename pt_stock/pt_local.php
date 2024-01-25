@@ -249,7 +249,7 @@
                                     <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($sys_role > 1) ? "disabled":"";?>>
                                         <option value="" hidden>--請選擇fab廠別--</option>
                                         <?php foreach($fabs as $fab){ ?>
-                                            <option value="<?php echo $fab["id"];?>" for="edit_fab_id">
+                                            <option value="<?php echo $fab["id"];?>" for="edit_fab_id" <?php echo ($fab["id"] == $select_fab_id) ? "selected":"";?>>
                                                 <?php echo $fab["id"]."_".$fab["fab_title"]."(".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? ' -- 已關閉':''; ?></option>
                                         <?php } ?>
                                     </select>

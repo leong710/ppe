@@ -1,9 +1,9 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    // require_once("function.php");
     require_once("pt_local_function.php");
-    accessDenied($sys_id);
+    // accessDenied($sys_id);
+    accessDeniedAdmin($sys_id);
     
     $sys_role    = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
 
@@ -145,10 +145,6 @@
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link active" href="low_level.php">儲存點安量管理</span></a></li>
-                            <li class="nav-item">
-                                <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
-                                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
-                            </li>
                         <?php } ?>
                     </ul>
                 </div>

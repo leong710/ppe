@@ -3,6 +3,7 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDenied($sys_id);
+    // accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
@@ -16,28 +17,35 @@
 
     // CRUD module function --
         $swal_json = array();
-        // 新增add
-        if(isset($_POST["add_ptstock_submit"])){
-            $swal_json = store_ptstock($_REQUEST);
-        }       
-        // 編輯Edit
-        if(isset($_POST["edit_ptstock_submit"])){
-            $swal_json = update_ptstock($_REQUEST);
-        }
-        // 刪除delete
-        if(isset($_POST["delete_ptstock"])){
-            $swal_json = delete_ptstock($_REQUEST);
-        }
+        // ptstock-crud
+        if(isset($_POST["add_ptstock_submit"])){ $swal_json = store_ptstock($_REQUEST); }   // 新增add    
+        if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
+        if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
+        // receivr-crud
+        if(isset($_POST["receive_submit"])){ $swal_json = store_ptreceive($_REQUEST); }     // 新增add
+
+        if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
+        if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
+
         
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
-        // 1-1a 將fab_id加入sfab_id
-            $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
+        // 查詢篩選條件：fab_id
+            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
+                $select_fab_id = $_REQUEST["select_fab_id"];
+            }else{                              // 先給預設值
+                if($sys_role <=1 ){
+                    $select_fab_id = "All";                // All
+                }else{
+                    $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
+                }
+            }
         
+        // 1-1 將sys_fab_id加入sfab_id
+            $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
         // 1-2 組合查詢條件陣列
-            if($sys_role <=1 ){
+            if($sys_role <=1 && $select_fab_id != "allMy"){
                 $sort_sfab_id = "All";                // All
-                // $sort_sfab_id = $sfab_id_str;         // test
-            }else{
+            } else{
                 $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
             }
 
@@ -48,17 +56,6 @@
                 $half = "H1";
             }else{
                 $half = "H2";
-            }
-
-        // 查詢篩選條件：fab_id
-            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
-                $select_fab_id = $_REQUEST["select_fab_id"];
-            }else{                              // 先給預設值
-                if($sys_role <=1 ){
-                    $select_fab_id = "All";                // All
-                }else{
-                    $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-                }
             }
         
     // 組合查詢條件陣列
@@ -128,9 +125,12 @@
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
 
         // echo "<pre>";
-        // print_r($query_arr);
-        // print_r($select_fab);
-        // print_r($select_locals);
+        // // print_r($_REQUEST);
+        // // print_r($query_arr);
+        // // print_r($select_fab_id);
+        // // // print_r($select_locals_id);
+        // // print_r($sort_sfab_id);
+        // print_r($stocks);
         // echo "</pre>";
 ?>
 
@@ -172,6 +172,13 @@
                 background-color: #FFBFFF;
                 color: red;
             }
+        /* inline */
+            .inb {
+                display: inline-block;
+            }
+            .inf {
+                display: inline-flex;
+            }
     </style>
     <script>    
         // loading function
@@ -199,10 +206,6 @@
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
-                            <li class="nav-item">
-                                <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
-                                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
-                            </li>
                         <?php } ?>
                     </ul>
                 </div>
@@ -223,7 +226,7 @@
                                         <?php if($sys_role <= 1 ){ ?>
                                             <option for="select_fab_id" value="All" <?php echo $select_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
                                         <?php } ?>
-                                        <option for="select_fab_id" value="allMy" <?php echo $select_fab_id == "allMy" ? "selected":"";?> title="<?php echo $sort_sfab_id;?>">
+                                        <option for="select_fab_id" value="allMy" <?php echo $select_fab_id == "allMy" ? "selected":"";?>>
                                             -- All my fab <?php echo $sfab_id_str ? "(".$sfab_id_str.")":"";?> --</option>
                                         <?php foreach($fabs as $fab){ ?>
                                             <option for="select_fab_id" value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $select_fab_id ? "selected":"";?>>
@@ -235,25 +238,29 @@
                             </form>
                         </div>
                         <!-- 表頭按鈕 -->
-                        <div class="col-md-4 pb-0 text-end">
-                            <div class="row">
-                                <div class="col-md-6 py-0 text-end">
-                                    <?php if(isset($select_fab["id"])){ ?>
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
-                                            <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                        <?php } ?>
+                        <div class="col-md-4 pb-0 text-end inb">
+                            <div class="inb">
+                                <?php if(isset($select_fab["id"])){ ?>
+                                    <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
+                                        <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 新增</button>
                                     <?php } ?>
-                                </div>
-                                <div class="col-md-6 py-0 text-end">
-                                    <!-- 20231128 下載Excel -->
-                                    <?php if($per_total != 0){ ?>
-                                        <form id="myForm" method="post" action="../_Format/download_excel.php">
-                                            <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                            <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
-                                                <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
-                                        </form>
-                                    <?php } ?>
-                                </div>
+                                <?php } ?>
+                            </div>
+                            <div class="inb">
+                                <button type="button" id="receive_btn" class="btn btn-danger disabled" data-bs-toggle="modal" data-bs-target="#receive"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp領用</button>
+                            </div>
+                            <div class="inb">
+                                <button type="button" id="checkList_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
+                            </div>
+                            <div class="inb">
+                                <!-- 20231128 下載Excel -->
+                                <?php if($per_total != 0){ ?>
+                                    <form id="myForm" method="post" action="../_Format/download_excel.php">
+                                        <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
+                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                    </form>
+                                <?php } ?>
                             </div>
                         </div>
                         <!-- Bootstrap Alarm -->
@@ -273,9 +280,11 @@
                                     <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
+                                <th>選用</th>
                                 <th>備註說明</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限</th>
-                                <th>PO no</th>
+                                <th>Flag</th>
+                                <!-- <th>PO no</th> -->
                                 <th>最後更新</th>
                             </tr>
                         </thead>
@@ -306,10 +315,15 @@
                                         <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
+                                <!-- 選用 -->
+                                    <td><input type="checkbox" class="select_item" name="<?php echo $stock["SN"].'_'.$stock["stk_id"];?>" id="<?php echo 'add_'.$stock['SN'].'_'.$stock['stk_id'];?>" 
+                                            value="<?php echo $stock['amount'];?>" onchange="add_item(this.name, this.value, 'off');"></td>
+                                    
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
                                     <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
-                                    <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
+                                    <td><?php echo $stock['flag'];?></td>
+                                    <!-- <td style="font-size: 12px;"><php echo $stock['po_no'];?></td> -->
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
                                             <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) )){ ?>
@@ -527,6 +541,99 @@
         </div>
     </div>
 
+<!-- 彈出畫面模組 除汙器材領用 品項 -->
+    <div class="modal fade" id="receive" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header add_mode_bgc">
+                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp除汙器材領用&nbsp</h4><span id="shopping_count" class="badge rounded-pill bg-danger"></span>
+
+                    <form action="" method="post">
+                        <input type="hidden" name="id" id="receive_delete_id">
+                        <?php if($sys_role <= 1){ ?>
+                            &nbsp&nbsp&nbsp&nbsp&nbsp
+                            <span id="modal_delect_btn"></span>
+                        <?php } ?>
+                    </form>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form action="" method="post">
+                    <div class="modal-body p-4 pb-0">
+                        <!-- 第一列 購物車 -->
+                        <div class="col-12 rounded p-0" id="receive_shopping_cart">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>select</th>
+                                        <th>儲存點位置</th>
+                                        <th>名稱</th>
+                                        <th>數量</th>
+                                        <th>批號/期限</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shopping_cart_tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                
+                        <!-- 第二排 申請數據 -->
+                        <div class="col-12 rounded " style="background-color: #D3FF93;">
+                            <div class="row">
+                                <div class="col-6 col-md-6 py-1">
+                                    <div class="form-floating pb-0">
+                                        <input type="datetime-local" class="form-control" name="app_date" id="receive_app_date" value="<?php echo date('Y-m-d\TH:i');?>" required>
+                                        <label for="receive_app_date" class="form-label">領用日期：<sup class="text-danger">*</sup></label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-6 py-1">
+                                    <div style="display: flex;">
+                                        <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                        <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" >
+                                        <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
+                                        <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
+                                        <label for="ppty_1" class="form-check-label">&nbsp定期&nbsp&nbsp</label>
+                                        <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" >
+                                        <label for="ppty_3" class="form-check-label text-danger" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 py-1">
+                                    <div class="form-floating">
+                                        <input type="text" name="receive_remark" id="receive_remark" class="form-control" required>
+                                        <label for="receive_remark" class="form-label">receive_remark/備註說明：<sup class="text-danger">*</sup></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 第三排提示 -->
+                        <div class="col-12 rounded bg-light pt-0">
+                            *** 注意：事故請務必填寫詳細案件名稱~!
+                        </div>
+                        <!-- 最後編輯資訊 -->
+                        <div class="col-12 text-end p-0" id="edit_receive_info"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="text-end">
+                            <input type="hidden" name="id" id="receive_edit_id" >
+                            <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
+                            <input type="hidden" name="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="emp_id" value="<?php echo $auth_emp_id;?>">
+                            <input type="hidden" name="idty" value="1"> <!-- idty:1 扣帳 -->
+                            <?php if($sys_role <= 2){ ?>   
+                                <span id="modal_button"></span>
+                                <input type="submit" class="btn btn-primary" name="receive_submit" value="送出" >
+                            <?php } ?>
+                            <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+    
+            </div>
+        </div>
+    </div>
+
 <!-- toast -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
@@ -557,7 +664,8 @@
     var ptstock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
     var ptstock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
     var swal_json     = <?=json_encode($swal_json);?>;                   // 引入swal_json值
-    
+    var action        = 'create';
+
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
     var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
     

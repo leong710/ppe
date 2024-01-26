@@ -2,7 +2,8 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("pt_local_function.php");
-    accessDenied($sys_id);
+    // accessDenied($sys_id);
+    accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
@@ -113,10 +114,6 @@
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link active " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
-                            <li class="nav-item">
-                                <button type="button" id="doCSV_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
-                                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
-                            </li>
                         <?php } ?>
                     </ul>
                 </div>

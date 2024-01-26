@@ -1,6 +1,6 @@
 <?php 
     require_once("../pdo.php");
-    require_once("pt_local_function.php");
+    require_once("api_function.php");
 
     // api function --- start
     header('Access-Control-Allow-Origin: *');    // 添加這行，允許跨網域!!
@@ -49,7 +49,7 @@
                 if(isset($_REQUEST['_amount'])){
                     $su['amount'] = $_REQUEST['_amount'];}              // 操作功能
 
-                if(!isset($su['id']) || !isset($su['amount'])) {
+                if(empty($su['id']) || empty($su['amount'])) {
                     unset($aResult['success']);
                     $aResult['error'] = $function.' - 參數錯誤!';
                     $aResult['result'] = $su;

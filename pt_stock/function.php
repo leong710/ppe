@@ -25,14 +25,14 @@
             try{
                 $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
                 $swal_json = array(
-                    "fun" => "ptstore_stock",
+                    "fun" => "store_ptstock",
                     "action" => "success",
                     "content" => '合併套用成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => "ptstore_stock",
+                    "fun" => "store_ptstock",
                     "action" => "error",
                     "content" => '合併套用失敗'
                 );
@@ -44,14 +44,14 @@
             try {
                 $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user]);
                 $swal_json = array(
-                    "fun" => "ptstore_stock",
+                    "fun" => "store_ptstock",
                     "action" => "success",
                     "content" => '新增套用成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => "ptstore_stock",
+                    "fun" => "store_ptstock",
                     "action" => "error",
                     "content" => '新增套用失敗'
                 );
@@ -63,7 +63,12 @@
     function edit_ptstock($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT pt_stock.* FROM pt_stock WHERE pt_stock.id = ?";
+        $sql = "SELECT pt_s.* ,_l.local_title, _l.local_remark, _f.fab_title, _f.fab_remark, _f.buy_ty , _s.site_title, _s.site_remark
+                FROM pt_stock pt_s
+                LEFT JOIN pt_local _l   ON  pt_s.local_id = _l.id
+                LEFT JOIN _fab _f       ON _l.fab_id = _f.id
+                LEFT JOIN _site _s      ON _f.site_id = _s.id
+                WHERE pt_s.id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
@@ -97,18 +102,18 @@
                 try{
                     $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
                     $swal_json = array(
-                        "fun" => "update_ptstock",
-                        "action" => "success",
-                        "content" => '合併套用成功'
+                        "fun"       => "update_ptstock",
+                        "action"    => "success",
+                        "content"   => '合併套用成功'
                     );
-                    delete_stock($request);     // 已合併到另一儲存項目，故需要刪除舊項目
+                    delete_ptstock($request);     // 已合併到另一儲存項目，故需要刪除舊項目
 
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $swal_json = array(
-                        "fun" => "update_ptstock",
-                        "action" => "error",
-                        "content" => '合併套用失敗'
+                        "fun"       => "update_ptstock",
+                        "action"    => "error",
+                        "content"   => '合併套用失敗'
                     );
                 }
             }else{
@@ -120,16 +125,16 @@
                 try {
                     $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user, $id]);
                     $swal_json = array(
-                        "fun" => "update_ptstock",
-                        "action" => "success",
-                        "content" => '更新套用成功'
+                        "fun"       => "update_ptstock",
+                        "action"    => "success",
+                        "content"   => '更新套用成功'
                     );
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $swal_json = array(
-                        "fun" => "update_ptstock",
-                        "action" => "error",
-                        "content" => '更新套用失敗'
+                        "fun"       => "update_ptstock",
+                        "action"    => "error",
+                        "content"   => '更新套用失敗'
                     );
                 }
             }
@@ -159,14 +164,337 @@
         return $swal_json;
     }
 
+// // // 領用單 CRUD 20240126
+    // 儲存pt_receive領用申請表單 20240126
+    function store_ptreceive($request){
+        $pdo = pdo();
+        extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "store_ptreceive",
+            "content"   => "領用申請--"
+        );
+
+        // item資料前處理
+        $item_enc = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
+            
+        //// **** 儲存receive表單
+        $sql = "INSERT INTO pt_receive(emp_id, cname, ppty, receive_remark, item, idty, app_date, updated_cname
+                            , created_at, updated_at) VALUES(?,?,?,?,?, ?,?,?, now(),now() )";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$emp_id, $created_cname, $ppty, $receive_remark, $item_enc, $idty, $app_date, $created_cname ]);
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '送出成功';
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '送出失敗';
+        }
+
+        //// **** process receive表單
+        if($swal_json["action"] == "success"){
+            // 逐筆呼叫處理
+            foreach(array_keys($item) as $item_key){
+                $item_key_arr = explode(",", $item_key);
+                    if($item_key_arr[0]){ $t_cata_SN = $item_key_arr[0]; } else { $t_cata_SN = ""; }            // cata_SN 序號
+                    if($item_key_arr[1]){ $t_stk_id  = $item_key_arr[1]; } else { $t_stk_id  = ""; }            // stock_id 儲存id
+
+                $item_value = $item[$item_key];
+                $item_value_arr = explode(",", $item_value);
+                    if($item_value_arr[0]){ $t_amount  = $item_value_arr[0]; } else { $t_amount  = ""; }        // amount 數量       
+                    if($item_value_arr[1]){ $t_po_no   = $item_value_arr[1]; } else { $t_po_no   = ""; }        // po_no po號碼
+                    if($item_value_arr[2]){ $t_lot_num = $item_value_arr[2]; } else { $t_lot_num = ""; }        // lot_num 批號
+
+
+                if(!empty($t_stk_id)){
+                    $qlocal_arr = array("id"=>$t_stk_id);
+                    $stk_info = edit_ptstock($qlocal_arr);
+                }
+
+                // 使用DateTime类解析日期字符串
+                $dateTime = new DateTime($app_date);
+                // 使用format方法将日期格式化为所需的格式
+                $app_date = $dateTime->format('Y-m-d H:i');
+
+                $process = [];              // 清空預設值
+                // 打包處理訊息process
+                $process = array('updated_user'   => $created_cname,
+                                 'stock_id'       => $t_stk_id,
+                                 'lot_num'        => $t_lot_num,
+                                 'po_no'          => $t_po_no,
+                                 'cata_SN'        => $t_cata_SN,
+                                 'p_amount'       => $t_amount,
+                                 'app_date'       => $app_date,        // 處理庫存id存量
+                                 'receive_remark' => $receive_remark,
+                                 'idty'           => $idty );         // idty:3 = 取消
+                // 後續要加入預扣原本數量功能=呼叫process_trade($request)
+                $process_result = process_ptreceive($process);
+                if(isset($process_result["result"])){                                  // True - 抵扣完成
+                    if(empty($process_remark)){
+                        $process_remark = "## ".$process_result["result"];
+                    }else{
+                        $process_remark .= "_rn_## ".$process_result["result"];
+                    }
+                }else{                                                                  // False - 抵扣失敗
+                    if(empty($process_remark)){
+                        $process_remark = "## ".$process_result["error"];
+                    }else{
+                        $process_remark .= "_rn_## ".$process_result["error"];
+                    }                                                          
+                }
+            }
+        }
+        return $swal_json;
+    }
+    // 顯示被選定的_receive表單 20230803
+    function show_ptreceive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _r.* , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
+                    -- , _s.site_title , _s.site_remark
+                FROM `_receive` _r
+                LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                    -- LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _r.uuid = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$uuid]);
+            $receive_row = $stmt->fetch();
+            return $receive_row;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
+    // edit動作的_receive表單
+    function update_receive($request){
+        $pdo = pdo();
+        extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "update_receive",
+            "content"   => "更新表單--"
+        );
+
+        $receive_row = show_receive($request);            // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '送出失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
+
+        // item資料前處理
+        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
+    
+        $in_sign = $omager;                     // update送出回原主管，不回轉呈簽核
+        $flow = "Manager";
+        $idty_after = "1";                      // 由 5轉呈 存換成 1送出
+ 
+        // 把_receive表單logs叫近來處理
+            // $query = array('uuid'=> $uuid );
+            // $receive_logs = showLogs($query);
+        // 製作log紀錄前處理：塞進去製作元素
+            $logs_request["action"] = $action;
+            $logs_request["step"]   = $step."-編輯";
+            $logs_request["idty"]   = $idty;
+            $logs_request["cname"]  = $created_cname." (".$created_emp_id.")";
+            $logs_request["logs"]   = $receive_row["logs"];   
+            $logs_request["remark"] = $sign_comm;   
+        // 呼叫toLog製作log檔
+            $logs_enc = toLog($logs_request);
+
+        // 更新_receive表單
+        $sql = "UPDATE _receive
+                SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
+                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ?, omager=?, in_sign=?, in_signName=?, flow=?, updated_at = now()
+                WHERE uuid = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, 
+                            $cata_SN_amount_enc, $idty_after, $logs_enc, $updated_user, $omager, $in_sign, $in_signName, $flow, $uuid]);
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '更新成功';
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '更新失敗';
+        }
+        return $swal_json;
+    }
+    // 刪除單筆_receive紀錄 20230803
+    function delete_receive($request){
+        $pdo = pdo();
+        extract($request);
+        
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "delete_receive",
+            "content"   => "刪除表單--"
+        );
+
+        $receive_row = show_receive($request);            // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '送出失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
+
+        $sql = "DELETE FROM _receive WHERE uuid = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$uuid]);
+            return true;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+// // // process fun
+    // 20230724 處理交易事件--所屬器材數量之加減
+    // ** 20230725 處理貨單時 已在stock內的只能用ID，不要用SN...因為可能有多筆同SN，而導致錯亂 ??!!
+    // $idty 2=退貨、3=取消/入帳、1送出/待收
+    
+    function process_ptreceive($process){
+        $pdo = pdo();
+        extract($process);
+        $qptstock_arr = array("id"=>$stock_id);
+        $row_stk = edit_ptstock($qptstock_arr);
+
+        if(count($row_stk) >0){       // 已有紀錄
+            // echo "<script>alert('process_trade:已有紀錄~')</script>";            // deBug
+            // 交易狀態：0完成/1待收/2退貨/3取消
+            switch($idty){
+                case "0":       // 0完成
+                case "2":       // 2退貨/待收
+                case "3":       // 3取消/入帳
+                    // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
+                    $row_stk['amount'] += $p_amount; 
+                    $cama = array(
+                        'icon'  => ' + ',     // log交易訊息中加減號
+                        'title' => ' 入帳 '   // log交易訊息 動作
+                    );
+                    break;
+                case "1":       // 1送出/待收
+                    // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
+                    $row_stk['amount'] -= $p_amount;
+                    $cama = array(
+                        'icon'  => ' - ',     // log交易訊息中加減號
+                        'title' => ' 扣帳 '   // log交易訊息 動作
+                    );
+                    break;
+                default:
+                    $cama = array(
+                        'icon'  => ' ? ',     // log交易訊息中加減號
+                        'title' => ' 錯誤 '   // log交易訊息 動作
+                    );
+                    return;
+            }
+            if($row_stk['amount'] > 0){
+                $flag = "On";
+            }else{
+                $flag = "Off";
+            }
+
+            $sql = "UPDATE pt_stock SET stock_remark=?, amount=?, flag=?, updated_user=?, updated_at=now() WHERE id=? ";
+            $stmt = $pdo->prepare($sql);
+            $row_stk["stock_remark"] .= $receive_remark."<br>// ".$app_date."：".$row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];
+            try {
+                $stmt->execute([$row_stk["stock_remark"], $row_stk['amount'], $flag, $updated_user, $row_stk['id']]);
+                $process_result['result'] = $row_stk['fab_title'] . "_" . $row_stk['local_title'] . " " . $row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];      // 回傳 True: id + amount
+
+            }catch(PDOException $e){
+                echo $e->getMessage();
+                $process_result['error'] = $row_stk['fab_title'] . "_" . $row_stk['local_title'] . " " . $cama['title'] . "id:".($row_stk['id'] * -1);               // 回傳 False: - id
+
+            }
+            return $process_result;
+        
+        }else{      // 開新紀錄 --- 先暫停
+        echo "<script>alert('process_ptreceive:暫停開新紀錄~')</script>";             // deBug
+            //     // step-1 先把local資料叫出來，抓取low_level數量
+                    
+            //     $row_local = select_ptlocal($p_local);                                  // call fun get local's info & low_level
+                
+            //     if(!empty($row_local)){                                  // 有取得local資料
+            //         $row_lowLevel = json_decode($row_local["low_level"]);                   // 將local.low_level解碼
+            //         if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }  // 將物件轉成陣列
+            //         if(isset($row_lowLevel[$cata_SN])){
+            //             $low_level = $row_lowLevel[$cata_SN];                           // 取得該目錄品項的安全存量值
+            //         }else{
+            //             $low_level = 0;                                                 // 未取得local資料時，給他一個0
+            //         }
+            //     }else{
+            //         $low_level = 0;                                                     // 未取得local資料時，給他一個0
+            //     }
+
+            //     switch($idty){
+            //         case "0":       // 0完成
+            //         case "2":       // 2退貨/待收
+            //         case "3":       // 3取消/入帳
+            //             // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
+            //             $cama = array(
+            //                 'icon'  => ' + ',     // log交易訊息中加減號
+            //                 'title' => ' 入帳 '   // log交易訊息 動作
+            //             );
+            //             break;
+            //         case "1":       // 1送出/待收
+            //             // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
+            //             $cama = array(
+            //                 'icon'  => ' - ',     // log交易訊息中加減號
+            //                 'title' => ' 扣帳 '   // log交易訊息 動作
+            //             );
+            //             break;
+            //         default:
+            //             $cama = array(
+            //                 'icon'  => ' ? ',     // log交易訊息中加減號
+            //                 'title' => ' 錯誤 '   // log交易訊息 動作
+            //             );
+            //             return;
+            //     }
+
+            //     $lot_num        = "9999-12-31";                                          // 0.批號/效期
+            //     $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;      // 0.備註
+            //         // // $stock_remark .= $stk_row_list[$i]['stock_remark'];
+                
+            //     // step-2 建立新紀錄到資料庫
+            //     $store_ptstock_arr = array (
+            //         "p_local"      => $p_local, 
+            //         "cata_SN"      => $cata_SN, 
+            //         "low_level"    => $low_level, 
+            //         "p_amount"     => $p_amount, 
+            //         "stock_remark" => $stock_remark, 
+            //         "pno"          => $pno, 
+            //         "po_no"        => $po_no, 
+            //         "lot_num"      => $lot_num, 
+            //         "updated_user" => $updated_user
+            //     );
+            //     try {
+            //         store_ptstock($store_ptstock_arr);
+            //         $process_result['result'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
+            //     }catch(PDOException $e){
+            //         echo $e->getMessage();
+            //         $process_result['error'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
+            //     }
+        }
+        return $process_result;
+    }
+
+
+// // // process fun -- end
+
 // // // index
     // --- ptstock index  20240122
     function show_ptstock($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _stk.*, 
-                        _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark, 
-                        _cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
+        $sql = "SELECT _stk.*, _stk.id AS stk_id
+                        ,_l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark
+                        ,_cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
                 FROM `pt_stock` _stk 
                 LEFT JOIN pt_local _l ON _stk.local_id = _l.id 
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id 
@@ -304,6 +632,25 @@
         // 1-1c sfab_id是陣列，要轉成字串
         return $result;
     }
+    // 設定low_level時用選則區域 20230707_updated
+    function select_ptlocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _l.*, _f.fab_title, _f.fab_remark, _f.buy_ty , _s.site_title, _s.site_remark
+                FROM `pt_local` _l
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _l.id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$local_id]);
+            $local = $stmt->fetch();
+            return $local;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
 
 // // // Create & Edit
 
@@ -446,22 +793,7 @@
 // // // doCSV -- end
 
     // API更新amount
-    function update_amount($request){
-        $pdo = pdo();
-        extract($request);
-
-        $sql = "UPDATE pt_stock
-                SET amount=?, updated_at=now()
-                WHERE id=? ";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$amount, $id]);
-            return "mySQL寫入 - 成功";
-        }catch(PDOException $e){
-            echo $e->getMessage();
-            return "mySQL寫入 - 失敗";
-        }
-    }
+    // function update_amount($request)  // move to api_function.php
 
 // // // stock  -- end
 

@@ -285,6 +285,7 @@
                                                                 min="<?php echo $buy_qty == 0 ? '0':'1';?>" max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
                                                                 oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
                                                                 onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" >
+                                                                
                                                             <button type="button" name="<?php echo $catalog['SN'].'_'.$catalog['stk_id'];?>" id="<?php echo 'add_'.$catalog['SN'].'_'.$catalog['stk_id'];?>" 
                                                                     class="btn btn-outline-secondary add_btn" value="" title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><i class="fa fa-plus"></i></button>
                                                         </div>

@@ -184,10 +184,9 @@
     function handleCellClick(e) {                               // 綁定單元格編輯開始事件
         this.setAttribute("data-original-value", this.textContent.trim());      // 獲取當前單元格的原始值並設置到屬性中
     }
-    // tableFun_4.API更新
+    // tableFun_4.API更新現量
     function updateCellValue(cell, newValue, _request) {
         cell.innerHTML = newValue;
-
         $.ajax({
             url:'api.php',
             method:'post',
@@ -195,9 +194,9 @@
             dataType:'json',
             data:{
                 function: 'update_amount',           // 操作功能
-                _id: _request['rowId'],
+                _id     : _request['rowId'],
                 _rowName: _request['rowName'],
-                _amount: _request['newValue']
+                _amount : _request['newValue']
             },
             success: function(res){
                 // swal_content += res_r_flag+' 套用成功';
@@ -217,9 +216,9 @@
     }
     // tableFun_5.更新Catch中的數值
     function update_catchValue(_request){
-        for(var i=0; i < stock.length ; i++){                             // stock array 採用迴圈繞出來
-            if(stock[i]['id'] == _request['rowId']){                      // 找到id = rowId
-                stock[i][_request['rowName']] = _request['newValue'];     // 覆蓋進stock中
+        for(var i=0; i < ptstock.length ; i++){                             // stock array 採用迴圈繞出來
+            if(ptstock[i]['id'] == _request['rowId']){                      // 找到id = rowId
+                ptstock[i][_request['rowName']] = _request['newValue'];     // 覆蓋進stock中
                 return;                                                   // 找到+完成後=返回
             }
         }
@@ -283,6 +282,150 @@
         let sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
         inside_toast(sinn);
     }
+
+// // // shopping_cart
+
+    // 加入購物車清單
+    function add_item(cata_SN, add_amount, swal_flag){
+        // 加入購物車清單input checkBox：On、Off
+        var checkbox = document.getElementById("add_"+cata_SN);
+        var flag = checkbox.checked ? "On" : "Off";
+        if(flag == 'Off'){
+            check_item(cata_SN, 0);
+            return;
+        }
+
+        var swal_title = '加入購物車清單';
+        // swal_flag=off不顯示swal、其他是預設1秒
+        if(swal_flag == 'off'){
+            var swal_time = 0;
+        }else{
+            var swal_time = 1 * 1000;
+        }
+
+        if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染，編輯狀態下參數需要分割
+
+            var cata_SN_unity       = cata_SN;
+            var add_amount_unity    = add_amount;
+
+            var cata_SN_arr = cata_SN_unity.split(',');           // arr[0]=cata_SN, arr[1]=stk_id
+                var cata_SN  = cata_SN_arr[0];
+                var stk_id   = cata_SN_arr[1];
+    
+            var add_amount_arr = add_amount_unity.split(',');     // arr[0]=amount, arr[1]=po_no, arr[2]=lot_num
+                var arr_amount  = add_amount_arr[0];
+                var arr_po_no   = add_amount_arr[1];
+                var arr_lot_num = add_amount_arr[2];
+                var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
+                
+            Object(ptstock).forEach(function(cata){          
+                if(cata['SN'] === cata_SN){
+                    var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN+'_'+stk_id+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
+                    var add_cata_item = '<tr id="item_'+cata_SN+'_'+stk_id+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
+                    $('#shopping_cart_tbody').append(add_cata_item);
+                    return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
+                }
+            })
+            // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
+            if(check_item_return){
+                var swal_content = ' 更新成功';
+                var swal_action = 'info';
+            }else{
+                var swal_content = ' 加入成功';
+                var swal_action = 'success';
+            }
+            // swal_time>0才顯示swal，主要過濾edit時的渲染導入
+            if(swal_time > 0){
+                swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+            }
+
+        }else{                  // 非編輯狀態下，參數可直接引用
+
+            if(add_amount <= 0 ){
+                checkbox.checked = false;
+                var swal_content = cata_SN+' 沒有數量!'+' 加入失敗';
+                var swal_action = 'error';
+                swal(swal_title ,swal_content ,swal_action);      // swal需要按鈕確認
+    
+            }else{
+                var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
+                Object(ptstock).forEach(function(cata){          
+                    if(cata['SN']+'_'+cata['stk_id'] === cata_SN){
+                        var input_cb = '<input type="checkbox" name="item['+cata['SN']+','+cata['stk_id']+']" id="'+cata['SN']+'_'+cata['stk_id']+'" class="select_item" value="'+add_amount+','+cata['po_no']+','+cata['lot_num']+'" checked onchange="check_item(this.id)">';
+                        var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'</td><td class="word_bk">'+cata['fab_title']+'_'+cata['local_title']+'</td><td class="word_bk">'+cata['SN']+'_'+cata['pname']+'</td><td>'+add_amount+'</td><td>'+cata['lot_num']+'</td></tr>';
+                        $('#shopping_cart_tbody').append(add_cata_item);
+                        return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
+                    }
+                })
+                // 根據check_item_return來決定使用哪個swal型態；true = 有找到數值=更新、false = 沒找到數值=加入
+                if(check_item_return){
+                    var swal_content = ' 更新成功';
+                    var swal_action = 'info';
+                }else{
+                    var swal_content = ' 加入成功';
+                    var swal_action = 'success';
+                }
+                // swal_time>0才顯示swal，主要過濾edit時的渲染導入
+                if(swal_time > 0){
+                    swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+                }else{
+                    var sinn = cata_SN+' 數量:&nbsp<b>'+ add_amount +'</b>&nbsp加入購物車清單~';
+                    inside_toast(sinn);
+                }
+                
+            }
+
+        }
+        check_shopping_count();        // 清算購物車件數
+    }
+
+    // 查找購物車清單已存在的項目，並予以清除
+    function check_item(cata_SN, swal_time) {
+        // swal_time = 是否啟動swal提示 ： 0 = 不啟動
+        if(!swal_time){
+            swal_time = 1;
+        }
+        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
+        if (shopping_cart_list.length > 0) {
+            // 使用for迴圈遍歷NodeList，而不是Object.keys()
+            for (var i = 0; i < shopping_cart_list.length; i++) {
+                var trElement = shopping_cart_list[i];
+                if (trElement.id === 'item_' + cata_SN) {
+                    // 從父節點中移除指定的<tr>元素
+                    trElement.parentNode.removeChild(trElement);
+                    if(swal_time != 0){
+                        var swal_title = '移除購物車項目';
+                        var swal_content = ' 移除成功';
+                        var swal_action = 'warning';
+                        swal_time = swal_time * 1000;
+                        // swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});         // swal自動關閉
+                        var sinn = '<b>'+swal_action+'</b>：&nbsp'+ swal_title + swal_content +'&nbsp~';
+                        inside_toast(sinn);
+                    }
+                    document.getElementById("add_"+cata_SN).checked = false;
+                    check_shopping_count();
+
+                    return true;                    // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了  // true = 有找到數值
+                }
+            }
+        }
+        // check_shopping_count();
+        return false;       // false = 沒找到數值
+    }
+
+    // 清算購物車件數，顯示件數，切換申請單按鈕
+    function check_shopping_count(){
+        var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
+        var review_btn = document.getElementById('receive_btn'); 
+        $('#shopping_count').empty();
+        if(shopping_cart_list.length > 0){
+            $('#shopping_count').append(shopping_cart_list.length);
+            review_btn.classList.remove('disabled');        // 購物車大於0，取消disabled
+        }else{
+            review_btn.classList.add('disabled');           // 購物車等於0，disabled
+        }
+    }
+
 
     $(document).ready(function () {
         

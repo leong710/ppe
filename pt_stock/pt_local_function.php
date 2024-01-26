@@ -224,35 +224,8 @@
         }
     }
     // 隱藏或開啟
-    function changePTLocal_flag($request){
-        $pdo = pdo();
-        extract($request);
+    // function changePTLocal_flag($request)  // move to api_function.php
 
-        $sql_check = "SELECT pt_local.* FROM pt_local WHERE id=?";
-        $stmt_check = $pdo -> prepare($sql_check);
-        $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
-
-        if($row['flag'] == "Off" || $row['flag'] == "chk"){
-            $flag = "On";
-        }else{
-            $flag = "Off";
-        }
-
-        $sql = "UPDATE pt_local SET flag=? WHERE id=?";
-        $stmt = $pdo->prepare($sql);
-        try {
-            $stmt->execute([$flag, $id]);
-            $Result = array(
-                'table' => $table, 
-                'id'    => $id,
-                'flag'  => $flag
-            );
-            return $Result;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
 
     function show_ptlocal($request){      // 已加入分頁功能
         $pdo = pdo();

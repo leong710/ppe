@@ -317,6 +317,21 @@
                 var arr_po_no   = add_amount_arr[1];
                 var arr_lot_num = add_amount_arr[2];
                 var check_item_return = check_item(cata_SN_unity, 0);    // call function 查找已存在的項目，並予以清除。
+
+            // // 有發放權，就可以編輯數量
+            // if(receive_collect_role){
+            //     var amount_need = add_amount['need'];               // 加工：取需求量
+            //     var amount_need_length = amount_need.length;        // 加工：取需求量的長度
+            //     // console.log(add_amount['need'], amount_need_length);
+            //     add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
+            //     // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
+            //     add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
+            //     // add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
+            // }else{
+            //     add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
+            // }
+
+
                 
             Object(ptstock).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){

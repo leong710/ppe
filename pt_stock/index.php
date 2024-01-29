@@ -276,7 +276,7 @@
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
-                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    <?php echo !empty($select_fab["id"]) && ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>選用</th>
@@ -483,7 +483,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <form action="store_checkList.php" method="post">
+                <!-- <form action="store_checkList.php" method="post"> -->
+                <form action="" method="post">
                     <div class="modal-body p-4">
                         <div class="col-12 rounded bg-light">
                             <div class="row">
@@ -524,7 +525,7 @@
                             <input type="hidden" name="cname"           value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
-                            <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
+                            <!-- <input type="hidden" name="cate_no"         value="<php echo $sort_cate_no;?>"> -->
                             <input type="hidden" name="updated_cname"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">

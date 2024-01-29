@@ -19,11 +19,11 @@
             $amount += $row["amount"];
 
             $sql = "UPDATE pt_stock
-                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_user=?, updated_at=now()
+                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_cname=?, updated_at=now()
                     WHERE id=?";
             $stmt = $pdo->prepare($sql);
             try{
-                $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
+                $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_cname, $row["id"]]);
                 $swal_json = array(
                     "fun" => "store_ptstock",
                     "action" => "success",
@@ -39,10 +39,10 @@
             }
         }else{
             // echo "<script>alert('local器材只有單一筆，不用合併計算~')</script>";
-            $sql = "INSERT INTO pt_stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
+            $sql = "INSERT INTO pt_stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_cname, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
             $stmt = $pdo->prepare($sql);
             try {
-                $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user]);
+                $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_cname]);
                 $swal_json = array(
                     "fun" => "store_ptstock",
                     "action" => "success",
@@ -96,11 +96,11 @@
                 $amount += $row["amount"];
     
                 $sql = "UPDATE pt_stock
-                        SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_user=?, updated_at=now()
+                        SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_cname=?, updated_at=now()
                         WHERE id=?";
                 $stmt = $pdo->prepare($sql);
                 try{
-                    $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
+                    $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_cname, $row["id"]]);
                     $swal_json = array(
                         "fun"       => "update_ptstock",
                         "action"    => "success",
@@ -119,11 +119,11 @@
             }else{
                 // echo "<script>alert('local器材只有單一筆，不用合併計算~')</script>";
                 $sql = "UPDATE pt_stock
-                        SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, updated_user=?, updated_at=now()
+                        SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, updated_cname=?, updated_at=now()
                         WHERE id=?";
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user, $id]);
+                    $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_cname, $id]);
                     $swal_json = array(
                         "fun"       => "update_ptstock",
                         "action"    => "success",
@@ -179,11 +179,11 @@
         $item_enc = json_encode(array_filter($item));   // 去除陣列中空白元素再要編碼
             
         //// **** 儲存receive表單
-        $sql = "INSERT INTO pt_receive(emp_id, cname, ppty, receive_remark, item, idty, app_date, updated_cname
-                            , created_at, updated_at) VALUES(?,?,?,?,?, ?,?,?, now(),now() )";
+        $sql = "INSERT INTO pt_receive(emp_id, cname, fab_id, ppty, receive_remark, item, idty, app_date, updated_cname
+                            , created_at, updated_at) VALUES(?,?,?,?,?, ?,?,?,?, now(),now() )";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$emp_id, $created_cname, $ppty, $receive_remark, $item_enc, $idty, $app_date, $created_cname ]);
+            $stmt->execute([$emp_id, $created_cname, $select_fab_id, $ppty, $receive_remark, $item_enc, $idty, $app_date, $created_cname ]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
 
@@ -200,13 +200,14 @@
                 $item_key_arr = explode(",", $item_key);
                     if($item_key_arr[0]){ $t_cata_SN = $item_key_arr[0]; } else { $t_cata_SN = ""; }            // cata_SN 序號
                     if($item_key_arr[1]){ $t_stk_id  = $item_key_arr[1]; } else { $t_stk_id  = ""; }            // stock_id 儲存id
-
+                    
+                // item資料前處理...因為追加可編輯數量功能
+                // item[need]= po_no,lot_num 、 item[pay]= amount
                 $item_value = $item[$item_key];
-                $item_value_arr = explode(",", $item_value);
-                    if($item_value_arr[0]){ $t_amount  = $item_value_arr[0]; } else { $t_amount  = ""; }        // amount 數量       
-                    if($item_value_arr[1]){ $t_po_no   = $item_value_arr[1]; } else { $t_po_no   = ""; }        // po_no po號碼
-                    if($item_value_arr[2]){ $t_lot_num = $item_value_arr[2]; } else { $t_lot_num = ""; }        // lot_num 批號
-
+                    if($item_value["pay"]){ $t_amount  = $item_value["pay"]; } else { $t_amount  = ""; }        // amount 數量       
+                $item_value_arr = explode(",", $item_value["need"]);
+                    if($item_value_arr[0]){ $t_po_no   = $item_value_arr[0]; } else { $t_po_no   = ""; }        // po_no po號碼
+                    if($item_value_arr[1]){ $t_lot_num = $item_value_arr[1]; } else { $t_lot_num = ""; }        // lot_num 批號
 
                 if(!empty($t_stk_id)){
                     $qlocal_arr = array("id"=>$t_stk_id);
@@ -220,7 +221,7 @@
 
                 $process = [];              // 清空預設值
                 // 打包處理訊息process
-                $process = array('updated_user'   => $created_cname,
+                $process = array('updated_cname'   => $created_cname,
                                  'stock_id'       => $t_stk_id,
                                  'lot_num'        => $t_lot_num,
                                  'po_no'          => $t_po_no,
@@ -248,74 +249,56 @@
         }
         return $swal_json;
     }
-    // 顯示被選定的_receive表單 20230803
-    function show_ptreceive($request){
+    // 顯示被選定的_receive表單 20240129
+    function edit_ptreceive($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _r.* , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
-                    -- , _s.site_title , _s.site_remark
-                FROM `_receive` _r
-                LEFT JOIN _local _l ON _r.local_id = _l.id
-                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+        $sql = "SELECT pt_r.* , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id
+                    -- , _l.fab_id , _l.id AS local_id , _l.local_title , _l.local_remark , _s.site_title , _s.site_remark
+                FROM `pt_receive` pt_r
+                LEFT JOIN _fab _f ON pt_r.fab_id = _f.id
+                    -- LEFT JOIN _local _l ON _r.local_id = _l.id
                     -- LEFT JOIN _site _s ON _f.site_id = _s.id
-                WHERE _r.uuid = ? ";
+                WHERE pt_r.id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$uuid]);
-            $receive_row = $stmt->fetch();
-            return $receive_row;
+            $stmt->execute([$id]);
+            $ptreceive_row = $stmt->fetch();
+            return $ptreceive_row;
         }catch(PDOException $e){
             echo $e->getMessage();
             return false;
         }
     }
-    // edit動作的_receive表單
-    function update_receive($request){
+    // edit動作的_receive表單 20240129
+    function update_ptreceive($request){
         $pdo = pdo();
         extract($request);
 
         $swal_json = array(                                 // for swal_json
-            "fun"       => "update_receive",
+            "fun"       => "update_ptreceive",
             "content"   => "更新表單--"
         );
 
-        $receive_row = show_receive($request);            // 調閱原表單
+        $ptreceive_row = edit_ptreceive($request);            // 調閱原表單
         // 20231207 加入同時送出被覆蓋的錯誤偵測
-        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+        if(isset($old_idty) && ($old_idty != $ptreceive_row["idty"])){
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '送出失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
             return $swal_json;
         }
 
         // item資料前處理
-        $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // 去除陣列中空白元素，再要編碼
+        $item_enc = json_encode(array_filter($item));   // 去除陣列中空白元素，再要編碼
     
-        $in_sign = $omager;                     // update送出回原主管，不回轉呈簽核
-        $flow = "Manager";
-        $idty_after = "1";                      // 由 5轉呈 存換成 1送出
- 
-        // 把_receive表單logs叫近來處理
-            // $query = array('uuid'=> $uuid );
-            // $receive_logs = showLogs($query);
-        // 製作log紀錄前處理：塞進去製作元素
-            $logs_request["action"] = $action;
-            $logs_request["step"]   = $step."-編輯";
-            $logs_request["idty"]   = $idty;
-            $logs_request["cname"]  = $created_cname." (".$created_emp_id.")";
-            $logs_request["logs"]   = $receive_row["logs"];   
-            $logs_request["remark"] = $sign_comm;   
-        // 呼叫toLog製作log檔
-            $logs_enc = toLog($logs_request);
-
         // 更新_receive表單
-        $sql = "UPDATE _receive
-                SET plant = ? , dept = ? , sign_code = ? , emp_id = ? , cname = ? , extp = ? , local_id = ? , ppty = ? , receive_remark = ?
-                    , cata_SN_amount = ?, idty = ?, logs = ?, updated_user = ?, omager=?, in_sign=?, in_signName=?, flow=?, updated_at = now()
-                WHERE uuid = ? ";
+        $sql = "UPDATE pt_receive
+                SET emp_id = ?, cname = ?, fab_id = ?, ppty = ?, receive_remark = ?, item = ?, idty = ?, app_date = ?, updated_cname = ?
+                    , updated_at = now()
+                WHERE id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$plant, $dept, $sign_code, $emp_id, $cname, $extp, $local_id, $ppty, $receive_remark, 
-                            $cata_SN_amount_enc, $idty_after, $logs_enc, $updated_user, $omager, $in_sign, $in_signName, $flow, $uuid]);
+            $stmt->execute([$emp_id, $created_cname, $select_fab_id, $ppty, $receive_remark, $item_enc, $idty, $app_date, $created_cname, $id]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '更新成功';
         }catch(PDOException $e){
@@ -325,28 +308,28 @@
         }
         return $swal_json;
     }
-    // 刪除單筆_receive紀錄 20230803
-    function delete_receive($request){
+    // 刪除單筆_receive紀錄 20240129
+    function delete_ptreceive($request){
         $pdo = pdo();
         extract($request);
         
         $swal_json = array(                                 // for swal_json
-            "fun"       => "delete_receive",
+            "fun"       => "delete_ptreceive",
             "content"   => "刪除表單--"
         );
 
-        $receive_row = show_receive($request);            // 調閱原表單
+        $ptreceive_row = edit_ptreceive($request);            // 調閱原表單
         // 20231207 加入同時送出被覆蓋的錯誤偵測
-        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+        if(isset($old_idty) && ($old_idty != $ptreceive_row["idty"])){
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '送出失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
             return $swal_json;
         }
 
-        $sql = "DELETE FROM _receive WHERE uuid = ?";
+        $sql = "DELETE FROM pt_receive WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$uuid]);
+            $stmt->execute([$id]);
             return true;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -400,11 +383,12 @@
                 $flag = "Off";
             }
 
-            $sql = "UPDATE pt_stock SET stock_remark=?, amount=?, flag=?, updated_user=?, updated_at=now() WHERE id=? ";
+            $sql = "UPDATE pt_stock SET stock_remark=?, amount=?, flag=?, updated_cname=?, updated_at=now() WHERE id=? ";
             $stmt = $pdo->prepare($sql);
-            $row_stk["stock_remark"] .= $receive_remark."<br>// ".$app_date."：".$row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];
+            if($row_stk["stock_remark"]){ $row_stk["stock_remark"] .= "<br>"; } 
+            $row_stk["stock_remark"] .= $receive_remark." // ".$app_date."：".$row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];
             try {
-                $stmt->execute([$row_stk["stock_remark"], $row_stk['amount'], $flag, $updated_user, $row_stk['id']]);
+                $stmt->execute([$row_stk["stock_remark"], $row_stk['amount'], $flag, $updated_cname, $row_stk['id']]);
                 $process_result['result'] = $row_stk['fab_title'] . "_" . $row_stk['local_title'] . " " . $row_stk['cata_SN'] . $cama['icon'] . $p_amount . " = " . $row_stk['amount'];      // 回傳 True: id + amount
 
             }catch(PDOException $e){
@@ -650,7 +634,37 @@
             echo $e->getMessage();
         }
     }
-
+    // --- ptreceive index  20240129
+    function show_ptreceive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT pt_r.*
+                FROM `pt_receive` pt_r ";
+        if($select_fab_id == "allMy"){
+            $sql .= " WHERE pt_r.fab_id IN ({$sfab_id}) ";
+        }else if($select_fab_id != "All"){
+            $sql .= " WHERE pt_r.fab_id = ? ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY fab_id ASC ";
+        // 決定是否採用 page_div 20230803
+        if(isset($start) && isset($per)){
+            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
+        }else{
+            $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        }
+        try {
+            if($select_fab_id != "All" && $select_fab_id != "allMy"){
+                $stmt->execute([$select_fab_id]);
+            }else{
+                $stmt->execute();
+            }
+            $ptstocks = $stmt->fetchAll();
+            return $ptstocks;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 
 // // // Create & Edit
 
@@ -714,7 +728,7 @@
         );
 
         // $logs = JSON_encode($stocks_log);
-        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_cname, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);

@@ -111,6 +111,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link " href="index.php">除汙器材庫存管理</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="pt_receive.php">領用記錄</span></a></li>
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link active " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
@@ -175,7 +176,7 @@
                                     <td style="font-size: 6px;"><?php echo $ptlocal['id']; ?></td>
                                     <td class="text-start"><?php echo $ptlocal['fab_id']."_".$ptlocal['fab_title']." (".$ptlocal['fab_remark'].")"; if($ptlocal["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                     <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
-                                    <td><a href="low_level.php?ptlocal_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
+                                    <td><a href="low_level.php?select_local_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
                                         <?php echo !empty($ptlocal['low_level']) ? "已設定":"未設定";?></a></td>
                                     <td><?php if($sys_role <= 1){ ?>  
                                             <button type="button" name="pt_local" id="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>" 

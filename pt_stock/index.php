@@ -18,14 +18,13 @@
     // CRUD module function --
         $swal_json = array();
         // ptstock-crud
-        if(isset($_POST["add_ptstock_submit"])){ $swal_json = store_ptstock($_REQUEST); }   // 新增add    
-        if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
-        if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
+        if(isset($_POST["ptstock_store"])){ $swal_json = store_ptstock($_REQUEST); }   // 新增add    
+        if(isset($_POST["ptstock_update"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
+        if(isset($_POST["ptstock_delete"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
         // receivr-crud
-        if(isset($_POST["receive_submit"])){ $swal_json = store_ptreceive($_REQUEST); }     // 新增add
-
-        if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
-        if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
+        if(isset($_POST["ptreceive_store"])){ $swal_json = store_ptreceive($_REQUEST); }     // 新增add
+        // if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
+        // if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
 
         
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
@@ -125,7 +124,7 @@
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
 
         // echo "<pre>";
-        // // print_r($_REQUEST);
+        // print_r($_REQUEST);
         // // print_r($query_arr);
         // // print_r($select_fab_id);
         // // // print_r($select_locals_id);
@@ -151,7 +150,6 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-
         .body > ul {
             padding-left: 0px;
         }
@@ -203,6 +201,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link active" href="index.php">除汙器材庫存管理</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="pt_receive.php">領用記錄</span></a></li>
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
@@ -239,18 +238,18 @@
                         </div>
                         <!-- 表頭按鈕 -->
                         <div class="col-md-4 pb-0 text-end inb">
-                            <div class="inb">
-                                <?php if(isset($select_fab["id"])){ ?>
+                            <?php if(isset($select_fab["id"])){ ?>
+                                <div class="inb">
+                                    <button type="button" id="checkList_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
+                                </div>
+                                <div class="inb">
                                     <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], [$sfab_id_str])) ) ) ){ ?>
                                         <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 新增</button>
                                     <?php } ?>
-                                <?php } ?>
-                            </div>
+                                </div>
+                            <?php } ?>
                             <div class="inb">
                                 <button type="button" id="receive_btn" class="btn btn-danger disabled" data-bs-toggle="modal" data-bs-target="#receive"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp領用</button>
-                            </div>
-                            <div class="inb">
-                                <button type="button" id="checkList_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
                             </div>
                             <div class="inb">
                                 <!-- 20231128 下載Excel -->
@@ -258,7 +257,7 @@
                                     <form id="myForm" method="post" action="../_Format/download_excel.php">
                                         <input type="hidden" name="htmlTable" id="htmlTable" value="">
                                         <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
-                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出</button>
                                     </form>
                                 <?php } ?>
                             </div>
@@ -294,7 +293,7 @@
                                 $check_item ="";
                             ?>
                             <?php foreach($stocks as $stock){ ?>
-                                <tr <?php if($check_item != $stock['local_id']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
+                                <tr <?php echo ($check_item != $stock['local_id']) ? 'style="border-top:3px #FFD382 solid;"':'';?>>
                                     <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
@@ -317,14 +316,14 @@
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                 <!-- 選用 -->
                                     <td><input type="checkbox" class="select_item" name="<?php echo $stock["SN"].'_'.$stock["stk_id"];?>" id="<?php echo 'add_'.$stock['SN'].'_'.$stock['stk_id'];?>" 
-                                            value="<?php echo $stock['amount'];?>" onchange="add_item(this.name, this.value, 'off');"></td>
+                                            value="<?php echo $stock['amount'];?>" onchange="add_item(this.name, this.value, 'off');" <?php echo $stock["amount"] <="0" ? "disabled":"";?>></td>
                                     
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
                                     <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td><?php echo $stock['flag'];?></td>
                                     <!-- <td style="font-size: 12px;"><php echo $stock['po_no'];?></td> -->
-                                    <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
+                                    <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_cname'];?>">
                                         <?php if(isset($stock['id'])){ ?>
                                             <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) )){ ?>
                                                     <button type="button" id="edit_ptstock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_ptstock" 
@@ -372,26 +371,26 @@
                             <div class="row" >
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating">
-                                        <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
+                                        <select name="local_id" id="local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($locals as $local){ ?>
                                                 <option value="<?php echo $local["id"];?>" >
                                                     <?php echo $local["id"]."：".$local["fab_title"]."_".$local["local_title"]."(".$local["local_remark"].")"; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                             <?php } ?>
                                         </select>
-                                        <label for="edit_local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
+                                        <label for="local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
                                     </div>
                                 </div>
 
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating">
-                                        <select name="cata_SN" id="edit_cata_SN" class="form-control" required onchange="update_standard_lv(this.value)">
+                                        <select name="cata_SN" id="cata_SN" class="form-control" required onchange="update_standard_lv(this.value)">
                                             <option value="" selected hidden>-- 請選擇器材 --</option>
                                             <?php foreach($catalogs as $catalog){ ?>
                                                 <option value="<?php echo $catalog["SN"];?>" title="<?php echo $catalog["cata_remark"];?>"><?php echo $catalog["SN"]."：".$catalog["pname"];?></option>
                                             <?php } ?>
                                         </select>
-                                        <label for="edit_cata_SN" class="form-label">cata_SN/器材名稱：<sup class="text-danger">*</sup></label>
+                                        <label for="cata_SN" class="form-label">cata_SN/器材名稱：<sup class="text-danger">*</sup></label>
                                     </div>
                                 </div>
                             </div>
@@ -403,47 +402,47 @@
                                 <!-- 左側-數量 -->
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
-                                        <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400" value="1"
+                                        <input type="number" name="standard_lv" id="standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400" value="1"
                                             <?php echo $sys_role <= 1 ? " ":"readonly"; ?> >
-                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role <= 1) ? " ":" - disabled";?></sup></label>
+                                        <label for="standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role <= 1) ? " ":" - disabled";?></sup></label>
                                     </div>
                                 </div>
                                 <!-- 右側-批號 -->
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
-                                        <input type="number" name="amount" id="edit_amount" class="form-control t-center" required placeholder="正常數量" min="0" max="999">
-                                        <label for="edit_amount" class="form-label">amount/現場存量：<sup class="text-danger">*</sup></label>
+                                        <input type="number" name="amount" id="amount" class="form-control t-center" required placeholder="正常數量" min="0" max="999">
+                                        <label for="amount" class="form-label">amount/現場存量：<sup class="text-danger">*</sup></label>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating">
-                                        <input type="text" name="po_no" id="edit_po_no" class="form-control" placeholder="PO採購編號">
-                                        <label for="edit_po_no" class="form-label">po_no/PO採購編號：</label>
+                                        <input type="text" name="po_no" id="po_no" class="form-control" placeholder="PO採購編號">
+                                        <label for="po_no" class="form-label">po_no/PO採購編號：</label>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating">
-                                        <input type="text" name="pno" id="edit_pno" class="form-control" placeholder="料號">
-                                        <label for="edit_pno" class="form-label">pno/料號：</label>
+                                        <input type="text" name="pno" id="pno" class="form-control" placeholder="料號">
+                                        <label for="pno" class="form-label">pno/料號：</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating">
-                                        <textarea name="stock_remark" id="edit_stock_remark" class="form-control" style="height: 100px"></textarea>
-                                        <label for="edit_stock_remark" class="form-label">stock_remark/備註說明：</label>
+                                        <textarea name="stock_remark" id="stock_remark" class="form-control" style="height: 100px"></textarea>
+                                        <label for="stock_remark" class="form-label">stock_remark/備註說明：</label>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating pb-0">
-                                        <input type="date" name="lot_num" id="edit_lot_num" class="form-control" required>
-                                        <label for="edit_lot_num" class="form-label">lot_num/批號/期限：<sup class="text-danger">*</sup></label>
+                                        <input type="date" name="lot_num" id="lot_num" class="form-control" required>
+                                        <label for="lot_num" class="form-label">lot_num/批號/期限：<sup class="text-danger">*</sup></label>
                                     </div>
                                     <div class="col-12 pt-0 text-end">
-                                        <button type="button" id="edit_toggle_btn" class="btn btn-sm btn-xs btn-warning text-dark" onclick="chenge_lot_num('edit')">永久</button>
+                                        <button type="button" id="toggle_btn" class="btn btn-sm btn-xs btn-warning text-dark" onclick="chenge_lot_num('edit')">永久</button>
                                     </div>
                                 </div>
                             </div>
@@ -460,7 +459,7 @@
                         <div class="text-end">
                             <input type="hidden" name="id" id="ptstock_edit_id" >
                             <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <span id="modal_button"></span>
                             <?php } ?>
@@ -526,7 +525,7 @@
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
                             <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
-                            <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_cname"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
                             <?php } ?>
@@ -600,7 +599,7 @@
                                 <div class="col-12 py-1">
                                     <div class="form-floating">
                                         <input type="text" name="receive_remark" id="receive_remark" class="form-control" required>
-                                        <label for="receive_remark" class="form-label">receive_remark/備註說明：<sup class="text-danger">*</sup></label>
+                                        <label for="receive_remark" class="form-label">receive_remark/領用說明：<sup class="text-danger">*</sup></label>
                                     </div>
                                 </div>
                             </div>
@@ -621,8 +620,9 @@
                             <input type="hidden" name="emp_id" value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="idty" value="1"> <!-- idty:1 扣帳 -->
                             <?php if($sys_role <= 2){ ?>   
-                                <span id="modal_button"></span>
-                                <input type="submit" class="btn btn-primary" name="receive_submit" value="送出" >
+                                <span id="modal_button">
+                                    <input type="submit" class="btn btn-primary disabled" name="ptreceive_store" value="送出" id="receive_submit">
+                                </span>
                             <?php } ?>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
@@ -659,7 +659,7 @@
 
 <script>
 // // // 開局導入設定檔
-    var allLocals     = <?=json_encode($locals);?>;                   // 引入所有local的allLocals值
+    var allLocals     = <?=json_encode($locals);?>;                     // 引入所有local的allLocals值
     var low_level     = [];                                              // 宣告low_level變數
     var ptstock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
     var ptstock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id

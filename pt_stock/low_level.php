@@ -142,6 +142,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link" href="index.php">除汙器材庫存管理</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="pt_receive.php">領用記錄</span></a></li>
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link active" href="low_level.php">儲存點安量管理</span></a></li>

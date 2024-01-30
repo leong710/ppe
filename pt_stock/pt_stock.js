@@ -24,19 +24,19 @@
             }
         })
         // 預防已經先選了器材，進行防錯
-        var select_cata_SN = document.getElementById('edit_cata_SN').value;  // 取得器材的選項值
+        var select_cata_SN = document.getElementById('cata_SN').value;  // 取得器材的選項值
         if(select_cata_SN != null){                                     // 假如器材已經選擇了
             update_standard_lv(select_cata_SN);                         // 就執行取得low_level對應值
         }
     }
     // 選擇器材，並更新low_level值
-    function update_standard_lv(catalog_SN){
-        var standard_lv = document.getElementById('edit_standard_lv');       // 定義standard_lv主體
+    function update_standard_lv(cata_SN){
+        var standard_lv = document.getElementById('standard_lv');       // 定義standard_lv主體
         // var low_level = JSON.parse('<=json_encode($low_level);?>');    // 引入所local的low_level值
-        if(low_level[catalog_SN] == null){
+        if(low_level[cata_SN] == null){
             standard_lv.value = 0;                                      // 預防low_level對應值是null
         }else{
-            standard_lv.value = low_level[catalog_SN];                  // 套用對應cata_SN的low_level值
+            standard_lv.value = low_level[cata_SN];                  // 套用對應cata_SN的low_level值
         }
     }
     // 變更按鈕樣態
@@ -82,7 +82,7 @@
         }
         // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
         // 監聽lot_num是否有輸入值，跟著改變樣態
-        $('#edit_lot_num').on('input', function() {
+        $('#lot_num').on('input', function() {
             change_btn('edit');
         });
 

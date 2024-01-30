@@ -173,7 +173,7 @@
                         <tbody>
                             <?php foreach($ptlocals as $ptlocal){ ?>
                                 <tr>
-                                    <td style="font-size: 6px;"><?php echo $ptlocal['id']; ?></td>
+                                    <td style="font-size: 12px;"><?php echo $ptlocal['id']; ?></td>
                                     <td class="text-start"><?php echo $ptlocal['fab_id']."_".$ptlocal['fab_title']." (".$ptlocal['fab_remark'].")"; if($ptlocal["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                     <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
                                     <td><a href="low_level.php?select_local_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">

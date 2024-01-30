@@ -72,8 +72,8 @@
         // loading function
         function mloading(){
             $("body").mLoading({
-                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                icon: "../../libs/jquery/loading.gif",
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                // icon: "../../libs/jquery/loading.gif",
             }); 
         }
         // All resources finished loading! // 關閉mLoading提示

@@ -123,14 +123,14 @@
         $toDay = date('Y-m-d');
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
 
-        // echo "<pre>";
+        echo "<pre>";
         // print_r($_REQUEST);
         // // print_r($query_arr);
         // // print_r($select_fab_id);
         // // // print_r($select_locals_id);
         // // print_r($sort_sfab_id);
-        // print_r($stocks);
-        // echo "</pre>";
+        print_r($stocks);
+        echo "</pre>";
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -438,11 +438,11 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating pb-0">
-                                        <input type="date" name="lot_num" id="lot_num" class="form-control" required>
+                                        <input type="date" name="lot_num" id="edit_lot_num" class="form-control" required>
                                         <label for="lot_num" class="form-label">lot_num/批號/期限：<sup class="text-danger">*</sup></label>
                                     </div>
                                     <div class="col-12 pt-0 text-end">
-                                        <button type="button" id="toggle_btn" class="btn btn-sm btn-xs btn-warning text-dark" onclick="chenge_lot_num('edit')">永久</button>
+                                        <button type="button" id="edit_toggle_btn" class="btn btn-sm btn-xs btn-warning text-dark" onclick="chenge_lot_num('edit')">永久</button>
                                     </div>
                                 </div>
                             </div>

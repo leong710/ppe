@@ -1,7 +1,7 @@
 <?php
     require_once("../pdo.php");
     // require_once("function.php");
-    require_once("pt_local_function.php");
+    require_once("function_pt_local.php");
     extract($_REQUEST);
    
     $swal_json = array();

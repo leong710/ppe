@@ -18,11 +18,11 @@
     // CRUD module function --
         $swal_json = array();
         // ptstock-crud
-        if(isset($_POST["ptstock_store"])){ $swal_json = store_ptstock($_REQUEST); }   // 新增add    
-        if(isset($_POST["ptstock_update"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
+        if(isset($_POST["ptstock_store"])) { $swal_json = store_ptstock($_REQUEST);  }      // 新增add    
+        if(isset($_POST["ptstock_update"])){ $swal_json = update_ptstock($_REQUEST); }      // 編輯Edit
         if(isset($_POST["ptstock_delete"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
         // receivr-crud
-        if(isset($_POST["ptreceive_store"])){ $swal_json = store_ptreceive($_REQUEST); }     // 新增add
+        if(isset($_POST["ptreceive_store"])){ $swal_json = store_ptreceive($_REQUEST); }    // 新增add
         // if(isset($_POST["edit_ptstock_submit"])){ $swal_json = update_ptstock($_REQUEST); } // 編輯Edit
         // if(isset($_POST["delete_ptstock"])){ $swal_json = delete_ptstock($_REQUEST); }      // 刪除delete
 
@@ -123,14 +123,14 @@
         $toDay = date('Y-m-d');
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
 
-        echo "<pre>";
+        // echo "<pre>";
         // print_r($_REQUEST);
         // // print_r($query_arr);
         // // print_r($select_fab_id);
         // // // print_r($select_locals_id);
         // // print_r($sort_sfab_id);
-        print_r($stocks);
-        echo "</pre>";
+        // print_r($stocks);
+        // echo "</pre>";
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -483,8 +483,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <!-- <form action="store_checkList.php" method="post"> -->
-                <form action="" method="post">
+                <form action="store_checkList.php" method="post">
+                <!-- <form action="" method="post"> -->
                     <div class="modal-body p-4">
                         <div class="col-12 rounded bg-light">
                             <div class="row">
@@ -518,7 +518,7 @@
 
                     <div class="modal-footer">
                         <div class="text-end">
-                            <input type="hidden" name="action"          value="store_checkList">
+                            <input type="hidden" name="action"          value="store_ptcheckList">
                             <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
                             <input type="hidden" name="fab_id"          value="<?php echo $select_fab["id"];?>">
                             <input type="hidden" name="emp_id"          value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
@@ -526,7 +526,7 @@
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
                             <!-- <input type="hidden" name="cate_no"         value="<php echo $sort_cate_no;?>"> -->
-                            <input type="hidden" name="updated_cname"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
                             <?php } ?>

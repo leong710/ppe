@@ -1,7 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
-    require_once("pt_local_function.php");
+    require_once("function_pt_local.php");
     // accessDenied($sys_id);
     accessDeniedAdmin($sys_id);
     

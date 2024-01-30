@@ -7,7 +7,7 @@
 
     switch($action){
         // fun-1.儲存checkList
-        case "store_checkList": 
+        case "store_ptcheckList": 
             if(empty($fab_id)){                                     // 資料判斷 
                 echo "<script>alert('參數錯誤_1 !!! (你的fab_id有誤)');</script>";
                 header("refresh:0;url=index.php");                  // 用script導回上一頁。防止崩煃
@@ -15,7 +15,7 @@
             }else{
 
                 $stocksLog_arr = [];                                // 定義app陣列，總total
-                $stocks = show_stock_forCheck($_REQUEST);           // 調閱器材庫存，依儲存點顯示
+                $stocks = show_ptstock_forCheck($_REQUEST);           // 調閱器材庫存，依儲存點顯示
 
                 // 鋪設內容
                 foreach($stocks as $stock){
@@ -44,7 +44,7 @@
                         'lot_num'       => $stock["lot_num"],
                         'po_no'         => $stock["po_no"],
                         'updated_at'    => $stock["updated_at"],
-                        'updated_user'  => $stock["updated_user"]
+                        'updated_user'  => $stock["updated_cname"]
                     );
                     $stock_enc = JSON_encode($stock_arr);           // 小陣列要先編碼才能塞進去大陣列forStore儲存
                         // $stock_dec = JSON_decode($stock_enc);            // 小陣列要先編碼才能塞進去大陣列forStore儲存
@@ -57,7 +57,7 @@
 
                 $_REQUEST["stocks_log"] = $logs_str;
 
-                $swal_json = store_checked($_REQUEST);
+                $swal_json = store_ptchecked($_REQUEST);
 
             }
             break;  // 停止向下
@@ -129,7 +129,7 @@
 <script>    
     
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
-    var url = 'index.php';
+    var url = 'index.php?select_fab_id=<?=$fab_id?>';
 
     $(document).ready(function () {
         

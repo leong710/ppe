@@ -28,9 +28,9 @@
 
 <!-- container -->
 <div class="col-12"> 
-    <div class="row justify-content-center px-4">
-        <div class="col-11 border rounded p-4 my-2" style="background-color: #D4D4D4;">
-            <div class="row px-2">
+    <div class="row justify-content-center">
+        <div class="col-12 border rounded" style="background-color: #D4D4D4;">
+            <div class="row px-1">
                 <div class="col-12 col-md-6">
                     <h3>檢視點檢紀錄</h3>
                 </div> 
@@ -133,13 +133,13 @@
     for (var i = 0, len = json.length; i < len; i++) {
         forTable.innerHTML += 
             '<tr>' +
-                '<td>' + json[i].fab_title + '_' + json[i].local_title + '</td>' +
+                '<td class="word_bk">' + json[i].fab_title + '_' + json[i].local_title + '</td>' +
                 '<td>' + json[i].cate_no + '.' + json[i].cate_title + '</td>' +
-                '<td style="text-align: left;">' + json[i].cata_SN + '</br>' + json[i].pname + '</td>' +
+                '<td class="word_bk">' + json[i].cata_SN + '</br>' + json[i].pname + '</td>' +
                 '<td>' + json[i].size + '</td>' +
                 '<td>' + json[i].standard_lv + '</td>' +
                 '<td>' + json[i].amount + '</td>' +
-                '<td style="text-align: left; word-break: break-all;">' + json[i].stock_remark + '</td>' +
+                '<td class="word_bk">' + json[i].stock_remark + '</td>' +
                 '<td style="font-size: 12px;">' + json[i].lot_num + '</td>' +
                 '<td style="font-size: 12px;">' + json[i].po_no + '</td>' +
                 '<td style="font-size: 12px;">' + json[i].updated_at + '</br>by：' + json[i].updated_user + '</td>' +

@@ -530,7 +530,7 @@
             return false;
         } 
         $.ajax({
-            url:'http://tw059332n/hrdb/api/index.php',
+            url:'http://localhost/hrdb/api/index.php',
             method:'get',
             dataType:'json',
             data:{

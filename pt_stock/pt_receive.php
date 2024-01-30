@@ -222,7 +222,7 @@
                                             echo "<td>".$t_amount."</td><td>".$t_lot_num."</td>";
 
                                             if($i == 0){ ?>
-                                                <td <?php echo $item_count >1 ? "rowspan='{$item_count}'":"";?> style="font-size: 10px;"><?php echo $ptreceive['updated_at']."</br>".$ptreceive['updated_cname'];?></td>
+                                                <td <?php echo $item_count >1 ? "rowspan='{$item_count}'":"";?> style="font-size: 12px;"><?php echo $ptreceive['updated_at']."</br>".$ptreceive['updated_cname'];?></td>
                                                 <td <?php echo $item_count >1 ? "rowspan='{$item_count}'":"";?> ><?php if($sys_role <= 1){ ?>    
                                                     <button type="button" id="edit_ptreceive_btn" value="<?php echo $ptreceive['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_ptreceive" onclick="edit_module('ptreceive',this.value)" >編輯</button>

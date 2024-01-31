@@ -155,7 +155,7 @@
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
                     </div>
-                    <hr>
+                    <!-- <hr> -->
                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                     <table id="local_list" class="table table-striped table-hover">
                         <thead>

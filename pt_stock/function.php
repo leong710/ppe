@@ -378,7 +378,7 @@
                     return;
             }
             if($row_stk['amount'] > 0){
-                $flag = "On";
+                $flag = "";
             }else{
                 $flag = "Off";
             }
@@ -547,7 +547,7 @@
                 FROM _fab _f
                 LEFT JOIN _site ON _f.site_id = _site.id 
                 WHERE _f.flag = 'On' ";
-        if($sfab_id != 'All'){
+        if($select_fab_id == 'allMy'){
             $sql .= " AND _f.id IN ({$sfab_id}) ";
         }  
         $sql .= " ORDER BY _f.id ASC ";
@@ -639,15 +639,16 @@
     function show_ptreceive($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT pt_r.*
-                FROM `pt_receive` pt_r ";
+        $sql = "SELECT pt_r.* , _f.fab_title, _f.fab_remark
+                FROM `pt_receive` pt_r 
+                LEFT JOIN _fab _f ON pt_r.fab_id = _f.id ";
         if($select_fab_id == "allMy"){
             $sql .= " WHERE pt_r.fab_id IN ({$sfab_id}) ";
         }else if($select_fab_id != "All"){
             $sql .= " WHERE pt_r.fab_id = ? ";
         }
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY fab_id ASC ";
+        $sql .= " ORDER BY app_date DESC ";
         // 決定是否採用 page_div 20230803
         if(isset($start) && isset($per)){
             $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
@@ -666,6 +667,23 @@
             echo $e->getMessage();
         }
     }
+    // PM顯示全部by年份 => 供查詢年份使用
+    function show_ptreceive_yy(){
+        $pdo = pdo();
+        $sql = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y') as yy 
+                -- SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') as ym 
+                FROM pt_receive 
+                ORDER BY yy DESC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $ptreceive_yys = $stmt->fetchAll();
+            return $ptreceive_yys;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
 
 // // // Create & Edit
 

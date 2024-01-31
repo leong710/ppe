@@ -311,9 +311,7 @@
                             </div>
                         </form>
                     </div>
-        
                 </div>
-                
                 <hr>
                 <!-- 尾段：debug訊息 -->
                 <?php 

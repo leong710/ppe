@@ -12,10 +12,10 @@
         );
 
         // $logs = JSON_encode($stocks_log);
-        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_user, checked_remark, form_type, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,? ,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);
+            $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $form_type, $checked_year, $half]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
         }catch(PDOException $e){

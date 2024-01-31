@@ -264,13 +264,20 @@
     }
 
 // // // show 年領用量與建議值
-    function show_myReceives(){
+    function show_ptreceives(){
         // 彙整出SN年領用量
-        Object(myReceives).forEach(function(row){
-            let csa = JSON.parse(row['cata_SN_amount']);
+        Object(ptreceives).forEach(function(row){
+            let csa = JSON.parse(row['item']);
             Object.keys(csa).forEach(key =>{
+                // 這裡還沒改 
+                var cata_SN_unity       = key;
+                var cata_SN_arr = cata_SN_unity.split(',');           // arr[0]=cata_SN, arr[1]=stk_id
+                    var cata_SN  = cata_SN_arr[0];
+                    var stk_id   = cata_SN_arr[1];
+
                 let pay = Number(csa[key]['pay']);
-                let l_key = row['local_id'] +'_'+ key;
+                // let l_key = row['local_id'] +'_'+ key;
+                let l_key = stk_id +'_'+ cata_SN;
                 if(receiveAmount[l_key]){
                     receiveAmount[l_key] += pay;
                 }else{
@@ -282,8 +289,8 @@
         // 選染到Table上指定欄位
         Object.keys(receiveAmount).forEach(key => {
             let value = receiveAmount[key];
-            $('#receive_'+key).empty();
-            $('#receive_'+key).append(value);
+            $('#ptreceive_'+key).empty();
+            $('#ptreceive_'+key).append(value);
         })
 
         let sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
@@ -464,9 +471,9 @@
         });
 
         // call fun show 年領用量與建議值
-        // if(stock.length >= 1){
-        //     show_myReceives();
-        // }
+        if(ptstock.length >= 1){
+            show_ptreceives();
+        }
 
         // 假如index找不到當下存在已完成的表單，就alarm它!
         // if (check_yh_list_num == '0') {

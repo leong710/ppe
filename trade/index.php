@@ -217,7 +217,7 @@
 
                         <!-- 右邊清單 -->
                         <div class="col-12 px-3">
-                            <!-- 20211215分頁工具 -->               
+                            <!-- 20211215分頁工具 進階改良版 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
                                     <?php
@@ -299,7 +299,7 @@
                                     ?>
                                 </div>
                             </div>
-                            <!-- 20211215分頁工具 -->
+                            <!-- 20211215分頁工具 進階改良版 -->
                             <table id="trade_lists" class="table table-hover">
                                 <thead>
                                     <tr class="table-danger text-danger">
@@ -366,7 +366,7 @@
                                 <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo isset($is_emp_id) ? "$is_emp_id":"";?> 的篩選文件! ] </div>
                             <?php } ?>
                             <hr>
-                            <!-- 20211215分頁工具 -->               
+                            <!-- 20211215分頁工具 進階改良版 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
                                     <?php
@@ -448,7 +448,7 @@
                                     ?>
                                 </div>
                             </div>
-                            <!-- 20211215分頁工具 -->
+                            <!-- 20211215分頁工具 進階改良版 -->
                         </div>
                     </div>
                 </div>

@@ -47,6 +47,7 @@
             echo $e->getMessage();
         }
     }
+
     function show_select_fab($request){
         $pdo = pdo();
         extract($request);
@@ -169,7 +170,27 @@
         // 1-1c sfab_id是陣列，要轉成字串
         return $result;
     }
-    
+    // --- ptstock index  20231218 領用量
+    function show_ptreceive($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT DISTINCT _r.* -- , _l.local_title , _l.local_remark 
+                    , _f.id AS fab_id , _f.fab_title , _f.fab_remark , _f.sign_code AS fab_sign_code , _f.pm_emp_id , _s.site_title , _s.site_remark 
+                FROM `_receive` _r
+                -- LEFT JOIN _local _l ON _r.local_id = _l.id
+                LEFT JOIN _fab _f ON _r.fab_id = _f.id
+                LEFT JOIN _site _s ON _f.site_id = _s.id
+                WHERE _r.fab_id = ? AND DATE_FORMAT(_r.created_at, '%Y') = ? AND ( _r.idty = 1)";  // 10=結案
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$fab_id, $thisYear]);
+            $my_receive_lists = $stmt->fetchAll();
+            return $my_receive_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // pt_Local 20240122 for 除汙劑/應變器材
     // local項目--新增 20240122
     function store_ptlocal($request){
@@ -297,6 +318,7 @@
     //         echo $e->getMessage();
     //     }
     // }
+
     // 儲存low_level設定值
     function store_lowLevel($request){
         $pdo = pdo();
@@ -307,17 +329,6 @@
             "content"   => "安全存量設定--"
         );
         // low_level資料前處理
-        // $low_level = array_filter($low_level);             // 去除陣列中空白元素  => 20231229_這會把安量0的給濾除，導致錯誤
-        // $amount = array_filter($amount);                    // 去除陣列中空白元素
-        // // 小陣列要先編碼才能塞進去大陣列
-        //     $catalog_SN_enc = json_encode($catalog_SN);
-        //     $amount_enc = json_encode($amount);
-        // //陣列合併
-        //     $low_level_arr = [];
-        //     $low_level_arr['catalog_SN'] = $catalog_SN_enc;
-        //     $low_level_arr['amount'] = $amount_enc;
-        // // implode()把陣列元素組合為字串：
-        //     $low_level_str = $amount_enc;               // 陣列轉成字串進行儲存到mySQL
             $low_level_str = json_encode($low_level);      // 陣列轉成字串進行儲存到mySQL
         
         $sql = "UPDATE pt_local

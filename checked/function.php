@@ -35,12 +35,15 @@
     function delete_checked_item($request){
         $pdo = pdo();
         extract($request);
+
         $sql = "DELETE FROM checked_log WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
+            return true;
         }catch(PDOException $e){
             echo $e->getMessage();
+            return false;
         }
     }
 // // // checked CRUD -- end
@@ -50,7 +53,7 @@
     function show_checked($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT checked_log.*, _fab.fab_title 
+        $sql = "SELECT checked_log.*, _fab.fab_title , _fab.fab_remark 
                 FROM `checked_log`
                 LEFT JOIN _fab ON _fab.id = checked_log.fab_id
                 -- WHERE checked_log.fab_id = ?

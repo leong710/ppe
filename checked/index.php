@@ -5,8 +5,12 @@
     accessDenied($sys_id);
 
     // 先給預設值
-    $sort_fab_id = $fab_id = $_SESSION[$sys_id]["fab_id"];
-    $sort_emp_id = $emp_id = $_SESSION["AUTH"]["emp_id"];
+    $auth_fab_id = $_SESSION[$sys_id]["fab_id"];
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
+    $sys_role    = $_SESSION[$sys_id]["role"];              // 取出$_session引用
+
+    if(isset($_POST["checked_delete"])){ $swal_json = delete_checked_item($_REQUEST); }      // 刪除delete
+
         // 今年年份
         $thisYear = date('Y');                          // 今年
         // // *** 篩選組合項目~~
@@ -24,8 +28,8 @@
             }
 
     $list_setting = array(                              // 組合查詢陣列
-        'fab_id'        => $sort_fab_id,
-        'emp_id'        => $sort_emp_id,
+        'fab_id'        => $auth_fab_id,
+        'emp_id'        => $auth_emp_id,
         'checked_year'  => $checked_year,               // 建立查詢陣列for顯示今年點檢表
         'half'          => $half                        // 建立查詢陣列for顯示今年點檢表
     );
@@ -178,8 +182,8 @@
                             <table class="history-table">
                                 <thead>
                                     <tr>
-                                        <th>aid</th>
                                         <th>fab</th>
+                                        <th>表單分類</th>
                                         <th>點檢年度</th>
                                         <th>點檢日期/點檢人</th>
                                         <th>備註說明</th>
@@ -190,14 +194,16 @@
                                     <!-- 鋪設內容 -->
                                     <?php foreach($div_checkeds as $checked_list){ ?>
                                         <tr>
-                                            <td style="font-size: 6px;"><?php echo $checked_list['id'];?></td>
-                                            <td><?php echo $checked_list['fab_title'];?></td>
+                                            <td title="<?php echo $checked_list['id'];?>"><?php echo $checked_list['fab_title'];?></td>
+                                            <td><?php echo $checked_list['form_type'];?></td>
                                             <td><?php if(isset($checked_list['checked_year'])){
                                                         echo $checked_list['checked_year']."_".$checked_list['half'];}?></td>
                                             <td><?php if(isset($checked_list['created_at'])){ 
                                                         echo $checked_list['created_at']." / ".$checked_list['updated_user'];}?></td>
                                             <td class="word_bk"><?php echo $checked_list['checked_remark'];?></td>
-                                            <td><a href="read.php?id=<?php echo $checked_list['id'];?>&from2=index" class="btn btn-sm btn-xs btn-info">檢視</a></td>
+                                            <!-- <td><a href="read.php?id=<php echo $checked_list['id'];?>&from2=index" class="btn btn-sm btn-xs btn-info">檢視</a></td> -->
+                                            <td><button type="button" class="btn btn-sm btn-xs btn-info reviewBtn " value="<?php echo $checked_list['id'];?>" 
+                                                data-bs-toggle="modal" data-bs-target="#review_checked">檢視</button></td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
@@ -267,6 +273,87 @@
         </div>
     </div>
 
+<!-- 彈出畫面模組 除汙器材領用 品項 -->
+    <div class="modal fade" id="review_checked" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header add_mode_bgc">
+                    <h4 class="modal-title"><span id="modal_action"></span>檢視點檢紀錄</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body bg-light p-2">
+                    <!-- 第一列 文件表頭 -->
+                    <div class="col-xl-12 col-12 py-0">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div>
+                                    點檢單號：<span id="aid_id"></span></br>
+                                    點檢日期：<span id="created_at"></span></br>
+                                    點檢廠區：<span id="fab_title"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div>
+                                    <!-- // 這裡的updated_user指的是點檢表單儲存人 -->
+                                    點檢人員：<span id="updated_user"></span></br>
+                                    表單分類：<span id="form_type"></span></br>
+                                    點檢年度：<span id="checked_year"></span>_<span id="half"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- 第二排 歷史儲存狀況table -->
+                    <div class="col-xl-12 col-12 py-0">
+                        <table class="for-table">
+                            <thead>
+                                <tr>
+                                    <th>儲存點位置</th>
+                                    <th>分類</th>
+                                    <th>名稱</th>
+                                    <th>size</th>
+                                    <th>安量</th>
+                                    <th>存量</th>
+                                    <th>備註說明</th>
+                                    <th>批號/期限</th>
+                                    <th>PO no</th>
+                                    <th>更新日期</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checked_tbody">
+                                <!-- 鋪設內容 -->
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="checked_remark" class="form-check-label" >點檢備註說明：</label>
+                                <textarea name="checked_remark" id="checked_remark" class="form-control" rows="5" readonly ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <form action="" method="POST">
+                                <input type="hidden" name="id" id="checked_delete_id" value="">
+                                <?php if($sys_role <= 1){ ?>
+                                    <input type="submit" name="checked_delete" value="刪除紀錄" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
+                                <?php } ?>
+                            </form>
+                        </div>
+                        <div class="col-12 col-md-6 text-end">
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <!-- 彈出畫面模組2 匯出CSV-->
     <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
@@ -320,23 +407,13 @@
     // <php echo "var check_yh_list_num ='$check_yh_list_num';";?>
     // 半年檢
     var check_yh_list_num   = 'x';
-    var thisYear            = '<?=$thisYear;?>';
-    var half                = '<?=$half;?>';
-
-    function alert(message, type) {
-        var alertPlaceholder = document.getElementById("liveAlertPlaceholder");      // Bootstrap Alarm
-        var wrapper = document.createElement('div');
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
-                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-        alertPlaceholder.append(wrapper);
-    }
-    // 假如index找不到當下存在已完成的表單，就alarm它!
-    if (check_yh_list_num == '0') {
-        let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ ';
-        alert( message, 'danger')
-    }
-
+    var thisYear            = '<?=$thisYear?>';
+    var half                = '<?=$half?>';
+    var checked_lists       = <?=json_encode($checked_lists)?>;
+    var checked_item = ["id", "created_at", "fab_title", "fab_remark", "updated_user", "form_type", "checked_year", "half", "checked_remark", "stocks_log"]    // 定義要抓的key
 
 </script>
+
+<script src="checked.js?v=<?=time();?>"></script>
 
 <?php include("../template/footer.php"); ?>

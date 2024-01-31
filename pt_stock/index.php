@@ -80,7 +80,7 @@
         // init.4_
             $stocks     = show_ptstock($query_arr);            // 依查詢條件儲存點顯示存量
         // init.5_
-            // $myReceives = show_my_receive($query_arr);         // 列出這個fab_id、今年度的領用單
+            $ptreceives = show_ptreceive($query_arr);         // 列出這個fab_id、今年度的領用單
         // init.6_
             // $check_yh_list = check_yh_list($query_arr);        // 查詢自己的點檢紀錄：半年檢
             // $check_yh_list_num = count($check_yh_list);                 // 計算自己的點檢紀錄筆數：半年檢
@@ -130,6 +130,7 @@
         // // // print_r($select_locals_id);
         // // print_r($sort_sfab_id);
         // print_r($stocks);
+        // print_r($ptreceives);
         // echo "</pre>";
 ?>
 
@@ -265,7 +266,7 @@
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
                     </div>
-                    <hr>
+                    <!-- <hr> -->
                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->               
                     <table id="stock_list" class="table table-striped table-hover">
                         <thead>
@@ -295,7 +296,7 @@
                             <?php foreach($stocks as $stock){ ?>
                                 <tr <?php echo ($check_item != $stock['local_id']) ? 'style="border-top:3px #FFD382 solid;"':'';?>>
                                     <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
-                                    <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
+                                    <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."</br>".$stock['local_title'];?></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
                                             case "1": echo "bg-primary"; break;
                                             case "2": echo "bg-success"; break;
@@ -306,9 +307,10 @@
                                             case "7": echo "bg-secondary"; break;
                                             default: echo "bg-light text-success"; break;
                                         }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
-                                    <td class="word_bk"><?php echo $stock["SN"]."_".$stock['pname'];
+                                    <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
-                                    <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
+                                <!-- 年領用 -->
+                                    <td id="ptreceive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>"
                                         <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
@@ -316,7 +318,8 @@
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                 <!-- 選用 -->
                                     <td><input type="checkbox" class="select_item" name="<?php echo $stock["SN"].'_'.$stock["stk_id"];?>" id="<?php echo 'add_'.$stock['SN'].'_'.$stock['stk_id'];?>" 
-                                            value="<?php echo $stock['amount'];?>" onchange="add_item(this.name, this.value, 'off');" <?php echo $stock["amount"] <="0" ? "disabled":"";?>></td>
+                                            value="<?php echo $stock['amount'];?>" onchange="add_item(this.name, this.value, 'off');" 
+                                            <?php echo $stock["amount"] <="0" ? " disabled":""; echo isset($select_fab["id"]) ? "":" disabled";?>></td>
                                     
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
                                     <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
@@ -519,6 +522,7 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="hidden" name="action"          value="store_ptcheckList">
+                            <input type="hidden" name="form_type"       value="J">
                             <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
                             <input type="hidden" name="fab_id"          value="<?php echo $select_fab["id"];?>">
                             <input type="hidden" name="emp_id"          value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
@@ -616,7 +620,7 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="hidden" name="id" id="receive_edit_id" >
-                            <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
+                            <input type="hidden" name="select_fab_id" value="<?php echo $select_fab["id"];?>">
                             <input type="hidden" name="created_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <input type="hidden" name="emp_id" value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="idty" value="1"> <!-- idty:1 扣帳 -->
@@ -671,8 +675,8 @@
     var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
     
 // 找出Local_id算SN年領用量
-    // var myReceives      = <=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
-    // var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
+    var ptreceives      = <?=json_encode($ptreceives);?>;                 // 引入ptreceives資料，算年領用量
+    var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
 
 // 半年檢
     // var check_yh_list_num   = '<=$check_yh_list_num;?>';

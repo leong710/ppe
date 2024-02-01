@@ -80,13 +80,15 @@
 
     function show_formplan(){
         $pdo = pdo();
-        $sql = "SELECT * ,
+        $sql = "SELECT _plan.* ,
                     CASE
-                        WHEN NOW() BETWEEN start_time AND end_time THEN 'true'
+                        WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
                         ELSE 'false'
                     END AS onGoing 
-                FROM _formplan 
-                ORDER BY id ASC";
+                    , _case.title AS case_title
+                FROM _formplan _plan
+                LEFT JOIN _formcase _case ON _plan._type = _case._type
+                ORDER BY _plan.id ASC";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
@@ -98,6 +100,97 @@
     }
 
 
+// // // _formcase CRUD
+    function store_formcase($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "INSERT INTO _formcase(_type, title, flag, updated_user, created_at, updated_at)VALUES(?,?,?,? ,now(),now())";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$_type, $title, $flag, $updated_user]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    function edit_formcase($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT * FROM _formcase WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $formcase = $stmt->fetch();
+            return $formcase;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    function update_formcase($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "UPDATE _formcase SET _type=?, title=?, flag=?, updated_user=?, updated_at=now() WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$_type, $title, $flag, $updated_user, $id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    function delete_formcase($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM _formcase WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // formcase 隱藏或開啟
+    function changeformcase_flag($request){
+        $pdo = pdo();
+        extract($request);
+
+        $sql_check = "SELECT _formcase.* FROM _formcase WHERE id=?";
+        $stmt_check = $pdo -> prepare($sql_check);
+        $stmt_check -> execute([$id]);
+        $row = $stmt_check -> fetch();
+
+        if($row['flag'] == "Off" || $row['flag'] == "chk"){
+            $flag = "On";
+        }else{
+            $flag = "Off";
+        }
+
+        $sql = "UPDATE _formcase SET flag=? WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$flag, $id]);
+            $Result = array(
+                'id'   => $id,
+                'flag' => $flag
+            );
+            return $Result;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    
+    // 在index表頭顯示清單：
+    function show_formcase(){
+        $pdo = pdo();
+        $sql = "SELECT * FROM _formcase ORDER BY id ASC";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $formcase = $stmt->fetchAll();
+            return $formcase;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 
 
 

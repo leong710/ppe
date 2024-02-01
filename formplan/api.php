@@ -31,6 +31,10 @@
                 } else {
                     if($su['table'] == "_formplan"){
                         $cheng_flag = changeFormplan_flag($su);
+
+                    }else if($su['table'] == "_formcase"){
+                        $cheng_flag = changeformcase_flag($su);
+
                     }else{
                         $cheng_flag = array(
                             'table' => $su['table'], 

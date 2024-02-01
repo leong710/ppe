@@ -640,6 +640,73 @@
         }
     }
 
+    
+    // 20240119 查詢表單計畫 step-0
+    function show_formplan($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _plan.* ,
+                    CASE
+                        WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
+                        ELSE 'false'
+                    END AS onGoing 
+                    , _case.title AS case_title
+                FROM _formplan _plan
+                LEFT JOIN _formcase _case ON _plan._type = _case._type
+                WHERE (_plan.flag = 'On') AND ( NOW() BETWEEN _plan.start_time AND _plan.end_time) ";
+        if(!empty($form_type)){
+            $sql .= " AND _plan._type = ? ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _plan.updated_at DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            // echo $sql;
+            if(!empty($form_type)){
+                $stmt->execute([$form_type]);
+            }else{
+                $stmt->execute();
+            }
+            $formplans = $stmt->fetchAll();
+            return $formplans;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20240119 查詢表單計畫 step-1 回饋 true / false
+    function show_plan($query_arr){
+        $formplans = show_formplan($query_arr);         // 查詢表單計畫 20240118 == 讓表單呈現 ON 或 Off
+        $s_time = date("Y-m-d");
+        $e_time = date("Y-m-d");
+        $_inplan = null;
+        $case_title = "";
+        foreach($formplans as $plan){                   // 遍歷每一筆計畫
+            if($plan["onGoing"] == "true"){             // 假如計畫啟動中 + 區間 = Off
+                if($plan["_inplan"] == "Off"){
+                    $_inplan = false ;                  // 任何一個計畫的_inplan為Off，設為false
+                    break;                              // 跳出迴圈，因為已經確定結果
+                } else {
+                    $_inplan = true ;                   // 反之就以on為主
+                    if($plan["start_time"] < $s_time){
+                        $s_time = $plan["start_time"];
+                    }
+                    if($plan["end_time"] > $e_time){
+                        $e_time = $plan["end_time"];
+                    }
+                } 
+            } 
+            $case_title = $plan["case_title"];
+        }
+        $result = array(
+            "case_title" => $case_title,
+            "start_time" => $s_time,
+            "end_time"   => $e_time,
+            "_inplan"    => $_inplan
+        );
+        return $result;
+    }
+
+
     // 20231222 doCheck_log() ：半年檢
     function store_checked($request){
         $pdo = pdo();
@@ -651,10 +718,10 @@
         );
 
         // $logs = JSON_encode($stocks_log);
-        $sql = "INSERT INTO checked_log(fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO checked_log(form_type, fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);
+            $stmt->execute([$form_type, $fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
         }catch(PDOException $e){
@@ -695,10 +762,10 @@
         extract($request);
         $sql = "SELECT *
                 FROM `checked_log`
-                WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ?";
+                WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ? AND checked_log.form_type = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$fab_id, $checked_year, $half]);
+            $stmt->execute([$fab_id, $checked_year, $half, $form_type]);
             $check_yh_list = $stmt->fetchAll();
             return $check_yh_list;
         }catch(PDOException $e){

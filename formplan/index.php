@@ -2,8 +2,8 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
-    accessDenied($sys_id);
-    // accessDeniedAdmin();
+    // accessDenied($sys_id);
+    accessDeniedAdmin($sys_id);
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
@@ -18,6 +18,8 @@
         // 調整flag ==> 20230712改用AJAX
 
     $formplans = show_formplan();
+    $formcases = show_formcase();
+
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -68,11 +70,12 @@
                     </div>
                     <div class="col-md-6 text-end">
                         <?php if($sys_role <= 1){ ?>
-                            <button type="button" id="add_formplan_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module()" > <i class="fa fa-plus"></i> 新增</button>
+                            <button type="button" id="add_formplan_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module()" > <i class="fa fa-plus"></i> 新增計畫</button>
+                            <a href="formcase.php" title="編輯表單" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯表單</a>
                         <?php } ?>
                         <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
                     </div>
-                    <div class="col-md-12 rounded bg-warning">
+                    <div class="col-md-12 rounded bg-warning px-4">
                         <div>
                             <span><b>!! 重要提醒 !!：相同表單 不同計畫 的 [起始時間]和[結束時間] 重疊的問題，避免造成錯誤!!</b></span>
                         </div>
@@ -90,36 +93,32 @@
                             <tr>
                                 <th>id</th>
                                 <th>_type</th>
-                                <th>remark</th>
+                                <th>plan_remark</th>
                                 <th>start_time</th>
                                 <th>_inplan</th>
                                 <th>end_time</th>
                                 <th>flag</th>
-                                <?php if($sys_role <= 1){ ?>
-                                    <th>action</th>
-                                <?php } ?>
+                                <th>created/updated</th>
+                                <th>updated_user/action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach($formplans as $plan){ ?>
                                 <tr>
                                     <td><?php echo $plan["id"];?></td>
-                                    <td><?php echo $plan["_type"];?></td>
+                                    <td><?php echo $plan["case_title"]."</br>( ".$plan["_type"]." )";?></td>
                                     <td><?php echo $plan["remark"];?></td>
                                     <td><?php echo date('Y-m-d H:i', strtotime($plan["start_time"]));?></td>
                                     <td><span class='badge rounded-pill <?php echo $plan["onGoing"] == "true" ? "bg-danger":"bg-secondary text-white";?>'><?php echo $plan["_inplan"];?></span></td>
                                     <td><?php echo date('Y-m-d H:i', strtotime($plan["end_time"]));?></td>
-                                    <td><?php if($sys_role <= 1){ ?>
-                                            <button type="button" name="_formplan" id="<?php echo $plan['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $plan['flag'];?>"><?php echo $plan['flag'];?></button>
-                                        <?php }else{ ?>
-                                            <span class="btn btn-sm btn-xs <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
-                                                <?php echo $plan['flag'] == 'On' ? '顯示':'隱藏';?>
-                                            </span>
-                                        <?php } ?></td>
-                                    <td><?php if($sys_role <= 1){ ?>    
+                                    <td><button type="button" name="_formplan" id="<?php echo $plan['id'];?>" value="<?php echo $plan['flag'];?>" 
+                                            class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>"><?php echo $plan['flag'];?></button>
+                                    </td>
+                                    <td><?php echo $plan["created_at"]."</br>".$plan["updated_at"];?></td>
+                                    <td><?php echo $plan["updated_user"]."&nbsp";?>   
                                         <button type="button" id="edit_modal_btn" value="<?php echo $plan['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                             data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="edit_module(this.value)" >編輯</button>
-                                    <?php } ?></td>
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -130,7 +129,7 @@
         </div>
     </div>
     
-    <!-- 彈出畫面模組 編輯、新增-->
+    <!-- 彈出畫面模組 Plan 編輯、新增-->
         <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -155,9 +154,11 @@
                                     <div class="form-floating">
                                         <select name="_type" id="_type" class="form-select" required>
                                             <option for="_type" value="" hidden >-- 選擇計畫表單 --</option>
-                                            <option for="_type" value="issue"   >1.issue請購需求</option>
-                                            <option for="_type" value="trade"   disabled >2.trade出入作業</option>
-                                            <option for="_type" value="receive" disabled >3.receive領用</option>
+                                            <?php foreach($formcases as $formcase){ ?>
+                                                <option for="_type" value="<?php echo $formcase["_type"];?>" title="<?php echo $formcase["title"];?>"
+                                                    <?php echo $formcase["flag"] == "Off" ? " disabled":"";?> ><?php echo $formcase["title"]; 
+                                                          echo $formcase["flag"] == "Off" ? " (--已關閉--)":"";?></option>
+                                            <?php } ?>
                                         </select>
                                         <label for="_type" class="form-label">type/表單類別：<sup class="text-danger"> *</sup></label>
                                     </div>

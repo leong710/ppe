@@ -580,6 +580,7 @@
 <script>
     // init
     var sys_role    = '<?=$sys_role?>';
+    var case_title  = '<?=$case_title?>';
     var _inplan     = '<?=$_inplan?>';
     var start_time  = '<?=$start_time?>';
     var end_time    = '<?=$end_time?>';
@@ -613,9 +614,9 @@
 
         // 假如index找不到當下存在已完成的表單，就alarm它!
         if (_inplan && (sys_role <= 2)) {
-            let message  = '*** PPE請購需求開放申請時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp有需求請務必在指定時間前完成申請&nbsp~&nbsp';
+            let message  = '*** <b>'+case_title+'</b> 開放申請時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp有需求請務必在指定時間前完成申請&nbsp~&nbsp';
             message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<a href="form.php?action=create">'+'<b>打開請購需求單</b></a>';
-            alert( message, 'danger')
+            alert( message, 'warning')
         }
 
     })

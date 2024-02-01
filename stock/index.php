@@ -10,9 +10,11 @@
     }else{
         $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
     }
-
+    
+    $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $form_type   = "stock";
 
     // add module function --
         $swal_json = array();
@@ -31,7 +33,7 @@
         
         $catalogs = show_catalogs();                        // 取得所有catalog項目，供create使用
         $allLocals = show_allLocal();                       // 取得所有的Local儲存點，供create使用
-        // $allLocals = show_local($list_issue_setting);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
+        // $allLocals = show_local($query_arr);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
@@ -73,26 +75,26 @@
             $half = "H2";
         }
     // 組合查詢條件陣列
-        $list_issue_setting = array(
+        $query_arr = array(
             'fab_id'        => $sort_fab_id,
             'cate_no'       => $sort_cate_no,
             'thisYear'      => $thisYear,
             'checked_year'  => $thisYear,               // 建立查詢陣列for顯示今年點檢表
-            'half'          => $half                    // 建立查詢陣列for顯示今年點檢表
+            'half'          => $half,                   // 建立查詢陣列for顯示今年點檢表
+            'form_type'     => $form_type
         );
  
-        $stocks = show_stock($list_issue_setting);                  // 依查詢條件儲存點顯示存量
-        $categories = show_categories();                            // 取得所有分類item
-        $sum_categorys = show_sum_category($list_issue_setting);    // 統計分類與數量
-        $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
+        $stocks = show_stock($query_arr);                  // 依查詢條件儲存點顯示存量
+        $categories = show_categories();                   // 取得所有分類item
+        $sum_categorys = show_sum_category($query_arr);    // 統計分類與數量
+        $myReceives = show_my_receive($query_arr);         // 列出這個fab_id、今年度的領用單
 
-        $check_yh_list = check_yh_list($list_issue_setting);        // 查詢自己的點檢紀錄：半年檢
-        $check_yh_list_num = count($check_yh_list);                 // 計算自己的點檢紀錄筆數：半年檢
+        $check_yh_list = check_yh_list($query_arr);        // 查詢自己的點檢紀錄：半年檢
+        $check_yh_list_num = count($check_yh_list);        // 計算自己的點檢紀錄筆數：半年檢
 
-        $sortFab = show_fab($list_issue_setting);                   // 查詢fab的細項結果
-        if(empty($sortFab)){                                        // 查無資料時返回指定頁面
-            // echo "<script>history.back()</script>";                 // 用script導回上一頁。防止崩煃
-        }
+        $sortFab = show_fab($query_arr);                   // 查詢fab的細項結果
+
+        extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
 
     // <!-- 20211215分頁工具 -->
@@ -106,11 +108,11 @@
             //     }
             //     $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
             //     // 合併嵌入分頁工具
-            //     $list_issue_setting['start'] = $start;
-            //     $list_issue_setting['per'] = $per;
+            //     $query_arr['start'] = $start;
+            //     $query_arr['per'] = $per;
 
-            // $div_stocks = show_stock($list_issue_setting);
-            // // $div_stocks = stock_page_div($start, $per, $list_issue_setting);
+            // $div_stocks = show_stock($query_arr);
+            // // $div_stocks = stock_page_div($start, $per, $query_arr);
             // $page_start = $start +1;            //選取頁的起始筆數
             // $page_end = $start + $per;          //選取頁的最後筆數
             //     if($page_end>$per_total){       //最後頁的最後筆數=總筆數
@@ -166,6 +168,13 @@
                 background-color: #FFBFFF;
                 color: red;
             }
+        /* inline */
+            .inb {
+                display: inline-block;
+            }
+            .inf {
+                display: inline-flex;
+            }
     </style>
     <script>    
         // loading function
@@ -209,25 +218,28 @@
                         </form>
                     </div>
                     <!-- 表頭按鈕 -->
-                    <div class="col-md-4 py-0 text-end">
-                        <div class="row">
-                            <div class="col-md-6 py-0 text-end">
-                                <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
-                                    <?php if($sys_role <= 1 ){ ?>
-                                        <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 單筆新增</button>
-                                    <?php } ?>
-                                <?php } ?>
-                            </div>
-                            <div class="col-md-6 py-0 text-end">
-                                <!-- 20231128 下載Excel -->
-                                <?php if($per_total != 0){ ?>
-                                    <form id="myForm" method="post" action="../_Format/download_excel.php">
-                                        <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
-                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
-                                    </form>
-                                <?php } ?>
-                            </div>
+                    <div class="col-md-4 py-0 text-end inb">
+                        <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
+                            <?php if($_inplan && $sys_role <= 2 && ($check_yh_list_num == 0)){?>
+                                <div class="inb">
+                                    <button type="button" id="checkList_btn" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
+                                </div>
+                            <?php } ?>
+                            <?php if($sys_role <= 1 ){ ?>
+                                <div class="inb">
+                                    <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 新增</button>
+                                </div>
+                            <?php } ?>
+                        <?php } ?>
+                        <div class="inb">
+                            <!-- 20231128 下載Excel -->
+                            <?php if($per_total != 0){ ?>
+                                <form id="myForm" method="post" action="../_Format/download_excel.php">
+                                    <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                    <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
+                                        <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
+                                </form>
+                            <?php } ?>
                         </div>
                     </div>
                     <!-- Bootstrap Alarm -->
@@ -446,7 +458,7 @@
                             <input type="hidden" name="id" id="stock_edit_id" >
                             <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
                             <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <span id="modal_button"></span>
                             <?php } ?>
@@ -482,7 +494,7 @@
                                 </div>
                                 <div class="col-md-5 py-0">
                                     <div>
-                                        點檢人員：<?php echo $_SESSION["AUTH"]["cname"];?></br>
+                                        點檢人員：<?php echo $auth_cname;?></br>
                                         點檢年度：<?php echo $today_year." / ".$half;?>
                                     </div>
                                 </div>
@@ -505,14 +517,15 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             <input type="hidden" name="action"          value="store_checkList">
+                            <input type="hidden" name="form_type"       value="<?php echo $form_type;?>">
                             <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
                             <input type="hidden" name="fab_id"          value="<?php echo $sortFab["id"];?>">
-                            <input type="hidden" name="emp_id"          value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
-                            <input type="hidden" name="cname"           value="<?php echo $_SESSION["AUTH"]["cname"]; ?>">
+                            <input type="hidden" name="emp_id"          value="<?php echo $auth_emp_id;?>">
+                            <input type="hidden" name="cname"           value="<?php echo $auth_cname; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
                             <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
-                            <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user"    value="<?php echo $auth_cname;?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
                             <?php } ?>
@@ -552,22 +565,27 @@
 
 <script>
 // // // 開局導入設定檔
-    var allLocals   = <?=json_encode($allLocals);?>;                   // 引入所有local的allLocals值
+    var allLocals   = <?=json_encode($allLocals)?>;                   // 引入所有local的allLocals值
     var low_level   = [];                                              // 宣告low_level變數
-    var stock       = <?=json_encode($stocks);?>;                       // 引入div_stocks資料
+    var stock       = <?=json_encode($stocks)?>;                       // 引入div_stocks資料
     var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-    var swal_json   = <?=json_encode($swal_json);?>;                   // 引入swal_json值
+    var swal_json   = <?=json_encode($swal_json)?>;                   // 引入swal_json值
     
 // 先定義一個陣列(裝輸出資料使用)for 下載Excel
-    var listData        = <?=json_encode($stocks);?>;                   // 引入stocks資料
+    var listData        = <?=json_encode($stocks)?>;                   // 引入stocks資料
 // 找出Local_id算SN年領用量
-    var myReceives      = <?=json_encode($myReceives);?>;               // 引入myReceives資料，算年領用量
+    var myReceives      = <?=json_encode($myReceives)?>;               // 引入myReceives資料，算年領用量
     var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
 
 // 半年檢
-    var check_yh_list_num   = '<?=$check_yh_list_num;?>';
-    var thisYear            = '<?=$thisYear;?>';
-    var half                = '<?=$half;?>';
+    var check_yh_list_num   = '<?=$check_yh_list_num?>';
+    var thisYear            = '<?=$thisYear?>';
+    var half                = '<?=$half?>';
+    var sys_role            = '<?=$sys_role?>';
+    var case_title          = '<?=$case_title?>';
+    var _inplan             = '<?=$_inplan?>';
+    var start_time          = '<?=$start_time?>';
+    var end_time            = '<?=$end_time?>';
 
 </script>
 

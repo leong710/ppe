@@ -307,18 +307,20 @@
     function show_formplan($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _fp.* ,
+        $sql = "SELECT _plan.* ,
                     CASE
-                        WHEN NOW() BETWEEN _fp.start_time AND _fp.end_time THEN 'true'
+                        WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
                         ELSE 'false'
                     END AS onGoing 
-                FROM _formplan _fp
-                WHERE (_fp.flag = 'On') AND ( NOW() BETWEEN _fp.start_time AND _fp.end_time) ";
+                    , _case.title AS case_title
+                FROM _formplan _plan
+                LEFT JOIN _formcase _case ON _plan._type = _case._type
+                WHERE (_plan.flag = 'On') AND ( NOW() BETWEEN _plan.start_time AND _plan.end_time) ";
         if(!empty($form_type)){
-            $sql .= " AND _fp._type = ? ";
+            $sql .= " AND _plan._type = ? ";
         }
         // 後段-堆疊查詢語法：加入排序
-        $sql .= " ORDER BY _fp.updated_at DESC ";
+        $sql .= " ORDER BY _plan.updated_at DESC ";
         $stmt = $pdo->prepare($sql);
         try {
             // echo $sql;
@@ -339,6 +341,7 @@
         $s_time = date("Y-m-d");
         $e_time = date("Y-m-d");
         $_inplan = null;
+        $case_title = "";
         foreach($formplans as $plan){                   // 遍歷每一筆計畫
             if($plan["onGoing"] == "true"){             // 假如計畫啟動中 + 區間 = Off
                 if($plan["_inplan"] == "Off"){
@@ -354,8 +357,10 @@
                     }
                 } 
             } 
+            $case_title = $plan["case_title"];
         }
         $result = array(
+            "case_title" => $case_title,
             "start_time" => $s_time,
             "end_time"   => $e_time,
             "_inplan"    => $_inplan

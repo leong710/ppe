@@ -207,7 +207,7 @@
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
                                     <?php foreach($fabs as $fab){ ?>
-                                        <?php if($sys_role <= 0 || (in_array($fab["id"], $sfab_id)) ){ ?>  
+                                        <?php if($sys_role <= 1 || (in_array($fab["id"], $sfab_id)) ){ ?>  
                                             <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
@@ -231,16 +231,16 @@
                                 </div>
                             <?php } ?>
                         <?php } ?>
-                        <div class="inb">
-                            <!-- 20231128 下載Excel -->
-                            <?php if($per_total != 0){ ?>
+                        <?php if($per_total != 0){ ?>
+                            <div class="inb">
+                                <!-- 20231128 下載Excel -->
                                 <form id="myForm" method="post" action="../_Format/download_excel.php">
                                     <input type="hidden" name="htmlTable" id="htmlTable" value="">
                                     <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($sortFab["id"]) ? $sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>" value="stock" onclick="submitDownloadExcel('stock')" >
                                         <i class="fa fa-download" aria-hidden="true"></i> 匯出Excel</button>
                                 </form>
-                            <?php } ?>
-                        </div>
+                            </div>
+                        <?php } ?>
                     </div>
                     <!-- Bootstrap Alarm -->
                     <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
@@ -260,12 +260,12 @@
                                     <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
                         <?php  } ?>
-                        <?php if($sys_role <= 1){?>
+                        <!-- <php if($sys_role <= 1){?>
                             <li class="nav-item">
                                 <button type="button" id="checkList_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
                                     <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
                             </li>
-                        <?php } ?>
+                        <php } ?> -->
                     </ul>
                 </div>
                 <!-- by各Local儲存點： -->

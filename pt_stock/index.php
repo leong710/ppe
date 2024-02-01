@@ -130,7 +130,7 @@
         // echo "<pre>";
         // print_r($_REQUEST);
         // print_r($stocks);
-        // print_r($fp);
+        // print_r($ptreceives);
         // echo "</pre>";
 ?>
 
@@ -203,6 +203,7 @@
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link active" href="index.php">除汙器材庫存管理</span></a></li>
                         <li class="nav-item"><a class="nav-link" href="pt_receive.php">領用記錄</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="sum_report.php"><i class="fa-solid fa-chart-column"></i> 除汙器材管控清單</span></a></li>
                         <?php if($sys_role <= 1){?>
                             <li class="nav-item"><a class="nav-link " href="pt_local.php">除汙儲存點管理</span></a></li>
                             <li class="nav-item"><a class="nav-link " href="low_level.php">儲存點安量管理</span></a></li>
@@ -312,7 +313,7 @@
                                     <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                 <!-- 年領用 -->
-                                    <td id="ptreceive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
+                                    <td id="ptreceive_<?php echo $stock['stk_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>"
                                         <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>

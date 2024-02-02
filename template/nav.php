@@ -97,6 +97,7 @@
                                         <?php if($numChecked == 0){?>
                                             <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
                                         <?php }?></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>PPE器材管控清單</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
 
                                     <li><hr class="dropdown-divider"></li>
@@ -123,7 +124,7 @@
 
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i> 除汙器材管控清單</span></b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>除汙器材管控清單</b></a></li>
                                 </ul>
                             </li>
                         <?php } ?>

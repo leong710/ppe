@@ -66,7 +66,11 @@
     }else{
         $activeTab = "2";       // 2 = local
     }
-
+        // echo "<pre>";
+        // print_r($_REQUEST);
+        // print_r($stocks);
+        // print_r($ptlocals);
+        // echo "</pre>";
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -128,6 +132,7 @@
                         <!-- sort/groupBy function -->
                         <div class="col-md-4 pb-0">
                             <form action="" method="POST">
+                                <!-- <input type="hidden" name="sfab_id" value="<php echo $sort_sfab_id;?>"> -->
                                 <div class="input-group">
                                     <span class="input-group-text">篩選</span>
                                     <select name="select_fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">

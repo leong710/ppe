@@ -94,10 +94,11 @@
                                               echo ($num12 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num12.'</span>':''; ?></a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
-                                    <?php if($numChecked == 0){?>
+                                        <?php if($numChecked == 0){?>
                                             <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
                                         <?php }?></a></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
+
                                     <li><hr class="dropdown-divider"></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>
@@ -107,6 +108,7 @@
                                         <?php if($numTrade !=0){?>
                                             &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numTrade; ?></span>
                                         <?php }?></a></li>
+
                                     <li><hr class="dropdown-divider"></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/form.php"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp請購需求</a></li>
@@ -115,12 +117,13 @@
                                         <?php if($numIssue !=0){?>
                                             &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span>
                                         <?php }?></a></li>
+
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
-                                    <?php if($sys_role <= 2.5 ){ ?>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
-                                    <?php } ?>
+
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i> 除汙器材管控清單</span></b></a></li>
                                 </ul>
                             </li>
                         <?php } ?>

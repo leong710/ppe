@@ -110,12 +110,15 @@
         .vlr tr > th {
             vertical-align: middle; 
             writing-mode: vertical-lr;
+            /* writing-mode: vertical-lr; */
             /* text-orientation: upright; */
+            /* 中文也轉向 */
+            text-orientation: sideways-right;
             text-align: right;
         }
         .sum {
             font-weight: bold;
-            text-align: right;
+            /* text-align: right; */
             color: blue;
         }
         .sum_title {
@@ -136,13 +139,30 @@
             /* border-color: #FFAC55; */
             /* padding:5px; */
         }
+        /* 防止該DIV元素塌陷 */
+        .empty-div {
+            height: 22px; /* 設置一個固定的高度，可以根據需求調整 */
+        }
+        .empty-div::before {
+            /* 方法一 */
+            /* 使用空白字符作為內容 */
+            /* content: '\00a0';  */
+            /* 讓伪元素可见并占位 */
+            /* display: inline-block;  */
+            /* 方法二 */
+            /* 使用元素的 placeholder 属性作为内容 */
+            content: attr(placeholder); 
+            /* 使内容透明，但仍然占位 */
+            color: transparent; 
+        }
+
     </style>
     <script>    
         // loading function
         function mloading(){
             $("body").mLoading({
-                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                icon: "../../libs/jquery/loading.gif",
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+                // icon: "../../libs/jquery/loading.gif",
             }); 
         }
         // All resources finished loading! // 關閉mLoading提示
@@ -160,11 +180,11 @@
                 <div class="row">
                     <div class="col-md-6 py-1">
                         <div>
-                            <h3><b>進出量與成本匯總：<?php echo $form.$report_title;?></b></h3>
+                            <h3><b>除汙器材管控清單：<?php echo $form.$report_title;?></b></h3>
                         </div>
                     </div>
                     <div class="col-md-6 py-1">
-
+                        <!-- <a href="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js">mo</a> -->
                     </div>
                 </div>
 
@@ -175,10 +195,10 @@
                 <div class="row pb-0">
                     <nav>
                         <div class="nav nav-tabs pt-2 pb-0" id="nav-tab" role="tablist">
-                            <button class="nav-link active" id="nav-tab_0" data-bs-toggle="tab" data-bs-target="#tab_0" type="button" role="tab" aria-controls="tab_0" aria-selected="true" >領用匯總表</button>
+                            <button class="nav-link active" id="nav-tab_0" data-bs-toggle="tab" data-bs-target="#tab_0" type="button" role="tab" aria-controls="tab_0" aria-selected="true" >現況存量總表</button>
                             <?php foreach($fabs as $fab){
                                 $a_btn  = "<button type='button' class='nav-link' data-bs-toggle='tab' role='tab' aria-selected='false' "; 
-                                $a_btn .= "id='nav-tab_{$fab["fab_id"]}' data-bs-target='#tab_{$fab["fab_id"]}' aria-controls='tab_{$fab["fab_id"]}' >{$fab["fab_title"]}</button>";
+                                $a_btn .= "id='nav-tab_{$fab["fab_id"]}' data-bs-target='#tab_{$fab["fab_id"]}' aria-controls='tab_{$fab["fab_id"]}'>{$fab["fab_title"]}</button>";
                                 echo $a_btn;
                             } ?>
                         </div>
@@ -196,55 +216,58 @@
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <div style="display: inline-block;" class="px-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="On" id="tab_0_flag_Switch" name="tab_0" onchange="groupBy_flag(this.name);">
-                                            <label class="form-check-label" for="tab_0_flag_Switch">遮蔽sum空值</label>
+                                            <!-- <input class="form-check-input" type="checkbox" value="On" id="tab_0_flag_Switch" name="tab_0" onchange="groupBy_flag(this.name);">
+                                            <label class="form-check-label" for="tab_0_flag_Switch">遮蔽sum空值</label> -->
                                         </div>
                                     </div>
                                     <div style="display: inline-block;">
                                         <!-- 20240109 下載Excel -->
                                         <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
                                             <input type="hidden" name="htmlTable" id="tab_0_htmlTable" value="">
-                                            <input type="hidden" name="submit" value="sum_report">
-                                            <input type="hidden" name="tab_name" value="sum_report">
+                                            <input type="hidden" name="submit" value="sum_ptreport">
+                                            <input type="hidden" name="tab_name" value="現況存量總表">
                                             <input type="hidden" name="form_type" value="<?php echo $form;?>">
-                                            <input type="hidden" name="report_yy" value="<?php echo $report_yy;?>">
-                                            <input type="hidden" name="report_mm" value="<?php echo $report_mm;?>">
                                             <button type="submit" name="tab_0" class="btn btn-success" onclick="downloadExcel(this.name)" >
                                                 <i class="fa fa-download" aria-hidden="true"></i> 匯出&nbspExcel</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
-                            <table class="w-100 table table-striped table-hover tab_0" id="tab_0_table">
+                            <table class="w-100 table table-stripedd table-hoverr tab_0 conta" id="tab_0_table">
                                 <thead class="vlr">
                                     <tr>
-                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">cata_SN / pname：</th>
-                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom; ">類型</th>
+                                        <th style="writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;">cata_SN / pname：</th>
+                                        <th style="writing-mode: horizontal-tb; text-align: center; vertical-align: bottom;">類型</th>
                                         <?php foreach($fabs as $fab){
                                             echo "<th id='fab_{$fab["fab_id"]}'>".$fab["fab_title"]."</th>";
                                         } ?>
-                                        <th style="writing-mode: horizontal-tb; vertical-align: bottom; ">sum</th>
+                                        <th style="writing-mode: horizontal-tb; text-align: center; vertical-align: bottom; ">sum</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach($catalogs as $catalog){
                                         echo "<tr>";
-                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
-                                            echo "<td><div class='bbs text-primary'>總量</div>
-                                                      <div class='bbs text-secondary'>快到</div>
-                                                      <div class='bbs text-danger'>已到</div>
-                                                      <div class='text-success'>安全</div></td>";
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start' >{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
+                                            echo "<td>
+                                                    <div class='bbs text-success'>安全</div>
+                                                    <div class='bbs text-dark'>快到</div>
+                                                    <div class='text-danger'>已過</div>
+                                                    <div class='bg-primary text-white'>總量</div>
+                                                    </td>";
                                             foreach($fabs as $fab){
-                                                echo "<td><div id='{$fab["fab_id"]}_{$catalog["SN"]}_all' class='text-primary'>-</div>
-                                                          <div id='{$fab["fab_id"]}_{$catalog["SN"]}_war' class='text-secondary'>-</div>
-                                                          <div id='{$fab["fab_id"]}_{$catalog["SN"]}_dan' class='text-danger'>-</div>
-                                                          <div id='{$fab["fab_id"]}_{$catalog["SN"]}_saf' class='text-success'>-</div></td>";
+                                                echo "<td>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_saf' class='empty-div text-success'></div>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_war' class='empty-div text-dark'></div>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_dan' class='empty-div text-danger'></div>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_all' class='empty-div bg-primary text-white'></div>
+                                                        </td>";
                                             };
-                                            echo "<td class='sum'><div id='{$catalog["SN"]}_TT'>
-                                                    <div id='{$catalog["SN"]}_TT_all' class='text-primary'>-</div>
-                                                    <div id='{$catalog["SN"]}_TT_war' class='text-secondary'>-</div>
-                                                    <div id='{$catalog["SN"]}_TT_dan' class='text-danger'>-</div>
-                                                    <div id='{$catalog["SN"]}_TT_saf' class='text-success'>-</div></td>";
+                                            echo "<td class='sum'>
+                                                    <div id='{$catalog["SN"]}_sum_saf' class='empty-div text-success'></div>
+                                                    <div id='{$catalog["SN"]}_sum_war' class='empty-div text-dark'></div>
+                                                    <div id='{$catalog["SN"]}_sum_dan' class='empty-div text-danger'></div>
+                                                    <div id='{$catalog["SN"]}_sum_all' class='empty-div bg-primary text-white'></div>
+                                                    </td>";
                                         echo "</tr>";
                                     } ?>
                                 </tbody>
@@ -254,55 +277,79 @@
 
                     <!-- 3.各廠器材量統計 table -->
                     <?php 
-                        foreach($locals as $local){
-                            $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$local["id"]}' role='tabpanel' aria-labelledby='nav-tab_{$local["id"]}'>";
+                        foreach($fabs as $fab){
+                            // thead
+                            $b_tab  = "<div class='tab-pane bg-white fade p-2' id='tab_{$fab["fab_id"]}' role='tabpanel' aria-labelledby='nav-tab_{$fab["fab_id"]}'>";
                             $b_tab .= "<div class='col-12 bg-white'>";
                             $b_tab .= "<div class='row'>
                                             <div class='col-12 col-md-6 py-0'></div>
                                             <div class='col-12 col-md-6 py-0 text-end'>
                                                 <div style='display: inline-block;' class='px-3'>
                                                     <div class='form-check'>
-                                                        <input class='form-check-input' type='checkbox' value='On' id='tab_{$local["id"]}_flag_Switch' name='tab_{$local["id"]}' onchange='groupBy_flag(this.name);'>
-                                                        <label class='form-check-label' for='tab_{$local["id"]}_flag_Switch' >遮蔽sum空值</label>
+
                                                     </div>
                                                 </div>
                                                 <div style='display: inline-block;'>
                                                     <form id='myForm' method='post' action='../_Format/download_excel.php' style='display:inline-block;'>
-                                                        <input type='hidden' name='htmlTable' id='tab_{$local["id"]}_htmlTable' value=''>
-                                                        <input type='hidden' name='submit' value='sum_report'>
+                                                        <input type='hidden' name='htmlTable' id='tab_{$fab["fab_id"]}_htmlTable' value=''>
+                                                        <input type='hidden' name='submit' value='sum_ptreport'>
                                                         <input type='hidden' name='form_type' value='{$form}'>
-                                                        <input type='hidden' name='report_yy' value='{$report_yy}'>
-                                                        <input type='hidden' name='report_mm' value='{$report_mm}'>
-                                                        <input type='hidden' name='tab_name' value='{$local["fab_title"]}({$local["local_title"]}_{$local["local_remark"]})'>
-                                                        <button type='submit' name='tab_{$local["id"]}' class='btn btn-success' onclick='downloadExcel(this.name)' >
+                                                        <input type='hidden' name='tab_name' value='{$fab["fab_title"]}({$fab["fab_remark"]})'>
+                                                        <button type='submit' name='tab_{$fab["fab_id"]}' class='btn btn-success' onclick='downloadExcel(this.name)' >
                                                             <i class='fa fa-download' aria-hidden='true'></i> 匯出&nbspExcel</button>
                                                     </form>
                                                 </div>
                                             </div></div>";
-                            $b_tab .= "<table class='w-100 table table-striped table-hover tab_{$local["id"]}' id='tab_{$local["id"]}_table'>";
-                            $b_tab .= "<thead><tr>";
-                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname / {$local["fab_title"]}({$local["local_title"]}_{$local["local_remark"]}) -- Total：<span id='{$local["id"]}_fab_total_cost'></span></th>";
+                            $b_tab .= "<table class='w-100 table table-stripedd table-hoverr tab_{$fab["fab_id"]}' id='tab_{$fab["fab_id"]}_table'>";
+                            $b_tab .= "<thead class='vlr'><tr>";
+                            $b_tab .= "<th style='writing-mode: horizontal-tb; text-align: start; vertical-align: bottom;'>cata_SN / pname</th>";
+                            $b_tab .= '<th style="writing-mode: horizontal-tb; text-align: center; vertical-align: bottom; ">類型</th>';
                             echo $b_tab;
-                                foreach ($allReport_ymms as $ymm) {
-                                    echo "<th>{$ymm["mm"]}月</th>";
+                                foreach ($locals as $local) {
+                                    if($local["fab_id"] == $fab["fab_id"]){
+                                        echo "<th>{$local["local_title"]}</br>{$local["local_remark"]}</th>";
+                                    }
                                 }
-                                $b_tab = "<th class='sum_title'>sum</th>";
+                                $b_tab = "<th class='sum_title' style='writing-mode: horizontal-tb; text-align: center; vertical-align: bottom;'>sum</th>";
                                 $b_tab .= "</tr></thead><tbady>";
                             echo $b_tab;
                             // tbody
                             foreach($catalogs as $catalog){
                                 echo "<tr>";
                                     echo "<td id='{$local["id"]}_{$catalog["SN"]}' class='text-start'>".$catalog["SN"]."</br>".$catalog["pname"]."</td>";
-                                    foreach ($allReport_ymms as $ymm) {
-                                        echo "<td><div id='{$local["id"]}_{$catalog["SN"]}_{$ymm["mm"]}'></div><div id='{$local["id"]}_{$catalog["SN"]}_{$ymm["mm"]}_cost'></div></td>";
+                                    echo "<td>
+                                            <div class='bbs text-success'>安全</div>
+                                            <div class='bbs text-dark'>快到</div>
+                                            <div class='text-danger'>已過</div>
+                                            <div class='bg-primary text-white'>總量</div>
+                                            </td>";
+                                    foreach ($locals as $local) {
+                                        if($local["fab_id"] == $fab["fab_id"]){
+                                            echo "<td>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_saf' class='empty-div text-success'></div>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_war' class='empty-div text-dark'></div>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_dan' class='empty-div text-danger'></div>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_all' class='empty-div bg-primary text-white'></div>
+                                                    </td>";
+                                        }
                                     }
-                                    echo "<td class='sum'><div id='{$local["id"]}_{$catalog["SN"]}_fabTT'></div><div id='{$local["id"]}_{$catalog["SN"]}_fabTT_cost'></div></td>";
-
+                                    echo "<td class='sum'>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_saf' class='empty-div text-success'></div>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_war' class='empty-div text-dark'></div>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_dan' class='empty-div text-danger'></div>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_all' class='empty-div bg-primary text-white'></div>
+                                            </td>";
                                 echo "</tr>";
                             }
                             echo "</tbady></table></div></div>";
                         } 
                     ?>
+
+                    <!-- 20231108-資料更新時間 -->
+                    <div class="col-12 pb-0 px-3 text-end">
+                        <i class="fa-solid fa-rotate"></i> Reload time：<span id="reload_time1"></span>
+                        <script> reload_time1.innerHTML=new Date().toLocaleString()+' 星期'+'日一二三四五六'.charAt(new Date().getDay()); </script>
+                    </div>
                 </div>
             </div>
         </div>
@@ -328,150 +375,74 @@
 <script src="../../libs/aos/aos_init.js"></script>
 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<!-- 引入moment.js 參考資料 https://www.freecodecamp.org/chinese/news/javascript-date-format-how-to-format-a-date-in-js/ -->
+<!-- <script src="../../libs/moment/moment.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script> -->
 <script>
     var report_lists = <?=json_encode($report_lists)?>;           // 引入report_lists資料
     var catalogs     = <?=json_encode($catalogs)?>;               // 引入catalogs資料
-    var form_type    = '<?=$form?>';                              // 引入catalogs資料
-    var report_yy    = '<?=$report_yy?>';                         // 引用年分
     var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
     var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
-    
-    // console.log('report_lists:', report_lists);
-
-    report_lists.forEach(function(row){
-        // console.log(row['fab_title'], row['cata_SN'], row['amount'], row['lot_num'] );
-        let fab_id  = row['fab_id'];
-        let cata_SN = row['cata_SN'];
-        let fid_sn = fab_id+'_'+cata_SN;
-        let amount  = Number(row['amount']);
-        let lot_num = row['lot_num'];
-
-        // $('#'+fab_id+'_'+cata_SN+'_all').append(amount);
-
-        if(reportAmount[fid_sn+'_all']){                       // 第1頁 每個廠的實付數量
-            reportAmount[fid_sn+'_all'] += amount;
-        }else{
-            reportAmount[fid_sn+'_all'] = amount;
-        }
-    })
-
-    // step-3.選染到Table上指定欄位
-    Object.keys(reportAmount).forEach(key => {
-        var value = reportAmount[key];
-        // console.log("key", key, value);
-        $('#'+key).empty();
-        if(key.includes("cost")){
-            $('#'+key).append('$'+value);
-        }else{
-            $('#'+key).append(value);
-        }
-    })
-
-
-
+    var Today        = new Date().getTime();                      // DAY1 -- 獲取今天日期並轉化為時間戳
+    var dueDay       = Number(90);                                // 到期天數
 
     // cata目錄、報價、領用量、渲染
-    function show_reports(){
-        // step-1.把 catalog對應的p_no報價繞出來
-        Object(catalogs).forEach(function(cata){
-            // var cata_yy_p = JSON.parse(cata['price'])[report_yy];
-            var cata_p = JSON.parse(String(cata['price']));
-            if((cata_p === 0) || (cata_p === null)){
-                cata_p = {};
+    function show_ptreports(){    
+        // step-2.彙整出各廠存量
+        report_lists.forEach(function(row){
+            var fab_id   = row['fab_id'];
+            var local_id = row['local_id'];
+            var cata_SN  = row['cata_SN'];
+            var fid_sn   = fab_id+'_'+cata_SN;
+            var flid_sn   = fab_id+'_'+local_id+'_'+cata_SN;
+            var amount   = Number(row['amount']);
+            var lot_num  = new Date(row['lot_num']).getTime();   // DAY2 -- 獲取比較日期並轉化為時間戳
+    
+            // 我想用JS進行日期的比較，格式是YYYY-MM-DD，當aDay - today >= 60 天，返回true，反之false
+                // var today = new Date();
+                // var aDay = new Date("2022-01-01"); // 改成你要比較的日期，格式是YYYY-MM-DD
+                // var timeDiff = aDay.getTime() - today.getTime(); // 取得兩日期之間的毫秒數差
+                // var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 將毫秒數差轉換成天數差
+                // if (daysDiff >= 60) { console.log("true"); }else{ console.log("false"); }
+            
+            var timeDiff = lot_num - Today;                              // 取得兩日期之間的毫秒數差
+            var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 將毫秒數差轉換成天數差
+    
+            if(amount >0){
+                // 第1頁 每個廠的總數值_all
+                    // 每個廠的總數值_all              
+                        if(reportAmount[fid_sn+'_all'])     { reportAmount[fid_sn+'_all'] += amount;      }else{ reportAmount[fid_sn+'_all'] = amount; }
+                        if(reportAmount[cata_SN+'_sum_all']){ reportAmount[cata_SN+'_sum_all'] += amount; }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
+                        // fab_all // 廠每個local的總數值_all              
+                        if(reportAmount[flid_sn+'_all'])        { reportAmount[flid_sn+'_all'] += amount;         }else{ reportAmount[flid_sn+'_all'] = amount; }
+                        if(reportAmount['f_'+fid_sn+'_sum_all']){ reportAmount['f_'+fid_sn+'_sum_all'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
+        
+                    // 未過期_saf
+                    if(daysDiff >= dueDay) {
+                        if(reportAmount[fid_sn+'_saf'])     { reportAmount[fid_sn+'_saf'] += amount;      }else{ reportAmount[fid_sn+'_saf'] = amount; }
+                        if(reportAmount[cata_SN+'_sum_saf']){ reportAmount[cata_SN+'_sum_saf'] += amount; }else{ reportAmount[cata_SN+'_sum_saf'] = amount; }
+                        // fab_saf // 廠每個local的總數值_saf              
+                        if(reportAmount[flid_sn+'_saf'])    { reportAmount[flid_sn+'_saf'] += amount;             }else{ reportAmount[flid_sn+'_saf'] = amount; }
+                        if(reportAmount['f_'+fid_sn+'_sum_saf']){ reportAmount['f_'+fid_sn+'_sum_saf'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_saf'] = amount; }
+        
+                    // 快到期_war
+                    }else if(daysDiff < dueDay && daysDiff > 1){            
+                        if(reportAmount[fid_sn+'_war'])     { reportAmount[fid_sn+'_war'] += amount;      }else{ reportAmount[fid_sn+'_war'] = amount; }
+                        if(reportAmount[cata_SN+'_sum_war']){ reportAmount[cata_SN+'_sum_war'] += amount; }else{ reportAmount[cata_SN+'_sum_war'] = amount; }
+                        // fab_war // 廠每個local的總數值_war              
+                        if(reportAmount[flid_sn+'_war'])        { reportAmount[flid_sn+'_war'] += amount;         }else{ reportAmount[flid_sn+'_war'] = amount; }
+                        if(reportAmount['f_'+fid_sn+'_sum_war']){ reportAmount['f_'+fid_sn+'_sum_war'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_war'] = amount; }
+        
+                    // 已過期_dan
+                    }else{
+                        if(reportAmount[fid_sn+'_dan'])     { reportAmount[fid_sn+'_dan'] += amount;      }else{ reportAmount[fid_sn+'_dan'] = amount; }
+                        if(reportAmount[cata_SN+'_sum_dan']){ reportAmount[cata_SN+'_sum_dan'] += amount; }else{ reportAmount[cata_SN+'_sum_dan'] = amount; }
+                        // fab_dan // 廠每個local的總數值_dan 
+                        if(reportAmount[flid_sn+'_dan'])        { reportAmount[flid_sn+'_dan'] += amount;         }else{ reportAmount[flid_sn+'_dan'] = amount; }
+                        if(reportAmount['f_'+fid_sn+'_sum_dan']){ reportAmount['f_'+fid_sn+'_sum_dan'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_dan'] = amount; }
+                    }
             }
-            cata_yy_p = cata_p[report_yy];
-            if(cata_yy_p === undefined || cata_yy_p === 0){
-                cata_yy_p = 1;
-            }
-            cata_price[cata['SN']] = Number(cata_yy_p);
         })
-        // console.log('cata_price:', cata_price)
-
-        // step-2.彙整出SN年領用量
-        Object(report_lists).forEach(function(row){
-            var csa = JSON.parse(row['cata_SN_amount']);
-            Object.keys(csa).forEach(key =>{                    // key = cats_SN
-                // 適用於tarde，主要是儲存訊息與其他不同，需要調整!
-                if(form_type == 'trade' && key.search(",") != -1){      // 確認表單是Trade，且SN含有','
-                    var pay = csa[key];                                 // 先取得 valus，但value含有其他訊息
-                    pay = Number(pay.split(',')[0]);                    // 分割，取位置0它是數量
-                    key = key.split(',')[0];                            // 再來分割SN並取0
-                }else{
-                    var pay = Number(csa[key]['pay']);                  // 如果不是就照舊
-                }
-                // console.log('key:', key, pay)
-                var l_key = row['local_id'] +'_'+ key;          // 第1頁
-                var key_TT = key +'_TT';                        // 第1頁
-                var l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
-                var l_key_fabTT = l_key +'_fabTT';              // 第2頁 
-                var local_id = row['local_id'];
-                // 第1頁
-                    if(reportAmount[l_key]){                       // 第1頁 每個廠的實付數量
-                        reportAmount[l_key] += pay;
-                    }else{
-                        reportAmount[l_key] = pay;
-                    }
-                    if(reportAmount[l_key+'_cost']){               // 第1頁 每個廠的實付數量金額
-                        reportAmount[l_key+'_cost'] += pay * cata_price[key];
-                    }else{
-                        reportAmount[l_key+'_cost'] = pay * cata_price[key];
-                    }
-
-                    // 第1頁 tfoot每個廠的實付總金額
-                    if(reportAmount['sum_'+local_id+'_cost']){               
-                        reportAmount['sum_'+local_id+'_cost'] += pay * cata_price[key];
-                    }else{
-                        reportAmount['sum_'+local_id+'_cost'] = pay * cata_price[key];
-                    }
-
-                        if(reportAmount[key_TT]){                  // 第1頁 末端總計實付數量sum
-                            reportAmount[key_TT] += pay;
-                        }else{
-                            reportAmount[key_TT] = pay;
-                        }
-                        if(reportAmount[key_TT+'_cost']){          // 第1頁 末端總計實付數量金額sum
-                            reportAmount[key_TT+'_cost'] += pay * cata_price[key];
-                        }else{
-                            reportAmount[key_TT+'_cost'] = pay * cata_price[key];
-                        }
-                            if(reportAmount['all_total_cost']){      // 第1頁 TITLE 總計實付數量金額Total
-                                reportAmount['all_total_cost'] += pay * cata_price[key];
-                            }else{
-                                reportAmount['all_total_cost'] = pay * cata_price[key];
-                            }
-
-                            // 第1頁 tfoot total實付總金額
-                            reportAmount['sum_TT_cost'] = reportAmount['all_total_cost']; 
-                            
-                // 第n頁byFab/mm
-                    if(reportAmount[l_key_mm]){                        // 第n頁byFab/mm 每個廠的實付數量
-                        reportAmount[l_key_mm] += pay;
-                    }else{
-                        reportAmount[l_key_mm] = pay;
-                    }
-                    if(reportAmount[l_key_mm+'_cost']){                // 第n頁byFab/mm 每個廠的實付數量金額
-                        reportAmount[l_key_mm+'_cost'] += pay * cata_price[key];
-                    }else{
-                        reportAmount[l_key_mm+'_cost'] = pay * cata_price[key];
-                    }
-                        if(reportAmount[l_key_fabTT]){                 // 第n頁 末端總計實付數量sum
-                            reportAmount[l_key_fabTT] += pay;
-                        }else{
-                            reportAmount[l_key_fabTT] = pay;
-                        }
-                        if(reportAmount[l_key_fabTT+'_cost']){         // 第n頁 末端總計實付數量金額sum
-                            reportAmount[l_key_fabTT+'_cost'] += pay * cata_price[key];
-                        }else{
-                            reportAmount[l_key_fabTT+'_cost'] = pay * cata_price[key];
-                        }
-                            if(reportAmount[local_id+'_fab_total_cost']){       // 第n頁 TITLE 總計實付數量金額Total
-                                reportAmount[local_id+'_fab_total_cost'] += pay * cata_price[key];
-                            }else{
-                                reportAmount[local_id+'_fab_total_cost'] = pay * cata_price[key];
-                            }
-            })
-        });
-        // console.log('reportAmount:', reportAmount)
 
         // step-3.選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {
@@ -489,7 +460,7 @@
     function groupBy_flag(name){
         var checkbox = document.getElementById(name+"_flag_Switch");
         var flag = checkbox.checked ? "On" : "Off";
-        // console.log(name, flag);
+        console.log(name, flag);
         var table_tr = document.querySelectorAll('.'+name+' > tbody > tr');
         if(flag=='Off'){
             table_tr.forEach(function(row){
@@ -531,10 +502,8 @@
     }
 
     $(document).ready(function () {
-        // show_reports();
-
+        show_ptreports();
     })
-
         // var sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
         // inside_toast(sinn);
     // }

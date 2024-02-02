@@ -66,7 +66,7 @@
                 LEFT JOIN _site _s ON _f.site_id = _s.id 
                 LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-                WHERE _cata.cate_no = 'J' 
+                WHERE _cata.cate_no = 'J' AND _f.flag <> 'off' AND _l.flag <> 'off'
                  ";
         // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY fab_id, local_id, cata_SN, _stk.lot_num ASC ";

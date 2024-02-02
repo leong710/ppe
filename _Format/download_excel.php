@@ -100,6 +100,11 @@
                 $spreadsheet->getActiveSheet()->setTitle($_REQUEST["tab_name"]);                    // 定義sheetName
                 $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);         // A欄-自動欄寬
                 break;
+            case "sum_ptreport":
+                $filename_head = "除汙器材管控清單：{$_REQUEST["form_type"]}_{$_REQUEST["tab_name"]}_下載";
+                $spreadsheet->getActiveSheet()->setTitle($_REQUEST["tab_name"]);                    // 定義sheetName
+                $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);         // A欄-自動欄寬
+                break;
             default:
                 $filename_head = $to_module;
                 break;

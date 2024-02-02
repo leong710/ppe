@@ -80,18 +80,18 @@
                 FROM `pt_local` _l
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id
                 LEFT JOIN _site _s ON _f.site_id = _s.id ";
+
         if($select_fab_id == "allMy" && $sfab_id != "All"){
             $sql .= " WHERE _l.fab_id IN ({$sfab_id}) ";
         }else if($select_fab_id != "All" && $select_fab_id != "allMy" ){
             $sql .= " WHERE _l.fab_id = ? ";
         }
+
         $sql .= " ORDER BY _s.id, _f.id, _l.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             // echo $sql;
-            if($select_fab_id == "allMy" && $sfab_id != "All"){
-                $stmt->execute();
-            }else if($select_fab_id != "All"){
+            if($select_fab_id != "All" && $select_fab_id != "allMy"){
                 $stmt->execute([$select_fab_id]);
             }else{
                 $stmt->execute();

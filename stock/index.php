@@ -18,24 +18,20 @@
 
     // add module function --
         $swal_json = array();
-        // 新增add
-        if(isset($_POST["add_stock_submit"])){
-            $swal_json = store_stock($_REQUEST);
-        }       
-        // 編輯Edit
-        if(isset($_POST["edit_stock_submit"])){
-            $swal_json = update_stock($_REQUEST);
-        }
-        // 刪除delete
-        if(isset($_POST["delete_stock"])){
-            $swal_json = delete_stock($_REQUEST);
-        }
+        // stock-crud
+        if(isset($_POST["add_stock_submit"])) { $swal_json = store_stock($_REQUEST);  }     // 新增add
+        if(isset($_POST["edit_stock_submit"])){ $swal_json = update_stock($_REQUEST); }     // 編輯Edit
+        if(isset($_POST["delete_stock"]))     { $swal_json = delete_stock($_REQUEST); }     // 刪除delete
         
         $catalogs = show_catalogs();                        // 取得所有catalog項目，供create使用
         $allLocals = show_allLocal();                       // 取得所有的Local儲存點，供create使用
         // $allLocals = show_local($query_arr);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
+
+
+
+    
         // 1-1a 將fab_id加入sfab_id
         $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
             // 1-1c sfab_id是陣列，要轉成字串

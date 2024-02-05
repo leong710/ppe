@@ -689,13 +689,13 @@
         extract($request);
         $sql = "SELECT _plan.* ,
                     CASE
-                        WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
+                        WHEN DATE_FORMAT(NOW(), '%m-%d %H:%i') BETWEEN DATE_FORMAT(_plan.start_time, '%m-%d %H:%i') AND DATE_FORMAT(_plan.end_time, '%m-%d %H:%i') THEN 'true' 
                         ELSE 'false'
                     END AS onGoing 
                     , _case.title AS case_title
                 FROM _formplan _plan
                 LEFT JOIN _formcase _case ON _plan._type = _case._type
-                WHERE (_plan.flag = 'On') AND ( NOW() BETWEEN _plan.start_time AND _plan.end_time) ";
+                WHERE (_plan.flag = 'On') AND ( DATE_FORMAT(NOW(), '%m-%d %H:%i') BETWEEN DATE_FORMAT(_plan.start_time, '%m-%d %H:%i') AND DATE_FORMAT(_plan.end_time, '%m-%d %H:%i')) ";
         if(!empty($form_type)){
             $sql .= " AND _plan._type = ? ";
         }
@@ -851,12 +851,12 @@
     function check_yh_list($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT *
-                FROM `checked_log`
-                WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ?";
+        $sql = "SELECT cl.*
+                FROM `checked_log` cl
+                WHERE cl.fab_id = ? AND cl.checked_year = ? AND cl.half = ? AND cl.form_type = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$fab_id, $checked_year, $half]);
+            $stmt->execute([$fab_id, $checked_year, $half, $form_type]);
             $check_yh_list = $stmt->fetchAll();
             return $check_yh_list;
         }catch(PDOException $e){

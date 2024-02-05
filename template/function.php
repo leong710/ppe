@@ -56,12 +56,16 @@
     function sort_check_list($request){         // 庫存點檢
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT *
-                FROM `checked_log`
-                WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ?";
+        // $sql = "SELECT *
+        //         FROM `checked_log`
+        //         WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ? ";
+        $sql = "SELECT form_type, count(form_type) AS cunt
+                FROM `checked_log` cl
+                WHERE cl.checked_year = ? AND cl.half = ? AND cl.fab_id IN ({$sfab_id})
+                GROUP BY cl.form_type ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$fab_id, $checked_year, $half]);
+            $stmt->execute([$checked_year, $half]);
             $check_yh_list = $stmt->fetchAll();
             return $check_yh_list;
         }catch(PDOException $e){
@@ -70,4 +74,69 @@
     }
 
 
+    // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
+    function get_sfab_id2($sys_id, $type){
+        // 1-1a 將fab_id加入sfab_id
+        if(isset($_SESSION[$sys_id]["fab_id"])){
+            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
+        }else{
+            $fab_id = "0";
+        }
+        if(isset($_SESSION[$sys_id]["sfab_id"])){
+            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
+        }else{
+            $sfab_id = [];
+        }
+        if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+            array_push($sfab_id, $fab_id);
+        }
+        // 1-1b 將sign_code涵蓋的fab_id加入sfab_id
+        if(isset($_SESSION["AUTH"]["sign_code"])){
+            $auth_sign_code["sign_code"] = $_SESSION["AUTH"]["sign_code"];
+            $coverFab_lists = show_coverFab_lists2($auth_sign_code);
+            if(!empty($coverFab_lists)){
+                foreach($coverFab_lists as $coverFab){
+                    if(!in_array($coverFab["id"], $sfab_id)){
+                        array_push($sfab_id, $coverFab["id"]);
+                    }
+                }
+            }
+        }
+        // 1-1c 將sfab_id中的0去除
+        if (in_array('0', $sfab_id)) {
+            unset($sfab_id[array_search('0', $sfab_id)]);
+        }
+        // 根據需求類別進行編碼 arr=陣列、str=字串
+        if($type == "str"){
+            $result = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
+        }else{
+            $result = $sfab_id;
+        }
+        // 1-1c sfab_id是陣列，要轉成字串
+        return $result;
+    }
+    // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
+    function show_coverFab_lists2($request){
+        $pdo = pdo();
+        extract($request);
 
+            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+
+        $sql = "SELECT _f.*
+                FROM _fab AS _f 
+                WHERE _f.sign_code LIKE ?
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $coverFab_lists = $stmt->fetchAll();
+            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
+            return $coverFab_lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
+        }
+
+    }

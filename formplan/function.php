@@ -77,18 +77,29 @@
             echo $e->getMessage();
         }
     }
-
+    // 在index表頭顯示清單：
     function show_formplan(){
         $pdo = pdo();
-        $sql = "SELECT _plan.* ,
+        // 20240205 -- 年列入考量
+            // $sql = "SELECT _plan.* ,
+            //             CASE
+            //                 WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
+            //                 ELSE 'false'
+            //             END AS onGoing 
+            //             , _case.title AS case_title
+            //         FROM _formplan _plan
+            //         LEFT JOIN _formcase _case ON _plan._type = _case._type
+            //         ORDER BY _plan.id ASC";
+        // 20240205 -- 年不列入考量
+        $sql = "SELECT _plan.*,
                     CASE
-                        WHEN NOW() BETWEEN _plan.start_time AND _plan.end_time THEN 'true'
+                        WHEN DATE_FORMAT(NOW(), '%m-%d %H:%i') BETWEEN DATE_FORMAT(_plan.start_time, '%m-%d %H:%i') AND DATE_FORMAT(_plan.end_time, '%m-%d %H:%i') THEN 'true' 
                         ELSE 'false'
-                    END AS onGoing 
+                    END AS onGoing
                     , _case.title AS case_title
                 FROM _formplan _plan
                 LEFT JOIN _formcase _case ON _plan._type = _case._type
-                ORDER BY _plan.id ASC";
+                ORDER BY _plan.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
@@ -177,7 +188,6 @@
             echo $e->getMessage();
         }
     }
-    
     // 在index表頭顯示清單：
     function show_formcase(){
         $pdo = pdo();

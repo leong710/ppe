@@ -42,7 +42,13 @@
             }
         
         // 1-1 將sys_fab_id加入sfab_id
-            $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
+            if(!isset($sfab_id_str) && isset($_SESSION[$sys_id]["sfab_id_str"])){
+                // 1-1 將sys_fab_id加入sfab_id
+                $sfab_id_str = $_SESSION[$sys_id]["sfab_id_str"];     // 1-1c sfab_id是陣列，要轉成字串str
+            }else{
+                $sfab_id_str = get_sfab_id($sys_id, "str");          // 1-1c sfab_id是陣列，要轉成字串str
+            }   
+
         // 1-2 組合查詢條件陣列
             if($sys_role <=1 && $select_fab_id != "allMy"){
                 $sort_sfab_id = "All";                // All
@@ -130,7 +136,7 @@
         // echo "<pre>";
         // print_r($_REQUEST);
         // print_r($stocks);
-        // print_r($ptreceives);
+        // print_r($check_yh_list);
         // echo "</pre>";
         // echo $half_month;
 ?>

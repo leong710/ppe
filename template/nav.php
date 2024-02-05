@@ -27,13 +27,23 @@
         }else{
             $half = "H2";
         }
+
+        // 1-1 將sys_fab_id加入sfab_id
+        if(empty($sfab_id_str)){
+            $sfab_id_str = get_sfab_id2($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
+        }
+        if(isset($_SESSION["AUTH"]) && empty($_SESSION[$sys_id]["sfab_id_str"])){
+            $_SESSION[$sys_id]["sfab_id_str"] = $sfab_id_str;
+        }
+
     // 組合查詢陣列
         $query_arr = array(
             'fab_id'       => isset($sys_fab_id    ) ? $sys_fab_id     : "",
             'emp_id'       => isset($auth_emp_id   ) ? $auth_emp_id    : "",
             'sign_code'    => isset($auth_sign_code) ? $auth_sign_code : "",
             'checked_year' => $today_year,              // 建立查詢陣列for顯示今年點檢表
-            'half'         => $half                     // 建立查詢陣列for顯示今年點檢表
+            'half'         => $half,                    // 建立查詢陣列for顯示今年點檢表
+            'sfab_id'      => $sfab_id_str
         );
 
     // 2023/12/14 這邊待處理
@@ -54,8 +64,19 @@
                 $numIssue = $myIssue["idty_count"];
             }
         //// 0檢點表
-            $sort_check_list = sort_check_list($query_arr);  // 查詢自己的點檢紀錄
-            $numChecked = count($sort_check_list);           // 計算自己的點檢紀錄筆數
+            $sort_check_list = sort_check_list($query_arr);         // 查詢自己的點檢紀錄
+
+            if(!isset($stock_cunt) || !isset($ptstock_cunt)){
+                foreach($sort_check_list AS $row){
+                    if($row["form_type"] == "stock")  { $stock_cunt   = $row["cunt"];   }
+                    if($row["form_type"] == "ptstock"){ $ptstock_cunt = $row["cunt"]; }
+                }
+            }
+
+            $sfab_id_cunt   = count(explode(",", $sfab_id_str));    // 字串轉陣列 + 算個數
+            $stockChecked   = $sfab_id_cunt - $stock_cunt;          // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+            $ptstockChecked = $sfab_id_cunt - $ptstock_cunt;        // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+
     }
 
     $num3 = $numReceive;
@@ -90,13 +111,11 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
-                                        <?php echo ($numChecked == 0) ? '<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>':'';
+                                        <?php echo ($stockChecked == 0 && $ptstockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>';
                                               echo ($num12 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num12.'</span>':''; ?></a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
-                                        <?php if($numChecked == 0){?>
-                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
-                                        <?php }?></a></li>
+                                        <?php echo ($stockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>';?></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>PPE器材管控清單</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
 
@@ -123,7 +142,8 @@
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
 
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b>
+                                        <?php echo ($ptstockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>';?></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>除汙器材管控清單</b></a></li>
                                 </ul>
                             </li>

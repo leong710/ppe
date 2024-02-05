@@ -53,11 +53,11 @@
     function show_checked($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT checked_log.*, _fab.fab_title , _fab.fab_remark 
-                FROM `checked_log`
-                LEFT JOIN _fab ON _fab.id = checked_log.fab_id
+        $sql = "SELECT cl.* , _f.fab_title , _f.fab_remark 
+                FROM `checked_log` cl
+                LEFT JOIN _fab _f ON cl.fab_id = _f.id
                 -- WHERE checked_log.fab_id = ?
-                ORDER BY created_at DESC";
+                ORDER BY cl.created_at DESC ";
 
         // 決定是否採用 page_div 20231225
         if(isset($start) && isset($per)){

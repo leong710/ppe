@@ -110,7 +110,7 @@
                                 <th>end_time</th>
                                 <th>flag</th>
                                 <th>created/updated</th>
-                                <th>updated_user/action</th>
+                                <th>up_user/action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,11 +120,11 @@
                                     <td><?php echo $plan["case_title"]."</br>( ".$plan["_type"]." )";?></td>
                                     <td><?php echo $plan["remark"];?></td>
 
-                                    <td><?php echo date('Y-m-d H:i', strtotime($plan["start_time"]));?></td>
+                                    <td><?php echo date('m-d H:i', strtotime($plan["start_time"]));?></td>
                                     <td><?php echo $plan["onGoing"] == "true" ? $fa_check:"";?>
-                                        <span class='badge rounded-pill <?php echo $plan["_inplan"] == "On" ? "bg-danger":"bg-success text-white";?>'><?php echo $plan["_inplan"];?></span>
+                                        <span class='badge rounded-pill <?php echo $plan["_inplan"] == "On" ? "bg-danger":"bg-secondary text-white";?>'><?php echo $plan["_inplan"];?></span>
                                     </td>
-                                    <td><?php echo date('Y-m-d H:i', strtotime($plan["end_time"]));?></td>
+                                    <td><?php echo date('m-d H:i', strtotime($plan["end_time"]));?></td>
 
                                     <td><button type="button" name="_formplan" id="<?php echo $plan['id'];?>" value="<?php echo $plan['flag'];?>" 
                                             class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>"><?php echo $plan['flag'];?></button>
@@ -185,27 +185,29 @@
                                     </div>
                                 </div>
     
-                                <div class="col-12 col-md-6 py-0">
+                                <div class="col-6 col-md-6 py-0">
                                     <div class="form-floating">
                                         <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="<?php echo date('Y-m-d\TH:i'); ?>" required>
                                         <label for="start_time" class="form-label">start_time/開始時間：<sup class="text-danger"> *</sup></label>
+                                        ** 這裡不用考慮年的問題!
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6 py-0">
+                                <div class="col-6 col-md-6 py-0">
                                     <div class="form-floating">
                                         <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="<?php echo date('Y-m-d\TH:i'); ?>" required>
                                         <label for="end_time" class="form-label">end_time/結束時間：<sup class="text-danger"> *</sup></label>
+                                        ** 這裡不用考慮年的問題!
                                     </div>
                                 </div>
     
-                                <div class="col-12 col-md-6 py-1 px-0">
+                                <div class="col-6 col-md-6 py-1 px-0">
                                     <table>
                                         <tr>
                                             <td style="text-align: right;">
                                                 <label for="_inplan" class="form-label">inplan/計畫期間：<sup class="text-danger"> *</sup></label>
                                             </td>
                                             <td style="text-align: left;">
-                                                <input type="radio" name="_inplan" value="On" id="_inplan_On" class="form-check-input" >
+                                                <input type="radio" name="_inplan" value="On" id="_inplan_On" class="form-check-input" checked >
                                                 <label for="_inplan_On" class="form-check-label">On</label>
                                             </td>
                                             <td style="text-align: left;">
@@ -215,14 +217,14 @@
                                         </tr>
                                     </table>
                                 </div>
-                                <div class="col-12 col-md-6 py-1 px-0">
+                                <div class="col-6 col-md-6 py-1 px-0">
                                     <table>
                                         <tr>
                                             <td style="text-align: right;">
                                                 <label for="flag" class="form-label">flag/啟用開關：<sup class="text-danger"> *</sup></label>
                                             </td>
                                             <td style="text-align: left;">
-                                                <input type="radio" name="flag" value="On" id="flag_On" class="form-check-input" >
+                                                <input type="radio" name="flag" value="On" id="flag_On" class="form-check-input" checked >
                                                 <label for="flag_On" class="form-check-label">On</label>
                                             </td>
                                             <td style="text-align: left;">

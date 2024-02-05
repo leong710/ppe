@@ -129,7 +129,7 @@
 <script>    
     
     var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
-    var url = 'index.php';
+    var url = 'index.php?fab_id=<?=$fab_id?>';
 
     $(document).ready(function () {
         

@@ -34,10 +34,10 @@
         'half'          => $half                        // 建立查詢陣列for顯示今年點檢表
     );
 
-    $checked_lists = show_checked($query_arr);       // 調閱點檢表
-    $allchecked_years = show_allchecked_year();         // 取出checked年份清單 => 供checked頁面篩選
-    $fabs          = show_fab();                       // index thead
-    $checked_years = show_checked_year($query_arr);      // index tbody
+    $checked_lists      = show_checked($query_arr);       // 調閱點檢表
+    $allchecked_years   = show_allchecked_year();         // 取出checked年份清單 => 供checked頁面篩選
+    $fabs               = show_fab();                     // index thead
+    $checked_years      = show_checked_year($query_arr);  // index tbody
 
 
     // <!-- 20211215分頁工具 -->
@@ -61,7 +61,10 @@
             $page_end = $per_total;
         }
     // <!-- 20211215分頁工具 -->
-
+ 
+    // echo "<pre>";
+    // print_r($ptreceives);
+    // echo "</pre>";
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -191,7 +194,7 @@
                                     <tr>
                                         <th>點檢年度/分類</th>
                                         <?php foreach($fabs as $fab){
-                                            echo "<th>".$fab["fab_title"]."</th>";
+                                            echo "<th title='aid_".$fab["fab_id"]."'>".$fab["fab_title"]."</th>";
                                         }?>
                                     </tr>
                                 </thead>
@@ -199,7 +202,9 @@
                                     <!-- 鋪設內容 -->
                                     <?php foreach($checked_years as $checked_year){ ?>
                                         <tr>
-                                            <td><?php echo $checked_year['checked_year']."_".$checked_year['half']." / ".$checked_year['form_type'];?></td>
+                                            <td><?php echo $checked_year['checked_year']."_".$checked_year['half']."</br>".$checked_year['form_type'];
+                                                echo $checked_year['form_type'] == "stock" ? " (個人防護具)" : " (除汙器材)" ;
+                                                ?></td>
                                             <?php foreach($fabs as $fab){
                                                 echo "<td id='{$checked_year['checked_year']}_{$checked_year['half']}_{$checked_year['form_type']}_{$fab['fab_id']}'> </td>";
                                             }?>

@@ -53,7 +53,7 @@
         }
     }
 
-// // // for sum_ptstore
+// // // for sum_store
     // --- stock index  20240122
     function show_stock(){
         $pdo = pdo();

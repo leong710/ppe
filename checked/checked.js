@@ -44,15 +44,14 @@
                         for (var i = 0, len = json.length; i < len; i++) {
                             forTable.innerHTML += 
                                 '<tr>' +
-                                    '<td class="word_bk">' + json[i].fab_title + '_' + json[i].local_title + '</td>' +
+                                    '<td class="word_bk">' + json[i].fab_title + '</br>' + json[i].local_title + '</td>' +
                                     '<td style="font-size: 12px;">' + json[i].cate_no + '.' + json[i].cate_title + '</td>' +
                                     '<td class="word_bk">' + json[i].cata_SN + '</br>' + json[i].pname + '</td>' +
                                     '<td>' + json[i].size + '</td>' +
                                     '<td>' + json[i].standard_lv + '</td>' +
                                     '<td>' + json[i].amount + '</td>' +
                                     '<td class="word_bk">' + json[i].stock_remark + '</td>' +
-                                    '<td style="font-size: 12px;">' + json[i].lot_num + '</td>' +
-                                    '<td style="font-size: 12px;">' + json[i].po_no + '</td>' +
+                                    '<td style="font-size: 12px;">' + json[i].lot_num + '</br>' + json[i].po_no + '</td>' +
                                     '<td style="font-size: 12px;">' + json[i].updated_at + '</br>by：' + json[i].updated_user + '</td>' +
                                     // 這裡的updated_user指的是儲存物編輯人
                                 '</tr>';
@@ -70,6 +69,16 @@
             }
         })
         
+    }
+
+    function put_in(){
+        checked_lists.forEach(function(row){
+            let row_key = row['checked_year']+'_'+row['half']+'_'+row['form_type']+'_'+row['fab_id'];
+            let row_btn = '<button type="button" class="op_tab_btn reviewBtn " value="'+row['id']+'" onclick="edit_module(this.value)" title="'+row['created_at']+' / '+row['updated_user']+' " '; 
+            row_btn += 'data-bs-toggle="modal" data-bs-target="#review_checked"><h4 class="mb-0"><i class="fa-regular fa-file-lines mb-0"></i></h4><h7>'+row['created_at'].substr(0, 10).replace(/-/g,"")+'</h7></button>';
+            $('#'+row_key).append(row_btn);                  // anoth
+            // console.log(row_key, row_btn);
+        })
     }
 
     $(function(){
@@ -95,6 +104,7 @@
             alert( message, 'danger')
         }
 
+        put_in();
     })
 
 

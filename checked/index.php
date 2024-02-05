@@ -27,15 +27,18 @@
                 $half = "H2";
             }
 
-    $list_setting = array(                              // 組合查詢陣列
+    $query_arr = array(                              // 組合查詢陣列
         'fab_id'        => $auth_fab_id,
         'emp_id'        => $auth_emp_id,
         'checked_year'  => $checked_year,               // 建立查詢陣列for顯示今年點檢表
         'half'          => $half                        // 建立查詢陣列for顯示今年點檢表
     );
 
-    $checked_lists = show_checked($list_setting);       // 調閱點檢表
+    $checked_lists = show_checked($query_arr);       // 調閱點檢表
     $allchecked_years = show_allchecked_year();         // 取出checked年份清單 => 供checked頁面篩選
+    $fabs          = show_fab();                       // index thead
+    $checked_years = show_checked_year($query_arr);      // index tbody
+
 
     // <!-- 20211215分頁工具 -->
         $per_total = count($checked_lists);     //計算總筆數
@@ -48,16 +51,17 @@
         }
         $start = ($page-1)*$per;                //每一頁開始的資料序號(資料庫序號是從0開始)
             // 合併嵌入分頁工具
-            $list_setting["start"] = $start;
-            $list_setting["per"] = $per;
+            $query_arr["start"] = $start;
+            $query_arr["per"] = $per;
 
-        $div_checkeds = show_checked($list_setting);
+        $div_checkeds = show_checked($query_arr);
         $page_start = $start +1;                //選取頁的起始筆數
         $page_end = $start + $per;              //選取頁的最後筆數
         if($page_end>$per_total){               //最後頁的最後筆數=總筆數
             $page_end = $per_total;
         }
     // <!-- 20211215分頁工具 -->
+
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -81,6 +85,9 @@
             /* background-size: cover; */
             background-size: contain;
             padding-top: 50px;
+        }
+        #reviewBtn {
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -182,28 +189,20 @@
                             <table class="history-table">
                                 <thead>
                                     <tr>
-                                        <th>fab</th>
-                                        <th>表單分類</th>
-                                        <th>點檢年度</th>
-                                        <th>點檢日期/點檢人</th>
-                                        <th>備註說明</th>
-                                        <th>action</th>
+                                        <th>點檢年度/分類</th>
+                                        <?php foreach($fabs as $fab){
+                                            echo "<th>".$fab["fab_title"]."</th>";
+                                        }?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <!-- 鋪設內容 -->
-                                    <?php foreach($div_checkeds as $checked_list){ ?>
+                                    <?php foreach($checked_years as $checked_year){ ?>
                                         <tr>
-                                            <td title="<?php echo $checked_list['id'];?>"><?php echo $checked_list['fab_title'];?></td>
-                                            <td><?php echo $checked_list['form_type'];?></td>
-                                            <td><?php if(isset($checked_list['checked_year'])){
-                                                        echo $checked_list['checked_year']."_".$checked_list['half'];}?></td>
-                                            <td><?php if(isset($checked_list['created_at'])){ 
-                                                        echo $checked_list['created_at']." / ".$checked_list['updated_user'];}?></td>
-                                            <td class="word_bk"><?php echo $checked_list['checked_remark'];?></td>
-                                            <!-- <td><a href="read.php?id=<php echo $checked_list['id'];?>&from2=index" class="btn btn-sm btn-xs btn-info">檢視</a></td> -->
-                                            <td><button type="button" class="btn btn-sm btn-xs btn-info reviewBtn " value="<?php echo $checked_list['id'];?>" 
-                                                data-bs-toggle="modal" data-bs-target="#review_checked">檢視</button></td>
+                                            <td><?php echo $checked_year['checked_year']."_".$checked_year['half']." / ".$checked_year['form_type'];?></td>
+                                            <?php foreach($fabs as $fab){
+                                                echo "<td id='{$checked_year['checked_year']}_{$checked_year['half']}_{$checked_year['form_type']}_{$fab['fab_id']}'> </td>";
+                                            }?>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
@@ -275,7 +274,8 @@
 
 <!-- 彈出畫面模組 除汙器材領用 品項 -->
     <div class="modal fade" id="review_checked" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
-        <div class="modal-dialog modal-fullscreen">
+        <!-- <div class="modal-dialog modal-fullscreen"> -->
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header add_mode_bgc">
                     <h4 class="modal-title"><span id="modal_action"></span>檢視點檢紀錄</h4>
@@ -316,8 +316,7 @@
                                     <th>安量</th>
                                     <th>存量</th>
                                     <th>備註說明</th>
-                                    <th>批號/期限</th>
-                                    <th>PO no</th>
+                                    <th>批號/PO</th>
                                     <th>更新日期</th>
                                 </tr>
                             </thead>

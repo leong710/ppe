@@ -8,6 +8,8 @@
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
+    $fa_check = '<snap id="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';       // 打勾符號
+    $fa_remove = '<snap id="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';    // 打叉符號
     // CRUD
         if(isset($_POST["add_submit"])){              // 新增
             store_formplan($_REQUEST); }
@@ -25,7 +27,16 @@
 <?php include("../template/nav.php"); ?>
 <head>
     <style>
-
+        #fa_check {
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
+        #fa_remove {
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
     </style>
     <script>
         // 在页面加载完成后执行
@@ -108,9 +119,13 @@
                                     <td><?php echo $plan["id"];?></td>
                                     <td><?php echo $plan["case_title"]."</br>( ".$plan["_type"]." )";?></td>
                                     <td><?php echo $plan["remark"];?></td>
+
                                     <td><?php echo date('Y-m-d H:i', strtotime($plan["start_time"]));?></td>
-                                    <td><span class='badge rounded-pill <?php echo $plan["onGoing"] == "true" ? "bg-danger":"bg-secondary text-white";?>'><?php echo $plan["_inplan"];?></span></td>
+                                    <td><?php echo $plan["onGoing"] == "true" ? $fa_check:"";?>
+                                        <span class='badge rounded-pill <?php echo $plan["_inplan"] == "On" ? "bg-danger":"bg-success text-white";?>'><?php echo $plan["_inplan"];?></span>
+                                    </td>
                                     <td><?php echo date('Y-m-d H:i', strtotime($plan["end_time"]));?></td>
+
                                     <td><button type="button" name="_formplan" id="<?php echo $plan['id'];?>" value="<?php echo $plan['flag'];?>" 
                                             class="btn btn-sm btn-xs flagBtn <?php echo $plan['flag'] == 'On' ? 'btn-success':'btn-warning';?>"><?php echo $plan['flag'];?></button>
                                     </td>

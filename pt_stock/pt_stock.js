@@ -283,7 +283,7 @@
                 }else{
                     receiveAmount[l_key] = pay;
                 }
-                console.log(l_key, pay)
+                // console.log(l_key, pay)
             })
         });
         // 選染到Table上指定欄位

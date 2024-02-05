@@ -109,7 +109,7 @@
             echo $e->getMessage();
         }
     }
-    // PM顯示全部by年份 => 供查詢年份使用
+    // PM顯示全部by年份 => 供select查詢年份使用
     function show_allchecked_year(){
         $pdo = pdo();
         $sql = "SELECT checked_year
@@ -121,6 +121,42 @@
             $stmt->execute();
             $checked_years = $stmt->fetchAll();
             return $checked_years;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // index thead
+    function show_fab(){
+        $pdo = pdo();
+        // 前段-初始查詢語法：全廠+全狀態
+        $sql = "SELECT _f.id AS fab_id, _f.fab_title, _f.fab_remark, _f.flag, _s.site_title, _s.site_remark
+                FROM _fab _f
+                LEFT JOIN _site _s ON _f.site_id = _s.id 
+                WHERE _f.flag <> 'off'
+                ORDER BY _f.id ASC ";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();                                       //處理 byAll
+            $fabs = $stmt->fetchAll();
+            return $fabs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // index tbody
+    function show_checked_year($request){
+        $pdo = pdo();
+        extract($request);
+        // 前段-初始查詢語法：全廠+全狀態
+        $sql = "SELECT form_type, checked_year , half
+                FROM `checked_log`
+                WHERE checked_year = ?
+                GROUP BY half, form_type";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute([$checked_year]);                        // 處理 $checked_year
+            $checked_year = $stmt->fetchAll();
+            return $checked_year;
         }catch(PDOException $e){
             echo $e->getMessage();
         }

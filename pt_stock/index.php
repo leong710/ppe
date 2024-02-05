@@ -125,13 +125,14 @@
         $thisYear = date('Y');
     // 初始化半年後日期，讓系統判斷與highLight
         $toDay = date('Y-m-d');
-        $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
-
+        $half_month = date('Y-m-d', strtotime($toDay."+3 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳 // 20240201 定90天
+        
         // echo "<pre>";
         // print_r($_REQUEST);
         // print_r($stocks);
         // print_r($ptreceives);
         // echo "</pre>";
+        // echo $half_month;
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -284,7 +285,7 @@
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>選用</th>
                                 <th>備註說明</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="效期小於6個月將highlight">批號/期限</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="效期小於3個月將highlight">批號/期限</th>
                                 <th>Flag</th>
                                 <!-- <th>PO no</th> -->
                                 <th>最後更新</th>
@@ -443,7 +444,7 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-1">
                                     <div class="form-floating pb-0">
-                                        <input type="date" name="lot_num" id="edit_lot_num" class="form-control" required>
+                                        <input type="date" name="lot_num" id="lot_num" class="form-control" required>
                                         <label for="lot_num" class="form-label">lot_num/批號/期限：<sup class="text-danger">*</sup></label>
                                     </div>
                                     <div class="col-12 pt-0 text-end">

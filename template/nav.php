@@ -65,8 +65,9 @@
             }
         //// 0檢點表
             $sort_check_list = sort_check_list($query_arr);         // 查詢自己的點檢紀錄
-
-            if(!isset($stock_cunt) || !isset($ptstock_cunt)){
+            $stock_cunt = 0;                                        // 防止崩潰
+            $ptstock_cunt = 0;
+            if(empty($stock_cunt) || empty($ptstock_cunt)){
                 foreach($sort_check_list AS $row){
                     if($row["form_type"] == "stock")  { $stock_cunt   = $row["cunt"];   }
                     if($row["form_type"] == "ptstock"){ $ptstock_cunt = $row["cunt"]; }

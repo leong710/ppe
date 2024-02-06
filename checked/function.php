@@ -151,7 +151,8 @@
         $sql = "SELECT form_type, checked_year , half
                 FROM `checked_log`
                 WHERE checked_year = ?
-                GROUP BY half, form_type";
+                GROUP BY half, form_type
+                ORDER BY form_type DESC ";
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute([$checked_year]);                        // 處理 $checked_year

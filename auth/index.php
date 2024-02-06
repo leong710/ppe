@@ -530,7 +530,8 @@
             return false;
         } 
         $.ajax({
-            url:'http://localhost/hrdb/api/index.php',
+            // url:'http://localhost/hrdb/api/index.php',
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
             method:'get',
             dataType:'json',
             data:{

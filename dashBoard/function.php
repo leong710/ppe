@@ -57,15 +57,23 @@
     function show_stock_db2($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) AS 'check_num',
-                       COUNT(DISTINCT(CASE WHEN _fab.flag = 'On' THEN _fab.id END)) AS 'fab_num',
-                       ROUND((COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) / COUNT(DISTINCT _fab.id) * 100), 1) AS 'percentage'
-                FROM `_fab`
-                LEFT JOIN checked_log ON checked_log.fab_id = _fab.id
-                WHERE _fab.flag = 'On' ";
+        // $sql = "SELECT COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) AS 'check_num',
+        //                COUNT(DISTINCT(CASE WHEN _fab.flag = 'On' THEN _fab.id END)) AS 'fab_num',
+        //                ROUND((COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) / COUNT(DISTINCT _fab.id) * 100), 1) AS 'percentage'
+        //         FROM `_fab`
+        //         LEFT JOIN checked_log ON checked_log.fab_id = _fab.id
+        //         WHERE _fab.flag = 'On' ";
+        $sql = "SELECT cl.form_type 
+                    ,(SELECT COUNT(fab_title) FROM _fab WHERE flag = 'On') AS 'fab_num' 
+                    , COUNT(cl.form_type) AS 'check_num'
+                    , ROUND((COUNT(cl.form_type) / (SELECT COUNT(fab_title) FROM _fab WHERE flag = 'On') * 100), 1) AS 'percentage'
+                FROM checked_log cl
+                LEFT JOIN _fab _f ON cl.fab_id = _f.id
+                WHERE cl.checked_year = ? AND cl.half = ? AND cl.form_type = 'stock'
+                GROUP BY cl.form_type ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$checked_year, $half, $checked_year, $half]);
+            $stmt->execute([$checked_year, $half]);
             $stock_db1 = $stmt->fetch();
             return $stock_db1;
         }catch(PDOException $e){
@@ -132,25 +140,35 @@
             echo $e->getMessage();
         }
     }
-    // table-2：dashBoard用，秀出全部計數 by器材 table-2     // 20231215
+    // table-2：dashBoard用，秀出全部計數 by器材 table-2     // 20231215 // 20240206
     function show_stock_byCatalog(){
         $pdo = pdo();
-        $sql = "SELECT _local.fab_id, stock.local_id
-                    , stock.cata_SN, _cata.pname AS cata_pname
-                    , sum(s.standard_lv) AS stock_stand
-                    , sum(stock.amount) AS stock_amount 
-                    , sum(stock.amount)-sum(s.standard_lv) AS qty
-                FROM `_stock` stock
-                LEFT JOIN _cata ON stock.cata_SN = _cata.SN
-                LEFT JOIN _local ON stock.local_id = _local.id
-                LEFT JOIN _fab ON _local.fab_id = _fab.id
-                LEFT JOIN (
-                    SELECT _s.id, _s.standard_lv
-                    FROM `_stock` _s
-                    LEFT JOIN _local _l ON _s.local_id = _l.id
-                    GROUP BY local_id, cata_SN
-                ) s ON stock.id = s.id
-                GROUP BY _fab.site_id, stock.cata_SN;";
+        // $sql = "SELECT _local.fab_id, stock.local_id
+            //             , stock.cata_SN, _cata.pname AS cata_pname
+            //             , sum(s.standard_lv) AS stock_stand
+            //             , sum(stock.amount) AS stock_amount 
+            //             , sum(stock.amount)-sum(s.standard_lv) AS qty
+            //         FROM `_stock` stock
+            //         LEFT JOIN _cata ON stock.cata_SN = _cata.SN
+            //         LEFT JOIN _local ON stock.local_id = _local.id
+            //         LEFT JOIN _fab ON _local.fab_id = _fab.id
+            //         LEFT JOIN (
+            //             SELECT _s.id, _s.standard_lv
+            //             FROM `_stock` _s
+            //             LEFT JOIN _local _l ON _s.local_id = _l.id
+            //             GROUP BY local_id, cata_SN
+            //         ) s ON stock.id = s.id
+            //         GROUP BY _fab.site_id, stock.cata_SN ";
+        $sql = "SELECT _l.fab_id, _s.local_id, _s.cata_SN, _c.pname AS cata_pname,
+                    SUM(CASE WHEN _l.flag <> 'Off' AND _f.flag <> 'Off' AND _c.flag <> 'Off' THEN _s.standard_lv ELSE 0 END) AS stock_stand,
+                    SUM(CASE WHEN _l.flag <> 'Off' AND _f.flag <> 'Off' AND _c.flag <> 'Off' THEN _s.amount ELSE 0 END) AS stock_amount,
+                    SUM(CASE WHEN _l.flag <> 'Off' AND _f.flag <> 'Off' AND _c.flag <> 'Off' THEN _s.amount - _s.standard_lv ELSE 0 END) AS qty
+                FROM  `_stock` _s
+                LEFT JOIN _cata _c ON _s.cata_SN = _c.SN
+                LEFT JOIN _local _l ON _s.local_id = _l.id
+                LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                WHERE _l.flag <> 'Off' AND _f.flag <> 'Off' AND _c.flag <> 'Off'
+                GROUP BY _f.site_id, _s.cata_SN ";
                 // DISTINCT 過濾重複
         $stmt = $pdo->prepare($sql);
         try {

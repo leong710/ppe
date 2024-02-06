@@ -106,6 +106,9 @@
         if (in_array('0', $sfab_id)) {
             unset($sfab_id[array_search('0', $sfab_id)]);
         }
+        if (in_array('1', $sfab_id)) {
+            unset($sfab_id[array_search('1', $sfab_id)]);
+        }
         // 根據需求類別進行編碼 arr=陣列、str=字串
         if($type == "str"){
             $result = implode(",", $sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串

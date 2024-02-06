@@ -155,7 +155,12 @@
             /* 使内容透明，但仍然占位 */
             color: transparent; 
         }
-
+        .inb {
+            display: inline-block;
+        }
+        .inf {
+            display: inline-flex;
+        }
     </style>
     <script>    
         // loading function
@@ -247,7 +252,7 @@
                                 <tbody>
                                     <?php foreach($catalogs as $catalog){
                                         echo "<tr>";
-                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start' >{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'><div class='row' style='vertical-align: middle;'><div class='col-md-4 p-0 t-center'><img src='../catalog/images/{$catalog["PIC"]}' class='img-thumbnail'></div><div class='col-md-8 p-0' >{$catalog["SN"]}</br>{$catalog["pname"]}</div></div></td>";
                                             echo "<td>
                                                     <div class='bbs text-success'>安全</div>
                                                     <div class='bbs text-dark'>快到</div>

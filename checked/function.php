@@ -162,6 +162,14 @@
             echo $e->getMessage();
         }
     }
+    // 20240206 可以查詢出廠區的點檢狀況
+    $ex_sql="SELECT _f.id, _f.fab_title, _f.pm_emp_id
+                , SUM(CASE WHEN cl.form_type = 'stock' THEN 1 ELSE 0 END) AS stock_cunt
+                , SUM(CASE WHEN cl.form_type = 'ptstock' THEN 1 ELSE 0 END) AS ptstock_cunt
+            FROM `_fab` _f
+            LEFT JOIN checked_log cl ON _f.id = cl.fab_id
+            WHERE _f.flag <> 'Off'
+            GROUP BY _f.id ";
 
 // // // // unknow
     //     // --- stock index  20230725

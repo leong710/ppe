@@ -282,7 +282,7 @@
                             <tr>
                                 <!-- <th>ai</th> -->
                                 <th><i class="fa fa-check" aria-hidden="true"></i> 儲存點位置</th>
-                                <th>PIC</th>
+                                <th>分類</th>
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
@@ -306,8 +306,16 @@
                                 <tr <?php echo ($check_item != $stock['local_id']) ? 'style="border-top:3px #FFD382 solid;"':'';?>>
                                     <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."</br>".$stock['local_title'];?></td>
-                                    <td><img src="../catalog/images/<?php echo $stock["PIC"];?>" class="img-thumbnail"></td>
-         
+                                    <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
+                                            case "1": echo "bg-primary"; break;
+                                            case "2": echo "bg-success"; break;
+                                            case "3": echo "bg-warning text-dark"; break;
+                                            case "4": echo "bg-danger"; break;
+                                            case "5": echo "bg-info text-dark"; break;
+                                            case "6": echo "bg-dark"; break;
+                                            case "7": echo "bg-secondary"; break;
+                                            default: echo "bg-light text-success"; break;
+                                        }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
                                     <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                 <!-- 年領用 -->

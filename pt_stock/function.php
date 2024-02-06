@@ -476,7 +476,7 @@
     function show_ptstock($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _stk.*, _stk.id AS stk_id
+        $sql = "SELECT _stk.*, _stk.id AS stk_id ,_cata.PIC
                         ,_l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark
                         ,_cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
                 FROM `pt_stock` _stk 

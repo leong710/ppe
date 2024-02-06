@@ -220,7 +220,7 @@ a:hover {
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
     }
 
-    #catalog_list img {
+    #catalog_list img ,#stock_list img ,#tab_0_table img {
         max-width: 100px;
         /* max-height: 100px; */
         max-height: 100px;

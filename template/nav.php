@@ -163,7 +163,7 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/supp/"><i class="fa-solid fa-address-book"></i>&nbsp供應商聯絡人管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/formplan/"><i class="fa-solid fa-address-book"></i>&nbsp表單計畫</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/formplan/"><i class="fa-regular fa-calendar-days"></i>&nbsp表單計畫</a></li>
                                 </ul>
                             </li>
 

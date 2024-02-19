@@ -30,15 +30,16 @@
 
         
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
+            if($sys_role <=1 ){
+                $fab_scope = "All";                 // All
+            }else{
+                $fab_scope = "allMy";               // allMy
+            }
         // 查詢篩選條件：fab_id
             if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
                 $select_fab_id = $_REQUEST["select_fab_id"];
             }else{                              // 先給預設值
-                if($sys_role <=1 ){
-                    $select_fab_id = "All";                // All
-                }else{
-                    $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-                }
+                $select_fab_id = $fab_scope;                // All
             }
         
         // 1-1 將sys_fab_id加入sfab_id
@@ -50,11 +51,11 @@
             }   
 
         // 1-2 組合查詢條件陣列
-            if($sys_role <=1 && $select_fab_id != "allMy"){
-                $sort_sfab_id = "All";                // All
-            } else{
-                $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-            }
+            // if($sys_role <= 1 || $select_fab_id == "All"){
+            //     $sort_sfab_id = "All";                // All
+            // } else{
+            //     $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
+            // }
 
         // 今年年份
             $thisYear = date('Y');
@@ -69,7 +70,8 @@
         $query_arr = array(
             'select_fab_id' => $select_fab_id,
             'fab_id'        => $select_fab_id,
-            'sfab_id'       => $sort_sfab_id,
+            'fab_scope'     => $fab_scope,
+            'sfab_id'       => $sfab_id_str,
             'thisYear'      => $thisYear,
             'checked_year'  => $thisYear,               // 建立查詢陣列for顯示今年點檢表
             'half'          => $half,                   // 建立查詢陣列for顯示今年點檢表
@@ -134,7 +136,7 @@
         $half_month = date('Y-m-d', strtotime($toDay."+3 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳 // 20240201 定90天
         
         // echo "<pre>";
-        // print_r($_REQUEST);
+        // print_r($query_arr);
         // print_r($stocks);
         // print_r($check_yh_list);
         // echo "</pre>";
@@ -308,13 +310,12 @@
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."</br>".$stock['local_title'];?></td>
                                     <td><img src="../catalog/images/<?php echo $stock["PIC"];?>" class="img-thumbnail"></td>
          
-                                    <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];
-                                                              echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
+                                    <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];?></td>
                                 <!-- 年領用 -->
                                     <td id="ptreceive_<?php echo $stock['stk_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>"
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
+                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && isset($select_fab["id"]) && (in_array($select_fab["id"], [$sfab_id_str])) ) ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                 <!-- 選用 -->
@@ -329,7 +330,7 @@
                                     <!-- <td style="font-size: 12px;"><php echo $stock['po_no'];?></td> -->
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_cname'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], [$sfab_id_str])) )){ ?>
+                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && isset($select_fab["id"]) && (in_array($select_fab["id"], [$sfab_id_str])) )){ ?>
                                                     <button type="button" id="edit_ptstock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_ptstock" 
                                                         onclick="edit_module('ptstock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>

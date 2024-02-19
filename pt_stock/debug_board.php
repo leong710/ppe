@@ -28,6 +28,16 @@
                         print_r($_REQUEST);
                         echo "<hr>";
                     }
+                    if($query_arr){
+                        echo ">>> query_arr：</br>";
+                        print_r($query_arr);
+                        echo "<hr>";
+                    }
+                    if($fabs){
+                        echo ">>> fabs：</br>";
+                        print_r($fabs);
+                        echo "<hr>";
+                    }
                     if($stocks){
                         echo ">>> stocks</br>";
                         print_r($stocks);

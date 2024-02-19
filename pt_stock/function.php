@@ -547,9 +547,10 @@
                 FROM _fab _f
                 LEFT JOIN _site ON _f.site_id = _site.id 
                 WHERE _f.flag = 'On' ";
-        if($select_fab_id == 'allMy'){
+        // if($select_fab_id == 'allMy'){
+        if($fab_scope != 'All' ){
             $sql .= " AND _f.id IN ({$sfab_id}) ";
-        }  
+        } 
         $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

@@ -49,7 +49,7 @@
                 if(isset($_REQUEST['_amount'])){
                     $su['amount'] = $_REQUEST['_amount'];}              // 操作功能
 
-                if(empty($su['id']) || empty($su['amount'])) {
+                if(!isset($su['id']) || !isset($su['amount'])) {
                     unset($aResult['success']);
                     $aResult['error'] = $function.' - 參數錯誤!';
                     $aResult['result'] = $su;

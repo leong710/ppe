@@ -186,7 +186,7 @@
                                     <td style="font-size: 12px;"><?php echo $ptlocal['id']; ?></td>
                                     <td class="text-start"><?php echo $ptlocal['fab_id']."_".$ptlocal['fab_title']." (".$ptlocal['fab_remark'].")"; if($ptlocal["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                     <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
-                                    <td><a href="low_level.php?select_local_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
+                                    <td><a href="low_level.php?select_fab_id=<?php echo $ptlocal['fab_id'];?>&select_local_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
                                         <?php echo !empty($ptlocal['low_level']) ? "已設定":"未設定";?></a></td>
                                     <td><?php if($sys_role <= 1){ ?>  
                                             <button type="button" name="pt_local" id="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>" 

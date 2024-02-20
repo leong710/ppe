@@ -2,8 +2,8 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
-    // accessDenied($sys_id);
-    accessDeniedAdmin($sys_id);
+    accessDenied($sys_id);
+    // accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
@@ -22,27 +22,28 @@
         // 調整flag ==> 20230712改用AJAX
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
+            if($sys_role <=1 ){
+                $fab_scope = "All";                 // All
+            }else{
+                $fab_scope = "allMy";               // allMy
+            }
+        // 查詢篩選條件：fab_id
+            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
+                $select_fab_id = $_REQUEST["select_fab_id"];
+            }else{                              // 先給預設值
+                $select_fab_id = $fab_scope;                // All
+            }
+
         // 1-1a 將fab_id加入sfab_id
-        $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
+            $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
 
     // 1-2 組合查詢條件陣列
-        if($sys_role <=1 ){
-            $sort_sfab_id = "All";                // All = admin/pm
-            // $sort_sfab_id = $sfab_id_str;         // test = user
-        }else{
-            $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-        }
-
-    // 查詢篩選條件：fab_id
-        if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
-            $select_fab_id = $_REQUEST["select_fab_id"];
-        }else{                              // 先給預設值
-            if($sys_role <=1 ){
-                $select_fab_id = "All";                // All
-            }else{
-                $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-            }
-        }
+        // if($sys_role <=1 ){
+        //     $sort_sfab_id = "All";                // All = admin/pm
+        //     // $sort_sfab_id = $sfab_id_str;         // test = user
+        // }else{
+        //     $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
+        // }
 
     // 查詢篩選條件：select_receive_yy
         if(isset($_REQUEST["select_receive_yy"])){     // 有帶查詢，套查詢參數
@@ -54,6 +55,7 @@
     // 3.組合查詢陣列
         $query_arr = array(
             'select_fab_id'     => $select_fab_id,
+            'fab_scope'         => $fab_scope,
             'sfab_id'           => $sfab_id_str,
             'select_receive_yy' => $select_receive_yy
         );
@@ -469,13 +471,10 @@
             <div class="modal-content">
                 <div class="modal-header add_mode_bgc">
                     <h4 class="modal-title"><span id="modal_action"></span>&nbsp除汙器材領用&nbsp</h4><span id="shopping_count" class="badge rounded-pill bg-danger"></span>
-
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
                     <form action="" method="post">
                         <input type="hidden" name="id" id="ptreceive_delete_id">
-                        <?php if($sys_role <= 1){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="modal_delect_btn"></span>
-                        <?php } ?>
+                        <span id="modal_delect_btn" class="<?php echo ($sys_role >= 1) ? "unblock":"";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -588,6 +587,7 @@
     var ptstock       = <?=json_encode($ptstocks);?>;                       // 引入div_stocks資料
     var swal_json     = [];                                                   // 引入swal_json值
     var action        = 'review';
+    var _inplan       = '';
     
 </script>
 

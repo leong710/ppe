@@ -5,6 +5,12 @@
     function store_ptstock($request){
         $pdo = pdo();
         extract($request);
+        // 數量不是0的正數，捨去關閉功能
+        if($amount >= 1){
+            $flag = '';
+        }else{
+            $flag = 'Off';
+        }
         // 20240122 新增確認同local_ld+catalog_id+lot_num的單子合併計算
         $sql_check = "SELECT * 
                       FROM pt_stock 
@@ -19,11 +25,11 @@
             $amount += $row["amount"];
 
             $sql = "UPDATE pt_stock
-                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_cname=?, updated_at=now()
+                    SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, flag=?, updated_cname=?, updated_at=now()
                     WHERE id=?";
             $stmt = $pdo->prepare($sql);
             try{
-                $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_cname, $row["id"]]);
+                $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $flag, $updated_cname, $row["id"]]);
                 $swal_json = array(
                     "fun" => "store_ptstock",
                     "action" => "success",
@@ -82,6 +88,12 @@
     function update_ptstock($request){
         $pdo = pdo();
         extract($request);
+        // 數量不是0的正數，捨去關閉功能
+        if($amount >= 1){
+            $flag = '';
+        }else{
+            $flag = 'Off';
+        }
             // 20240122 新增確認同local_ld+catalog_id+lot_num的單子合併計算
             $sql_check = "SELECT * 
                           FROM pt_stock 
@@ -96,11 +108,11 @@
                 $amount += $row["amount"];
     
                 $sql = "UPDATE pt_stock
-                        SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, updated_cname=?, updated_at=now()
+                        SET standard_lv=?, amount=?, stock_remark=CONCAT(stock_remark, CHAR(10), ?), po_no=?, lot_num=?, flag=?, updated_cname=?, updated_at=now()
                         WHERE id=?";
                 $stmt = $pdo->prepare($sql);
                 try{
-                    $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_cname, $row["id"]]);
+                    $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $flag, $updated_cname, $row["id"]]);
                     $swal_json = array(
                         "fun"       => "update_ptstock",
                         "action"    => "success",
@@ -119,11 +131,11 @@
             }else{
                 // echo "<script>alert('local器材只有單一筆，不用合併計算~')</script>";
                 $sql = "UPDATE pt_stock
-                        SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, updated_cname=?, updated_at=now()
+                        SET local_id=?, cata_SN=?, standard_lv=?, amount=?, stock_remark=?, pno=?, po_no=?, lot_num=?, flag=?, updated_cname=?, updated_at=now()
                         WHERE id=?";
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_cname, $id]);
+                    $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $flag, $updated_cname, $id]);
                     $swal_json = array(
                         "fun"       => "update_ptstock",
                         "action"    => "success",
@@ -172,7 +184,8 @@
 
         $swal_json = array(                                 // for swal_json
             "fun"       => "store_ptreceive",
-            "content"   => "領用申請--"
+            "content"   => "領用申請--",
+            "msg"       => ""
         );
 
         // item資料前處理
@@ -185,7 +198,8 @@
         try {
             $stmt->execute([$emp_id, $created_cname, $select_fab_id, $ppty, $receive_remark, $item_enc, $idty, $app_date, $created_cname ]);
             $swal_json["action"]   = "success";
-            $swal_json["content"] .= '送出成功';
+            $swal_json["content"] .= "送出成功";
+            $swal_json["msg"]     .= $cname." 在 ".$fab_title." 申請領用除汙器材，請大PM即時確認!";
 
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -748,7 +762,21 @@
         );
         return $result;
     }
-
+    // 20240220 查出ppe的大PM名單 role = 1
+    function show_PPE_PM(){
+        $pdo = pdo();
+        $sql = "SELECT _u.emp_id 
+                FROM `_users` _u
+                WHERE _u.role = '1' ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute();
+            $PPE_PMs = $stmt->fetchAll();
+            return $PPE_PMs;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 // // // Create & Edit
 
     // 20240123 create時用自己選定Fab區域的Local list

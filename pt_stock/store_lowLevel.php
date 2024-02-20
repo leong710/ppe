@@ -11,7 +11,7 @@
         case "store_lowLevel":      
             if(empty($select_local_id) || empty($low_level)){                          // 資料判斷 
                 echo "<script>alert('參數錯誤_1 !!! (你沒有選Local或填數量)');</script>";
-                header("refresh:0;url=low_level.php");                          // 用script導回上一頁。防止崩煃
+                header("refresh:0;url=low_level.php?select_fab_id={$select_fab_id}&select_local_id={$select_local_id}");                          // 用script導回上一頁。防止崩煃
                 return;
             }else{
                 $swal_json = store_lowLevel($_REQUEST);
@@ -29,7 +29,7 @@
                 $select_local = select_local($_REQUEST);
                 if(empty($select_local)){                                       // 查無資料時返回指定頁面
                     echo "<script>alert('參數錯誤_2 !!! (你選的Local有誤)');</script>";
-                    header("refresh:0;url=low_level.php");                      // 用script導回上一頁。防止崩煃
+                    header("refresh:0;url=low_level.php?select_fab_id={$select_fab_id}&select_local_id={$select_local_id}");                      // 用script導回上一頁。防止崩煃
                     return;
                 }
                 $buy_ty = $select_local["buy_ty"];                              // 限購規模

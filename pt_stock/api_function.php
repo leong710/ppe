@@ -4,13 +4,17 @@
     function update_amount($request){
         $pdo = pdo();
         extract($request);
-
+        if($amount >= 1){
+            $flag = '';
+        }else{
+            $flag = 'Off';
+        }
         $sql = "UPDATE pt_stock
-                SET amount=?, updated_at=now()
+                SET amount=?, flag=?, updated_at=now()
                 WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$amount, $id]);
+            $stmt->execute([$amount, $flag, $id]);
             return "mySQL寫入 - 成功";
         }catch(PDOException $e){
             echo $e->getMessage();

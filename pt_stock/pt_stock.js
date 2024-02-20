@@ -42,7 +42,7 @@
     // 變更按鈕樣態
     function change_btn(target){
         var toggle_btn = document.getElementById(target+'_toggle_btn');
-        var lot_num = document.getElementById(target+'_lot_num');
+        var lot_num = document.getElementById('lot_num');
 
         if (lot_num.value == '') {
             // 输入字段为空
@@ -58,7 +58,7 @@
     }
     // 變更lot_num數值
     function chenge_lot_num(target){
-        var lot_num = document.getElementById(target+'_lot_num');
+        var lot_num = document.getElementById('lot_num');
         if(lot_num.value =='') {
             lot_num.value = '9999-12-31';
         }else{
@@ -66,20 +66,60 @@
         }
         change_btn(target);
     };
+    // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~
+    function push_mapp(user_emp_id, mg_msg){
+        $.ajax({
+            url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
+            method:'post',
+            async: false,                                               // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                // eid : user_emp_id,                                      // 傳送對象
+                eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                message : mg_msg                                        // 傳送訊息
+            },
+            success: function(res){
+                // console.log("push_mapp -- success：",res);
+                mapp_result['success']++;
+                mapp_result_check = true; 
+            },
+            error: function(res){
+                // console.log("push_mapp -- error：",res);
+                    // mapp_result['error']++; 
+                    // mapp_result_check = false;
+                // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
+                mapp_result['success']++;
+                mapp_result_check = true; 
+            }
+        });
+        console.log('fun push_mapp -- mapp_result_check: ', mapp_result_check);
+        return mapp_result_check;
+    }
 
     $(function(){
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
         // swl function    
         if(swal_json.length != 0){
-            if(swal_json['action'] == 'error'){
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});
-            }else{
+            if(swal_json['action'] == 'success'){
                 var sinn = 'submit - ( '+swal_json['fun']+' : '+swal_json['content']+' ) <b>'+ swal_json['action'] +'</b>&nbsp!!';
                 inside_toast(sinn);
-            }
 
+                console.log('swal_json:', swal_json);
+
+                // 20240220_MAPP
+                if(swal_json['fun'] == 'store_ptreceive' && ppe_pms.length !=0 ){
+                    var mg_msg = swal_json['msg'];
+                    Object(ppe_pms).forEach(function(user){
+                        var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
+                        push_mapp(user_emp_id, mg_msg);
+                        console.log(user_emp_id, mg_msg);
+                    })
+                }
+            }
+            swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});
         }
+
         // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
         // 監聽lot_num是否有輸入值，跟著改變樣態
         $('#lot_num').on('input', function() {
@@ -92,7 +132,7 @@
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_ptstock_info').empty();     // 清除model功能
         $('#reset_btn').click();                                                            // reset清除表單
-        var add_btn = '<input type="submit" name="add_ptstock_submit" class="btn btn-primary" value="新增">';
+        var add_btn = '<input type="submit" name="'+to_module+'_store" class="btn btn-primary" value="新增">';
         $('#modal_action').append('新增');                      // model標題
         $('#modal_button').append(add_btn);                     // 儲存鈕
         var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
@@ -136,11 +176,11 @@
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_cname'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
 
-                var add_btn = '<input type="submit" name="'+to_module+'_update" value="送出" class="btn btn-primary">';
+                var upd_btn = '<input type="submit" name="'+to_module+'_update" value="送出" class="btn btn-primary">';
                 var del_btn = '<input type="submit" name="'+to_module+'_delete" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
                 $('#modal_action').append('編輯');          // model標題
                 $('#modal_delect_btn').append(del_btn);     // 刪除鈕
-                $('#modal_button').append(add_btn);         // 儲存鈕
+                $('#modal_button').append(upd_btn);         // 儲存鈕
                 return;
             }
         })
@@ -298,7 +338,6 @@
     }
 
 // // // shopping_cart
-
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
 
@@ -401,7 +440,6 @@
         }
         check_shopping_count();        // 清算購物車件數
     }
-
     // 查找購物車清單已存在的項目，並予以清除
     function check_item(cata_SN, swal_time) {
         // swal_time = 是否啟動swal提示 ： 0 = 不啟動
@@ -435,7 +473,6 @@
         // check_shopping_count();
         return false;       // false = 沒找到數值
     }
-
     // 清算購物車件數，顯示件數，切換申請單按鈕
     function check_shopping_count(){
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
@@ -471,7 +508,7 @@
         });
 
         // call fun show 年領用量與建議值
-        if(ptstock.length >= 1){
+        if(action == 'create' && ptstock.length >= 1){
             show_ptreceives();
         }
 

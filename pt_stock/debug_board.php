@@ -38,6 +38,11 @@
                         print_r($fabs);
                         echo "<hr>";
                     }
+                    if($locals){
+                        echo ">>> locals：</br>";
+                        print_r($locals);
+                        echo "<hr>";
+                    }
                     if($stocks){
                         echo ">>> stocks</br>";
                         print_r($stocks);

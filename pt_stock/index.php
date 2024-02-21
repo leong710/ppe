@@ -266,7 +266,7 @@
                                         <button type="button" id="checkList_btn" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
                                     </div>
                                 <?php } ?>
-                                <?php if($sys_role <= 1 || ( $sys_role <= 2 && ((in_array($select_fab["id"], $sfab_id_arr)) ) ) ){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <div class="inb">
                                         <button type="button" id="add_ptstock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptstock" onclick="add_module('ptstock')"><i class="fa fa-plus"></i> 新增</button>
                                     </div>
@@ -342,7 +342,7 @@
                                     <!-- <td style="font-size: 12px;"><php echo $stock['po_no'];?></td> -->
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_cname'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 || ( $sys_role == 2 && (in_array($stock["fab_id"], $sfab_id_arr)) )){ ?>
+                                            <?php if($sys_role <= 1 ){ ?>
                                                     <button type="button" id="edit_ptstock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_ptstock" 
                                                         onclick="edit_module('ptstock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>
@@ -694,7 +694,7 @@
     var _inplan             = '<?=$_inplan?>';
     var start_time          = '<?=$start_time?>';
     var end_time            = '<?=$end_time?>';
-
+    
 </script>
 
 <script src="pt_stock.js?v=<?=time();?>"></script>

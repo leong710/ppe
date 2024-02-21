@@ -142,26 +142,16 @@
         }else{
             $ppe_pms = array();
         }
-        // $ppe_pms_arr = array();
-        $ppe_pms = show_PPE_PM();
-        // if(!empty($ppe_pms)){
-        //     foreach($ppe_pms as $ppe_pm){
-        //         if(!in_array($ppe_pm["emp_id"], $ppe_pms_arr)){
-        //             array_push($ppe_pms_arr, $ppe_pm["emp_id"]);
-        //         }
-        //     }
-        // }
-        // $ppe_pms_str = implode(",", $ppe_pms_arr);                   // 1-1c sfab_id是陣列，要轉成字串
 
+        // $ppe_pms = show_PPE_PM();
 
-        echo "<pre>";
-        print_r($ppe_pms);
+        // echo "<pre>";
+        // print_r($ppe_pms);
         // print_r($query_arr);
         // print_r($stocks);
         // print_r($_REQUEST);
-        // echo "<hr>";
         // print_r($swal_json);
-        echo "</pre>";
+        // echo "</pre>";
         // echo $half_month;
 ?>
 

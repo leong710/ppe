@@ -66,7 +66,7 @@
         }
         change_btn(target);
     };
-    // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~
+    // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~ // 20240220_增加mapp推播訊息
     function push_mapp(user_emp_id, mg_msg){
         $.ajax({
             url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
@@ -74,25 +74,20 @@
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                // eid : user_emp_id,                                      // 傳送對象
-                eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                eid : user_emp_id,                                      // 傳送對象
+                // eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
                 // console.log("push_mapp -- success：",res);
-                mapp_result['success']++;
                 mapp_result_check = true; 
             },
             error: function(res){
                 // console.log("push_mapp -- error：",res);
-                    // mapp_result['error']++; 
-                    // mapp_result_check = false;
                 // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
-                mapp_result['success']++;
-                mapp_result_check = true; 
+                mapp_result_check = false;
             }
         });
-        console.log('fun push_mapp -- mapp_result_check: ', mapp_result_check);
         return mapp_result_check;
     }
 
@@ -104,28 +99,22 @@
             if(swal_json['action'] == 'success'){
                 var sinn = 'submit - ( '+swal_json['fun']+' : '+swal_json['content']+' ) <b>'+ swal_json['action'] +'</b>&nbsp!!';
                 inside_toast(sinn);
-
-                console.log('swal_json:', swal_json);
-
-                // 20240220_MAPP
+                // 20240220_增加mapp推播訊息
                 if(swal_json['fun'] == 'store_ptreceive' && ppe_pms.length !=0 ){
                     var mg_msg = swal_json['msg'];
                     Object(ppe_pms).forEach(function(user){
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         push_mapp(user_emp_id, mg_msg);
-                        console.log(user_emp_id, mg_msg);
                     })
                 }
             }
             swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});
         }
-
         // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
         // 監聽lot_num是否有輸入值，跟著改變樣態
         $('#lot_num').on('input', function() {
             change_btn('edit');
         });
-
     });
     
 // // // add mode function
@@ -414,7 +403,8 @@
                         var add_cata_item = '<tr id="item_'+cata['SN']+'_'+cata['stk_id']+'"><td>'+input_cb+'</td><td class="word_bk">'+cata['fab_title']+'_'+cata['local_title']+'</td><td class="word_bk">'+cata['SN']+'_'+cata['pname']+'</td>';
                         // add_cata_item += '<td>'+add_amount+'</td><td>'+cata['lot_num']+'</td></tr>';
                         add_cata_item += '<td><input type="number" name="item['+cata['SN']+','+cata['stk_id']+'][pay]" class="collect amount t-center" placeholder="數量" min="1" ';
-                        add_cata_item += ' max="'+add_amount+'" maxlength="'+add_amount_length+'" value="'+add_amount+'" oninput="if(value>'+add_amount+') value='+add_amount+'" >'+'</td><td>'+cata['lot_num']+'</td></tr>';
+                        // add_cata_item += ' max="'+add_amount+'" maxlength="'+add_amount_length+'" value="'+add_amount+'" oninput="if(value>'+add_amount+') value='+add_amount+'" >'+'</td><td>'+cata['lot_num']+'</td></tr>';
+                        add_cata_item += ' max="'+add_amount+'" maxlength="'+add_amount_length+'" value="1" oninput="if(value>'+add_amount+') value='+add_amount+'" >'+'</td><td>'+cata['lot_num']+'</td></tr>';
                         $('#shopping_cart_tbody').append(add_cata_item);
                         return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                     }

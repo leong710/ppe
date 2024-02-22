@@ -58,7 +58,12 @@
                 $_REQUEST["stocks_log"] = $logs_str;
 
                 $swal_json = store_ptchecked($_REQUEST);
-
+                // 取得swal內容 // 20240220_增加mapp推播訊息
+                if(isset($swal_json["fun"]) && ($swal_json["fun"] == "store_ptchecked") && ($swal_json["action"] == "success" && (isset($ccOmager) && $ccOmager == true))){
+                    $myOmager = query_FAB_omager($sign_code);
+                }else{
+                    $myOmager = array();
+                }
             }
             break;  // 停止向下
 
@@ -128,8 +133,35 @@
 
 <script>    
     
-    var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
+    var swal_json = <?=json_encode($swal_json);?>;                   // 引入swal_json值
+    var myOmager  = <?=json_encode($myOmager)?>;                     // 引入myOmager值
     var url = 'index.php?select_fab_id=<?=$fab_id?>';
+
+    // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~ // 20240220_增加mapp推播訊息
+    function push_mapp(user_emp_id, mg_msg){
+        $.ajax({
+            url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
+            method:'post',
+            async: false,                                               // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                eid : user_emp_id,                                      // 傳送對象
+                // eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                message : mg_msg                                        // 傳送訊息
+            },
+            success: function(res){
+                // console.log("push_mapp -- success：",res);
+                mapp_result_check = true; 
+            },
+            error: function(res){
+                // console.log("push_mapp -- error：",res);
+                // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
+                mapp_result_check = false;
+            }
+        });
+        console.log("mapp_emp_id:", user_emp_id);
+        return mapp_result_check;
+    }
 
     $(document).ready(function () {
         
@@ -137,6 +169,12 @@
             // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});         // 3秒
             // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});           // 關閉畫面
             if(swal_json['action'] == 'success'){
+
+                if(swal_json['fun'] == 'store_ptchecked' && myOmager.length !=0 ){
+                    var mg_msg = swal_json['msg'];
+                    var myOmager_emp_id = String(myOmager['OMAGER']).trim();            // 定義 user_emp_id + 去空白
+                    push_mapp(myOmager_emp_id, mg_msg);
+                }
                 // location.href = this.url;
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
                 

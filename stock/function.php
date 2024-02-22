@@ -164,7 +164,7 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _stk.*, 
-                        _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark, 
+                        _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark,
                         _cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
                 FROM `_stock` _stk 
                 LEFT JOIN _local _l ON _stk.local_id = _l.id 
@@ -393,7 +393,7 @@
     function show_fab($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag, _site.site_title 
+        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag, _f.sign_code, _site.site_title 
                 FROM _fab _f
                 LEFT JOIN _site ON _f.site_id = _site.id ";
         if($fab_id != 'All'){
@@ -714,7 +714,8 @@
 
         $swal_json = array(                                 // for swal_json
             "fun"       => "store_checked",
-            "content"   => "存量點檢單--"
+            "content"   => "存量點檢單--",
+            "msg"       => ""
         );
 
         // $logs = JSON_encode($stocks_log);
@@ -724,6 +725,16 @@
             $stmt->execute([$form_type, $fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $checked_year, $half]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
+            // 20240220_增加mapp推播訊息
+                if($form_type == "stock"){
+                    $form_type_name = "個人防護具";
+                }else{
+                    $form_type_name = "除汙器材";
+                }
+            $swal_json["msg"]     .= "【環安PPE系統】".$form_type_name."點檢完成通知\n(".$cname.") 已提送".$fab_title."(".$fab_remark.")".$checked_year."/".$half."點檢，待您確認";
+            $swal_json["msg"]     .= "\n，如已確認完畢，請忽略此訊息！\n** 請至以下連結查看文件：\nhttp://tw059332n.cminl.oa/ppe/checked/";
+            $swal_json["msg"]     .= "\n溫馨提示：\n1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n<此訊息為系統自動發出，請勿回覆>";
+
         }catch(PDOException $e){
             echo $e->getMessage();
             $swal_json["action"]   = "error";

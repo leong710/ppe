@@ -8,7 +8,8 @@
 
         $swal_json = array(                                 // for swal_json
             "fun"       => "store_ptchecked",
-            "content"   => "存量點檢單--"
+            "content"   => "存量點檢單--",
+            "msg"       => ""
         );
 
         // $logs = JSON_encode($stocks_log);
@@ -18,6 +19,16 @@
             $stmt->execute([$fab_id, $stocks_log, $emp_id, $cname, $checked_remark, $form_type, $checked_year, $half]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '送出成功';
+            // 20240220_增加mapp推播訊息
+                if($form_type == "stock"){
+                    $form_type_name = "個人防護具";
+                }else{
+                    $form_type_name = "除汙器材";
+                }
+            $swal_json["msg"]     .= "【環安PPE系統】".$form_type_name."點檢完成通知\n(".$cname.") 已提送".$fab_title."(".$fab_remark.")".$checked_year."/".$half."點檢記錄";
+            $swal_json["msg"]     .= "，如已確認完畢，請忽略此訊息！\n** 請至以下連結查看文件：\nhttp://tw059332n.cminl.oa/ppe/checked/";
+            $swal_json["msg"]     .= "\n溫馨提示：\n1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n<此訊息為系統自動發出，請勿回覆>";
+
         }catch(PDOException $e){
             echo $e->getMessage();
             $swal_json["action"]   = "error";
@@ -173,10 +184,45 @@
         }
     }
 
+// 20240220_增加mapp推播訊息
+    // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
+    function query_omager($emp_id){
+        $pdo = pdo_hrdb();
+        // extract($request);
+        $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
+                FROM STAFF u
+                LEFT JOIN STAFF s ON u.omager = s.emp_id 
+                where u.emp_id = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$emp_id]);
+            $query_omager = $stmt->fetch();
+            return $query_omager;
 
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
+    // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
+    function query_FAB_omager($sign_code){
+        $pdo = pdo_hrdb();
+        // extract($request);
+        $sql = "SELECT _d.OSHORT, _d.OFTEXT, _d.OMAGER, CONCAT(_s.NACHN, _s.VORNA) AS cname
+                FROM [HCM_VW_DEPT08] _d
+                LEFT JOIN [HCM_VW_EMP01_hiring] _s ON _d.OMAGER = _s.PERNR
+                WHERE _d.OSHORT = ? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$sign_code]);
+            $query_omager = $stmt->fetch();
+            return $query_omager;
 
-
-
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
 
 
     //from edit.php

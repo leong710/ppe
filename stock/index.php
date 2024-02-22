@@ -478,7 +478,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <form action="store_checkList.php" method="post">
+                <form action="store_checkList.php" method="post" onsubmit="this.ccOmager.disabled=false;">
                     <div class="modal-body p-4">
                         <div class="col-12 rounded bg-light">
                             <div class="row">
@@ -500,11 +500,20 @@
                                     <textarea name="checked_remark" id="checked_remark" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
-                            <div class="col-12 py-0 text-end">
-                                <h5>
-                                    <input type="checkbox" name="iAgree" value="0" id="iAgree" class="form-check-input" required>
-                                    <label for="iAgree" class="form-label">我已確認完畢，現況數量無誤!</label>
-                                </h5>
+
+                            <div class="row">
+                                <div class="col-md-6 py-0">
+                                </div>
+                                <div class="col-md-6 py-0">
+                                    <h5>
+                                        <input type="checkbox" name="ccOmager" value="1" id="ccOmager" class="form-check-input" checked <?php echo $sys_role == 0 ? "":" disabled";?>>
+                                        <label for="ccOmager" class="form-label" <?php echo $sys_role == 0 ? "":" title='您無權修改!'";?>>mapp知會所屬主管!</label>
+                                    </h5>
+                                    <h5>
+                                        <input type="checkbox" name="iAgree" value="0" id="iAgree" class="form-check-input" required>
+                                        <label for="iAgree" class="form-label">我已確認完畢，現況數量無誤!</label>
+                                    </h5>
+                                </div>
                             </div>
                         </div>
                         <!-- 最後編輯資訊 -->
@@ -516,6 +525,9 @@
                             <input type="hidden" name="form_type"       value="<?php echo $form_type;?>">
                             <input type="hidden" name="up_href"         value="<?php echo $up_href;?>">
                             <input type="hidden" name="fab_id"          value="<?php echo $sortFab["id"];?>">
+                            <input type="hidden" name="fab_title"       value="<?php echo $sortFab["fab_title"];?>">
+                            <input type="hidden" name="fab_remark"      value="<?php echo $sortFab["fab_remark"];?>">
+                            <input type="hidden" name="sign_code"       value="<?php echo $sortFab["sign_code"];?>">
                             <input type="hidden" name="emp_id"          value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="cname"           value="<?php echo $auth_cname; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">

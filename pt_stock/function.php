@@ -581,7 +581,7 @@
     function show_select_fab($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag, _site.site_title 
+        $sql = "SELECT _f.id, _f.fab_title, _f.fab_remark, _f.flag, _f.sign_code, _site.site_title 
                 FROM _fab _f
                 LEFT JOIN _site ON _f.site_id = _site.id 
                 ";

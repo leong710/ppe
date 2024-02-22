@@ -136,13 +136,6 @@
         .body > ul {
             padding-left: 0px;
         }
-        /* inline */
-        .inb {
-            display: inline-block;
-        }
-        .inf {
-            display: inline-flex;
-        }
     </style>
     <script>    
         // loading function
@@ -213,16 +206,6 @@
                             <?php if($sys_role <= 1){ ?>
                                 <!-- <button type="button" id="add_ptlocal_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptlocal" onclick="add_module('ptlocal')" > <i class="fa fa-plus"></i> 新增除汙儲存點</button> -->
                             <?php } ?>
-                            <div class="inb">
-                                <!-- 20231128 下載Excel -->
-                                <?php if($per_total != 0){ ?>
-                                    <form id="myForm" method="post" action="../_Format/download_excel.php">
-                                        <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="ptreceive" onclick="submitDownloadExcel('ptreceive')" >
-                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出</button>
-                                    </form>
-                                <?php } ?>
-                            </div>
                         </div>
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
@@ -311,7 +294,7 @@
                         </div>
                     <!-- 20211215分頁工具 進階改良版 -->
                     <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
-                    <table id="ptreceive_list" class="table table-striped table-hover">
+                    <table id="receive_list" class="table table-striped table-hover">
                         <thead>
                             <tr class="">
                                 <th>領用日期</th>
@@ -606,9 +589,6 @@
     var action        = 'review';
     var _inplan       = '';
     
-    // 先定義一個陣列(裝輸出資料使用)for 下載Excel
-    var listData      = <?=json_encode($ptreceives)?>;                      // 引入ptreceives資料
-
 </script>
 
 <script src="pt_stock.js?v=<?=time();?>"></script>

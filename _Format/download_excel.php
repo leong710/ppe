@@ -15,6 +15,7 @@
         $to_module = "downLoad_excel";
     }
     $now = date("Y-m-d");
+    // 創建一個新的 Excel 對象
     $spreadsheet = new Spreadsheet();
     // $sheet = $spreadsheet->getActiveSheet();
     $sheet = $spreadsheet->getActiveSheet()->freezePane('A2');      // 冻结窗格，锁定行和列
@@ -105,6 +106,25 @@
                 $spreadsheet->getActiveSheet()->setTitle($_REQUEST["tab_name"]);                    // 定義sheetName
                 $spreadsheet->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);         // A欄-自動欄寬
                 break;
+            case "ptreceive":
+
+                // 將數據寫入 Excel
+                $rowIndex = 1;
+                foreach ($data as $rowData) {
+                    $colIndex = 1;
+                    foreach ($rowData as $value) {
+                        $sheet->setCellValueByColumnAndRow($colIndex, $rowIndex, $value);
+                        $colIndex++;
+                    }
+                    $rowIndex++;
+                }
+
+                $filename_head = "除汙器材領用記錄_".$data[0]["儲存點"];
+                    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                    foreach ($columns as $column) {
+                        $spreadsheet->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+                    }
+                break;
             default:
                 $filename_head = $to_module;
                 break;
@@ -120,7 +140,7 @@
     header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     header("Content-Disposition: attachment; filename=".$filename);
     header('Cache-Control: max-age=0');
-    
+    // 將 Excel 對象寫入到檔案
     $writer = new Xlsx($spreadsheet);
     $writer->save('php://output');
 

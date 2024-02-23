@@ -218,7 +218,7 @@
                                 <?php if($per_total != 0){ ?>
                                     <form id="myForm" method="post" action="../_Format/download_excel.php">
                                         <input type="hidden" name="htmlTable" id="htmlTable" value="">
-                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"";?>" value="ptreceive" onclick="submitDownloadExcel('ptreceive')" >
+                                        <button type="submit" name="submit" class="btn btn-success" title="<?php echo isset($select_fab["id"]) ? $select_fab["fab_title"]." (".$select_fab["fab_remark"].")":"NA";?>" value="ptreceive" onclick="submitDownloadExcel('ptreceive')" >
                                             <i class="fa fa-download" aria-hidden="true"></i> 匯出</button>
                                     </form>
                                 <?php } ?>

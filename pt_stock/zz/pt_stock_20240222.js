@@ -74,8 +74,8 @@
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                // eid : user_emp_id,                                      // 傳送對象
-                eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                eid : user_emp_id,                                      // 傳送對象
+                // eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
@@ -260,11 +260,9 @@
         }
     }
 // 20231128_下載Excel
-    function submitDownloadExcel(form_type) {
-        var sort_listData = [];         // 建立陣列
-        if(form_type ==='stock'){     // 這裡是取匯入的DB
-            // 定義要抓的key=>value
-            var listData_item_keys = {
+    function submitDownloadExcel() {
+        // 定義要抓的key=>value
+            var stocks_item_keys = {
                 "id"            : "aid", 
                 "fab_title"     : "儲存點", 
                 "local_title"   : "儲存位置", 
@@ -280,60 +278,14 @@
                 "updated_at"    : "最後更新",
                 "updated_user"  : "最後編輯"
             };
-            for(var i=0; i < listData.length; i++){
-                sort_listData[i] = {};      // 建立物件
-                Object.keys(listData_item_keys).forEach(function(item_key){
-                    // console.log(listData_item_keys[item_key]+"：" ,listData[i][item_key]);
-                    sort_listData[i][listData_item_keys[item_key]] = listData[i][item_key];
-                })
-            }
-
-        }else if(form_type ==='ptreceive'){     // 這裡是取畫面上的Table
-            // 定義畫面上Table範圍
-            var pl_table = document.getElementById("ptreceive_list");
-            var rows = pl_table.getElementsByTagName("tr");
-            // 获取表格的标题行数据
-            var headerRow = pl_table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
-            var headerCells = headerRow.getElementsByTagName("th");
-            var sort_listData = [];
-
-            // 逐列導出
-            for (var i = 1; i < rows.length; i++) {
-                var cells = rows[i].getElementsByTagName("td");
-                var rowData = {};
-
-                // 初始化每一行
-                for (var h = 0; h < headerCells.length; h++) {
-                    rowData[headerCells[h].innerHTML] = "";
-                }
-                // 逐欄導出：thead-th = tbod-td
-                var columnIndex = 0; // 用於跟踪列的索引
-                for (var j = 0; j < cells.length; j++) {
-                    var currentCell = cells[j];
-                    // 處理 rowspan
-                    while (rowData[headerCells[columnIndex].innerHTML] !== "") {
-                        columnIndex++;
-                    }
-                    // 處理 rowspan 情況
-                    var rowspan = currentCell.rowSpan || 1;
-                    for (var k = 0; k < rowspan; k++) {
-                        // rowData[i-1][headerCells[j].innerHTML]      = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
-                        // rowData[headerCells[columnIndex].innerHTML] = currentCell.innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
-                        // rowData[headerCells[columnIndex].innerHTML] = currentCell.innerHTML.replace(/<[^>]*>/g, "");
-                        var targetHeader = headerCells[columnIndex].innerHTML;
-                        var cellContent = currentCell.innerHTML.replace(/<[^>]*>/g, "");
-                        rowData[targetHeader] = cellContent;
-                        
-                    }
-                    // 更新列索引
-                    columnIndex++;
-                }
-                // 將該行數據添加到 sort_listData
-                sort_listData.push(rowData);
-            }
-
+        var sort_listData = [];         // 建立陣列
+        for(var i=0; i < listData.length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(stocks_item_keys).forEach(function(item_key){
+                // console.log(stocks_item_keys[item_key]+"：" ,listData[i][item_key]);
+                sort_listData[i][stocks_item_keys[item_key]] = listData[i][item_key];
+            })
         }
-
         console.log('sort_listData:', sort_listData);
         var htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById('htmlTable').value = htmlTableValue;
@@ -563,57 +515,5 @@
             // message += '<button type="button" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>';
             alert( message, 'warning')
         }
-
-        // 定義畫面上Table範圍
-        var pl_table = document.getElementById("ptreceive_list");
-        var rows     = pl_table.getElementsByTagName("tr");
-        // 获取表格的标题行数据
-        var headerRow = pl_table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
-        var headerCells = headerRow.getElementsByTagName("th");
-        var sort_listData = [];
-
-        var headerCells_length = headerCells.length;    // 取頭的長度
-
-
-        // // 逐列導出
-        for (var i = 1; i < rows.length; i++) {
-            var cells = rows[i].getElementsByTagName("td");
-            var rowData = {};
-            // 初始化每一行
-            for (var h = 0; h < headerCells.length; h++) {
-                rowData[headerCells[h].innerHTML] = "";
-            }
-            if(i > 1){
-                var UPcells = rows[i-1].getElementsByTagName("td");
-            }else{
-                var UPcells = {};
-            }
-            
-            var columnIndex = 0;            // 用於跟踪列的索引
-            // 逐欄導出：thead-th = tbod-td
-            if(cells.length === headerCells_length){        // cell與head相同長度
-                for (var j = 0; j < cells.length; j++) {
-                    var currentCell = cells[j];
-                    // 處理 rowspan
-                    while (rowData[headerCells[columnIndex].innerHTML] !== "") {
-                        columnIndex++;
-                    }
-                    var targetHeader = headerCells[columnIndex].innerHTML;
-                    var cellContent = currentCell.innerHTML.replace(/<[^>]*>/g, "");
-                    rowData[targetHeader] = cellContent;
-
-                }
-            }else{
-                for ( var j = 0; j < headerCells_length; j++){
-                    if(UPcells[j].rowSpan > 1){
-
-                    }
-                    
-                }
-            }
-            // 將該行數據添加到 sort_listData
-            sort_listData.push(rowData);
-        }
-        console.log('sort_listData:', sort_listData);
 
     })

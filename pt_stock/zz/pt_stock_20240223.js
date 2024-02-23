@@ -566,54 +566,62 @@
 
         // 定義畫面上Table範圍
         var pl_table = document.getElementById("ptreceive_list");
-        var rows     = pl_table.getElementsByTagName("tr");
+        var rows = pl_table.getElementsByTagName("tr");
         // 获取表格的标题行数据
         var headerRow = pl_table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
         var headerCells = headerRow.getElementsByTagName("th");
         var sort_listData = [];
 
-        var headerCells_length = headerCells.length;    // 取頭的長度
-
-
-        // // 逐列導出
+        // 逐列導出
         for (var i = 1; i < rows.length; i++) {
             var cells = rows[i].getElementsByTagName("td");
+                if( i>1 ){
+                    var UPcells = rows[i-1].getElementsByTagName("td");
+                }else{
+                    var UPcells = {};
+                }
+
             var rowData = {};
+            
             // 初始化每一行
             for (var h = 0; h < headerCells.length; h++) {
                 rowData[headerCells[h].innerHTML] = "";
             }
-            if(i > 1){
-                var UPcells = rows[i-1].getElementsByTagName("td");
-            }else{
-                var UPcells = {};
-            }
-            
-            var columnIndex = 0;            // 用於跟踪列的索引
             // 逐欄導出：thead-th = tbod-td
-            if(cells.length === headerCells_length){        // cell與head相同長度
-                for (var j = 0; j < cells.length; j++) {
-                    var currentCell = cells[j];
-                    // 處理 rowspan
-                    while (rowData[headerCells[columnIndex].innerHTML] !== "") {
+            var columnIndex = 0; // 用於跟踪列的索引
+            for (var j = 0; j < cells.length; j++) {
+                var currentCell = cells[j];
+                var UPcurrentCell = UPcells[j];
+
+                // 處理 rowspan
+                // while (rowData[headerCells[columnIndex].innerHTML] !== "") {
+                //     columnIndex++;
+                // }
+
+
+            // 處理 rowspan 情況
+            //     var rowspan = currentCell.rowSpan || 1;
+                var rowspan = UPcurrentCell.rowSpan || 1;
+                    if( i>1 && UPcurrentCell.rowSpan >1 ){
                         columnIndex++;
                     }
+                for (var k = 0; k < rowspan; k++) {
+                    // rowData[i-1][headerCells[j].innerHTML]      = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
+                    // rowData[headerCells[columnIndex].innerHTML] = currentCell.innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
+                    // rowData[headerCells[columnIndex].innerHTML] = currentCell.innerHTML.replace(/<[^>]*>/g, "");
                     var targetHeader = headerCells[columnIndex].innerHTML;
                     var cellContent = currentCell.innerHTML.replace(/<[^>]*>/g, "");
                     rowData[targetHeader] = cellContent;
-
-                }
-            }else{
-                for ( var j = 0; j < headerCells_length; j++){
-                    if(UPcells[j].rowSpan > 1){
-
-                    }
                     
                 }
+                // 更新列索引
+                columnIndex++;
             }
-            // 將該行數據添加到 sort_listData
-            sort_listData.push(rowData);
+            // // 將該行數據添加到 sort_listData
+            // sort_listData.push(rowData);
         }
-        console.log('sort_listData:', sort_listData);
+        // console.log('sort_listData:', sort_listData);
+
+
 
     })

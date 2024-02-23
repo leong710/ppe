@@ -583,15 +583,15 @@
             for (var h = 0; h < headerCells.length; h++) {
                 rowData[headerCells[h].innerHTML] = "";
             }
-            if(i > 1){
-                var UPcells = rows[i-1].getElementsByTagName("td");
-            }else{
-                var UPcells = {};
-            }
             
             var columnIndex = 0;            // 用於跟踪列的索引
             // 逐欄導出：thead-th = tbod-td
             if(cells.length === headerCells_length){        // cell與head相同長度
+                if(i > 1){
+                    var UPcells = rows[i-1].getElementsByTagName("td");
+                }else{
+                    var UPcells = {};
+                }
                 for (var j = 0; j < cells.length; j++) {
                     var currentCell = cells[j];
                     // 處理 rowspan
@@ -601,8 +601,8 @@
                     var targetHeader = headerCells[columnIndex].innerHTML;
                     var cellContent = currentCell.innerHTML.replace(/<[^>]*>/g, "");
                     rowData[targetHeader] = cellContent;
-
                 }
+
             }else{
                 for ( var j = 0; j < headerCells_length; j++){
                     if(UPcells[j].rowSpan > 1){

@@ -1,0 +1,10 @@
+1. 待簽提醒 insign_msg/index.php
+    function push_mapp(user_emp_id, mg_msg) => 目前是admin 未來是 user_emp_id
+
+
+2. 除汙器材領用 pt_stock/pt_stock.json
+    function push_mapp(user_emp_id, mg_msg) => 目前是admin 未來是 user_emp_id
+
+
+3. 送出檢點表 stock/store_checkList.php && pt_stock/store_checkList.php
+    function push_mapp(user_emp_id, mg_msg) => 目前是admin 未來是 user_emp_id

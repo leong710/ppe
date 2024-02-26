@@ -145,8 +145,8 @@
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                eid : user_emp_id,                                      // 傳送對象
-                // eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                // eid : user_emp_id,                                      // 傳送對象
+                eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){

@@ -493,7 +493,22 @@
     function show_ptstock($request){
         $pdo = pdo();
         extract($request);
+        // $sql = "SELECT _stk.*, _stk.id AS stk_id ,_cata.PIC
+        //                 , SUM(amount) as total_amount
+        //                 , CASE WHEN SUM(amount) < standard_lv THEN 'true' ELSE 'false' END as low_lv
+        //                 ,_l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark
+        //                 ,_cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
+        //         FROM `pt_stock` _stk 
+        //         LEFT JOIN pt_local _l ON _stk.local_id = _l.id 
+        //         LEFT JOIN _fab _f ON _l.fab_id = _f.id 
+        //         LEFT JOIN _site _s ON _f.site_id = _s.id 
+        //         LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
+        //         LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+        //         WHERE _cata.cate_no = 'J' 
+        //          ";
         $sql = "SELECT _stk.*, _stk.id AS stk_id ,_cata.PIC
+                        , _stk2.total_amount
+                        , CASE WHEN _stk2.total_amount < _stk.standard_lv THEN 'true' ELSE 'false' END as low_lv
                         ,_l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark
                         ,_cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
                 FROM `pt_stock` _stk 
@@ -502,6 +517,10 @@
                 LEFT JOIN _site _s ON _f.site_id = _s.id 
                 LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
+                    JOIN (SELECT local_id, cata_SN, SUM(amount) AS total_amount
+                            FROM `pt_stock`
+                            GROUP BY local_id, cata_SN
+                        ) _stk2 ON _stk.local_id = _stk2.local_id AND _stk.cata_SN = _stk2.cata_SN
                 WHERE _cata.cate_no = 'J' 
                  ";
         if($select_fab_id == "allMy" && $sfab_id != "All"){

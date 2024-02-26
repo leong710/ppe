@@ -300,7 +300,7 @@
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
-                                    <?php echo !empty($select_fab["id"]) && ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($select_fab["id"], $sfab_id_arr)) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    <?php echo ($sys_role <= 1 ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>選用</th>
@@ -325,10 +325,13 @@
                                     <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];?></td>
                                 <!-- 年領用 -->
                                     <td id="ptreceive_<?php echo $stock['stk_id'].'_'.$stock['cata_SN'];?>">--</td>
-
-                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>"
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($stock["fab_id"], $sfab_id_arr)) ) ){ ?> contenteditable="true" <?php } ?>>
+                                <!-- 現量 -->
+                                    <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["low_lv"] === "true" ) ? "alert_itb":"" ;?>" 
+                                        title="total_amount：<?php echo $stock['total_amount'];?>"
+                                        <?php if($stock["low_lv"] === "true" ){ ?> style="background-color:#FFBFFF;color:red;" <?php } ?>
+                                        <?php if($sys_role <= 1 ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
+                                <!-- 安量 -->
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                 <!-- 選用 -->
                                     <td><input type="checkbox" class="select_item" name="<?php echo $stock["SN"].'_'.$stock["stk_id"];?>" id="<?php echo 'add_'.$stock['SN'].'_'.$stock['stk_id'];?>" 
@@ -645,7 +648,7 @@
                             <input type="hidden" name="created_cname" value="<?php echo $auth_cname;?>">
                             <input type="hidden" name="emp_id"        value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="idty"          value="1"> <!-- idty:1 扣帳 -->
-                            <span id="modal_button" class="<?php echo ($sys_role <= 2) ? "":" unblock ";?>">
+                            <span class="<?php echo ($sys_role <= 2) ? '':'unblock';?>">
                                 <input type="submit" class="btn btn-primary disabled" name="ptreceive_store" value="送出" id="receive_submit">
                             </span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">

@@ -82,13 +82,6 @@
         $stock_cata_SN = [];
     }
 
-        // echo "<pre>";
-        // print_r($_REQUEST);
-        // print_r($query_arr);
-        // print_r($select_fab);
-        // // print_r($select_locals);
-        // echo "</pre>";
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -299,12 +292,6 @@
                     </div>
                 </div>
                 <hr>
-                <!-- 尾段：debug訊息 -->
-                <?php 
-                    if(isset($_REQUEST["debug"])){
-                        include("debug_board.php"); 
-                    } 
-                ?>
         
             </div>
         </div>

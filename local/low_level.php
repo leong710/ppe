@@ -198,7 +198,7 @@
                     </div>
                     <!-- 尾段：衛材訊息 -->
                     <div class="col-12 mb-0">
-                        <div style="font-size: 6px;" class="text-end">
+                        <div style="font-size: 12px;" class="text-end">
                             catalog-end
                         </div>
                     </div>
@@ -235,14 +235,7 @@
                     </div>
                 </form>
             </div>
-
             <hr>
-            <!-- 尾段：debug訊息 -->
-            <?php 
-                if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } 
-            ?>
 
             <!-- 彈出畫面說明模組 update_stock_stand_lv-->
             <div class="modal fade" id="update_stock_stand_lv" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

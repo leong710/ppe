@@ -144,15 +144,6 @@
         }
 
         // $ppe_pms = show_PPE_PM();
-
-        // echo "<pre>";
-        // print_r($ppe_pms);
-        // print_r($query_arr);
-        // print_r($stocks);
-        // print_r($_REQUEST);
-        // print_r($swal_json);
-        // echo "</pre>";
-        // echo $half_month;
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -358,11 +349,6 @@
                 </div>
                 </br>
 
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    echo "<hr>";
-                    include("debug_board.php"); 
-                } ?>
             </div>
         </div>
     </div>

@@ -273,7 +273,6 @@
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>
                         <?php // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                            // $issue_role = ($issue_row["fab_i_id"] == $_SESSION[$sys_id]["fab_id"] ) || in_array($issue_row["fab_i_id"], $_SESSION[$sys_id]["sfab_id"]); 
                             $issue_collect_role = (($issue_row['idty'] == 11 && $issue_row['flow'] == 'collect') && ($sys_role <= 1)); 
                             if($issue_collect_role){ ?>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal" value="13" onclick="submit_item(this.value, this.innerHTML);">交貨 (Delivery)</button>
@@ -441,7 +440,7 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                    <div style="font-size: 12px;" class="py-2 text-end">
                                         
                                     </div>
                                 </div>
@@ -535,12 +534,6 @@
                     </div>
                 </div>
                 
-                <!-- 尾段：deBug訊息 -->
-                <?php 
-                    if(isset($_REQUEST["debug"])){
-                        include("debug_board.php"); 
-                    } 
-                ?>
             </div>
         </div>
     </div>

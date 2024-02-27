@@ -61,7 +61,6 @@
         // 尋到物件行為進行記錄
         // toLog($_REQUEST);
     }
-    // echo json_encode($aResult);
     // 參數：JSON_UNESCAPED_UNICODE 中文不編碼
     echo json_encode($aResult , JSON_UNESCAPED_UNICODE );
 

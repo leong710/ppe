@@ -1,7 +1,6 @@
 <?php
 
     // require 不容許回傳值
-    // echo print_r($_POST["htmlTable"]);
     // 以下為"PhpSpreadsheet"啟動碼
     require '../../libs/vendor/autoload.php';  // 导入 PhpSpreadsheet 库
 
@@ -17,7 +16,6 @@
     $now = date("Y-m-d");
     // 創建一個新的 Excel 對象
     $spreadsheet = new Spreadsheet();
-    // $sheet = $spreadsheet->getActiveSheet();
     $sheet = $spreadsheet->getActiveSheet()->freezePane('A2');      // 冻结窗格，锁定行和列
     
     // 將數據寫入 Excel
@@ -90,7 +88,6 @@
                 $columns = ['A'];
                 break;
             case "ptreceive":
-                // $filename_head = "除汙器材領用記錄_".$data[0]["儲存點"];
                 $filename_head = "除汙器材領用記錄_";
                 $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];   // 定義調整蘭寬 
                 break;

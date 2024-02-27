@@ -583,11 +583,6 @@
 
     })
 
-        // var sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
-        // inside_toast(sinn);
-    // }
-
-
 </script>
 
 <?php include("../template/footer.php"); ?>

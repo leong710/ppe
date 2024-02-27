@@ -541,9 +541,6 @@
         $('[data-toggle="tooltip"]').tooltip();
     })
 
-    // var checkList = document.getElementById("checkList");                       // 檢點表單
-    // var alertPlaceholder = document.getElementById("liveAlertPlaceholder");     // Bootstrap Alarm
-
     // 神奇PHP變數帶入js方法
     // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
     // <php echo "var login_AUTH ='$login_AUTH';";?>              // 是否已經登入
@@ -555,14 +552,7 @@
 
         alertPlaceholder.append(wrapper);
     }
-    // 假如index找不到當下存在已完成的表單，而且user已經登入就alarm它!
-    // if (login_AUTH && check_yh_list_num == '0') {
-    //     alert('*** <php echo $today_year;?> 年 <php echo $half;?> 年度 器材儲存量確認開始了! 請務必在指定時間前完成確認~ ', 'danger')
-    // }
 
-    // window.addEventListener("load", function(event) {
-    //     setInterval(5000);
-    // });
 </script>
 
 <?php include("../template/footer.php"); ?>

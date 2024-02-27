@@ -12,8 +12,8 @@
     $fun         = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
 
     // 身分選擇功能：定義user進來要看到的項目
-    $is_emp_id = $auth_emp_id;                  // 預設值 = 自己
-    $is_fab_id = "allMy";                       // 預設值 = allMy = coverFab範圍
+    $is_emp_id   = $auth_emp_id;                  // 預設值 = 自己
+    $is_fab_id   = "allMy";                       // 預設值 = allMy = coverFab範圍
         
     // 1.決定開啟表單的功能：
     // $fun = "myFab";                          // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)

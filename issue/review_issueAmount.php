@@ -259,7 +259,7 @@
                 rowData[i-1][headerCells[j].innerHTML] = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
             }
         }
-        console.log('rowData:', rowData);
+        // console.log('rowData:', rowData);
         var htmlTableValue = JSON.stringify(rowData);
         document.getElementById('htmlTable').value = htmlTableValue;
     }

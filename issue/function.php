@@ -240,12 +240,10 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
 
     }

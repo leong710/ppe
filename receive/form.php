@@ -350,7 +350,6 @@
                                                 <select name="local_id" id="local_id" class="form-select" required>
                                                     <option value="" hidden>-- [請選擇 領用站點] --</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <!-- <php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
                                                         <?php if($allLocal["flag"] != "off"){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
                                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
@@ -436,7 +435,6 @@
                                         <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
                                         <input type="hidden" name="idty"            id="idty"           value="1">
                                         <?php if($sys_role <= 3){ ?>
-                                            <!-- <input type="submit" value="Submit" name="receive_submit" class="btn btn-primary"> -->
                                             <button type="submit" value="Submit" name="receive_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                         <?php } ?>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -471,18 +469,12 @@
                                     <tbody></tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 10px;" class="text-end">
+                            <div style="font-size: 12px;" class="text-end">
                                 logs-end
                             </div>
                         </div>
                     </div>
-
                 </div>
-    
-                <!-- 尾段：deBug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
                 
             </div>
         </div>
@@ -567,8 +559,6 @@
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-
-
 <script>
 // 開局設定init
     var catalog          = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料

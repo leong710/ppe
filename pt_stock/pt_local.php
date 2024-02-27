@@ -71,11 +71,7 @@
     }else{
         $activeTab = "2";       // 2 = local
     }
-        // echo "<pre>";
-        // print_r($_REQUEST);
-        // print_r($stocks);
-        // print_r($ptlocals);
-        // echo "</pre>";
+
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -205,11 +201,6 @@
                     </table>
                 </div>
                 </br>
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    echo "<hr>";
-                    include("debug_board.php"); 
-                } ?>
             </div>
         </div>
     </div>
@@ -289,9 +280,7 @@
                             <input type="hidden" name="id" id="ptlocal_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <input type="hidden" name="select_fab_id" value="<?php echo $select_fab_id;?>">
-                            <?php if($sys_role <= 1){ ?>   
-                                <span id="ptlocal_modal_button"></span>
-                            <?php } ?>
+                            <span id="ptlocal_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="ptlocal_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -303,7 +292,7 @@
     </div>
 
 <!-- toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
             <div class="d-flex">
                 <div class="toast-body" id="toast-body"></div>

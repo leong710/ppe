@@ -58,11 +58,11 @@
         $pdo = pdo();
         extract($request);
         // $sql = "SELECT COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) AS 'check_num',
-        //                COUNT(DISTINCT(CASE WHEN _fab.flag = 'On' THEN _fab.id END)) AS 'fab_num',
-        //                ROUND((COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) / COUNT(DISTINCT _fab.id) * 100), 1) AS 'percentage'
-        //         FROM `_fab`
-        //         LEFT JOIN checked_log ON checked_log.fab_id = _fab.id
-        //         WHERE _fab.flag = 'On' ";
+            //                COUNT(DISTINCT(CASE WHEN _fab.flag = 'On' THEN _fab.id END)) AS 'fab_num',
+            //                ROUND((COUNT(CASE WHEN checked_log.checked_year = ? AND checked_log.half = ? THEN _fab.id END) / COUNT(DISTINCT _fab.id) * 100), 1) AS 'percentage'
+            //         FROM `_fab`
+            //         LEFT JOIN checked_log ON checked_log.fab_id = _fab.id
+            //         WHERE _fab.flag = 'On' ";
         $sql = "SELECT cl.form_type 
                     ,(SELECT COUNT(fab_title) FROM _fab WHERE flag = 'On') AS 'fab_num' 
                     , COUNT(cl.form_type) AS 'check_num'

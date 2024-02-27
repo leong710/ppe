@@ -138,9 +138,7 @@
                     <div class="text-end">
                         <input type="hidden" name="id" id="formcase_edit_id" >
                         <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
-                        <?php if($sys_role <= 1){ ?>
-                            <span id="modal_button"></span>
-                        <?php } ?>
+                            <span id="modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                         <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>

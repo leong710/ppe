@@ -89,7 +89,6 @@
     for(let flagBtn of flagBtns){
         flagBtn.onclick = e => {
             let swal_content = e.target.name+'_id:'+e.target.id+'=';
-            // console.log('e:',e.target.name, e.target.id, e.target.value);
             $.ajax({
                 url:'api.php',
                 method:'post',
@@ -104,7 +103,6 @@
                 success: function(res){
                     var res_r = res["result"];
                     var res_r_flag = res_r["flag"];
-                    // console.log(res_r);
                     if(res_r_flag == 'Off'){
                         e.target.classList.remove('btn-success');
                         e.target.classList.add('btn-warning');

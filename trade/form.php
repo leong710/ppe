@@ -457,17 +457,12 @@
                                     <tbody></tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 6px;" class="text-end">
+                            <div style="font-size: 12px;" class="text-end">
                                 logs-end
                             </div>
                         </div>
                     </div>
                 </div>
-    
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
                 
             </div>
         </div>
@@ -514,9 +509,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-
 <script>
-
 // // // info modal function
     var action      = '<?=$action;?>';                                      // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                         // 引入catalogs資料

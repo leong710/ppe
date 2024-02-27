@@ -283,42 +283,6 @@
     }
 // pt_Local
 
-    // // 設定low_level時用全local區域 20230707_updated
-    // function show_allLocal(){
-    //     $pdo = pdo();
-    //     $sql = "SELECT _local.*, _site.site_title, _site.site_remark, _fab.fab_title, _fab.fab_remark, _fab.flag AS fab_flag
-    //             FROM `_local`
-    //             LEFT JOIN _fab ON _local.fab_id = _fab.id
-    //             LEFT JOIN _site ON _fab.site_id = _site.id
-    //             -- WHERE _local.flag='On'
-    //             ORDER BY _site.id, _fab.id, _local.id ASC";
-    //     $stmt = $pdo->prepare($sql);
-    //     try {
-    //         $stmt->execute();
-    //         $locals = $stmt->fetchAll();
-    //         return $locals;
-    //     }catch(PDOException $e){
-    //         echo $e->getMessage();
-    //     }
-    // }
-
-    // // 秀出catalog全部 20230707_updated
-    // function show_catalogs(){
-    //     $pdo = pdo();
-    //     $sql = "SELECT _cata.*, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cate.flag AS cate_flag
-    //             FROM _cata 
-    //             LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-    //             ORDER BY _cate.id, _cata.id ASC";
-    //     $stmt = $pdo->prepare($sql);
-    //     try {
-    //         $stmt->execute();
-    //         $catalogs = $stmt->fetchAll();
-    //         return $catalogs;
-    //     }catch(PDOException $e){
-    //         echo $e->getMessage();
-    //     }
-    // }
-
     // 儲存low_level設定值
     function store_lowLevel($request){
         $pdo = pdo();

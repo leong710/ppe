@@ -52,7 +52,6 @@
     <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
-
         #PIC img {
             max-height: 300px;
             /* text-align: center; */
@@ -60,36 +59,30 @@
             margin: auto;
             transition: transform .6s ease-in-out;
         }
-
         #PIC:hover img {
             transform: scale(1.5);
         }
-
         .active {
             opacity: 1;
             transition: opacity 1s;
             animation: fadeIn 1s;
         }
-
         @keyframes fadeIn {
             from { opacity: 0;}
             to { opacity: 1;}
         }
-        
         .unblock {
             opacity: 0;
             display: none;
             transition: opacity 1s;
             animation: none;
         }
-
         /* 凸顯可編輯欄位 */
             .fix_amount:hover {
                 /* font-size: 1.05rem; */
                 font-weight: bold;
                 text-shadow: 3px 3px 5px rgba(0,0,0,.5);
             }
-            
         /* 警示項目 amount、lot_num */
             .alert_amount {
                 background-color: #FFBFFF;
@@ -109,6 +102,10 @@
                 icon: "../../libs/jquery/loading.gif",
             }); 
         }
+        // finished loading關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         mloading();    // 畫面載入時開啟loading
     </script>
 </head>
@@ -298,7 +295,6 @@
                         <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
                             &nbsp&nbsp&nbsp&nbsp&nbsp
                             <span id="modal_delect_btn"></span>
-                            <!-- <input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')"> -->
                         <?php } ?>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -314,10 +310,8 @@
                                         <select name="local_id" id="edit_local_id" class="form-control" required onchange="select_local(this.value)">
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($locals as $local){ ?>
-                                                <!-- <php if($_SESSION[$sys_id]["role"] <= 1 || $local["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($local["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>   -->
-                                                    <option value="<?php echo $local["id"];?>">
-                                                        <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                                <!-- <php } ?> -->
+                                                <option value="<?php echo $local["id"];?>">
+                                                    <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                             <?php } ?>
                                         </select>
                                         <label for="edit_local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
@@ -398,10 +392,7 @@
                             <input type="hidden" name="id" id="stock_edit_id" >
                             <input type="hidden" name="sn" value="<?php echo isset($_REQUEST['sn']) ? $_REQUEST['sn'] : '' ;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <span id="modal_button"></span>
-                            <?php } ?>
-                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
+                            <span id="modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -436,16 +427,13 @@
 
 <script>
 // // // 開局導入設定檔
-    var locals = <?=json_encode($locals);?>;                            // 引入所有local的locals值
-    var low_level = [];                                                 // 宣告low_level變數
-    var stock = <?=json_encode($catalogStocks);?>;                        // 引入catalogStocks資料
-    var stock_item = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-    var swal_json = <?=json_encode($swal_json);?>;                      // 引入swal_json值
+    var locals      = <?=json_encode($locals);?>;                           // 引入所有local的locals值
+    var low_level   = [];                                                   // 宣告low_level變數
+    var stock       = <?=json_encode($catalogStocks);?>;                    // 引入catalogStocks資料
+    var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
+    var swal_json   = <?=json_encode($swal_json);?>;                        // 引入swal_json值
 
-    // finished loading關閉mLoading提示
-    window.addEventListener("load", function(event) {
-        $("body").mLoading("hide");
-    });
+
     // swl function    
     if(swal_json.length != 0){
         swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:1000});
@@ -490,12 +478,10 @@
         Object(locals).forEach(function(aLocal){
             if(aLocal['id'] == local_id){
                 low_level = JSON.parse(aLocal['low_level']);            // 引入所選local的low_level值
-                // console.log(local_id,"_low_level:",low_level);
             }
         })
         // 預防已經先選了器材，進行防錯
         var select_cata_SN = document.getElementById('edit_cata_SN').value;  // 取得器材的選項值
-        // console.log('select_cata_SN:',select_cata_SN);
         if(select_cata_SN != null){                                     // 假如器材已經選擇了
             update_standard_lv(select_cata_SN);                         // 就執行取得low_level對應值
         }

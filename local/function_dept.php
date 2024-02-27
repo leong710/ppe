@@ -76,35 +76,3 @@
             echo $e->getMessage();
         }
     }
-    
-// 20231004-改用msSQL-hrDB 查詢語法
-    // 從STAFF中找環安員工
-    $test1 = "SELECT u.*
-            FROM [hrDB].[dbo].[STAFF] u
-            LEFT JOIN [hrDB].[dbo].[HCM_VW_DEPT08] d ON u.dept_no = d.OSHORT
-            where d.ODEPNO_30 = '9T040500' ";
-
-    // 從HCM_VW_EMP01_hiring中找環安員工
-    $test2 = "SELECT u.*
-            FROM [hrDB].[dbo].[HCM_VW_EMP01_hiring] u
-            LEFT JOIN [hrDB].[dbo].[HCM_VW_DEPT08] d ON u.OFDEPNO = d.OSHORT
-            where d.ODEPNO_30 = '9T040500' ";
-
-    // 從STAFF中找環安主管
-    $test3 = "SELECT u.*
-            FROM [STAFF] u
-            LEFT JOIN [HCM_VW_DEPT08] d ON u.dept_no = d.OSHORT
-            where d.ODEPNO_30 = '9T040500' AND u.zjobcode2txt = 'M' ";
-
-    // 從DEPT中找環安部門
-    $test4 = "SELECT DISTINCT dp.* , d1.OSSTEXT AS up_sign_dept , u.cname AS dept_sir
-            FROM DEPT dp
-            LEFT JOIN HCM_VW_DEPT08 d1 ON dp.up_dep = d1.OSDEPNO
-            LEFT JOIN STAFF u ON dp.emp_id = u.emp_id 
-            ORDER BY dp.sign_code ASC ";
-
-    // 從HCM_VW_DEPT08中找環安部門
-    $test5 = "SELECT d.*, u.cname
-            FROM [hrDB].[dbo].[HCM_VW_DEPT08] d
-            LEFT JOIN [hrDB].[dbo].[STAFF] u ON d.OMAGER = u.emp_id 
-            where d.ODEPNO_30 = '9T040500' ";

@@ -10,12 +10,12 @@
         $url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
 
     // CRUD
-        if(isset($_POST["pno_submit"])){            // 新增
-            store_pno($_REQUEST); }
-        if(isset($_POST["edit_pno_submit"])){       // 更新
-            update_pno($_REQUEST); }
-        if(isset($_POST["delete_pno"])){            // 刪除
-            delete_pno($_REQUEST); }
+        // 新增C
+        if(isset($_POST["pno_submit"])){ store_pno($_REQUEST); }
+        // 更新U
+        if(isset($_POST["edit_pno_submit"])){ update_pno($_REQUEST); }
+        // 刪除D
+        if(isset($_POST["delete_pno"])){ delete_pno($_REQUEST); }
         // 調整flag ==> 20230712改用AJAX
 
     // // *** PNO篩選組合項目~~
@@ -217,11 +217,6 @@
                     </table>
                 </div>
 
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
-
             </div>
         </div>
     </div>
@@ -405,7 +400,7 @@
 
 <script>
 
-    var pno      = <?=json_encode($pnos);?>;                                                   // 引入pnos資料
+    var pno          = <?=json_encode($pnos);?>;                                               // 引入pnos資料
     var thisYear_num = Number(<?=$thisYear;?>);                                                // 引入$thisYear資料
     var thisYear_str = String(<?=$thisYear;?>);                                                // 引入$thisYear資料
     var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','flag'];      // 交給其他功能帶入 delete_pno_id

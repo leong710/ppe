@@ -299,11 +299,8 @@
                                                 </br>&nbsp2.簽核：申請人(出貨人)=>收貨人=>驗收=>表單結案。 
                                             </div>
                                         </div>
-
                                     </div>
-
                                     <hr>
-
                                 </div>
 
                                 <!-- 表列4 購物車 -->
@@ -329,13 +326,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="row">
-                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                    <div style="font-size: 12px;" class="py-2 text-end">
                                         
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -404,11 +399,6 @@
                     </div>
                 </div>
                 
-                <!-- 尾段：deBug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
-                
             </div>
         </div>
     </div>
@@ -423,7 +413,6 @@
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-
 <script>
     var action      = '<?=$action;?>';                                  // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                     // 引入catalogs資料

@@ -28,7 +28,10 @@
 <head>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-        <!-- mloading CSS -->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <!-- mloading JS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <style>
         table,td {
@@ -79,6 +82,19 @@
             padding: 5px;
         }
     </style>
+    <script>
+        // mloading function
+        function mloading(){
+            $("body").mLoading({    // 開啟loading
+                icon: "../../libs/jquery/Wedges-3s-120px.gif",
+            }); 
+        }
+        // finished loading關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
+        mloading();    // 畫面載入時開啟loading
+    </script>
 </head>
 <body>
     <div class="" id="top"></div>
@@ -466,13 +482,9 @@
     </div>
 </body>
 <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- mloading JS -->
-<script src="../../libs/jquery/jquery.mloading.js"></script>
-
 <script>    // Alex menu
     var navs = Array.from(document.querySelectorAll(".head > ul > li > a"));
     var tbodys = Array.from(document.querySelectorAll("#table > tbody"))
@@ -507,13 +519,6 @@
             //     }
             // });
     })
-
-    // mloading function
-    function mloading(){
-        $("body").mLoading({    // 開啟loading
-            icon: "../../libs/jquery/Wedges-3s-120px.gif",
-        }); 
-    }
 
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");

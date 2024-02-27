@@ -331,10 +331,6 @@
                     <!-- 20211215分頁工具 -->               
                 </div>
                 <hr>
-                 <!-- 尾段：debug訊息 -->
-                 <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
             </div>
         </div>
     </div>

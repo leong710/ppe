@@ -106,15 +106,6 @@
             }
     // <!-- 20211215分頁工具 -->
 
-    // echo "<pre>";
-    // print_r($_REQUEST);
-    // print_r($query_arr);
-    // print_r($fabs);
-    // // print_r($select_locals_id);
-    // print_r($sort_sfab_id);
-    // print_r($ptreceives);
-    // echo "</pre>";
-
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -466,11 +457,7 @@
                     <!-- 20211215分頁工具 進階改良版 -->
                 </div>
                 </br>
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    echo "<hr>";
-                    include("debug_board.php"); 
-                } ?>
+
             </div>
         </div>
     </div>
@@ -552,11 +539,9 @@
                             <input type="hidden" name="emp_id"        id="emp_id" value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="created_cname" id="cname"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                             <input type="hidden" name="updated_cname" id="updated_cname" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($sys_role <= 2){ ?>   
-                                <span id="modal_button">
-                                    <input type="submit" class="btn btn-primary disabled" name="ptreceive_store" value="送出" id="receive_submit">
-                                </span>
-                            <?php } ?>
+                            <span id="modal_button" class="<?php echo ($sys_role <= 2) ? "":" unblock ";?>">
+                                <input type="submit" class="btn btn-primary disabled" name="ptreceive_store" value="送出" id="receive_submit">
+                            </span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>

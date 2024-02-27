@@ -7,12 +7,12 @@
     if(isset($_POST["delete"])){
         deleteUser($_REQUEST);
         header("refresh:0;url=../auth/");
-        // echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
+        exit;
     }
     if(isset($_POST["submit"])){
         updateUser($_REQUEST);
         header("refresh:0;url=../auth/");
-        // echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
+        exit;
     }
     // $sites = show_site();
     $fabs = show_fab();

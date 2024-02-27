@@ -106,9 +106,6 @@
                     <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
                         <a href="create.php" title="新增catalog" class="btn btn-primary"> <i class="fa fa-plus"></i> 新增品項</a>
                         <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
-                        <!-- <a href="..\trade\create.php" title="管理員限定" class="btn btn-warning"><i class="fa fa-upload" aria-hidden="true"></i> 批量撥補</a> -->
-                        <!-- <a href="#" title="新增品項2" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#add_cata"> <i class="fa fa-search" aria-hidden="true"></i> 新增品項2</a> -->
-                        <!-- <a href="#" target="_blank" title="查詢分類" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#query_category"> <i class="fa fa-search" aria-hidden="true"></i> 查詢分類</a> -->
                     <?php } ?>
                 </div>
             </div>
@@ -140,7 +137,6 @@
                             <th>尺寸</th>
                             <th style="width: 20%;">其他說明&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                             <th style="width: 30%;">SPEC/規格</th>
-                            <!-- <th>限購數量</br>3千下/3千上</th> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -228,7 +224,6 @@
                 success: function(res){
                     let res_r = res["result"];
                     let res_r_flag = res_r["flag"];
-                    // console.log(res_r_flag);
                     if(res_r_flag == 'Off'){
                         e.target.classList.remove('btn-success');
                         e.target.classList.add('btn-warning');
@@ -309,7 +304,6 @@
             }
         });
     })
-
 
 </script>
 

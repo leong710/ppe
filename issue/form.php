@@ -35,10 +35,6 @@
                 echo "<script>alert('issue請購需求單 -- 刪除失敗!!');</script>";
             }
         }
-        // 更新log
-        // if(!empty($_POST["delete_log"])){
-        //     updateLogs($_REQUEST);
-        // }
 
     // 決定表單開啟方式
     if(!empty($_REQUEST["action"])){
@@ -193,7 +189,6 @@
                         <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
                         <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
@@ -250,8 +245,6 @@
                     </nav>
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
-
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -558,11 +551,6 @@
                     </div>
                 </div>
     
-                <!-- 尾段：debug訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
-
             </div>
         </div>
     </div>

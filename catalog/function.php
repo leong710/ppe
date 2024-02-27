@@ -283,10 +283,6 @@
     function update_category($request){
         $pdo = pdo();
         extract($request);
-            // $sql_check = "SELECT * FROM _cate WHERE id=?";
-            // $stmt_check = $pdo -> prepare($sql_check);
-            // $stmt_check -> execute([$id]);
-            // $row = $stmt_check -> fetch();
         $sql = "UPDATE _cate SET cate_title=?, cate_remark=?, cate_no=?, flag=?, updated_user=?, updated_at=now() WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
@@ -329,8 +325,8 @@
             $stmt->execute([$flag, $id]);
             $Result = array(
                 // 'table' => $table, 
-                'id' => $id,
-                'flag' => $flag
+                'id'    => $id,
+                'flag'  => $flag
             );
             return $Result;
         }catch(PDOException $e){

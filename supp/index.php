@@ -10,30 +10,16 @@
     }else{
         $activeTab = "1";       // 1 = _contact
     }
-    // 新增
-    if(isset($_POST["supp_submit"])){
-        store_supp($_REQUEST);
-        }
-        if(isset($_POST["contact_submit"])){
-            store_contact($_REQUEST);
-    }
-
+    // 新增C
+    if(isset($_POST["supp_submit"])){ store_supp($_REQUEST); }
+    if(isset($_POST["contact_submit"])){ store_contact($_REQUEST); }
+    // 更新U
+    if(isset($_POST["edit_supp_submit"])){ update_supp($_REQUEST); }
+    if(isset($_POST["edit_contact_submit"])){ update_contact($_REQUEST); }
+    // 刪除D
+    if(isset($_POST["delete_supp"])){ delete_supp($_REQUEST); }
+    if(isset($_POST["delete_contact"])){ delete_contact($_REQUEST); }
     // 調整flag ==> 20230712改用AJAX
-
-    // 更新
-    if(isset($_POST["edit_supp_submit"])){
-        update_supp($_REQUEST);
-        }
-        if(isset($_POST["edit_contact_submit"])){
-            update_contact($_REQUEST);
-    }
-    // 刪除
-    if(isset($_POST["delete_supp"])){
-        delete_supp($_REQUEST);
-        }
-        if(isset($_POST["delete_contact"])){
-            delete_contact($_REQUEST);
-    }
 
     $contacts = show_contact();
     $supps = show_supp();

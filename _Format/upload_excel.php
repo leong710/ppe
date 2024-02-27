@@ -5,8 +5,6 @@
     require '../../libs/vendor/autoload.php';
     include("../template/header.php");
 
-    // echo print_r($_REQUEST);
-
     use PhpOffice\PhpSpreadsheet\IOFactory;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,7 +15,6 @@
                 $spreadsheet = IOFactory::load($file);
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
-                // echo print_r($data);
 
                 // 其他按钮被点击时执行的操作
                 $submit = $_POST['excelUpload'];
@@ -58,7 +55,6 @@
                             // 避免輸入的Amount代碼中有 空白
                             $amount_replace = trim(str_replace(' ', '', $row[1]));
                                 // 查詢SN是否存在
-                                // $SN_row = checkSN($SN_replace);
                                 $SN_row = check_something($submit, $SN_replace);
 
                             if ($SN_row["state"] !== "NA" && is_numeric($amount_replace)) {
@@ -66,10 +62,6 @@
                                 echo '<td>' . htmlspecialchars($SN_row["pname"]) . '</td>';
                                 echo '<td>' . htmlspecialchars($amount_replace) . '</td>';
 
-                                // $process = array(
-                                //     'SN'        => $SN_replace,
-                                //     'amount'    => $amount_replace
-                                // );
                                 $process = [
                                     $SN_replace => $amount_replace
                                 ];
@@ -83,7 +75,6 @@
 
                         echo '</tbody></table>';
                         // 增加卡"SN有誤"不能上傳。
-                        // print_r($result);
                         // 如果"有誤"的累計資料等於"0"。
                         if( $stopUpload === 0 ){
                             // 將資料打包成JSON
@@ -129,15 +120,11 @@
                         foreach ($data as $rowIndex => $row) {
                             // 跳過表頭
                                 if ($rowIndex === 0) {
-                                // if ($rowIndex <= 1) {
                                     continue; 
                                 }
                             echo '<tr>';
                             // 避免輸入的comp_no代碼中有 空白
-                            // $comp_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
                             $comp_no_replace = trim(str_replace(' ', '', $row[3]));
-                                // // 避免輸入的Phone代碼中有 空白
-                                // $phone_replace = trim(str_replace(' ', '', $row[1]));
                             // 查詢comp_no是否存在
                             $supp_row = check_something($submit, $comp_no_replace);
                             
@@ -176,7 +163,6 @@
 
                         echo '</tbody></table>';
                         // 增加卡"SN有誤"不能上傳。
-                        // print_r($result);
                         // 如果"有誤"的累計資料等於"0"。
                         if( $stopUpload === 0 ){
                             // 將資料打包成JSON
@@ -222,15 +208,11 @@
                         foreach ($data as $rowIndex => $row) {
                             // 跳過表頭
                                 if ($rowIndex === 0) {
-                                // if ($rowIndex <= 1) {
                                     continue; 
                                 }
                             echo '<tr>';
                             // 避免輸入的cname代碼中有 空白
-                            // $cname_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
                             $cname_replace = trim(str_replace(' ', '', $row[0]));
-                            // 避免輸入的Phone代碼中有 空白
-                            // $phone_replace = trim(str_replace(' ', '', $row[1]));
                             // 查詢cname是否存在
                             $contace_row = check_something($submit, $cname_replace);
                             
@@ -261,7 +243,6 @@
 
                         echo '</tbody></table>';
                         // 增加卡"SN有誤"不能上傳。
-                        // print_r($result);
                         // 如果"有誤"的累計資料等於"0"。
                         if( $stopUpload === 0 ){
                             // 將資料打包成JSON
@@ -313,8 +294,6 @@
                             echo '<tr>';
                             // 避免輸入的part_no代碼中有 空白
                             $part_no_replace = strtoupper(trim(str_replace(' ', '', $row[0])));
-                            // 避免輸入的Phone代碼中有 空白
-                            // $phone_replace = trim(str_replace(' ', '', $row[1]));
                             // 查詢cname是否存在
                             $part_no_row = check_something($submit, $part_no_replace);
                             
@@ -345,7 +324,6 @@
 
                         echo '</tbody></table>';
                         // 增加卡"SN有誤"不能上傳。
-                        // print_r($result);
                         // 如果"有誤"的累計資料等於"0"。
                         if( $stopUpload === 0 ){
                             // 將資料打包成JSON

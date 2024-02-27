@@ -62,9 +62,6 @@
         }
     // <!-- 20211215分頁工具 -->
  
-    // echo "<pre>";
-    // print_r($ptreceives);
-    // echo "</pre>";
 ?>
 
 <?php include("../template/header.php"); ?>

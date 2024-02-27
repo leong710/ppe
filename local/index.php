@@ -5,48 +5,22 @@
     require_once("function_dept.php");
     accessDenied($sys_id);
     
-    // 新增
-    if(isset($_POST["site_submit"])){
-        store_site($_REQUEST);
-        }
-        if(isset($_POST["fab_submit"])){
-            store_fab($_REQUEST);
-        }
-        if(isset($_POST["local_submit"])){
-            store_local($_REQUEST);
-        }
-        if(isset($_POST["ptlocal_submit"])){
-            store_ptlocal($_REQUEST);
-    }
-    
+    // 新增C
+    if(isset($_POST["site_submit"])){ store_site($_REQUEST); }
+    if(isset($_POST["fab_submit"])){ store_fab($_REQUEST); }
+    if(isset($_POST["local_submit"])){ store_local($_REQUEST); }
+    if(isset($_POST["ptlocal_submit"])){ store_ptlocal($_REQUEST); }
+    // 更新U
+    if(isset($_POST["edit_site_submit"])){ update_site($_REQUEST); }
+    if(isset($_POST["edit_fab_submit"])){ update_fab($_REQUEST); }
+    if(isset($_POST["edit_local_submit"])){ update_local($_REQUEST); }
+    if(isset($_POST["edit_ptlocal_submit"])){ update_ptlocal($_REQUEST); }
+    // 刪除D
+    if(isset($_POST["delete_site"])){ delete_site($_REQUEST); }
+    if(isset($_POST["delete_fab"])){ delete_fab($_REQUEST); }
+    if(isset($_POST["delete_local"])){ delete_local($_REQUEST); }
+    if(isset($_POST["delete_ptlocal"])){ delete_ptlocal($_REQUEST); }
     // 調整flag ==> 20230712改用AJAX
-    
-    // 更新
-    if(isset($_POST["edit_site_submit"])){
-        update_site($_REQUEST);
-        }
-        if(isset($_POST["edit_fab_submit"])){
-            update_fab($_REQUEST);
-        }
-        if(isset($_POST["edit_local_submit"])){
-            update_local($_REQUEST);
-        }
-        if(isset($_POST["edit_ptlocal_submit"])){
-            update_ptlocal($_REQUEST);
-    }
-    // 刪除
-    if(isset($_POST["delete_site"])){
-        delete_site($_REQUEST);
-        }
-        if(isset($_POST["delete_fab"])){
-            delete_fab($_REQUEST);
-        }
-        if(isset($_POST["delete_local"])){
-            delete_local($_REQUEST);
-        }
-        if(isset($_POST["delete_ptlocal"])){
-            delete_ptlocal($_REQUEST);
-    }
 
     // 3.組合查詢陣列
     $query_arr = array(
@@ -91,6 +65,10 @@
                 icon: "../../libs/jquery/Wedges-3s-120px.gif",
             }); 
         }
+        // finished loading關閉mLoading提示
+        window.addEventListener("load", function(event) {
+            $("body").mLoading("hide");
+        });
         // mloading();    // 畫面載入時開啟loading
     </script>
     <style>
@@ -778,17 +756,17 @@
 
 <script>
 
-    var site   = <?=json_encode($sites);?>;                                                     // 引入sites資料
-    var fab    = <?=json_encode($fabs);?>;                                                      // 引入fabs資料
-    var local  = <?=json_encode($locals);?>;                                                    // 引入locals資料
-    var ptlocal  = <?=json_encode($ptlocals);?>;                                                    // 引入locals資料
+    var site        = <?=json_encode($sites);?>;                                                // 引入sites資料
+    var fab         = <?=json_encode($fabs);?>;                                                 // 引入fabs資料
+    var local       = <?=json_encode($locals);?>;                                               // 引入locals資料
+    var ptlocal     = <?=json_encode($ptlocals);?>;                                             // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
     var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
-    var ptlocal_item = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
+    var ptlocal_item= ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     
-    var tags        = [];                    // fun3-1：search Key_word
-    var activeTab   = '<?=$activeTab;?>';    //设置要自动选中的选项卡的索引（从0开始）
+    var tags        = [];                                                                       // fun3-1：search Key_word
+    var activeTab   = '<?=$activeTab;?>';                                                       //设置要自动选中的选项卡的索引（从0开始）
 
 </script>
 

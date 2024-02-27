@@ -52,10 +52,6 @@
             }
 
         try {
-            // echo "</br>{$_year}/{$emp_id}/{$fab_id}：".$sql."</br><hr>";
-            // echo "<pre>";
-            // print_r($stmt_arr);
-            // echo "</pre>";
             if(($_year != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
                 $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{

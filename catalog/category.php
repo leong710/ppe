@@ -167,10 +167,10 @@
 
 <script>
 
-    var cate   = <?=json_encode($categories);?>;                                         // 引入cates資料
-    var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];           // 交給其他功能帶入 delete_cate_id
+    var cate   = <?=json_encode($categories);?>;                                        // 引入cates資料
+    var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];               // 交給其他功能帶入 delete_cate_id
 
-    function add_module(to_module){     // 啟用新增模式
+    function add_module(to_module){                                                     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
         $('#reset_btn').click();                                                        // reset清除表單
         var add_btn = '<input type="submit" name="submit_cate" value="新增" class="btn btn-primary">';

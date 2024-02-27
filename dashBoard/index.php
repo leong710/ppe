@@ -64,6 +64,9 @@
     $stock_db1 = show_stock_db1();
     // dashBoard-表頭數據用，秀出-點檢達成率/未完成site數 table-0 右 3、4
     $stock_db2 = show_stock_db2($check_yh);
+    if(empty($stock_db2)){
+        $stock_db2 = [];
+    }
 
 ?>
 
@@ -238,7 +241,13 @@
                                 <a href="../checked/" title="連結：半年檢紀錄總表">
                                     <div class="w-100 p-1 box_a">
                                         <div class="title"><?php echo $half;?>未完成點檢</div>
-                                        <div class="inside my-0"><?php ECHO ($stock_db2["fab_num"] - $stock_db2["check_num"]);?></div>
+                                        <div class="inside my-0">
+                                            <?php if(isset($stock_db2["fab_num"])){
+                                                    ECHO ($stock_db2["fab_num"] - $stock_db2["check_num"]);
+                                                }else{
+                                                    ECHO "0";
+                                                }?>
+                                        </div>
                                         <div class="title_end">廠區</div>
                                     </div>
                                 </a>
@@ -248,7 +257,11 @@
                                     <div class="w-100 p-1 box_a">
                                         <div class="title"><?php echo $half;?>點檢達成率</div>
                                         <div class="inside my-0">
-                                            <?php ECHO ($stock_db2["percentage"] == '100.00') ? '100' : $stock_db2["percentage"];?>
+                                            <?php if(isset($stock_db2["percentage"])){
+                                                    ECHO ($stock_db2["percentage"] == '100.00') ? '100' : $stock_db2["percentage"];
+                                                }else{
+                                                    ECHO "0";
+                                                }?>
                                         </div>
                                         <div class="title_end">%百分比</div>
                                     </div>

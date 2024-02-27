@@ -75,10 +75,12 @@
     <script src="../../libs/jquery/jquery.min.js" ></script>
     <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- mloading JS -->
+    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS -->
+    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <!-- mLoading_init.js 3/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .TOP {
             background-image: 
@@ -180,20 +182,6 @@
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
         } 
     </style>
-    <script>    
-        // loading function
-        function mloading(){
-            $("body").mLoading({
-                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                icon: "../../libs/jquery/loading.gif",
-            }); 
-        }
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-        mloading();    // 畫面載入時開啟loading
-    </script>
 </head>
 
 <body>

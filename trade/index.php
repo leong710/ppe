@@ -106,10 +106,12 @@
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS -->
+    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS -->
+    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <!-- mLoading_init.js 3/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .page_title{
             color: white;
@@ -120,20 +122,6 @@
             color: black;
         }
     </style>
-    <script>    
-        // loading function
-        function mloading(){
-            $("body").mLoading({
-                // icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                icon: "../../libs/jquery/loading.gif",
-            }); 
-        }
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-        mloading();    // 畫面載入時開啟loading
-    </script>
 </head>
 <body>
     <div class="col-12">

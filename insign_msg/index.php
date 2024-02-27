@@ -38,10 +38,12 @@
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer" ></script>
-    <!-- mloading JS -->
+    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS -->
+    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <!-- mLoading_init.js 3/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #fa_check {
             color: #00ff00;
@@ -53,28 +55,6 @@
             text-align: center;
         }
     </style>
-    <script>    
-        // mloading function
-        function mloading(){
-            $("body").mLoading({    // 開啟loading
-                icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                // icon: "../../libs/jquery/loading.gif",
-                text: "上傳中"                              // 指示器顯示的文本
-                // html: true,                              // 指示器顯示的內容是否為 HTML 代碼
-                // mask: true,                              // 是否顯示蒙層
-                // delay: 5000,                             // 5秒後自動隱藏
-                // css: {
-                //     background: "transparent",           // 指示器的背景顏色
-                //     color: "#fff" // 指示器的文本顏色
-                // }
-            }); 
-        }
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-        mloading();    // 畫面載入時開啟loading
-    </script>
 </head>
 
 <body>

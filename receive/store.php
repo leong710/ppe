@@ -31,26 +31,14 @@
 <head>
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
     <style>
         body{
             color: white;
         }
     </style>
-    <script>    
-        // loading function
-        function mloading(){
-            $("body").mLoading({
-                icon: "../../libs/jquery/Wedges-3s-120px.gif",
-            }); 
-        }
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-        mloading();    // 畫面載入時開啟loading
-    </script>
 </head>
 
 <body>

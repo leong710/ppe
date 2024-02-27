@@ -30,15 +30,16 @@
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
         <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-
+    <!-- mloading JS 1/3 -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS 2/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <!-- mLoading_init.js 3/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
 
         /* PIC圖片初始設定 */
@@ -68,20 +69,6 @@
         }
 
     </style>
-    <script>    
-        // loading function
-        function mloading(){
-            $("body").mLoading({
-                icon: "../../libs/jquery/Wedges-3s-120px.gif",
-                // icon: "../../libs/jquery/loading.gif",
-            }); 
-        }
-        // All resources finished loading! // 關閉mLoading提示
-        window.addEventListener("load", function(event) {
-            $("body").mLoading("hide");
-        });
-        mloading();    // 畫面載入時開啟loading
-    </script>
 </head>
 <!-- <div class="container"> -->
 <div class="col-12">

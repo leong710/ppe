@@ -25,10 +25,8 @@
                 echo "<script>alert('trade批量調撥單 -- 刪除失敗!!');</script>";
             }
         }
-        // 更新log
-        // if(!empty($_POST["delete_log"])){
-        //     updateLogs($_REQUEST);
-        // }
+
+        // if(!empty($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
     if(!empty($_REQUEST["action"])){
@@ -55,7 +53,6 @@
     }
 
     if(!empty($_POST["local_id"])){                 // create時，送出已選擇出庫廠區站點
-        // $_REQUEST["local_id"] = $_POST["local_id"];
         $select_local = select_local($_REQUEST);    // 讀出已被選擇出庫廠區站點的器材存量限制buy_ty
         $buy_ty = $select_local["buy_ty"];
         $catalogs = show_local_stock($_REQUEST);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
@@ -66,7 +63,6 @@
         );
         $select_local = select_local($query_local);
         $buy_ty = $select_local["buy_ty"];
-        // $catalogs = read_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
         $catalogs = show_local_stock($query_local);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
 
     }else{
@@ -142,9 +138,6 @@
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
-
-    </style>
 </head>
 
 <body>
@@ -195,7 +188,6 @@
                     </div>
                 </div>
     
-                <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 分頁標籤 -->
                     <nav>
@@ -210,7 +202,6 @@
                     </nav>
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -503,7 +494,7 @@
     var catalogs    = <?=json_encode($catalogs);?>;                         // 引入catalogs資料
     var allcatalogs = <?=json_encode($allcatalogs);?>;                      // 引入allcatalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
-    // var json        = JSON.parse('<=json_encode($logs_arr)?>');             // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    // var json        = JSON.parse('<=json_encode($logs_arr)?>');          // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json        = <?=json_encode($logs_arr)?>;                          // 鋪設logs紀錄 240124-改去除JSON.parse
     var id          = '<?=$trade_row["id"]?>';
 

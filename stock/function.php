@@ -25,15 +25,15 @@
             try{
                 $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
                 $swal_json = array(
-                    "fun" => "store_stock",
-                    "action" => "success",
+                    "fun"     => "store_stock",
+                    "action"  => "success",
                     "content" => '合併套用成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => "store_stock",
-                    "action" => "error",
+                    "fun"     => "store_stock",
+                    "action"  => "error",
                     "content" => '合併套用失敗'
                 );
             }
@@ -44,15 +44,15 @@
             try {
                 $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user]);
                 $swal_json = array(
-                    "fun" => "store_stock",
-                    "action" => "success",
+                    "fun"     => "store_stock",
+                    "action"  => "success",
                     "content" => '新增套用成功'
                 );
             }catch(PDOException $e){
                 echo $e->getMessage();
                 $swal_json = array(
-                    "fun" => "store_stock",
-                    "action" => "error",
+                    "fun"     => "store_stock",
+                    "action"  => "error",
                     "content" => '新增套用失敗'
                 );
             }
@@ -97,8 +97,8 @@
                 try{
                     $stmt->execute([$standard_lv, $amount, $stock_remark, $po_no, $lot_num, $updated_user, $row["id"]]);
                     $swal_json = array(
-                        "fun" => "update_stock",
-                        "action" => "success",
+                        "fun"     => "update_stock",
+                        "action"  => "success",
                         "content" => '合併套用成功'
                     );
                     delete_stock($request);     // 已合併到另一儲存項目，故需要刪除舊項目
@@ -106,8 +106,8 @@
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $swal_json = array(
-                        "fun" => "update_stock",
-                        "action" => "error",
+                        "fun"     => "update_stock",
+                        "action"  => "error",
                         "content" => '合併套用失敗'
                     );
                 }
@@ -120,15 +120,15 @@
                 try {
                     $stmt->execute([$local_id, $cata_SN, $standard_lv, $amount, $stock_remark, $pno, $po_no, $lot_num, $updated_user, $id]);
                     $swal_json = array(
-                        "fun" => "update_stock",
-                        "action" => "success",
+                        "fun"     => "update_stock",
+                        "action"  => "success",
                         "content" => '更新套用成功'
                     );
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $swal_json = array(
-                        "fun" => "update_stock",
-                        "action" => "error",
+                        "fun"     => "update_stock",
+                        "action"  => "error",
                         "content" => '更新套用失敗'
                     );
                 }
@@ -144,15 +144,15 @@
         try {
             $stmt->execute([$id]);
             $swal_json = array(
-                "fun" => "delete_stock",
-                "action" => "success",
+                "fun"     => "delete_stock",
+                "action"  => "success",
                 "content" => '刪除成功'
             );
         }catch(PDOException $e){
             echo $e->getMessage();
             $swal_json = array(
-                "fun" => "delete_stock",
-                "action" => "error",
+                "fun"     => "delete_stock",
+                "action"  => "error",
                 "content" => '刪除失敗'
             );
         }
@@ -243,22 +243,7 @@
             echo $e->getMessage();
         }
     }
-    // // 顯示全部by年月 => 供查詢年月份使用
-    // function show_receive_list_yy(){
-    //     $pdo = pdo();
-    //     $sql = "SELECT DISTINCT SUBSTRING(al.thisDay, 1, 4) AS yy
-    //             FROM `autolog` al
-    //             ORDER BY yy DESC";
-    //     $stmt = $pdo->prepare($sql);
-    //     try {
-    //         $stmt->execute();
-    //         $receive_list_yy = $stmt->fetchAll();
-    //         return $receive_list_yy;
-    //     }catch(PDOException $e){
-    //         echo $e->getMessage();
-    //     }
-    // }
-
+ 
 // // // stock  -- end
 
 // // // _cata & _cate
@@ -335,7 +320,6 @@
     // 匯入CSV
     function import_csv($filename) {
         $csvData = array();
-    
         if (($handle = fopen($filename, "r")) !== false) {
             while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                 $csvData[] = $data;
@@ -351,7 +335,6 @@
     function update_amount($request){
         $pdo = pdo();
         extract($request);
-
         $sql = "UPDATE _stock
                 SET amount=?, updated_at=now()
                 WHERE id=? ";
@@ -661,7 +644,6 @@
         $sql .= " ORDER BY _plan.updated_at DESC ";
         $stmt = $pdo->prepare($sql);
         try {
-            // echo $sql;
             if(!empty($form_type)){
                 $stmt->execute([$form_type]);
             }else{
@@ -718,7 +700,6 @@
             "msg"       => ""
         );
 
-        // $logs = JSON_encode($stocks_log);
         $sql = "INSERT INTO checked_log(form_type, fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {

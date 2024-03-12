@@ -2,7 +2,6 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function_pt_local.php");
-    // accessDenied($sys_id);
     accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
@@ -122,7 +121,6 @@
                         <!-- sort/groupBy function -->
                         <div class="col-md-4 pb-0">
                             <form action="" method="POST">
-                                <!-- <input type="hidden" name="sfab_id" value="<php echo $sort_sfab_id;?>"> -->
                                 <div class="input-group">
                                     <span class="input-group-text">篩選</span>
                                     <select name="select_fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
@@ -137,7 +135,6 @@
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
                                     </select>
-                                    <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
                                 </div>
                             </form>
                         </div>
@@ -202,10 +199,8 @@
                     <h4 class="modal-title"><span id="ptlocal_modal_action"></span>除汙儲存點資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="ptlocal_delete_id">
-                        <?php if($sys_role == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="ptlocal_modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="ptlocal_modal_delect_btn"  class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -236,12 +231,7 @@
                                     <label for="edit_local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <!-- <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="low_level" id="edit_low_level" class="form-control" required placeholder="安全水位">
-                                    <label for="edit_low_level" class="form-label">low_level/安全水位：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div> -->
+
                             <div class="col-12">
                                 <table>
                                     <tr>

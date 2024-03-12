@@ -24,7 +24,6 @@
         // step1.Lists中帶出檢視對象
         checked_lists.forEach(function(row){
             if(row['id'] == row_id){
-                // console.log('row: ', row);
                 Object(checked_item).forEach(function(item_key){
                     if(item_key == 'id'){
                         document.querySelector('#checked_delete_id').value = row['id'];         // 鋪上delete_id = this id.no for delete form
@@ -68,7 +67,6 @@
                 return;
             }
         })
-        
     }
 
     function put_in(){
@@ -77,7 +75,6 @@
             let row_btn = '<button type="button" class="op_tab_btn reviewBtn " value="'+row['id']+'" onclick="edit_module(this.value)" title="'+row['created_at']+' / '+row['updated_user']+' " '; 
             row_btn += 'data-bs-toggle="modal" data-bs-target="#review_checked"><h4 class="mb-0"><i class="fa-regular fa-file-lines mb-0"></i></h4><h7>'+row['created_at'].substr(0, 10).replace(/-/g,"")+'</h7></button>';
             $('#'+row_key).append(row_btn);                  // anoth
-            // console.log(row_key, row_btn);
         })
     }
 
@@ -89,7 +86,6 @@
         let reviewBtns = [...document.querySelectorAll('.reviewBtn')];
         for(let reviewBtn of reviewBtns){
             reviewBtn.onclick = e => {
-                // console.log('e:',e.target.name, e.target.id, e.target.value);
                 edit_module(e.target.value);
             }
         }

@@ -96,7 +96,6 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <!-- <div class="col_xl_8 col-8 rounded my-0 p-3  bg-white rounded" style="background-color: rgba(255, 255, 255, .6);"> -->
             <div class="col_xl_8 col-8 bg-light rounded my-0 p-3" >
                 <!-- NAV title -->
                 <div class="row">
@@ -106,7 +105,6 @@
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <button class="nav-link" id="nav-site-tab"  data-bs-toggle="tab" data-bs-target="#nav-site_table"  type="button" role="tab" aria-controls="nav-site"  aria-selected="false">Site</button>
                                 <button class="nav-link" id="nav-fab-tab"   data-bs-toggle="tab" data-bs-target="#nav-fab_table"   type="button" role="tab" aria-controls="nav-fab"   aria-selected="false">Fab</button>
-                                <!-- class="active" aria-selected="true" -->
                                 <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
                                 <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
                                     <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp安全存量設定</a>
@@ -117,7 +115,6 @@
                     </div>
                 </div>
                 <!-- 內頁 -->
-                <!-- <div id="table"> -->
                 <div class="tab-content" id="nav-tabContent">
                     
                     <!-- site -->
@@ -314,7 +311,7 @@
                                     <tbody>
                                         <?php foreach($ptlocals as $ptlocal){ ?>
                                             <tr>
-                                                <td style="font-size: 6px;"><?php echo $ptlocal['id']; ?></td>
+                                                <td style="font-size: 12px;"><?php echo $ptlocal['id']; ?></td>
                                                 <td class="text-start"><?php echo $ptlocal['fab_id']."_".$ptlocal['fab_title']." (".$ptlocal['fab_remark'].")"; if($ptlocal["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                                 <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
                                                 <td><a href="low_level.php?ptlocal_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
@@ -336,7 +333,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <hr>
                 </div>
             </div>
@@ -351,10 +347,8 @@
                     <h4 class="modal-title"><span id="site_modal_action"></span>site資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="site_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="site_modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="site_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -402,8 +396,7 @@
                             <input type="hidden" name="activeTab" value="0">
                             <input type="hidden" name="id" id="site_edit_id" >
                             <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                            <?php } ?>
+                                <span id="site_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="site_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -421,12 +414,9 @@
                     <h4 class="modal-title"><span id="fab_modal_action"></span>fab資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="fab_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="fab_modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="fab_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
-
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -545,9 +535,7 @@
                             <input type="hidden" name="activeTab" value="1">
                             <input type="hidden" name="id" id="fab_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <span id="fab_modal_button"></span>
-                            <?php } ?>
+                                <span id="fab_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="fab_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -565,10 +553,8 @@
                     <h4 class="modal-title"><span id="local_modal_action"></span>local資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="local_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="local_modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="local_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -599,12 +585,6 @@
                                     <label for="edit_local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <!-- <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="low_level" id="edit_low_level" class="form-control" required placeholder="安全水位">
-                                    <label for="edit_low_level" class="form-label">low_level/安全水位：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div> -->
                             <div class="col-12">
                                 <table>
                                     <tr>
@@ -631,9 +611,7 @@
                             <input type="hidden" name="activeTab" value="2">
                             <input type="hidden" name="id" id="local_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <span id="local_modal_button"></span>
-                            <?php } ?>
+                                <span id="local_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="local_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -651,10 +629,8 @@
                     <h4 class="modal-title"><span id="ptlocal_modal_action"></span>除汙儲存點資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="ptlocal_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="ptlocal_modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="ptlocal_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -685,12 +661,6 @@
                                     <label for="edit_local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                            <!-- <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="low_level" id="edit_low_level" class="form-control" required placeholder="安全水位">
-                                    <label for="edit_low_level" class="form-label">low_level/安全水位：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div> -->
                             <div class="col-12">
                                 <table>
                                     <tr>
@@ -717,9 +687,7 @@
                             <input type="hidden" name="activeTab" value="3">
                             <input type="hidden" name="id" id="ptlocal_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
-                                <span id="ptlocal_modal_button"></span>
-                            <?php } ?>
+                                <span id="ptlocal_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="ptlocal_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>

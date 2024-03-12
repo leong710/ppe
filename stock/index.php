@@ -13,7 +13,7 @@
     
     $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role = $_SESSION[$sys_id]["role"];         // 取出$_session引用
     $form_type   = "stock";
 
     // add module function --
@@ -25,13 +25,8 @@
         
         $catalogs = show_catalogs();                        // 取得所有catalog項目，供create使用
         $allLocals = show_allLocal();                       // 取得所有的Local儲存點，供create使用
-        // $allLocals = show_local($query_arr);       // 取得Fab下的Local儲存點，供create使用 => 停用原因：改卡權限
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
-
-
-
-    
         // 1-1a 將fab_id加入sfab_id
         $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
             // 1-1c sfab_id是陣列，要轉成字串
@@ -46,7 +41,7 @@
 
     // 查詢篩選條件：fab_id
         if(isset($_SESSION[$sys_id]["fab_id"])){
-            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
+            $fab_id = $_SESSION[$sys_id]["fab_id"];                 // 1-1.取fab_id
         }else{
             $fab_id = "0";
         }
@@ -94,7 +89,7 @@
 
 
     // <!-- 20211215分頁工具 -->
-        $per_total = count($stocks);        //計算總筆數
+        $per_total = count($stocks);                //計算總筆數
             // $per = 25;                          //每頁筆數
             // $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
             //     if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
@@ -145,11 +140,9 @@
     <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
-
         .body > ul {
             padding-left: 0px;
         }
-
         /* 凸顯可編輯欄位 */
             .fix_amount:hover {
                 /* font-size: 1.05rem; */
@@ -197,7 +190,6 @@
                                         <?php } ?>
                                     <?php } ?>
                                 </select>
-                                <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
                             </div>
                         </form>
                     </div>
@@ -244,12 +236,6 @@
                                     <span class="badge bg-secondary"><?php echo $sum_cate["stock_count"];?></span></a>
                             </li>
                         <?php  } ?>
-                        <!-- <php if($sys_role <= 1){?>
-                            <li class="nav-item">
-                                <button type="button" id="checkList_btn" class="nav-link" data-bs-toggle="modal" data-bs-target="#checkList">
-                                    <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button>
-                            </li>
-                        <php } ?> -->
                     </ul>
                 </div>
                 <!-- by各Local儲存點： -->
@@ -332,10 +318,8 @@
 
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <?php if($sys_role <= 1){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="modal_delect_btn" class="<?php echo ($sys_role <= 1) ? '':'unblock';?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -439,10 +423,7 @@
                             <input type="hidden" name="fab_id" value="<?php echo $sortFab["id"];?>">
                             <input type="hidden" name="cate_no" value="<?php echo isset($_REQUEST['cate_no']) ? $_REQUEST['cate_no'] : 'All' ;?>">
                             <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
-                            <?php if($sys_role <= 2){ ?>   
-                                <span id="modal_button"></span>
-                            <?php } ?>
-                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
+                            <span id="modal_button" class="<?php echo ($sys_role <= 2) ? '':'unblock';?>"></span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -518,10 +499,9 @@
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
                             <input type="hidden" name="cate_no"         value="<?php echo $sort_cate_no;?>">
                             <input type="hidden" name="updated_user"    value="<?php echo $auth_cname;?>">
-                            <?php if($sys_role <= 2){ ?>   
+                            <span id="modal_button" class="<?php echo ($sys_role <= 2) ? '':'unblock';?>">
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
-                            <?php } ?>
-                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
+                            </span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>

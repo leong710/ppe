@@ -404,8 +404,6 @@
     var reportAmount = [];                                        // 宣告變數陣列，承裝Receives年領用量
     var cata_price   = [];                                        // 宣告變數陣列，承裝pno年報價
     
-    // console.log('report_lists:', report_lists);
-
     // cata目錄、報價、領用量、渲染
     function show_reports(){
         // step-1.把 catalog對應的p_no報價繞出來
@@ -421,7 +419,6 @@
             }
             cata_price[cata['SN']] = Number(cata_yy_p);
         })
-        // console.log('cata_price:', cata_price)
 
         // step-2.彙整出SN年領用量
         Object(report_lists).forEach(function(row){
@@ -435,7 +432,6 @@
                 }else{
                     var pay = Number(csa[key]['pay']);                  // 如果不是就照舊
                 }
-                // console.log('key:', key, pay)
                 var l_key = row['local_id'] +'_'+ key;          // 第1頁
                 var key_TT = key +'_TT';                        // 第1頁
                 var l_key_mm = l_key +'_'+ row['mm'];           // 第2頁 mm = 月份
@@ -507,12 +503,10 @@
                             }
             })
         });
-        // console.log('reportAmount:', reportAmount)
 
         // step-3.選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {
             var value = reportAmount[key];
-            // console.log("key", key, value);
             $('#'+key).empty();
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);

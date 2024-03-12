@@ -14,7 +14,6 @@
             if($stmt_check -> rowCount() >0){     
                 // 確認料號是否已經被註冊掉，用rowCount最快~不要用fetch
                 echo "<script>alert('{$part_no} 料號已存在，請重新選擇料號~')</script>";
-                // header("refresh:0;url=register.php");
                 return;
             }
             if(empty($_price)){
@@ -177,7 +176,6 @@
         }
     }
 // PNO
-
     // 秀出catalog全部 20230707 for 新增Part_NO料號
     function show_catalogs(){
         $pdo = pdo();
@@ -194,7 +192,6 @@
             echo $e->getMessage();
         }
     }
-
     // 取出PNO年份清單 => 供Part_NO料號頁面篩選
     function show_PNO_GB_year(){
         $pdo = pdo();

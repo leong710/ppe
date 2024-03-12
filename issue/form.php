@@ -163,7 +163,6 @@
             margin-bottom: 0px;
             text-align: center;
         }
-
     </style>
 </head>
 
@@ -218,7 +217,6 @@
                     </div>
                 </div>
     
-                <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 分頁標籤 -->
                     <nav>
@@ -532,7 +530,7 @@
                                     <tbody></tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 6px;" class="text-end">
+                            <div style="font-size: 12px;" class="text-end">
                                 logs-end
                             </div>
                         </div>

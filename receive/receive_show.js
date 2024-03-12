@@ -25,11 +25,9 @@
                     if(receive_collect_role){
                             var amount_need = add_amount['need'];               // 加工：取需求量
                             var amount_need_length = amount_need.length;        // 加工：取需求量的長度
-                        // console.log(add_amount['need'], amount_need_length);
                         add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
-                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
                         add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
-                        // add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
+                        // 有發放權，就可以編輯數量
                     }else{
                         add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
                     }
@@ -110,16 +108,15 @@
 
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
+            method:'post',
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
                 var res_r = res["result"];
-
                 // 將結果進行渲染
                 if (res_r !== '') {
                     var obj_val = res_r;                                         // 取Object物件0
@@ -138,8 +135,8 @@
                     }
                 }
             },
-            error (){
-                console.log("search error");
+            error (err){
+                console.log("search error", err);
             }
         })
         $("body").mLoading("hide");
@@ -147,7 +144,7 @@
 
     // fun3-2：in_sign上層主管：移除單項模組
     $('#in_sign_badge').on('click', '.remove', function() {
-        $(this).closest('.tag').remove();   // 自畫面中移除
+        $(this).closest('.tag').remove();                         // 自畫面中移除
         document.getElementById('in_sign').value = '';            // 將欄位cname清除
         document.getElementById('in_signName').value = '';        // 將欄位in_signName清除
         $('#in_sign_badge').empty();
@@ -173,10 +170,6 @@
             "receive_remark" : "receive_remark/用途說明",
             "uuid"           : "uuid",
             "cata_SN_amount" : "** cata_SN_amount"
-            // "local_id"       : "local_id/領用站點",              // 改由php echo產生
-            // "created_emp_id" : "created_emp_id/開單人工號",
-            // "created_cname"  : "created_cname/開單人姓名",
-            // "idty"           : "idty",
             // "sin_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原陣列逐筆繞出來
@@ -270,7 +263,6 @@
         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
         $("body").mLoading("hide");
         
-        // console.log("i'm push_mapp");
         return;
     }
     
@@ -303,7 +295,6 @@
         Object.keys(receive_row_cart).forEach(function(cart_key){
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cart_key){
-                    // add_cata_item += '\nSN： '+cata['SN']+'\npName： '+cata['pname']+'\nModel： '+cata['model']+'\nSize： '+cata['size']+'\nAmount： '+receive_row_cart[cart_key]+'\nUnit： '+cata['unit'];
                     add_cata_item += '\n'+i_cunt+'.SN:'+cata['SN']+' / '+cata['pname'];
                     add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+receive_row_cart[cart_key]['need']+' '+cata['unit']+'\n';
                     i_cunt += 1;
@@ -315,7 +306,6 @@
         add_cata_item += '\n以上共：'+shopping_count +' 品項';
         add_cata_item += '\n文件連結：'+receive_url;
         
-        // console.log("i'm sort_receive");
         return add_cata_item;
     }
 

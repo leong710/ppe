@@ -203,9 +203,7 @@
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
 
-    </style>
 </head>
 
 <body>
@@ -279,7 +277,6 @@
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post" >
-                    <!-- <form action="./zz/debug.php" method="post"> -->
 
                         <!-- 3.申請單成立 -->
                         <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -429,7 +426,6 @@
                                 
                                 <div class="row">
                                     <div style="font-size: 12px;" class="py-2 text-end">
-                                        
                                     </div>
                                 </div>
 
@@ -439,56 +435,56 @@
                         <!-- 彈出畫面模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable modal-l">
-
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        
-                                        <div class="modal-body px-5">
-                                            <!-- 第二排的功能 : 搜尋功能 -->
-                                            <div class="row unblock" id="forwarded">
-                                                <div class="col-12" id="searchUser_table">
-                                                    <div class="input-group search" id="select_inSign_Form">
-                                                        <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
-                                                        <span class="input-group-text form-label">轉呈</span>
-                                                        <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
-                                                                aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
-                                                        <div id="in_sign_badge"></div>
-                                                        <input type="hidden" name="in_signName" id="in_signName" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                            </div>
-                                            <!-- 第二排的功能 -->
-                                            <div class="row">
-                                                <div class="col-12 py-0 block" id="po_no_form">
-                                                </div>
-                                                <div class="col-12 py-0">
-                                                    <label for="sign_comm" class="form-check-label" >command：</label>
-                                                    <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    
+                                    <div class="modal-body px-5">
+                                        <!-- 第二排的功能 : 搜尋功能 -->
+                                        <div class="row unblock" id="forwarded">
+                                            <div class="col-12" id="searchUser_table">
+                                                <div class="input-group search" id="select_inSign_Form">
+                                                    <span class="input-group-text form-label">轉呈</span>
+                                                    <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                                            aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
+                                                    <div id="in_sign_badge"></div>
+                                                    <input type="hidden" name="in_signName" id="in_signName" class="form-control">
                                                 </div>
                                             </div>
+                                            <hr>
                                         </div>
-                                        <div class="modal-footer">
-                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
-                                            <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                                            <input type="hidden" name="id"              id="id"             value="">
-                                            <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $issue_row['fab_i_sign_code'];?>">
-                                            <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
-                                            <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
-                                            <input type="hidden" name="idty"            id="idty"           value="">
-                                            <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $issue_row["idty"];?>">
-                                            <?php if(($issue_row['in_sign'] == $auth_emp_id) || ($sys_role <= 2)){ ?>
-                                                <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
-                                            <?php } ?>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <!-- 第二排的功能 -->
+                                        <div class="row">
+                                            <div class="col-12 py-0 block" id="po_no_form">
+                                            </div>
+                                            <div class="col-12 py-0">
+                                                <label for="sign_comm" class="form-check-label" >command：</label>
+                                                <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                            </div>
                                         </div>
                                     </div>
-                                </form>
+                                    
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
+                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="id"              id="id"             value="">
+                                        <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $issue_row['fab_i_sign_code'];?>">
+                                        <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="idty"            id="idty"           value="">
+                                        <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $issue_row["idty"];?>">
+                                        <?php if(($issue_row['in_sign'] == $auth_emp_id) || ($sys_role <= 2)){ ?>
+                                            <button type="submit" value="Submit" name="issue_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                                        <?php } ?>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                            
+                    </form>
                     <hr>
                     <!-- 尾段logs訊息 -->
                     <div class="col-12 pt-0 rounded bg-light" id="logs_div">
@@ -515,7 +511,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 10px;" class="text-end">
+                            <div style="font-size: 12px;" class="text-end">
                                 logs-end
                             </div>
                         </div>
@@ -542,7 +538,7 @@
     var action              = '<?=$action;?>';                              // 引入action資料
     var issue_row           = <?=json_encode($issue_row);?>;                // 引入issue_row資料作為Edit
     var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
-    // var json                = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    // var json                = JSON.parse('<=json_encode($logs_arr)?>');  // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json                = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var issue_url           = '<?=$issue_url;?>';                           // push訊息 // 本文件網址
 </script>

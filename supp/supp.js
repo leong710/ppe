@@ -133,7 +133,6 @@
     for(let flagBtn of flagBtns){
         flagBtn.onclick = e => {
             let swal_content = e.target.name+'_id:'+e.target.id+'=';
-            // console.log('e:',e.target.name,e.target.id,e.target.value);
             $.ajax({
                 url:'api.php',
                 method:'post',
@@ -148,7 +147,6 @@
                 success: function(res){
                     let res_r = res["result"];
                     let res_r_flag = res_r["flag"];
-                    // console.log(res_r_flag);
                     if(res_r_flag == 'Off'){
                         e.target.classList.remove('btn-success');
                         e.target.classList.add('btn-warning');
@@ -172,7 +170,6 @@
 
             // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
-
         }
     }
 
@@ -262,13 +259,10 @@
         for(var i=0; i < window[to_module].length; i++){
             sort_listData[i] = {};      // 建立物件
             Object.keys(item_keys).forEach(function(i_key){
-                // console.log(item_keys[i_key]+"：" ,listData[i][item_key]);
                 sort_listData[i][item_keys[i_key]] = window[to_module][i][i_key];
             })
         }
-        // console.log('sort_listData:', sort_listData);
         var htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
-        // console.log(listData);
     }
 

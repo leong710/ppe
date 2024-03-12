@@ -160,12 +160,12 @@
 
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
-            async: false,                                                       // ajax取得數據包後，可以return的重要參數
+            method:'post',
+            async: false,                                           // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -263,12 +263,12 @@
     function showDelegation(search){
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
-            async: false,                                                       // ajax取得數據包後，可以return的重要參數
+            method:'post',
+            async: false,                                           // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showDelegation',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -328,9 +328,9 @@
             "receive_remark" : "receive_remark/用途說明",
             "created_emp_id" : "created_emp_id/開單人工號",
             "created_cname"  : "created_cname/開單人姓名",
-            // "idty"           : "idty",
             "uuid"           : "uuid",
             "cata_SN_amount" : "** cata_SN_amount"
+            // "idty"           : "idty",
             // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
@@ -372,11 +372,6 @@
             forTable.innerHTML += 
                 '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
                     '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
-                    // '<?php if($_SESSION[$sys_id]["role"] <= 1){ ?>' + '<form action="" method="post">'+
-                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    //     `<input type="hidden" name="uuid" value="` + uuid + `";>` +
-                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    // '</form>' + '<?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
@@ -438,7 +433,6 @@
             })
         })
         $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
-
     }
 
     $(function () {

@@ -170,7 +170,6 @@
 
                     <div class="col-12 col-md-6">
                         <div class="row">
-                            
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="SN" id="SN" class="form-control" required placeholder="編號" >
@@ -432,12 +431,11 @@
                     img: $('.img:checked').val().substr(6 +1)      // 6 = images +1 = bypass %2f
                 },
                 success(){
-                    // console.log(this.url)
                     location.href = this.url;
                     $('.cover').hide();
                 },
-                error(){
-
+                error(e){
+                    console.log('error:',e);
                 }
             })
         })
@@ -492,8 +490,8 @@
                 var res_r = res["result"];
                 postList(res_r);                    // 將結果轉給postList進行渲染
             },
-            error (){
-                console.log("search error");
+            error (e){
+                console.log("search error",e);
             }
         })
     }

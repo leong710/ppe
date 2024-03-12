@@ -123,57 +123,6 @@
             echo $e->getMessage();
         }
     }
-    // // 20240108 在index表頭顯示我的待簽清單：    // 統計看板--左上：我的待簽清單 / 轄區申請單
-    // // 參數說明：
-        // //     2 $fun == 'inSign'       => 我的待簽清單     不考慮 $fab_id
-        // function show_my_inSign($request){
-        //     $pdo = pdo();
-        //     extract($request);
-
-        //     $sql = "SELECT DISTINCT _t.* 
-        //                 , _l_i.local_title AS in_local_title, _l_i.local_remark AS in_local_remark
-        //                 , _f_i.id AS in_fab_id , _f_i.fab_title AS in_fab_title, _f_i.fab_remark AS in_fab_reamrk, _f_i.sign_code AS in_fab_sign_code , _f_i.pm_emp_id AS in_fab_pm_emp_id 
-        //                 , _s_i.site_title AS in_site_title, _s_i.site_remark AS in_site_reamrk 
-        //                 , _l_o.local_title AS out_local_title, _l_o.local_remark AS out_local_remark
-        //                 , _f_o.id AS out_fab_id , _f_o.fab_title AS out_fab_title, _f_o.fab_remark AS out_fab_reamrk, _f_o.sign_code AS out_fab_sign_code , _f_o.pm_emp_id AS out_fab_pm_emp_id 
-        //                 , _s_o.site_title AS out_site_title, _s_o.site_remark AS out_site_reamrk 
-        //             FROM `_trade` _t
-        //             LEFT JOIN _local _l_i ON _t.in_local = _l_i.id
-        //             LEFT JOIN _fab _f_i ON _l_i.fab_id = _f_i.id
-        //             LEFT JOIN _site _s_i ON _f_i.site_id = _s_i.id
-        //             LEFT JOIN _local _l_o ON _t.out_local = _l_o.id
-        //             LEFT JOIN _fab _f_o ON _l_o.fab_id = _f_o.id
-        //             LEFT JOIN _site _s_o ON _f_o.site_id = _s_o.id;
-        //              ";
-
-        //     if($fun == 'inSign'){                                         // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
-        //         // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
-        //         $sql .= " WHERE (_t.idty IN (1, 11) AND _t.in_sign = ? ) OR (_t.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
-        //     }
-            
-        //     // 後段-堆疊查詢語法：加入排序
-        //     $sql .= " ORDER BY _r.created_at DESC";
-
-        //     // 決定是否採用 page_div 20230803
-        //     if(isset($start) && isset($per)){
-        //         $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
-        //     }else{
-        //         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
-        //     }
-        //     try {
-        //         if(in_array( $fun , ['inSign', 'myTrade'])){            // 處理 $_2我待簽清單inSign、$_1我申請單myTrade
-        //             $stmt->execute([$emp_id]);
-        //         } else {                                                // $_5我的待領清單myCollect 'myCollect'
-        //             $stmt->execute();
-        //         }
-        //         $my_inSign_lists = $stmt->fetchAll();
-        //         return $my_inSign_lists;
-
-        //     }catch(PDOException $e){
-        //         echo $e->getMessage();
-        //     }
-        // }
-
     // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
     function show_coverFab_lists($request){
         $pdo = pdo();
@@ -190,12 +139,10 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
 
     }
@@ -353,7 +300,6 @@
         }
 
         if($process_result){
-            // echo "<script>alert('預扣功能：success')</script>";
             // item資料前處理
             $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
     
@@ -403,7 +349,6 @@
             }
 
         }else{
-            // echo "<script>alert('預扣功能：error')</script>";
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '預扣功能失敗';
         }
@@ -519,7 +464,6 @@
         }
 
         if($process_result){
-            // echo "<script>alert('預扣功能：success')</script>";
             // item資料前處理
             $item_enc = json_encode(array_filter($item));           // 去除陣列中空白元素再要編碼
 
@@ -570,7 +514,6 @@
                 $swal_json["content"] .= '更新失敗';
             }
         }else{
-            // echo "<script>alert('預扣功能：error')</script>";
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '預扣功能失敗';
         }
@@ -597,7 +540,6 @@
         $process_result = true; // 把trade表單叫近來處理 預扣回補 = 預設已完持
 
         if($process_result){    // 預扣回補:success
-            // echo "<script>alert('預扣回補功能：success')</script>";
             // 執行刪除表單
             $sql = "DELETE FROM _trade WHERE id = ?";
             $stmt = $pdo->prepare($sql);
@@ -609,7 +551,6 @@
                 return false;
             }
         }else{                  // 預扣回補:error
-            // echo "<script>alert('預扣回補功能：error')</script>";
             return false;
         }
     }
@@ -678,11 +619,9 @@
         // **** 預扣回補功能 end   
 
         if($process_result){    // 預扣回補:success
-            // echo "<script>alert('預扣回補功能：success')</script>";
             // 梳理表單資料製作logs前處理
                 // $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
-
-                // // 表單簽單人角色
+            // // 表單簽單人角色
                 // if($trade_row["out_user_id"] == $_SESSION["AUTH"]["emp_id"]){ $step_role = "填單人";}
                 // if($trade_row["in_local"] == $_SESSION[$sys_id]["fab_id"] || (in_array($trade_row["in_local"], $_SESSION[$sys_id]["sfab_id"])) ){ $step_role = "收貨人";}
                 // if(!isset($step_role) && ($_SESSION[$sys_id]["role"] <= 1)){ $step_role = "管你圓";}
@@ -691,13 +630,11 @@
                 $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";            // 簽單人
                 $logs_request["step"]   = $step;                    // 節點-簽單人角色
                 $logs_request["logs"]   = $trade_row["logs"];           // 帶入舊logs
-                // $logs_request["remark"] = $sign_comm.$process_remark;               // 簽核command
                 $logs_request["remark"] = $process_remark;               // 簽核command
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
             // 執行更新表單
-            // $p_idty = '4';    // 返回退回-編輯狀態
             $p_idty = $idty;    // 返回退回-編輯狀態
             $sql = "UPDATE _trade SET idty=?, logs=? WHERE id=?";
             $stmt = $pdo->prepare($sql);
@@ -711,7 +648,6 @@
                 $swal_json["content"] .= '更新失敗';
             }
         }else{                  // 預扣回補:error
-            // echo "<script>alert('預扣回補功能：error')</script>";
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '預扣功能失敗';
         }
@@ -816,8 +752,6 @@
         // **** 入賬、回補功能 end  
 
         if($process_result){
-            // echo "<script>alert('入賬、回補功能：success')</script>";
-
             // 梳理表單資料製作logs前處理
             // $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
             // 製作log紀錄前處理：塞進去製作元素
@@ -901,7 +835,6 @@
             }
 
         }else{
-            // echo "<script>alert('入賬、回補功能：error')</script>";
             $swal_json["action"]   = "error";
             $swal_json["content"] .= '入賬、回補功能失敗...請洽管理員';
         }
@@ -1073,14 +1006,12 @@
         $stmt_stk_check -> execute([$p_local, $cata_SN]);
 
         if($stmt_stk_check -> rowCount() >0){       // 已有紀錄
-            // echo "<script>alert('process_trade:已有紀錄~')</script>";            // deBug
             $row_stk = $stmt_stk_check -> fetch();
             // 交易狀態：0完成/1待收/2退貨/3取消
             switch($idty){
                 case "0":       // 0完成
                 case "2":       // 2退貨/待收
                 case "3":       // 3取消/入帳
-                    // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
                     $row_stk['amount'] += $p_amount; 
                     $cama = array(
                         'icon'  => ' + ',     // log交易訊息中加減號
@@ -1088,7 +1019,6 @@
                     );
                     break;
                 case "1":       // 1送出/待收
-                    // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
                     $row_stk['amount'] -= $p_amount;
                     $cama = array(
                         'icon'  => ' - ',     // log交易訊息中加減號
@@ -1117,7 +1047,6 @@
             return $process_result;
         
         }else{      // 開新紀錄
-            // echo "<script>alert('process_trade:開新紀錄~')</script>";             // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
                 $row_local="SELECT _l.* , _l.local_title , _f.fab_title
                             FROM `_local` _l
@@ -1144,14 +1073,12 @@
                 case "0":       // 0完成
                 case "2":       // 2退貨/待收
                 case "3":       // 3取消/入帳
-                    // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
                     $cama = array(
                         'icon'  => ' + ',     // log交易訊息中加減號
                         'title' => ' 入帳 '   // log交易訊息 動作
                     );
                     break;
                 case "1":       // 1送出/待收
-                    // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
                     $cama = array(
                         'icon'  => ' - ',     // log交易訊息中加減號
                         'title' => ' 扣帳 '   // log交易訊息 動作

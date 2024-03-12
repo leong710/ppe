@@ -2,7 +2,6 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
-    // accessDenied($sys_id);
     accessDeniedAdmin($sys_id);
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -11,12 +10,9 @@
     $fa_check = '<snap id="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';       // 打勾符號
     $fa_remove = '<snap id="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';    // 打叉符號
     // CRUD
-        if(isset($_POST["add_submit"])){              // 新增
-            store_formplan($_REQUEST); }
-        if(isset($_POST["edit_submit"])){             // 更新
-            update_formplan($_REQUEST); }
-        if(isset($_POST["delete_submit"])){           // 刪除
-            delete_formplan($_REQUEST); }
+        if(isset($_POST["add_submit"])){ store_formplan($_REQUEST); }       // 新增
+        if(isset($_POST["edit_submit"])){ update_formplan($_REQUEST); }     // 更新
+        if(isset($_POST["delete_submit"])){ delete_formplan($_REQUEST); }   // 刪除
         // 調整flag ==> 20230712改用AJAX
 
     $formplans = show_formplan();
@@ -150,15 +146,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title"><span id="modal_action"></span>計畫</h5>
-    
                         <form action="" method="post">
                             <input type="hidden" name="id" id="delete_id">
-                            <?php if($sys_role == 0){ ?>
-                                &nbsp&nbsp&nbsp&nbsp&nbsp
-                                <span id="modal_delect_btn"></span>
-                            <?php } ?>
+                            &nbsp&nbsp&nbsp&nbsp&nbsp
+                            <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                         </form>
-    
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
@@ -236,7 +228,7 @@
                                 </div>
     
                                 <!-- 最後編輯資訊 -->
-                                <div class="col-12 text-end py-0" id="edit_info" style="font-size: 10px;"></div>
+                                <div class="col-12 text-end py-0" id="edit_info" style="font-size: 12px;"></div>
                             </div>
                         </div>
     

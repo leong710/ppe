@@ -113,7 +113,6 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <!-- <div class="col-12 border px-3 rounded my-2" style="background-color: #D4D4D4;"> -->
             <div class="col_xl_12 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
                 <!-- NAV分頁標籤與統計 -->
                 <div class="col-12 pb-0 px-0">
@@ -157,7 +156,6 @@
                                             <option value="" selected >-- 請先建立除汙儲存點 --</option>
                                         <?php } ?>
                                     </select>
-                                    <!-- <button type="submit" class="btn btn-outline-secondary">選定</button> -->
                                 </div>
                             </form>
                         </div>
@@ -166,8 +164,6 @@
                             <?php if(($sys_role <= 2) && !empty($buy_ty)){ ?>    
                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                             <?php } ?>
-                            <!-- <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
-                                <i class="fa fa-info-circle" aria-hidden="true"></i> 安量說明</a> -->
                             <a class="btn btn-secondary" href="index.php"><i class="fa fa-caret-up" aria-hidden="true"></i> 回總表</a>
                         </div>
                     </div>
@@ -386,10 +382,6 @@
                                             <td><20</td>
                                             <td>不備安全庫存</td>
                                         </tr>
-        
-        
-           
-        
                                     </tbody>
                                 </table>
                                 * 範例：(90x40%)+(60x20%)+(60x10%)+(90x10%)+(90x20%)=81</br></br>

@@ -25,10 +25,8 @@
                 echo "<script>alert('trade領用申請單 -- 刪除失敗!!');</script>";
             }
         }
-        // 更新log
-        // if(isset($_POST["delete_log"])){
-        //     updateLogs($_REQUEST);
-        // }
+
+        // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -159,7 +157,6 @@
                     </div>
                 </div>
     
-                <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 分頁標籤 -->
                     <nav>
@@ -174,7 +171,6 @@
                     </nav>
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -502,7 +498,7 @@
     var action      = '<?=$action;?>';                               // Edit選染 // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                  // 第一頁：info modal function 引入catalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                 // Edit選染 // 引入trade_row資料作為Edit
-    // var json        = JSON.parse('<=json_encode($logs_arr)?>');      // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    // var json        = JSON.parse('<=json_encode($logs_arr)?>');   // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json        = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id          = '<?=$trade_row["id"]?>';                       // 鋪設logs紀錄
 

@@ -416,71 +416,7 @@
             return $process_result;
         
         }else{      // 開新紀錄 --- 先暫停
-        echo "<script>alert('process_ptreceive:暫停開新紀錄~')</script>";             // deBug
-            //     // step-1 先把local資料叫出來，抓取low_level數量
-                    
-            //     $row_local = select_ptlocal($p_local);                                  // call fun get local's info & low_level
-                
-            //     if(!empty($row_local)){                                  // 有取得local資料
-            //         $row_lowLevel = json_decode($row_local["low_level"]);                   // 將local.low_level解碼
-            //         if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }  // 將物件轉成陣列
-            //         if(isset($row_lowLevel[$cata_SN])){
-            //             $low_level = $row_lowLevel[$cata_SN];                           // 取得該目錄品項的安全存量值
-            //         }else{
-            //             $low_level = 0;                                                 // 未取得local資料時，給他一個0
-            //         }
-            //     }else{
-            //         $low_level = 0;                                                     // 未取得local資料時，給他一個0
-            //     }
-
-            //     switch($idty){
-            //         case "0":       // 0完成
-            //         case "2":       // 2退貨/待收
-            //         case "3":       // 3取消/入帳
-            //             // echo "<script>alert('0完成2退貨3取消:$p_amount')</script>";   // deBug
-            //             $cama = array(
-            //                 'icon'  => ' + ',     // log交易訊息中加減號
-            //                 'title' => ' 入帳 '   // log交易訊息 動作
-            //             );
-            //             break;
-            //         case "1":       // 1送出/待收
-            //             // echo "<script>alert('1待收:$p_amount')</script>";            // deBug
-            //             $cama = array(
-            //                 'icon'  => ' - ',     // log交易訊息中加減號
-            //                 'title' => ' 扣帳 '   // log交易訊息 動作
-            //             );
-            //             break;
-            //         default:
-            //             $cama = array(
-            //                 'icon'  => ' ? ',     // log交易訊息中加減號
-            //                 'title' => ' 錯誤 '   // log交易訊息 動作
-            //             );
-            //             return;
-            //     }
-
-            //     $lot_num        = "9999-12-31";                                          // 0.批號/效期
-            //     $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;      // 0.備註
-            //         // // $stock_remark .= $stk_row_list[$i]['stock_remark'];
-                
-            //     // step-2 建立新紀錄到資料庫
-            //     $store_ptstock_arr = array (
-            //         "p_local"      => $p_local, 
-            //         "cata_SN"      => $cata_SN, 
-            //         "low_level"    => $low_level, 
-            //         "p_amount"     => $p_amount, 
-            //         "stock_remark" => $stock_remark, 
-            //         "pno"          => $pno, 
-            //         "po_no"        => $po_no, 
-            //         "lot_num"      => $lot_num, 
-            //         "updated_user" => $updated_user
-            //     );
-            //     try {
-            //         store_ptstock($store_ptstock_arr);
-            //         $process_result['result'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " +新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 True: id - amount
-            //     }catch(PDOException $e){
-            //         echo $e->getMessage();
-            //         $process_result['error'] = $row_local['fab_title'] . "_" . $row_local['local_title'] . " -新 ". $cata_SN . $cama['icon'] . $p_amount . " = " . $p_amount;                   // 回傳 False: - id
-            //     }
+            echo "<script>alert('process_ptreceive:暫停開新紀錄~')</script>";             // deBug
         }
         return $process_result;
     }
@@ -493,19 +429,6 @@
     function show_ptstock($request){
         $pdo = pdo();
         extract($request);
-        // $sql = "SELECT _stk.*, _stk.id AS stk_id ,_cata.PIC
-        //                 , SUM(amount) as total_amount
-        //                 , CASE WHEN SUM(amount) < standard_lv THEN 'true' ELSE 'false' END as low_lv
-        //                 ,_l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark
-        //                 ,_cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
-        //         FROM `pt_stock` _stk 
-        //         LEFT JOIN pt_local _l ON _stk.local_id = _l.id 
-        //         LEFT JOIN _fab _f ON _l.fab_id = _f.id 
-        //         LEFT JOIN _site _s ON _f.site_id = _s.id 
-        //         LEFT JOIN _cata ON _stk.cata_SN = _cata.SN 
-        //         LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no 
-        //         WHERE _cata.cate_no = 'J' 
-        //          ";
         $sql = "SELECT _stk.*, _stk.id AS stk_id ,_cata.PIC
                         , _stk2.total_amount
                         , CASE WHEN _stk2.total_amount < _stk.standard_lv THEN 'true' ELSE 'false' END as low_lv
@@ -566,12 +489,10 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
 
     }
@@ -708,7 +629,6 @@
     function show_ptreceive_yy(){
         $pdo = pdo();
         $sql = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y') as yy 
-                -- SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') as ym 
                 FROM pt_receive 
                 ORDER BY yy DESC";
         $stmt = $pdo->prepare($sql);

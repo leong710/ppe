@@ -21,7 +21,6 @@
                 var stopUpload = iframeDocument.getElementById('stopUpload');
 
                 if (excel_json) {
-                    // console.log(excel_json.value);
                     document.getElementById('excelTable').value = excel_json.value;
 
                 } else if(stopUpload) {
@@ -33,13 +32,11 @@
 
     })
 
-
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
         document.querySelector('#key_word').value = '';
     }
-
     // fun3-3：吐司顯示字條 // init toast
     function inside_toast(sinn){
         var toastLiveExample = document.getElementById('liveToast');
@@ -48,7 +45,6 @@
         toast_body.innerHTML = sinn;
         toast.show();
     }
-
 
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_pno_info').empty();   // 清除model功能
@@ -112,7 +108,6 @@
             }
         })
     }
-
     // 切換上架/下架開關
     let flagBtns = [...document.querySelectorAll('.flagBtn')];
     for(let flagBtn of flagBtns){
@@ -132,7 +127,6 @@
                 success: function(res){
                     let res_r = res["result"];
                     let res_r_flag = res_r["flag"];
-                    // console.log(res_r_flag);
                     if(res_r_flag == 'Off'){
                         e.target.classList.remove('btn-success');
                         e.target.classList.add('btn-warning');
@@ -150,16 +144,14 @@
                 error: function(e){
                     swal_action = 'error';
                     swal_content += res_r_flag+' 套用失敗';
-                    console.log("error");
+                    console.log("error",e);
                 }
             });
 
             // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
-
         }
     }
-    
     // 20231114_綁定編輯完成事件    // contenteditable="true" table可編輯、儲存功能
     var rows = document.getElementsByTagName("td");
         Array.from(rows).forEach(function(row) {
@@ -212,31 +204,28 @@
     function updateCellValue(cell, newValue, _request) {
         cell.innerHTML = newValue;
         $.ajax({
-                url:'api.php',
-                method:'post',
-                async: false,                                           // ajax取得數據包後，可以return的重要參數
-                dataType:'json',
-                data:{
-                    function: 'update_price',           // 操作功能
-                    _id: _request['rowId'],
-                    _quoteYear: _request['rowName'],
-                    _price: _request['newValue'],
-                    // json_request: JSON.stringify({_request})
-                },
-                success: function(res){
-                    // swal_content += res_r_flag+' 套用成功';
-                    swal_action = 'success';
-                    update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
-                },
-                error: function(e){
-                    // swal_content += res_r_flag+' 套用失敗';
-                    swal_action = 'error';
-                    console.log("error");
-                }
-            });
-            var sinn = 'mySQL寫入 - ( '+_request['rowName']+' : '+_request['newValue']+' ) <b>'+ swal_action +'</b>&nbsp!!';
-            inside_toast(sinn);
-
+            url:'api.php',
+            method:'post',
+            async: false,                                           // ajax取得數據包後，可以return的重要參數
+            dataType:'json',
+            data:{
+                function: 'update_price',           // 操作功能
+                _id: _request['rowId'],
+                _quoteYear: _request['rowName'],
+                _price: _request['newValue'],
+                // json_request: JSON.stringify({_request})
+            },
+            success: function(res){
+                swal_action = 'success';
+                update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
+            },
+            error: function(e){
+                swal_action = 'error';
+                console.log("error",e);
+            }
+        });
+        var sinn = 'mySQL寫入 - ( '+_request['rowName']+' : '+_request['newValue']+' ) <b>'+ swal_action +'</b>&nbsp!!';
+        inside_toast(sinn);
     }
     // tableFun_5.更新Catch中的數值
     function update_catchValue(_request){
@@ -257,8 +246,6 @@
             }
         }
     }
-
-    
     // 20231129 合併：excel mode function
     function excel_module(to_module){     // 上傳Excel模式
         $('#excel_modal_action, #excel_example').empty();     // 清除model功能
@@ -316,7 +303,6 @@
             // console.log('找不到 < ? > 元素');
         }
     };
-
     // 20231128_下載Excel
     function submitDownloadExcel(to_module) {
         // 定義要抓的key=>value
@@ -344,18 +330,14 @@
         for(var i=0; i < window[to_module].length; i++){
             sort_listData[i] = {};      // 建立物件
             Object.keys(item_keys).forEach(function(i_key){
-                // console.log(item_keys[i_key]+"：" ,listData[i][item_key]);
                 sort_listData[i][item_keys[i_key]] = window[to_module][i][i_key];
             })
         }
-        // console.log('sort_listData:', sort_listData);
         var htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
-        // console.log(listData);
     }
 
     $(document).ready(function () {
-        
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#pno_list').DataTable({
             "autoWidth": false,

@@ -138,16 +138,14 @@
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
-                // console.log("push_mapp -- success：",res);
                 mapp_result_check = true; 
             },
             error: function(res){
-                // console.log("push_mapp -- error：",res);
+                console.log("push_mapp -- error：",res);
                 // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
                 mapp_result_check = false;
             }
         });
-        console.log("mapp_emp_id:", user_emp_id);
         return mapp_result_check;
     }
 

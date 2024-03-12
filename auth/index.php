@@ -92,7 +92,6 @@
                 </div>
                 <div class="col-md-6 head">
                     <ul class="nav nav-pills">
-                    <!-- <ul class="nav nav-tabs"> -->
                         <li class="nav-item">
                             <a class="nav-link active" href="#" title="none" id="none"><i class="fa-solid fa-circle-user"></i>&nbspPM名單</a>
                         </li>
@@ -520,14 +519,13 @@
             return false;
         } 
         $.ajax({
-            // url:'http://localhost/hrdb/api/index.php',
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
+            method:'post',
             dataType:'json',
             data:{
-                functionname: 'search',                     // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',
-                search: search                              // 查詢對象key_word
+                functionname: 'search',                         // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',   // ppe
+                search: search                                  // 查詢對象key_word
             },
             success: function(res){
                 var res_r = res["result"];

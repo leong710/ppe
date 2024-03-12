@@ -168,17 +168,13 @@
                             </table>
                         </div>
                         <hr>
-                        <div style="font-size: 6px;" class="text-end">
+                        <div style="font-size: 12px;" class="text-end">
                             器材訊息text-end
                         </div>
                     </div>
                 </div>
             </div>
             <hr>
-            <!-- 尾段：debug訊息 -->
-            <?php if(isset($_REQUEST["debug"])){
-                include("debug_board.php"); 
-            } ?>
         </div>
     </div>
     <!-- 彈出畫面說明模組 PR開單確認-->

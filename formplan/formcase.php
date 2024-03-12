@@ -84,12 +84,9 @@
 
                 <form action="" method="post">
                     <input type="hidden" name="id" id="formcase_delete_id">
-                    <?php if($sys_role == 0){ ?>
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="modal_delect_btn"></span>
-                    <?php } ?>
+                    &nbsp&nbsp&nbsp&nbsp&nbsp
+                    <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                 </form>
-
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
@@ -183,7 +180,6 @@
             if(row['id'] == row_id){
                 // step2.鋪畫面到module
                 Object(window[to_module+'_item']).forEach(function(item_key){
-                    // console.log(item_key, row[item_key]);
                     if(item_key == 'id'){
                         document.querySelector('#'+to_module+'_delete_id').value = row['id'];       // 鋪上delete_id = this id.no for delete form
                         document.querySelector('#'+to_module+'_edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form

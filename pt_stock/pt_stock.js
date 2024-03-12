@@ -79,11 +79,10 @@
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
-                // console.log("push_mapp -- success：",res);
                 mapp_result_check = true; 
             },
             error: function(res){
-                // console.log("push_mapp -- error：",res);
+                console.log("push_mapp -- error：",res);
                 // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
                 mapp_result_check = false;
             }
@@ -156,7 +155,6 @@
                             add_item(ikey, item_amount, 'off');
                         })
                     }else{
-                        // console.log(item_key, row[item_key]);
                         document.querySelector('#edit_'+to_module+' #'+item_key).value = row[item_key]; 
                     }
                 })
@@ -235,12 +233,10 @@
                 _amount : _request['newValue']
             },
             success: function(res){
-                // swal_content += res_r_flag+' 套用成功';
                 swal_action = 'success';
                 update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
             },
             error: function(e){
-                // swal_content += res_r_flag+' 套用失敗';
                 swal_action = 'error';
                 console.log("error");
             }
@@ -273,14 +269,12 @@
                     var stk_id   = cata_SN_arr[1];
 
                 let pay = Number(csa[key]['pay']);
-                // let l_key = row['local_id'] +'_'+ key;
                 let l_key = stk_id +'_'+ cata_SN;
                 if(receiveAmount[l_key]){
                     receiveAmount[l_key] += pay;
                 }else{
                     receiveAmount[l_key] = pay;
                 }
-                // console.log(l_key, pay)
             })
         });
         // 選染到Table上指定欄位
@@ -479,8 +473,6 @@
         // }
         if (_inplan && (sys_role <= 2) && (check_yh_list_num == '0')) {
             let message  = '*** <b>'+case_title+'</b> 開放填寫時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp請各廠窗口務必在指定時間前完成填寫&nbsp~&nbsp';
-            // message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp';
-            // message += '<button type="button" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>';
             alert( message, 'warning')
         }
     })

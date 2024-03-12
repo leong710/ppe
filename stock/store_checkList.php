@@ -69,7 +69,6 @@
 
         // fun-2.更新現有庫存之安全存量
         case "update_stock_stand_lv":        // 編輯
-
             // step-1.把local中的low_level安全水位叫出來
                 $select_local = select_local($_REQUEST);
                 if(empty($select_local)){                                       // 查無資料時返回指定頁面
@@ -150,6 +149,7 @@
         console.log("mapp_emp_id:", user_emp_id);
         return mapp_result_check;
     }
+
     $(document).ready(function () {
         
         if(swal_json.length != 0){

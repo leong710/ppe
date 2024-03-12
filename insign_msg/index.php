@@ -174,8 +174,8 @@
         var Today = new Date();
         const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');             // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
         const thisTime = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0');                                       // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
-        // console.log('thisNow:', thisToday, thisTime);
-    // 子功能
+
+        // 子功能
         // 在任何地方啟用工具提示框
         $(function () {
             $('[data-toggle="tooltip"]').tooltip();

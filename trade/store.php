@@ -16,20 +16,10 @@
 
             case "edit":        // 編輯
                 $swal_json = update_trade($_REQUEST);
-                // if($_REQUEST["form_type"] == "export"){             // export=出庫，需要執行預扣庫存
-                //     $swal_json = update_trade($_REQUEST);
-                // }else if($_REQUEST["form_type"] == "import"){       // import=入庫，不須執行預扣
-                //     $swal_json = update_restock($_REQUEST);
-                // }
                 break;
 
             case "sign":        // 簽核
                 $swal_json = sign_trade($_REQUEST);
-                // if($form_type == "export"){             // export=出庫，需要執行預扣庫存
-                //     $swal_json = sign_trade($_REQUEST);
-                // }else if($form_type == "import"){       // import=入庫，不須執行預扣
-                //     $swal_json = sign_restock($_REQUEST);
-                // }
                 break;
 
             default:            // 預定失效 

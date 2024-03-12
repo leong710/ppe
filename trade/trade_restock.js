@@ -61,8 +61,6 @@
                 
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
-                // var input_cb = '<input type="checkbox" name="item['+cata_SN+','+stk_id+']" id="'+cata_SN_unity+'" class="select_item" value="'+add_amount_unity+'" checked onchange="check_item(this.id)" >';
-                // var add_cata_item = '<tr id="item_'+cata_SN_unity+'"><td>'+input_cb+'&nbsp'+stk_id+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+'</td><td>'+cata['unit']+'</td><td>'+arr_po_no+'</td><td>'+arr_lot_num+'</td></tr>';
                     var input_cb = '<input type="checkbox" name="item['+cata['SN']+',]" id="'+cata['SN']+'" class="select_item" value="'+add_amount_unity+',," checked onchange="check_item(this.id)">';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+arr_amount+' / '+cata['unit']+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
@@ -93,9 +91,6 @@
                 var check_item_return = check_item(cata_SN, 0);    // call function 查找已存在的項目，並予以清除。
                 Object(catalogs).forEach(function(cata){          
                     if(cata['SN'] === cata_SN){
-                        // var input_cb = '<input type="checkbox" name="item['+cata['SN']+'][need]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+'" checked onchange="check_item(this.id)">';
-                        // var collect_cb = '<input name="cata_SN_amount['+cata['SN']+'][pay]" class="unblock" value="'+add_amount+'">';
-                        // var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+collect_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
                         var input_cb = '<input type="checkbox" name="item['+cata['SN']+',]" id="'+cata['SN']+'" class="select_item" value="'+add_amount+',," checked onchange="check_item(this.id)">';
                         var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td>'+cata['SN']+'</td><td>'+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount+' / '+cata['unit']+'</td></tr>';
                         $('#shopping_cart_tbody').append(add_cata_item);
@@ -149,7 +144,6 @@
                 }
             }
         }
-        // check_shopping_count();
         return false;       // false = 沒找到數值
     }
 
@@ -190,19 +184,16 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',    // 正式
-            // url:'http://tw059332n.cminl.oa/hrdb/api/index.php',     // 開發
-            method:'get',
+            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            method:'post',
             dataType:'json',
             data:{
-                // functionname: 'search',                          // 操作功能
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
                 var obj_val = res["result"];
-
                 // 將結果進行渲染
                 if (obj_val !== '') {
                     // 搜尋申請人emp_id
@@ -252,22 +243,11 @@
             "out_user_id"    : "out_user_id/發貨人emp_id", 
             "form_type"      : "form_type/工號",
             "item"           : "item",
-            // "cname"          : "cname/申請人姓名",
-            // "extp"           : "extp/分機",
-            // "local_id"       : "local_id/領用站點",
-            // "ppty"           : "** ppty/需求類別",
-            // "omager"         : "** omager/上層主管工號",
-            // "receive_remark" : "receive_remark/用途說明",
-            // "created_emp_id" : "created_emp_id/開單人工號",
-            // "created_cname"  : "created_cname/開單人姓名",
-            // "idty"           : "idty",
             "id"             : "id",
-            // "cata_SN_amount" : "** cata_SN_amount"
             // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
         Object.keys(trade_item).forEach(function(trade_key){
-
             if(trade_key == 'item'){      //item 購物車
                 var trade_row_cart = JSON.parse(trade_row[trade_key]);
                 Object.keys(trade_row_cart).forEach(function(cart_key){
@@ -301,11 +281,6 @@
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
                     '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
-                    // '<?php if($sys_id_role == 0){ ?>' + '<td><form action="" method="post">'+
-                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    //     `<input type="hidden" name="id" value="` + id + `";>` +
-                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    // '</form></td>' + '<?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled

@@ -11,7 +11,6 @@
         "SPEC"          : "SPEC/規格"
         // "scomp_no"      : "scomp_no/供應商"
     };    // 定義要抓的key=>value
-
     // fun-1.鋪info畫面
     function info_module(to_module, row_SN){
         // step1.將原排程陣列逐筆繞出來
@@ -32,7 +31,6 @@
             }
         })
     }
-    
 // // // catalog_modal 篩選 function
     // // <!-- 有填數量自動帶入+號按鈕，沒數量自動清除+號按鈕的value --> 20230816 修正手動輸入超過限購，add_btn的value會只吃最大值
     function add_cart_btn(cata_SN, add_amount){
@@ -45,7 +43,6 @@
             }
         }
     }
-
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
@@ -89,13 +86,10 @@
                 if(action == 'create'){
                     inside_toast(sinn);
                 };
-        
             }
-            
         }
         check_shopping_count();        // 清算購物車件數
     }
-
     // 查找購物車清單已存在的項目，並予以清除
     function check_item(cata_SN, swal_time) {
         // swal_time = 是否啟動swal提示 ： 0 = 不啟動
@@ -125,7 +119,6 @@
         // check_shopping_count();
         return false;       // false = 沒找到數值
     }
-
     // 清算購物車件數，顯示件數，切換申請單按鈕
     function check_shopping_count(){
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
@@ -138,7 +131,6 @@
             nav_review_btn.classList.add('disabled');           // 購物車等於0，disabled
         }
     }
-
 // // // searchUser function 
     // 第一-階段：search Key_word
     function search_fun(search){
@@ -164,12 +156,12 @@
 
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
+            method:'post',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -240,7 +232,6 @@
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
                         if(obj_val){ 
-                            // console.log(fun,'obj_val:', obj_val);                           
                             $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             $("#omager").addClass("autoinput");
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
@@ -262,17 +253,16 @@
         })
         $("body").mLoading("hide");
     }
-
     // fun3-1A 用上層主管工號查詢簽核代理人
     function showDelegation(search){
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
+            method:'post',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showDelegation',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -284,9 +274,7 @@
                     document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
                     $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
                     $("#omager").addClass("autoinput");
-
                     document.getElementById('in_signName').value = obj_val.DEPUTYCNAME;             // 將欄位帶入待簽人姓名                          
-
                 }
             },
             error(err){
@@ -294,7 +282,6 @@
             }
         })
     }
-
     // fun3-2：omager上層主管：移除單項模組
     $('#omager_badge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
@@ -311,7 +298,6 @@
         var toast_body = document.getElementById('toast-body');
         toast_body.innerHTML = sinn;
         toast.show();
-
     }
 // // // searchUser function 
 
@@ -374,19 +360,11 @@
             forTable.innerHTML += 
                 '<tr><td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
                     '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
-                    // '<?php if($_SESSION[$sys_id]["role"] == 0){ ?><td>' + '<form action="" method="post">'+
-                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    //     `<input type="hidden" name="id" value="` + id + `";>` +
-                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    // '</form>' + '</td><?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
-
         action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
-
     }
-
 // // // show 年領用量與建議值
     function show_myReceives(){
         // 彙整出SN年領用量
@@ -427,7 +405,6 @@
         let sinn = '<b>** 自動帶入 年領用累計 與 建議值 ... 完成</b>~';
         inside_toast(sinn);
     }
-
 
 // 20231128 以下為上傳後"iframe"的部分
     // 阻止檔案未上傳導致的錯誤。
@@ -485,9 +462,7 @@
             })
         })
         $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
-
     }
-
 
     $(function () {
         // 在任何地方啟用工具提示框
@@ -568,7 +543,6 @@
         let amounts = [...document.querySelectorAll('.amount')];
         for(let amount of amounts){
             amount.onchange = e => {
-            // amount.onblur = e => {
                 let amount_id = e.target.id;
                 if(amount.value == ''){
                     // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用

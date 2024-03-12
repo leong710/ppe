@@ -82,14 +82,10 @@
             }
 
             $my_receive_lists = $stmt->fetchAll();
-            // if($fun == 'inSign'){  
-            //     echo "</br>{$fun}/{$is_emp_id}：".$sql."</br><hr>";
-            // }
             return $my_receive_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$fun}/{$is_emp_id}：".$sql."</br><hr>";
         }
     }
     // 20231019 在index表頭顯示allFab區域       // 已包在 4 我的轄區中的fab_id中
@@ -125,12 +121,10 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
 
     }
@@ -505,7 +499,6 @@
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_omager($emp_id){
         $pdo = pdo_hrdb();
-        // extract($request);
         $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
                 FROM STAFF u
                 LEFT JOIN STAFF s ON u.omager = s.emp_id 
@@ -524,7 +517,6 @@
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_FAB_omager($sign_code){
         $pdo = pdo_hrdb();
-        // extract($request);
         $sql = "SELECT _d.OSHORT, _d.OFTEXT, _d.OMAGER, CONCAT(_s.NACHN, _s.VORNA) AS cname
                 FROM [HCM_VW_DEPT08] _d
                 LEFT JOIN [HCM_VW_EMP01_hiring] _s ON _d.OMAGER = _s.PERNR

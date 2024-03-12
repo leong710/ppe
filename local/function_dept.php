@@ -4,11 +4,6 @@
     // 20231004-改用msSQL-hrDB -R
     function show_dept(){
         $pdo = pdo_hrdb();
-        // $sql = "SELECT dp.*, d1.sign_code AS up_sign_code, d1.sign_dept AS up_sign_dept, u.cname AS dept_sir
-        //         FROM DEPT dp
-        //         LEFT JOIN DEPT d1 ON dp.up_dep = d1.sign_code 
-        //         LEFT JOIN STAFF u ON dp.emp_id = u.emp_id 
-        //         ORDER BY dp.sign_code ASC ";
         $sql = "SELECT DISTINCT dp.* , d1.OSSTEXT AS up_sign_dept , u.cname AS dept_sir
                   FROM DEPT dp
                   LEFT JOIN HCM_VW_DEPT08 d1 ON dp.up_dep = d1.OSDEPNO

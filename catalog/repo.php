@@ -173,7 +173,7 @@
                         </div>
                     </div>
 
-                    <div style="font-size: 6px;" class="text-end">
+                    <div style="font-size: 12px;" class="text-end">
                         updated_at：<?php echo $catalog["updated_at"];?> / by：<?php echo $catalog["updated_user"];?>
                     </div>
                 </div>
@@ -268,13 +268,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title"><span id="modal_action"></span>&nbsp儲存品</h4><span id="modal_sup"></span>
-
+                    &nbsp&nbsp&nbsp&nbsp&nbsp
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="modal_delect_btn"></span>
-                        <?php } ?>
+                        <span id="modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -411,7 +408,6 @@
     var stock       = <?=json_encode($catalogStocks);?>;                    // 引入catalogStocks資料
     var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
     var swal_json   = <?=json_encode($swal_json);?>;                        // 引入swal_json值
-
 
     // swl function    
     if(swal_json.length != 0){
@@ -570,7 +566,5 @@
     }
 
 </script>
-
-<!-- <script src="repo.js?v=<=time();?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

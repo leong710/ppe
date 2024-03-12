@@ -194,12 +194,10 @@
                 _amount: _request['newValue']
             },
             success: function(res){
-                // swal_content += res_r_flag+' 套用成功';
                 swal_action = 'success';
                 update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
             },
             error: function(e){
-                // swal_content += res_r_flag+' 套用失敗';
                 swal_action = 'error';
                 console.log("error");
             }
@@ -241,14 +239,11 @@
         for(var i=0; i < listData.length; i++){
             sort_listData[i] = {};      // 建立物件
             Object.keys(stocks_item_keys).forEach(function(item_key){
-                // console.log(stocks_item_keys[item_key]+"：" ,listData[i][item_key]);
                 sort_listData[i][stocks_item_keys[item_key]] = listData[i][item_key];
             })
         }
-        // console.log('sort_listData:', sort_listData);
         var htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById('htmlTable').value = htmlTableValue;
-        // console.log(listData);
     }
 
 // // // show 年領用量與建議值
@@ -264,7 +259,6 @@
                 }else{
                     receiveAmount[l_key] = pay;
                 }
-                // console.log(l_key, pay)
             })
         });
         // 選染到Table上指定欄位
@@ -308,8 +302,6 @@
 
         if (_inplan && (sys_role <= 2) && (check_yh_list_num == '0')) {
             let message  = '*** '+ thisYear +'_'+ half +'年度 <b>'+case_title+'</b> 開放填寫時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp請各廠窗口務必在指定時間前完成填寫&nbsp~&nbsp';
-            // message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp';
-            // message += '<button type="button" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>';
             alert( message, 'warning')
         }
     })

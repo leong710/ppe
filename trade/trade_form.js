@@ -194,12 +194,12 @@
         } 
         $.ajax({
             url:'http://tneship.cminl.oa/hrdb/api/index.php',
-            method:'get',
+            method:'post',
             dataType:'json',
             data:{
-                functionname: 'search',                     // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                              // 查詢對象key_word
+                functionname: 'search',                         // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',   // ppe
+                search: search                                  // 查詢對象key_word
             },
             success: function(res){
                 var res_r = res["result"];
@@ -281,17 +281,10 @@
             forTable.innerHTML += 
                 '<tr>' + '<td>' + json[i].step + '</td><td>' + json[i].cname + '</td><td>' + json[i].datetime + '</td><td>' + json[i].action + 
                     '</td><td style="text-align: left; word-break: break-all;">' + json[i].remark + '</td>' +
-                    // '<?php if($_SESSION[$sys_id]["role"] == 0){ ?>' + '<td><form action="" method="post">'+
-                    //     `<input type="hidden" name="log_id" value="` + [i] + `";>` +
-                    //     `<input type="hidden" name="id" value="` + id + `";>` +
-                    //     `<input type="submit" name="delete_log" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">` +
-                    // '</form></td>' + '<?php } ?>' +
                 '</tr>';
         }
         document.getElementById('logs_div').classList.remove('unblock');           // 購物車等於0，disabled
-
         action = 'create';  // edit表單鋪設完畢後，恢復成create狀態
-
     }
 
     $(function () {

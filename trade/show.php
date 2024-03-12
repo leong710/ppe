@@ -213,7 +213,6 @@
                     </div>
                 </div>
     
-                <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
@@ -405,7 +404,7 @@
     var action      = '<?=$action;?>';                                  // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                     // 引入catalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                    // 引入trade_row資料作為Edit
-    // var json          = JSON.parse('<=json_encode($logs_arr)?>');             // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    // var json          = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json        = <?=json_encode($logs_arr)?>;                      // 鋪設logs紀錄 240124-改去除JSON.parse
 
 </script>

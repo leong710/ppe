@@ -121,7 +121,6 @@
     function show_allReceive_yy(){
         $pdo = pdo();
         $sql = "SELECT DISTINCT DATE_FORMAT(created_at, '%Y') as yy 
-                -- SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') as ym 
                 FROM _receive 
                 ORDER BY yy DESC";
         $stmt = $pdo->prepare($sql);

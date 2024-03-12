@@ -2,11 +2,6 @@
 // // // 查詢待簽名單for send MAPP
     function inSign_list(){
         $pdo = pdo();
-        // $sql = "SELECT _r.in_sign AS emp_id, _r.in_signName AS cname, COUNT(_r.in_sign) AS waiting
-        //         FROM _receive _r
-        //         WHERE _r.in_sign IS NOT NULL
-        //         GROUP BY _r.in_sign
-        //         HAVING _r.in_sign IS NOT NULL ";
         $sql = "SELECT emp_id, cname, SUM(issue_waiting) AS issue_waiting, SUM(receive_waiting) AS receive_waiting, SUM(issue_waiting + receive_waiting) AS total_waiting
                 FROM (
                         SELECT _i.in_sign AS emp_id, _i.in_signName AS cname, COUNT(_i.in_sign) AS issue_waiting, 0 AS receive_waiting

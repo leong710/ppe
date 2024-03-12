@@ -56,9 +56,6 @@
     function sort_check_list($request){         // 庫存點檢
         $pdo = pdo();
         extract($request);
-        // $sql = "SELECT *
-        //         FROM `checked_log`
-        //         WHERE checked_log.fab_id = ? AND checked_log.checked_year = ? AND checked_log.half = ? ";
         $sql = "SELECT form_type, count(form_type) AS cunt
                 FROM `checked_log` cl
                 WHERE cl.checked_year = ? AND cl.half = ? AND cl.fab_id IN ({$sfab_id})
@@ -83,7 +80,7 @@
             $fab_id = "0";
         }
         if(isset($_SESSION[$sys_id]["sfab_id"])){
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];                // 1-1.取sfab_id
+            $sfab_id = $_SESSION[$sys_id]["sfab_id"];            // 1-1.取sfab_id
         }else{
             $sfab_id = [];
         }
@@ -134,12 +131,10 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
 
     }

@@ -215,15 +215,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title"><span id="modal_action"></span>Part_NO料號</h4>
-
                     <form action="" method="post">
                         <input type="hidden" name="id" id="pno_delete_id">
-                        <?php if($sys_role <= 1){ ?>
-                            &nbsp&nbsp&nbsp&nbsp&nbsp
-                            <span id="modal_delect_btn"></span>
-                        <?php } ?>
+                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="modal_delect_btn" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                     </form>
-
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="" method="post">
@@ -310,15 +306,12 @@
                             <input type="hidden" name="page" value="<?php echo isset($_REQUEST['page']) ? $_REQUEST['page'] : '1' ;?>">
                             <input type="hidden" name="id" id="pno_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
-                            <?php if($sys_role <= 1){ ?>   
-                                <span id="modal_button"></span>
-                            <?php } ?>
+                                <span id="modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
-    
             </div>
         </div>
     </div>

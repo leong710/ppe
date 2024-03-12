@@ -3,7 +3,6 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDenied($sys_id);
-    // accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
     if(isset($_SERVER["HTTP_REFERER"])){
@@ -52,12 +51,6 @@
             $sfab_id_arr = explode(',', $sfab_id_str);
 
         // 1-2 組合查詢條件陣列
-            // if($sys_role <= 1 || $select_fab_id == "All"){
-            //     $sort_sfab_id = "All";                // All
-            // } else{
-            //     $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-            // }
-
         // 今年年份
             $thisYear = date('Y');
             // 半年分界線
@@ -233,7 +226,6 @@
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
                                     </select>
-                                    <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
                                 </div>
                             </form>
                         </div>
@@ -473,8 +465,6 @@
                 </div>
                 
                 <form action="store_checkList.php" method="post" onsubmit="this.ccOmager.disabled=false;">
-                <!-- <form action="debug_board.php" method="post" onsubmit="this.ccOmager.disabled=false;"> -->
-                <!-- <form action="" method="post"> -->
                     <div class="modal-body p-4">
                         <div class="col-12 rounded bg-light">
                             <div class="row">
@@ -533,13 +523,11 @@
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
                             <?php } ?>
-                            <!-- <input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存" > -->
                             <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
                 </form>
-    
             </div>
         </div>
     </div>

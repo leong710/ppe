@@ -82,7 +82,6 @@
     </style>
 </head>
 <body>
-    <!-- <div class="container"> -->
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_12 col-12 rounded p-3" style="background-color: rgba(255, 255, 255, .6);">
@@ -218,7 +217,6 @@
                                                             <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                         </form>
                                                     <?php }?>
-                                                
                                                 </td>
                                                 <!-- 第2格.Logs 紀錄內容 -->
                                                 <td>
@@ -321,7 +319,6 @@
             </div>
         </div>
     </div>
-    <!-- </div> -->
 
 <!-- 彈出畫面模組-API連線說明 -->
     <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">

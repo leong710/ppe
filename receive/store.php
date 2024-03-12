@@ -14,8 +14,8 @@
         case "sign":        // 簽核
             if($_REQUEST["idty"] == 5 && empty($_REQUEST["in_sign"])){
                 $swal_json = array(
-                    "fun" => "sign_receive",
-                    "action" => "error",
+                    "fun"     => "sign_receive",
+                    "action"  => "error",
                     "content" => '領用申請--轉呈失敗'
                 );
             }else{
@@ -67,7 +67,6 @@
             }
     
         }else{
-    
             location.href = url;
         }
         

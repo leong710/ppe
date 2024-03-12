@@ -182,7 +182,6 @@
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_omager($emp_id){
         $pdo = pdo_hrdb();
-        // extract($request);
         $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
                 FROM STAFF u
                 LEFT JOIN STAFF s ON u.omager = s.emp_id 
@@ -201,7 +200,6 @@
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_FAB_omager($sign_code){
         $pdo = pdo_hrdb();
-        // extract($request);
         $sql = "SELECT _d.OSHORT, _d.OFTEXT, _d.OMAGER, CONCAT(_s.NACHN, _s.VORNA) AS cname
                 FROM [HCM_VW_DEPT08] _d
                 LEFT JOIN [HCM_VW_EMP01_hiring] _s ON _d.OMAGER = _s.PERNR

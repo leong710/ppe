@@ -57,8 +57,6 @@
 
     $catalogs = show_catalogs();                    // 器材=All
 
-
-
     // 身份陣列
     $step_arr = [
         '0' => '填單人',
@@ -181,9 +179,7 @@
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
 
-    </style>
 </head>
 
 <body>
@@ -260,7 +256,6 @@
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post" >
-                    <!-- <form action="./zz/debug.php" method="post"> -->
                                             
                         <!-- 3.申請單成立 -->
                         <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -409,7 +404,7 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div style="font-size: 6px;" class="py-2 text-end">
+                                    <div style="font-size: 12px;" class="py-2 text-end">
                                         
                                     </div>
                                 </div>

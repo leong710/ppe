@@ -172,7 +172,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 py-1">
-                        <!-- <a href="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js">mo</a> -->
+
                     </div>
                 </div>
 
@@ -418,7 +418,6 @@
         // step-3.選染到Table上指定欄位
         Object.keys(reportAmount).forEach(key => {
             var value = reportAmount[key];
-            // console.log("key", key, value);
             $('#'+key).empty();
             if(key.includes("cost")){
                 $('#'+key).append('$'+value);
@@ -431,7 +430,6 @@
     function groupBy_flag(name){
         var checkbox = document.getElementById(name+"_flag_Switch");
         var flag = checkbox.checked ? "On" : "Off";
-        console.log(name, flag);
         var table_tr = document.querySelectorAll('.'+name+' > tbody > tr');
         if(flag=='Off'){
             table_tr.forEach(function(row){
@@ -439,7 +437,6 @@
             })
         }else{
             table_tr.forEach(function(row){
-                // console.log(row.children);
                 // 因為外層又包了一個Button導致目標下移
                 if(row.children[row.children.length-1].innerText != ""){
                     row.classList.remove('unblock');
@@ -468,7 +465,6 @@
             }
         }
         var htmlTableValue = JSON.stringify(rowData);
-        // console.log('htmlTableValue:', htmlTableValue);
         document.getElementById(name+'_htmlTable').value = htmlTableValue;
     }
 

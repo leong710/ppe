@@ -184,7 +184,6 @@
                                                 <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                         <?php } ?>
                                     </select>
-                                    <!-- <button type="submit" class="btn btn-outline-secondary">查詢</button> -->
                                 </div>
                             </form>
                         </div>
@@ -568,13 +567,13 @@
     // // // 開局導入設定檔
     var ptreceive     = <?=json_encode($ptreceives);?>;                       // 引入div_stocks資料
     var ptreceive_item = ["id", "emp_id", "cname", "fab_id", "ppty", "receive_remark", "item", "idty", "app_date", "updated_cname"]    // 定義要抓的key, "created_at", "updated_at",
-    var ptstock       = <?=json_encode($ptstocks);?>;                       // 引入div_stocks資料
+    var ptstock       = <?=json_encode($ptstocks);?>;                         // 引入div_stocks資料
     var swal_json     = [];                                                   // 引入swal_json值
     var action        = 'review';
     var _inplan       = '';
     
     // 先定義一個陣列(裝輸出資料使用)for 下載Excel
-    var listData      = <?=json_encode($ptreceives)?>;                      // 引入ptreceives資料
+    var listData      = <?=json_encode($ptreceives)?>;                        // 引入ptreceives資料
 
 </script>
 

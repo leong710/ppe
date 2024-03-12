@@ -26,10 +26,8 @@
                 echo "<script>alert('receive領用申請單 -- 刪除失敗!!');</script>";
             }
         }
-        // 更新log
-        // if(isset($_POST["delete_log"])){
-        //     updateLogs($_REQUEST);
-        // }
+
+        // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
     if(isset($_REQUEST["action"])){
@@ -177,7 +175,6 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
-                    <!-- <form action="debug.php" method="post"> -->
                     <form action="store.php" method="post">
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->

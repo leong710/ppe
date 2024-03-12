@@ -190,7 +190,6 @@
                     
                     <div class="col-12 col-md-6">
                         <div class="row">
-
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="SN" id="SN" class="form-control" required placeholder="編號" value="<?php echo $catalog["SN"];?>">
@@ -335,7 +334,7 @@
                             </div>
                         </div>
 
-                        <div style="font-size: 6px;" class="text-end">
+                        <div style="font-size: 12px;" class="text-end">
                             updated_at：<?php echo $catalog["updated_at"];?> / by：<?php echo $catalog["updated_user"];?>
                         </div>
                         

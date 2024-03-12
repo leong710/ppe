@@ -3,7 +3,6 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDenied($sys_id);
-    // accessDeniedAdmin();
 
     // CRUD
         if(isset($_POST["submit_cate"])){ store_category($_REQUEST); }  // 新增
@@ -82,15 +81,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><span id="modal_action"></span>分類</h5>
-
+                &nbsp&nbsp&nbsp&nbsp&nbsp
                 <form action="" method="post">
                     <input type="hidden" name="id" id="cate_delete_id">
-                    <?php if($_SESSION[$sys_id]["role"] == 0){ ?>
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="modal_delect_btn"></span>
-                    <?php } ?>
+                        <span id="modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                 </form>
-
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
@@ -142,9 +137,7 @@
                     <div class="text-end">
                         <input type="hidden" name="id" id="cate_edit_id" >
                         <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
-                            <span id="modal_button"></span>
-                        <?php } ?>
+                            <span id="modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
                         <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>

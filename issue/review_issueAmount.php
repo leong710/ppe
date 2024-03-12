@@ -105,7 +105,6 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <!-- <div class="col-11 border rounded p-4 my-2" style="background-color: #D4D4D4;"> -->
             <div class="col-12 rounded p-4" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表單表頭功能鍵 -->
                 <div class="row px-2">
@@ -177,7 +176,7 @@
                             </table>
                         </div>
                         <hr>
-                        <div style="font-size: 6px;" class="text-end">
+                        <div style="font-size: 12px;" class="text-end">
                             器材訊息text-end
                         </div>
                     </div>
@@ -247,7 +246,6 @@
                 rowData[i-1][headerCells[j].innerHTML] = cells[j].innerHTML.replace(/<br\s*\/?>/gi, "\r\n");
             }
         }
-        // console.log('rowData:', rowData);
         var htmlTableValue = JSON.stringify(rowData);
         document.getElementById('htmlTable').value = htmlTableValue;
     }

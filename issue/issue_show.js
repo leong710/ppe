@@ -25,12 +25,9 @@
                     if(issue_collect_role){
                             var amount_need = add_amount['need'];               // 加工：取需求量
                             var amount_need_length = amount_need.length;        // 加工：取需求量的長度
-                        // console.log(add_amount['need'], amount_need_length);
                         add_cata_item += '<td><input type="number" name="item['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
-                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value.length>'+amount_need_length+')value=value.slice(0,4)" >'+'</td></tr>';
-                        // add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+')value='+amount_need+'" >'+'</td></tr>';
                         add_cata_item += ' value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
-                        // add_cata_item = add_cata_item.replaceAll('disabled', '');       // 有發放權，就可以編輯數量
+                        // 有發放權，就可以編輯數量
                     }else{
                         add_cata_item += '<td>'+add_amount['pay']+'</td></tr>';
                     }
@@ -50,7 +47,6 @@
             if(swal_time > 0){
                 swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
             }
-            
         }
         check_shopping_count();
     }
@@ -114,7 +110,7 @@
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -164,17 +160,13 @@
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
             "extp"           : "extp/分機",
-            
             "plant"          : "plant/申請單位", 
             "dept"           : "dept/部門名稱", 
             "sign_code"      : "sign_code/部門代號", 
-
             "in_local"       : "in_local/領用站點",
             "ppty"           : "** ppty/需求類別",
             "omager"         : "omager/上層主管工號",
-            
             "issue_remark"   : "issue_remark/用途說明",
-
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",
@@ -229,7 +221,6 @@
             po_no_input += '<input type="text" name="po_no" id="po_no" class="form-control t-center" placeholder="請填PO編號" maxlength="12" required>';
         var sign_comm = document.getElementById('sign_comm');
 
-           
         if(po_no_form && (idty == 13)){
             $('#po_no_form').append(po_no_input);
             po_no_form.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
@@ -290,7 +281,6 @@
         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
         $("body").mLoading("hide");
         
-        // console.log("i'm push_mapp");
         return;
     }
     
@@ -322,7 +312,6 @@
         Object.keys(issue_row_cart).forEach(function(cart_key){
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cart_key){
-                    // add_cata_item += '\nSN： '+cata['SN']+'\npName： '+cata['pname']+'\nModel： '+cata['model']+'\nSize： '+cata['size']+'\nAmount： '+issue_row_cart[cart_key]+'\nUnit： '+cata['unit'];
                     add_cata_item += '\n'+i_cunt+'.SN:'+cata['SN']+' / '+cata['pname'];
                     add_cata_item += '\n'+i_cunt+'.型號:'+cata['model']+' / Size:'+cata['size']+' / 數量：'+issue_row_cart[cart_key]['need']+' '+cata['unit']+'\n';
                     i_cunt += 1;
@@ -330,11 +319,9 @@
                 }
             })
         })
-
         add_cata_item += '\n以上共：'+shopping_count +' 品項';
         add_cata_item += '\n文件連結：'+issue_url;
         
-        // console.log("i'm sort_issue");
         return add_cata_item;
     }
 

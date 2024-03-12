@@ -17,14 +17,11 @@
         try {
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll();
-            // echo "</br>success:{$sign_code}：".$sql."</br><hr>";
             return $coverFab_lists;
 
         }catch(PDOException $e){
             echo $e->getMessage();
-            // echo "</br>err:{$sign_code}：".$sql."</br><hr>";
         }
-
     }
     // 20240123 index fab_list：role <=1 ? All+all_fab : sFab_id+allMy => select_fab_id
     function show_fab_list($request){
@@ -90,7 +87,6 @@
         $sql .= " ORDER BY _s.id, _f.id, _l.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
-            // echo $sql;
             if($select_fab_id != "All" && $select_fab_id != "allMy"){
                 $stmt->execute([$select_fab_id]);
             }else{

@@ -441,14 +441,18 @@
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
-<script>    //選擇圖片函數
+<script>
+
+    //選擇圖片函數
     $(function(){
         $('#selectImg').click(function(){
             $('.cover').show();
         })
+
         $('.cancel').click(function(){
             $('.cover').hide();
         })
+
         $('.selected').click(function(){
             $.ajax({
                 url:'edit.php',
@@ -467,10 +471,7 @@
                 }
             })
         })
-
     })
-</script>
-<script>
 
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
@@ -575,7 +576,7 @@
         $('#selectScomp_noItem').empty();
         tags = [];                                                      // 清除tag名單陣列
         var pmLists = {};
-    //     // 第0階段：套用既有數據
+        // 第0階段：套用既有數據
         var intt_val_str = <?=json_encode($catalog["scomp_no"]);?>;         // 引入副PM資料            
         var intt_val = [];
         if(intt_val_str.length !== 0){                          // 過濾原本spm字串不能為空

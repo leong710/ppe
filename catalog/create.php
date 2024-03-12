@@ -414,7 +414,9 @@
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
-<script>    //選擇圖片函數
+<script>
+    
+    //選擇圖片函數
     $(function(){
         $('#selectImg').click(function(){
             $('.cover').show();
@@ -441,15 +443,13 @@
         })
 
     })
-</script>
-<!-- loading 畫面css 4/4-->
-<script>    // loading 畫面css 4/4
+
+    // loading 畫面css 4/4
     var show_loading_btn = document.querySelector("#show_loading_btn");     // 定義submit按鈕
     var show_loading = document.querySelector("#show_loading");             // 定義show_loading的觸發按鈕(已隱藏)
     show_loading_btn.addEventListener('click',function(){                   // submit按鈕增加監聽'點擊'行為
         // 確認整個表單元素是否驗證通過：
         var isFormPassing = document.forms[0].checkValidity();              // true或false
-        // console.log(isFormPassing);
         if(isFormPassing){                                                  // 表單驗證通過就...點擊show_loading的觸發按鈕(已隱藏)
             show_loading.click();
             // 擋滑鼠右鍵選單事件
@@ -467,9 +467,7 @@
             }
         }
     })
-</script>
-<script>
-
+ 
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();

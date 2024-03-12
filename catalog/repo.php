@@ -6,18 +6,9 @@
 
     // add module function --
         $swal_json = array();
-        // 新增add
-        if(isset($_POST["submit"])){
-            $swal_json = store_stock($_REQUEST);
-        }
-        // 編輯Edit
-        if(isset($_POST["edit_stock_submit"])){
-            $swal_json = update_stock($_REQUEST);
-        }
-        // 刪除delete
-        if(isset($_POST["delete_stock"])){
-            $swal_json = delete_stock($_REQUEST);
-        }
+        if(isset($_POST["submit"])){ $swal_json = store_stock($_REQUEST); }             // 新增add
+        if(isset($_POST["edit_stock_submit"])){ $swal_json = update_stock($_REQUEST); } // 編輯Edit
+        if(isset($_POST["delete_stock"])){ $swal_json = delete_stock($_REQUEST); }      // 刪除delete
 
     if(isset($_REQUEST["sn"])){ 
         $sort_sn = $_REQUEST["sn"];                     // 有帶查詢

@@ -10,12 +10,8 @@
     $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
     // 編輯功能
-        if(isset($_POST["deleteLog"])){                 // 刪除整大串
-            deleteLog($_REQUEST);
-        }
-        if(isset($_POST["delLog_item"])){               // 刪除小項
-            delLog_item($_REQUEST);
-        }
+        if(isset($_POST["deleteLog"])){ deleteLog($_REQUEST); }         // 刪除整大串
+        if(isset($_POST["delLog_item"])){ delLog_item($_REQUEST); }     // 刪除小項
 
     // 取得年參數
         if(isset($_REQUEST["_year"])){
@@ -42,7 +38,7 @@
     $row_lists_yy = show_log_GB_year();              // 取Logs所有年月作為篩選
 
     // <!-- 20211215分頁工具 -->
-        $per_total = count($row_lists);        //計算總筆數
+        $per_total = count($row_lists);     //計算總筆數
         $per = 5;                           //每頁筆數
         $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
         if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數

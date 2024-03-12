@@ -6,21 +6,16 @@
     // accessDeniedAdmin();
 
     // CRUD
-        if(isset($_POST["submit_cate"])){                // 新增
-            store_category($_REQUEST); }
-        if(isset($_POST["edit_cate"])){      // 更新
-            update_category($_REQUEST); }
-        if(isset($_POST["delete_cate"])){           // 刪除
-            delete_category($_REQUEST); }
+        if(isset($_POST["submit_cate"])){ store_category($_REQUEST); }  // 新增
+        if(isset($_POST["edit_cate"])){ update_category($_REQUEST); }   // 更新
+        if(isset($_POST["delete_cate"])){ delete_category($_REQUEST); } // 刪除
         // 調整flag ==> 20230712改用AJAX
 
     $categories = show_categories();
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
-<style>
-
-</style>
+ 
 <div class="container my-2">
     <div class="row justify-content-center">
         <div class="col-xl-12 col-10 border rounded bg-white p-4 ">

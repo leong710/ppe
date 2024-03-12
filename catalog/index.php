@@ -240,30 +240,30 @@
     var cata      = <?=json_encode($catalogs);?>;                                                   // 引入catalogs資料
     function submitDownloadExcel(to_module) {
         // 定義要抓的key=>value
-            if(to_module == "cata"){
-                var item_keys = {
-                    "cate_no"       : "分類編號",
-                    "SN"            : "器材編號", 
-                    "pname"         : "器材名稱", 
-                    "PIC"           : "器材照片", 
-                    "cata_remark"   : "敘述",
-                    "OBM"           : "品牌/製造商", 
-                    "model"         : "型號", 
-                    "size"          : "尺寸範圍", 
-                    "unit"          : "單位", 
-                    "SPEC"          : "規格", 
-                    "part_no"       : "料號", 
-                    "scomp_no"      : "供應商", 
-                    "buy_a"         : "安量倍數A", 
-                    "buy_b"         : "安量倍數B", 
-                    "flag"          : "開關",
-                    "updated_at"    : "最後更新",
-                    "created_at"    : "建檔日期", 
-                    "updated_user"  : "最後編輯"
-                };
-            }else{
-                var item_keys = {};
-            }
+        if(to_module == "cata"){
+            var item_keys = {
+                "cate_no"       : "分類編號",
+                "SN"            : "器材編號", 
+                "pname"         : "器材名稱", 
+                "PIC"           : "器材照片", 
+                "cata_remark"   : "敘述",
+                "OBM"           : "品牌/製造商", 
+                "model"         : "型號", 
+                "size"          : "尺寸範圍", 
+                "unit"          : "單位", 
+                "SPEC"          : "規格", 
+                "part_no"       : "料號", 
+                "scomp_no"      : "供應商", 
+                "buy_a"         : "安量倍數A", 
+                "buy_b"         : "安量倍數B", 
+                "flag"          : "開關",
+                "updated_at"    : "最後更新",
+                "created_at"    : "建檔日期", 
+                "updated_user"  : "最後編輯"
+            };
+        }else{
+            var item_keys = {};
+        }
 
         var sort_listData = [];         // 建立整理陣列
         for(var i=0; i < window[to_module].length; i++){

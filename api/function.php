@@ -3,10 +3,11 @@
     function accessDeniedAdmin(){
         session_start();
         if(!isset($_SESSION["AUTH"]) || $_SESSION["AUTH"]["role"] != 0){
-            header('location:../view/index.php');
+            header('location:../index.php');
             return;
         }
     }
+
     // 20221003 fun.1 隱藏或開啟 forAPI
     function changePlan_flag($request){
         $pdo = pdo();
@@ -38,7 +39,6 @@
         }
     }
 
-
     // // 第一階段：search頁帶入$_REQUEST
         function searchUser($request){
             $pdo = pdo();
@@ -60,6 +60,7 @@
                 echo $e->getMessage(); 
             }
         }
+
     // 第一階段：search頁帶入$_REQUEST  // 模糊搜尋
     function search($request){
         $pdo = pdo_hrdb();
@@ -78,6 +79,7 @@
             echo $e->getMessage(); 
         }
     }
+    
     // 第二階段：show頁帶入$_REQUEST    // 進入查看1：由staff帶出可檢視資料
     function showStaff($request){
         $pdo = pdo_hrdb();

@@ -4,12 +4,8 @@
     require_once("function.php");
     accessDeniedAdmin($sys_id);
 
-    if(isset($_POST["submit"])){
-        storeUser($_REQUEST);
-    }
-    if(isset($_POST["delete"])){
-        deleteUser($_REQUEST);
-    }
+    if(isset($_POST["submit"])){ storeUser($_REQUEST); }
+    if(isset($_POST["delete"])){ deleteUser($_REQUEST); }
 
     // 這裡讀取狀態：none正常、new新人、pause停用
     $showAllUsers = showAllUsers("");

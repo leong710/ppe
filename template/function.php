@@ -69,7 +69,67 @@
             echo $e->getMessage();
         }
     }
+    // 20240119 查詢表單計畫 step-0
+    function nav_show_formplan($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT _plan.* ,
+                    CASE
+                        WHEN DATE_FORMAT(NOW(), '%m-%d %H:%i') BETWEEN DATE_FORMAT(_plan.start_time, '%m-%d %H:%i') AND DATE_FORMAT(_plan.end_time, '%m-%d %H:%i') THEN 'true' 
+                        ELSE 'false'
+                    END AS onGoing 
+                    , _case.title AS case_title
+                FROM _formplan _plan
+                LEFT JOIN _formcase _case ON _plan._type = _case._type
+                WHERE (_plan.flag = 'On') AND ( DATE_FORMAT(NOW(), '%m-%d %H:%i') BETWEEN DATE_FORMAT(_plan.start_time, '%m-%d %H:%i') AND DATE_FORMAT(_plan.end_time, '%m-%d %H:%i')) ";
+        if(!empty($form_type)){
+            $sql .= " AND _plan._type = ? ";
+        }
+        // 後段-堆疊查詢語法：加入排序
+        $sql .= " ORDER BY _plan.updated_at DESC ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            // echo $sql;
+            if(!empty($form_type)){
+                $stmt->execute([$form_type]);
+            }else{
+                $stmt->execute();
+            }
+            $formplans = $stmt->fetchAll();
+            return $formplans;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 20240313 查詢表單計畫 step-1 回饋 true / false
+    function nav_show_plan($query_arr){
+        $formplans = nav_show_formplan($query_arr);         // 查詢表單計畫 20240118 == 讓表單呈現 ON 或 Off
+        $s_time = (new DateTime(date("Y-m-d H:i"))) -> format("m-d H:i");   // 過濾起始日期取值轉成m-d H:i
+        $e_time = (new DateTime(date("Y-m-d H:i"))) -> format("m-d H:i");   // 過濾結束日期取值轉成m-d H:i
+        $_inplan = false;
+        $result = [];
+        foreach($formplans as $plan){                   // 遍歷每一筆計畫
+            if($plan["onGoing"] == "true" && $plan["flag"] == "On" && $plan["_inplan"] == "On"){             // 假如計畫啟動中 + 區間 = Off
 
+                $_inplan = true ;                       // 反之就以on為主
+                
+                $p_s_time = (new DateTime($plan["start_time"])) -> format("m-d H:i");   // 計畫起始日期取值轉成m-d H:i
+                $p_e_time = (new DateTime($plan["end_time"]))   -> format("m-d H:i");   // 計畫結束日期取值轉成m-d H:i
+
+                if($p_s_time < $s_time){ $s_time = $p_s_time; }
+                if($p_e_time > $e_time){ $e_time = $p_e_time; }
+
+                // 組合輸出陣列
+                $result[$plan["_type"]]= array(
+                    "case_title" => $plan["case_title"],
+                    "start_time" => $s_time,
+                    "end_time"   => $e_time,
+                    "_inplan"    => $_inplan
+                );
+            } 
+        }
+        return $result;
+    }
 
     // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     function get_sfab_id2($sys_id, $type){

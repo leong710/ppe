@@ -43,7 +43,7 @@
             'sign_code'    => isset($auth_sign_code) ? $auth_sign_code : "",
             'checked_year' => $today_year,              // 建立查詢陣列for顯示今年點檢表
             'half'         => $half,                    // 建立查詢陣列for顯示今年點檢表
-            'sfab_id'      => $sfab_id_str
+            'sfab_id'      => $sfab_id_str,
         );
 
     // 2023/12/14 這邊待處理
@@ -63,20 +63,34 @@
             if(!empty($myIssue)) { 
                 $numIssue = $myIssue["idty_count"];
             }
-        //// 0檢點表
+        //// 0檢點表/查詢表單計畫 20240313
+            $show_plan_key = array_keys(nav_show_plan($query_arr)); // 呈現表單計畫中正在執行的表單_type array_key
             $sort_check_list = sort_check_list($query_arr);         // 查詢自己的點檢紀錄
-            $stock_cunt = 0;                                        // 防止崩潰
-            $ptstock_cunt = 0;
-            if(empty($stock_cunt) || empty($ptstock_cunt)){
-                foreach($sort_check_list AS $row){
-                    if($row["form_type"] == "stock")  { $stock_cunt   = $row["cunt"];   }
-                    if($row["form_type"] == "ptstock"){ $ptstock_cunt = $row["cunt"]; }
-                }
+            $sfab_id_cunt  = count(explode(",", $sfab_id_str));     // 取得自己部轄區名單id，字串轉陣列 + 算個數
+        //// init
+            $checked_type = array (                                 // 先定義出有需要執行點檢的表單名稱 ***
+                "stock"     => array (                              // stock
+                                "onGoing" => false,                 // 把執行中的plan，預設false
+                                "cunt"    => 0 ,                    // 已完成件數防止崩潰，起始值0
+                                "checked" => $sfab_id_cunt          // 等待完成件數，預設值是廠區數量
+                            ) ,
+                "ptstock"   => array (                              // ptstock
+                                "onGoing" => false,
+                                "cunt"    => 0 ,
+                                "checked" => $sfab_id_cunt
+                            ) 
+            );
+            
+            foreach($show_plan_key AS $plan_type){
+                $checked_type[$plan_type]["onGoing"] = true;                        // 把執行中的plan標示出來
             }
 
-            $sfab_id_cunt   = count(explode(",", $sfab_id_str));    // 字串轉陣列 + 算個數
-            $stockChecked   = $sfab_id_cunt - $stock_cunt;          // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
-            $ptstockChecked = $sfab_id_cunt - $ptstock_cunt;        // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+            foreach($sort_check_list AS $row){                                      // 把自己轄區已完成的點檢表繞出來
+                if(in_array($row["form_type"], array_keys($checked_type))){         // 檢點表form_type有在需要執行點檢的array_keys中...then
+                    $checked_type[$row["form_type"]]["cunt"]    = $row["cunt"];     // 已完成件數
+                    $checked_type[$row["form_type"]]["checked"] -= $row["cunt"];    // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+                }
+            }
 
     }
 
@@ -112,17 +126,26 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
-                                        <?php echo ($stockChecked == 0 && $ptstockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>';
+                                        <?php 
+                                            if(($checked_type["stock"]["onGoing"] === true && $checked_type["stock"]["checked"] != 0) ||
+                                               ($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0)){ ?>
+                                                    <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>
+                                        <?php } 
                                               echo ($num12 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num12.'</span>':''; ?></a>
+                                              
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
-                                        <?php echo ($stockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>';?></a></li>
+                                        <?php if($checked_type["stock"]["onGoing"] === true && $checked_type["stock"]["checked"] != 0){ ?>
+                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
+                                        <?php }?></a></li>
+
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>PPE器材管控清單</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
 
                                     <li><hr class="dropdown-divider"></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>
+                                    <?php } if($sys_role <= 1 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-download"></i>&nbsp其他入庫</a></li>
                                     <?php }?>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b>
@@ -144,7 +167,10 @@
 
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b>
-                                        <?php echo ($ptstockChecked == 0) ? '':'<span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>';?></a></li>
+                                        <?php if($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0){ ?>
+                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
+                                        <?php }?></a></li>
+
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>除汙器材管控清單</b></a></li>
                                 </ul>
                             </li>

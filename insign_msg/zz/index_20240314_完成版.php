@@ -262,7 +262,35 @@
             });
             return toLog_result_check;
         }
-        // 2024/03/14 step_1 將訊息推送到TN PPC(mapp)給對的人~
+        // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~
+        function push_mapp_v1(user_emp_id, mg_msg){
+            $.ajax({
+                url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
+                method:'post',
+                async: false,                                               // ajax取得數據包後，可以return的重要參數
+                dataType:'json',
+                data:{
+                    // eid : user_emp_id,                                      // 傳送對象
+                    eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                    message : mg_msg                                        // 傳送訊息
+                },
+                success: function(res){
+                    // console.log("push_mapp -- success：",res);
+                    push_result['mapp']['success']++;
+                    mapp_result_check = true; 
+                },
+                error: function(res){
+                    // console.log("push_mapp -- error：",res);
+                        // push_result['mapp']['error']++; 
+                        // mapp_result_check = false;
+                    // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
+                    push_result['mapp']['success']++;
+                    mapp_result_check = true; 
+                }
+            });
+            return mapp_result_check;
+        }
+
         function push_mapp(user_emp_id, mg_msg) {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -289,9 +317,11 @@
                 return mapp_result_check;
             });
         }
+
         // 2024/03/14 step_2 將訊息郵件發送給對的人~
         function sendmail(user_email, mg_msg){
             return new Promise((resolve, reject) => {
+                var mail_result_check = false;
                 $.ajax({
                     url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2024新版
                     method:'post',
@@ -306,12 +336,12 @@
                         body    : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
-                        var mail_result_check = true; 
+                        mail_result_check = true; 
                         resolve(true); // 成功時解析為 true 
                     },
                     error: function(res){
-                        var mail_result_check = false;
-                        console.log("send_mail -- error：",res);
+                        mail_result_check = false;
+                        console.log("push_mail -- error：",res);
                         reject(false); // 失敗時拒絕 Promise
                     }
                 });
@@ -403,6 +433,7 @@
         // 2023/12/13 step_0 整理訊息、發送、顯示發送結果。
         function step_0(){
             var user_logs = [];                                                 // 宣告儲存Log用的 大-陣列Logs
+            // var push_results = [];                                              // 宣告儲存Log用的 大-陣列Logs
             $('#result').empty();                                               // 清空執行訊息欄位        
             if(inSign_lists && inSign_lists.length >= 1){                       // 有件數 > 0 舊執行通知
                 var promises = [];                                              // 存储所有异步操作的 Promise
@@ -475,13 +506,14 @@
                             Promise.all([mapp_result_check(), mail_result_check()])
                             .then(results => {
                                 const [mappResult, mailResult] = results;
-                                // 处理 mapp/mail 结果 // 標記結果顯示OK或NG，並顯示執行訊息
+                                // 处理 mapp 结果 // 標記email位置，顯示OK或NG，並顯示執行訊息
                                     user_log.mapp_res = mappResult ? 'OK' : 'NG';
                                     mappResult ? push_result['mapp']['success']++ : push_result['mapp']['error']++; 
+                                // 处理 mail 结果 // 標記email位置，顯示OK或NG，並顯示執行訊息
                                     user_log.mail_res = mailResult ? 'OK' : 'NG';
                                     mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
 
-                                // 自定义的代码在这里执行 -- 執行訊息渲染
+                                // 自定义的代码在这里执行
                                     var action_id = document.querySelector('#id_' + user_emp_id);
                                     var fa_icon_mapp = window['fa_' + user_log.mapp_res];
                                     action_id.innerHTML = fa_icon_mapp + action_id.innerText;
@@ -489,8 +521,9 @@
 
                                 // 这里可以执行其他自定义的操作
                                 user_logs.push(user_log);                                               // 將log單筆小物件 塞入 logs大陣列中
-
+                                
                                 completedUsers++;                                                       // 增加已完成发送操作的用户数量
+                                console.log('completedUsers:', completedUsers);
                                 if (completedUsers == totalUsers) {                                     // 检查是否所有用户的发送操作都已完成
                                     show_swal_fun(user_logs, push_result);                              // 所有发送操作完成后调用 show_swal_fun
                                 }

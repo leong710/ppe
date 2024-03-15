@@ -21,11 +21,7 @@
     $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列，要轉成字串str
 
     // 決定表單開啟方式
-    if(isset($_REQUEST["action"])){
-        $action = $_REQUEST["action"];                  // 有action就帶action
-    }else{
-        $action = 'review';                             // 沒有action就新開單
-    }
+    $action = (isset($_REQUEST["action"])) ? $_REQUEST["action"] : 'review'; // 有action就帶action，沒有action就新開單
 
     if(isset($_REQUEST["id"])){
         $issue_row = show_issue($_REQUEST);
@@ -191,17 +187,11 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
 
 </head>
@@ -273,7 +263,6 @@
                     </div>
                 </div>
     
-                <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post" >
@@ -442,7 +431,7 @@
                                     </div>
                                     
                                     <div class="modal-body px-5">
-                                        <!-- 第二排的功能 : 搜尋功能 -->
+                                        <!-- 第二排的 搜尋功能 -->
                                         <div class="row unblock" id="forwarded">
                                             <div class="col-12" id="searchUser_table">
                                                 <div class="input-group search" id="select_inSign_Form">
@@ -486,7 +475,7 @@
                             
                     </form>
                     <hr>
-                    <!-- 尾段logs訊息 -->
+
                     <div class="col-12 pt-0 rounded bg-light" id="logs_div">
                         <div class="row">
                             <div class="col-6 col-md-6">
@@ -522,27 +511,24 @@
         </div>
     </div>
 
-    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
-    var catalogs            = <?=json_encode($catalogs);?>;                 // 引入catalogs資料
-    var action              = '<?=$action;?>';                              // 引入action資料
-    var issue_row           = <?=json_encode($issue_row);?>;                // 引入issue_row資料作為Edit
+    var catalogs            = <?=json_encode($catalogs)?>;                  // 引入catalogs資料
+    var action              = '<?=$action?>';                               // 引入action資料
+    var issue_row           = <?=json_encode($issue_row)?>;                 // 引入issue_row資料作為Edit
     var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
     // var json                = JSON.parse('<=json_encode($logs_arr)?>');  // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json                = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
-    var issue_url           = '<?=$issue_url;?>';                           // push訊息 // 本文件網址
+    var issue_url           = '<?=$issue_url?>';                            // push訊息 // 本文件網址
 </script>
 
-<script src="issue_show.js?v=<?=time();?>"></script>
+<script src="issue_show.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

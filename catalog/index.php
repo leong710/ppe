@@ -6,39 +6,26 @@
 
     // 調整flag ==> 20230712改用AJAX
 
-    if(isset($_REQUEST["cate_no"])){
-        $sort_cate_no = $_REQUEST["cate_no"];
-    }else{
-        $sort_cate_no = "All";
-    }
+    $sort_cate_no   = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
+    $sort_category  = array( 'cate_no' => $sort_cate_no );
 
-    $sort_category = array(
-        'cate_no' => $sort_cate_no
-    );
-    $catalogs = show_catalogs($sort_category);    // 器材
-    $categories = show_categories();              // 分類
-    $sum_categorys = show_sum_category();         // 統計分類與數量
+    $catalogs       = show_catalogs($sort_category);    // 器材
+    $categories     = show_categories();                // 分類
+    $sum_categorys  = show_sum_category();              // 統計分類與數量
 
-    $per_total = count($catalogs);  //計算總筆數
+    $per_total      = count($catalogs);                 //計算總筆數
 
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
 
@@ -179,15 +166,11 @@
     </div>
 </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
@@ -278,7 +261,6 @@
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({
             "autoWidth": false,
             // 排序

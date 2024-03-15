@@ -227,7 +227,6 @@
                                     </table>
                                 </div>
     
-                                <!-- 最後編輯資訊 -->
                                 <div class="col-12 text-end py-0" id="edit_info" style="font-size: 12px;"></div>
                             </div>
                         </div>
@@ -248,33 +247,31 @@
         </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var formplans     = <?=json_encode($formplans);?>;                                // 引入formplans資料
-    var formplan_item = ['id','_type','remark','start_time','end_time','_inplan','flag'];           // 交給其他功能帶入 delete_cate_id
+    var formplans     = <?=json_encode($formplans);?>;                                      // 引入formplans資料
+    var formplan_item = ['id','_type','remark','start_time','end_time','_inplan','flag'];  // 交給其他功能帶入 delete_cate_id
 
-    function add_module(to_module){     // 啟用新增模式
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_info').empty();   // 清除model功能
-        $('#reset_btn').click();                                                        // reset清除表單
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+    function add_module(to_module){                                                         // 啟用新增模式
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_info').empty();           // 清除model功能
+        $('#reset_btn').click();                                                            // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');                               // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                                              // 新增模式 = 解除
         document.querySelector("#edit_modal .modal-header").classList.remove('edit_mode_bgc');
         document.querySelector("#edit_modal .modal-header").classList.add('add_mode_bgc');
         var add_btn = '<input type="submit" name="add_submit" class="btn btn-primary" value="新增">';
-        $('#modal_action').append('新增');                      // model標題
-        $('#modal_button').append(add_btn);                     // 儲存鈕
+        $('#modal_action').append('新增');                                                  // model標題
+        $('#modal_button').append(add_btn);                                                 // 儲存鈕
     }
     // fun-1.鋪編輯畫面
     function edit_module(row_id){
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_info').empty();   // 清除model功能
-        $('#reset_btn').click();                                                        // reset清除表單
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_info').empty();           // 清除model功能
+        $('#reset_btn').click();                                                            // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');                               // 指定清除按鈕
+        reset_btn.classList.add('unblock');                                                 // 編輯模式 = 隱藏
         document.querySelector("#edit_modal .modal-header").classList.remove('add_mode_bgc');
         document.querySelector("#edit_modal .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
@@ -284,7 +281,6 @@
                 
                 // step2.鋪畫面到module
                 Object(formplan_item).forEach(function(item_key){
-                    // console.log(row_id, item_key, row[item_key]);       
                     if(item_key == 'id'){
                         document.querySelector('#delete_id').value = row['id'];       // 鋪上delete_id = this id.no for delete form
                         document.querySelector('#edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form
@@ -305,9 +301,9 @@
                 // edit_myTodo_btn.click();
                 var add_btn = '<input type="submit" name="edit_submit" class="btn btn-primary" value="儲存">';
                 var del_btn = '<input type="submit" name="delete_submit" value="刪除formplan" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
-                $('#modal_action').append('編輯');          // model標題
-                $('#modal_delect_btn').append(del_btn);     // 刪除鈕
-                $('#modal_button').append(add_btn);         // 儲存鈕
+                $('#modal_action').append('編輯');                                      // model標題
+                $('#modal_delect_btn').append(del_btn);                                 // 刪除鈕
+                $('#modal_button').append(add_btn);                                     // 儲存鈕
                 return;
             }
         })

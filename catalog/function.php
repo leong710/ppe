@@ -15,12 +15,12 @@
                 return false;
             }
 
-        $PIC_check = substr($PIC,0,7);  // 檢查PIC前端是否含有 'images/' 這7個字
+        $PIC_check = substr($PIC,0,7);                  // 檢查PIC前端是否含有 'images/' 這7個字
         if($PIC_check == "images/"){
-            $PIC = substr($PIC,7);  //取圖片字串7位數以後的文字
+            $PIC = substr($PIC,7);                      //取圖片字串7位數以後的文字
         }
         if(isset($scomp_no)){
-            $scomp_no = implode(",",$scomp_no);       //scomp_no供應商 是陣列，要儲存前要轉成字串
+            $scomp_no = implode(",",$scomp_no);         //scomp_no供應商 是陣列，要儲存前要轉成字串
         }else{
             $scomp_no = "";
         }
@@ -56,12 +56,12 @@
         extract($request);
         
         $SN = strtoupper(trim($SN));
-        $PIC_check = substr($PIC,0,7);  // 檢查PIC前端是否含有 'images/' 這7個字
+        $PIC_check = substr($PIC,0,7);                  // 檢查PIC前端是否含有 'images/' 這7個字
         if($PIC_check == "images/"){
-            $PIC = substr($PIC,7);  //取圖片字串7位數以後的文字
+            $PIC = substr($PIC,7);                      //取圖片字串7位數以後的文字
         }
         if(isset($scomp_no)){
-            $scomp_no = implode(",",$scomp_no);       //scomp_no供應商 是陣列，要儲存前要轉成字串
+            $scomp_no = implode(",",$scomp_no);         //scomp_no供應商 是陣列，要儲存前要轉成字串
         }else{
             $scomp_no = "";
         }
@@ -108,8 +108,8 @@
             $stmt->execute([$flag, $id]);
             $Result = array(
                 // 'table' => $table, 
-                'id' => $id,
-                'flag' => $flag
+                'id'    => $id,
+                'flag'  => $flag
             );
             return $Result;
         }catch(PDOException $e){
@@ -135,7 +135,7 @@
 
         // 決定是否採用 page_div 20230803
         if(isset($start) && isset($per)){
-            $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
+            $stmt = $pdo->prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
         }else{
             $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
         }
@@ -519,6 +519,7 @@
             $stmt->execute();
             $sites = $stmt->fetchAll();
             return $sites;
+            
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -538,6 +539,7 @@
             $stmt->execute([$site_id]);
             $locals = $stmt->fetchAll();
             return $locals;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -557,6 +559,7 @@
             $stmt->execute([$local_id]);
             $local = $stmt->fetch();
             return $local;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -575,6 +578,7 @@
             $stmt->execute();
             $locals = $stmt->fetchAll();
             return $locals;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -605,6 +609,7 @@
             }
             $pnos = $stmt->fetchAll();
             return $pnos;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }

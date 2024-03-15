@@ -4,12 +4,7 @@
     require_once("function.php");
     accessDenied($sys_id);
     
-    
-    if(isset($_REQUEST["cate_no"])){
-        $sort_cate_no = $_REQUEST["cate_no"];
-    }else{
-        $sort_cate_no = "All";
-    }
+    $sort_cate_no = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
 
     if(isset($_POST["delete"])){
         delete_catalog($_REQUEST);
@@ -24,22 +19,15 @@
     }
 
     // // *** PNO篩選組合項目~~
-        if(isset($_REQUEST["_year"])){
-            $_year = $_REQUEST["_year"];
-        }else{
-            // $_year = date('Y');              // 今年
-            $_year = "All";                     // 全部
-        }
-        $sort_PNO_year = array(
-            '_year' => $_year
-        );
-    $pnos = show_pno($sort_PNO_year);       // 取得料號清單
+    $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All"; // 全部
+    // $_year = date('Y');                              // 今年
+    $sort_PNO_year = array(  '_year' => $_year );
 
-    $categories = show_categories();        // 取得分類
-    $catalog = edit_catalog($_REQUEST);     // 取得要編輯的器材
+    $pnos       = show_pno($sort_PNO_year);             // 取得料號清單
+    $categories = show_categories();                    // 取得分類
+    $catalog    = edit_catalog($_REQUEST);              // 取得要編輯的器材
 
     if(empty($catalog)){
-        // header("location:../catalog/");                 // 用這個，因為跳太快
         echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
     }
 ?>
@@ -48,11 +36,8 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- loading 畫面css 1/4-->
     <link href="../../libs/la_loading/la_loading.css" rel="stylesheet">
     <style>
         .box {
@@ -261,12 +246,12 @@
                                 <div class="col-12 p-3 border rounded" id="selectScomp_no" style="background-color: rgba(255, 255, 129, .5);">
                                     <label for="" class="from-label">scomp_no：(-- 請選擇供應商 --)</label><br>
                                     <div class="row">
-                                        <!-- 第一排的功能 : 顯示已加入名單+input -->
+                                        <!-- 第一排 顯示已加入名單+input -->
                                         <div class="col-12 px-4 py-0">
                                             <div id="selectScomp_noItem"></div>
                                             <input type="hidden" name="scomp_no[]" id="scomp_no" class="form-control" placeholder="已加入的供應商">
                                         </div>
-                                        <!-- 第二排的功能 : 搜尋功能 -->
+                                        <!-- 第二排 搜尋功能 -->
                                         <div class="col-12 px-4">
                                             <div class="input-group search" id="selectScomp_noForm">
                                                 <input type="text" id="key_word" class="form-control" placeholder="請輸入統編或廠商名稱" aria-label="請輸入統編或廠商名稱">
@@ -274,7 +259,7 @@
                                                 <button class="btn btn-outline-secondary" type="button" onclick="resetMain();">清除</button>
                                             </div>
                                         </div>
-                                        <!-- 第三排的功能 : 放查詢結果-->
+                                        <!-- 第三排 放查詢結果-->
                                         <div class="result" id="result">
                                             <table id="result_table" class="table table-striped table-hover"></table>
                                         </div>
@@ -301,7 +286,7 @@
                             </div>
                         </div>
                         
-                        <!-- 暫時用不到的欄位 -->
+                        <!-- 暫時 -->
                         <div class="row">
                             <div class="col-12 py-1">
                                 <div class="form-floating">
@@ -430,14 +415,11 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
@@ -461,7 +443,6 @@
                     img: $('.img:checked').val().substr(6 +1)      // 6 = images +1 = bypass %2f
                 },
                 success(){
-                    // console.log(this.url)
                     location.href = this.url;
                     $('.cover').hide();
                 },
@@ -534,8 +515,8 @@
     // 第二階段：點選、渲染模組
     var tags = [];
     function tagsInput_me(val) {
-        let scname = val.substr(val.search(',',)+1);   // 指定scname
-        let comp_no = val.substr(0, val.search(','));   // 指定comp_no
+        let scname = val.substr(val.search(',',)+1);        // 指定scname
+        let comp_no = val.substr(0, val.search(','));       // 指定comp_no
         if (val !== '') {
             tags.push(val);
             $('#selectScomp_noItem').append('<div class="tag">' + scname + '<span class="remove">x</span></div>');
@@ -554,15 +535,15 @@
     // 第二階段：移除單項模組
     $('#selectScomp_noItem').on('click', '.remove', function() {
         var tagIndex = $(this).closest('.tag').index();
-        let tagg = tags[tagIndex];                       // 取得目標數值 comp_no,cname
-        let comp_no = tagg.substr(0, tagg.search(','));   // 指定 comp_no
+        let tagg = tags[tagIndex];                              // 取得目標數值 comp_no,cname
+        let comp_no = tagg.substr(0, tagg.search(','));         // 指定 comp_no
         let tag_supp = document.getElementById(comp_no);
         if(tag_supp){
             tag_supp.value = tagg;
             // $("#"+comp_no+" .fa-circle-check").toggleClass("fa-circle");
         }
-        tags.splice(tagIndex, 1);           // 自陣列中移除
-        $(this).closest('.tag').remove();   // 自畫面中移除
+        tags.splice(tagIndex, 1);                               // 自陣列中移除
+        $(this).closest('.tag').remove();                       // 自畫面中移除
         let scomp_no = document.getElementById('scomp_no');
         if(scomp_no){
             scomp_no.value = tags;
@@ -573,7 +554,7 @@
         resetMain();        // 先清除表單
         $('#scomp_no').value = '';
         $('#selectScomp_noItem').empty();
-        tags = [];                                                      // 清除tag名單陣列
+        tags = [];                                              // 清除tag名單陣列
         var pmLists = {};
         // 第0階段：套用既有數據
         var intt_val_str = <?=json_encode($catalog["scomp_no"]);?>;         // 引入副PM資料            

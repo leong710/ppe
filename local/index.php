@@ -28,11 +28,7 @@
         'fab_id' => 'All'
     );
 
-    if(isset($_POST["local_sort_submit"])){
-        $locals = show_local($_REQUEST);
-    }else{
-        $locals = show_local($query_arr);
-    }
+    $locals = (isset($_POST["local_sort_submit"])) ? show_local($_REQUEST) : show_local($query_arr);
 
     $ptlocals   = show_ptlocal($query_arr);
     $fabs       = show_fab($query_arr);
@@ -40,11 +36,7 @@
     $dept_lists = show_dept();
 
     // 切換指定NAV分頁
-    if(isset($_REQUEST["activeTab"])){
-        $activeTab = $_REQUEST["activeTab"];
-    }else{
-        $activeTab = "2";       // 2 = local
-    }
+    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 2 = local
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -52,13 +44,9 @@
 
 <head>
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .tab-content.active {
@@ -114,9 +102,7 @@
                         </nav>
                     </div>
                 </div>
-                <!-- 內頁 -->
                 <div class="tab-content" id="nav-tabContent">
-                    
                     <!-- site -->
                     <div id="nav-site_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-site-tab">
                         <div class="row">
@@ -143,7 +129,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($sites as $site){ ?>
                                             <tr>
@@ -198,7 +183,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($fabs as $fab){ ?>
                                             <tr>
@@ -253,7 +237,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($locals as $local){ ?>
                                             <tr>
@@ -307,7 +290,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($ptlocals as $ptlocal){ ?>
                                             <tr>
@@ -387,7 +369,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_site_info"></div>
                         </div>
                     </div>
@@ -527,7 +508,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_fab_info"></div>
                     </div>
                     <div class="modal-footer">
@@ -602,7 +582,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_local_info"></div>
                         </div>
                     </div>
@@ -678,7 +657,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_ptlocal_info"></div>
                         </div>
                     </div>
@@ -698,35 +676,31 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var site        = <?=json_encode($sites);?>;                                                // 引入sites資料
-    var fab         = <?=json_encode($fabs);?>;                                                 // 引入fabs資料
-    var local       = <?=json_encode($locals);?>;                                               // 引入locals資料
-    var ptlocal     = <?=json_encode($ptlocals);?>;                                             // 引入locals資料
+    var site        = <?=json_encode($sites)?>;                                                 // 引入sites資料
+    var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
+    var local       = <?=json_encode($locals)?>;                                                // 引入locals資料
+    var ptlocal     = <?=json_encode($ptlocals)?>;                                              // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
     var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     var ptlocal_item= ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     
     var tags        = [];                                                                       // fun3-1：search Key_word
-    var activeTab   = '<?=$activeTab;?>';                                                       //设置要自动选中的选项卡的索引（从0开始）
+    var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
 
 </script>
 
-<script src="local.js?v=<?=time();?>"></script>
+<script src="local.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

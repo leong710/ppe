@@ -4,7 +4,6 @@
         $pdo = pdo();
         extract($request);
         $sql = "INSERT INTO _formplan(_type, remark, flag, start_time, end_time, _inplan, updated_user, updated_at, created_at)
-                -- VALUES(?, ?, ?, STR_TO_DATE(DATE_FORMAT( ?, '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i'), STR_TO_DATE(DATE_FORMAT( ?, '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i'), ?, ?, now(), now()) 
                 VALUES(?, ?, ?, STR_TO_DATE(DATE_FORMAT( ?, '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i'), STR_TO_DATE(DATE_FORMAT( ?, '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i'), ?, ?, now(), now()) ";
         $stmt = $pdo->prepare($sql);
         try {

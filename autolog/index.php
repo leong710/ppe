@@ -3,33 +3,23 @@
     require_once("../sso.php");
     require_once("function.php");
     accessDeniedAdmin($sys_id);
-    if(!isset($_SESSION)){                                              // 確認session是否啟動
+    if(!isset($_SESSION)){                                                          // 確認session是否啟動
         session_start();
     }
 
-    $sys_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+    $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : "";      // 取出$_session引用
 
     // 編輯功能
-        if(isset($_POST["deleteLog"])){ deleteLog($_REQUEST); }         // 刪除整大串
-        if(isset($_POST["delLog_item"])){ delLog_item($_REQUEST); }     // 刪除小項
+        if(isset($_POST["deleteLog"])){ deleteLog($_REQUEST); }                     // 刪除整大串
+        if(isset($_POST["delLog_item"])){ delLog_item($_REQUEST); }                 // 刪除小項
 
     // 取得年參數
-        if(isset($_REQUEST["_year"])){
-            $_year = $_REQUEST["_year"];
-        }else{
-            $_year = date('Y');                         // 今年
-        }
-        
+        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : date('Y');      // 今年
     // 取得月參數
-        if(isset($_REQUEST["_month"])){
-            $_month = $_REQUEST["_month"];
-        }else{
-            $_month = date('m');                      // 今月
-            // $_month = "All";                             // 今月
-        }
+        $_month = (isset($_REQUEST["_month"])) ? $_REQUEST["_month"] : date('m');   // 今月 // $_month = "All";  
         
     // 組合查詢陣列
-        $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
+        $query_arr = array(                           // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
             '_year' => $_year,
             '_month' => $_month
         );
@@ -64,9 +54,7 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
     <style>
         /* tr > td {
@@ -198,7 +186,6 @@
                                             <th data-toggle="tooltip" data-placement="bottom" title="記錄事項" style="width: 80%;">logs</th>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($row_lists_div as $log){ 
                                               $logs_log = json_decode($log['logs']);                        // 1.把json字串反解成物件或陣列
@@ -387,19 +374,15 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
 
-    // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })

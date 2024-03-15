@@ -1,7 +1,7 @@
 // // // utility fun
     // Bootstrap Alarm function
     function alert(message, type) {
-        var alertPlaceholder = document.getElementById("liveAlertPlaceholder");      // Bootstrap Alarm
+        var alertPlaceholder = document.getElementById("liveAlertPlaceholder");                 // Bootstrap Alarm div
         var wrapper = document.createElement('div');
         wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
                             + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
@@ -35,9 +35,9 @@
                     }else if(item_key == 'stocks_log'){                                         // stocks_log
                         var json = [];                                                          // 清除json陣列
                         // 第0階段：取出stocks_log紀錄
-                        var stocks_log_arr = row['stocks_log'].split('_,');     // 切割成陣列
+                        var stocks_log_arr = row['stocks_log'].split('_,');                     // 切割成陣列
                         for( i=0; i<stocks_log_arr.length; i++ ){
-                            json[i] = JSON.parse(stocks_log_arr[i]);  // 文字串轉成JSON物件
+                            json[i] = JSON.parse(stocks_log_arr[i]);                            // 文字串轉成JSON物件
                         }
                         var forTable = document.querySelector('.for-table tbody');
                         for (var i = 0, len = json.length; i < len; i++) {
@@ -56,13 +56,12 @@
                                 '</tr>';
                         }
 
-                    }else if(item_key == 'checked_remark'){                          // checked_remark
+                    }else if(item_key == 'checked_remark'){                                     // checked_remark
                         document.getElementById('checked_remark').value = row['checked_remark'];
 
                     }else{
-                        $('#'+item_key).append(row[item_key]);                  // anoth
+                        $('#'+item_key).append(row[item_key]);                                  // anoth
                     }
-
                 })
                 return;
             }
@@ -74,7 +73,7 @@
             let row_key = row['checked_year']+'_'+row['half']+'_'+row['form_type']+'_'+row['fab_id'];
             let row_btn = '<button type="button" class="op_tab_btn reviewBtn " value="'+row['id']+'" onclick="edit_module(this.value)" title="'+row['created_at']+' / '+row['updated_user']+' " '; 
             row_btn += 'data-bs-toggle="modal" data-bs-target="#review_checked"><h4 class="mb-0"><i class="fa-regular fa-file-lines mb-0"></i></h4><h7>'+row['created_at'].substr(0, 10).replace(/-/g,"")+'</h7></button>';
-            $('#'+row_key).append(row_btn);                  // anoth
+            $('#'+row_key).append(row_btn);                                                     // anoth
         })
     }
 
@@ -93,13 +92,11 @@
     })
 
     $(document).ready(function () {
-
         // 假如index找不到當下存在已完成的表單，就alarm它!
         if (check_yh_list_num == '0') {
             let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ ';
             alert( message, 'danger')
         }
-
         put_in();
     })
 

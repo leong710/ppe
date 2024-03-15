@@ -35,7 +35,6 @@
     function delete_checked_item($request){
         $pdo = pdo();
         extract($request);
-
         $sql = "DELETE FROM checked_log WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         try {

@@ -317,7 +317,7 @@
             "receive_remark" : "receive_remark/用途說明",
             "created_emp_id" : "created_emp_id/開單人工號",
             "created_cname"  : "created_cname/開單人姓名",
-            "issue_remark"  : "issue_remark/用途說明",
+            "issue_remark"   : "issue_remark/用途說明",
             "id"             : "id",
             "item"           : "** item"
             // "sign_comm"       : "command/簽核comm",

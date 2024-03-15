@@ -252,7 +252,7 @@
         $pdo = pdo();
         $sql = "SELECT * 
                 FROM _cata
-                -- WHERE _cata.flag = 'On'
+                WHERE _cata.flag = 'On' AND _cata.cate_no <> 'J'
                 ORDER BY id ASC";
         $stmt = $pdo->prepare($sql);
         try {

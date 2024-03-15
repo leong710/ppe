@@ -10,17 +10,15 @@
     $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : false;           // 取出$_session引用
 
     // 確認有帶數值才執行
-    $fun = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : null;                                    // 先抓操作功能 'receive' = MAPP待簽發報
+    $fun = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : null;                                    // 先抓操作功能 
 
-    $mailTo_insign = isset($_REQUEST["mailTo_insign"]) ? true : false ;                             // 是否發信 'mailTo_insign' = sendmail待簽發信
+    $mailTo_insign = isset($_REQUEST["mailTo_insign"]) ? true : false ;                             // 是否發信
 
     // 確認電腦IP是否受認證
-    $fa_check  = '<snap class="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';      // 打勾符號
-    $fa_remove = '<snap class="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';    // 打叉符號
-	$uri = (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) ? 'https://' : 'http://';     // 取得開頭
-	$uri .= $_SERVER['HTTP_HOST'];                                                                  // 組合成http_host
-    $pc = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                                // 取得user IP
-    $check_ip = check_ip($_REQUEST);                                                                // 驗證IP權限
+    $fa_check  = '<snap id="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';      // 打勾符號
+    $fa_remove = '<snap id="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';    // 打叉符號
+    $pc = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];
+    $check_ip = check_ip($_REQUEST);
 
     // 載入所有待簽名單
     $inSign_lists = inSign_list();
@@ -31,16 +29,21 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
+    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer" ></script>
+    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
-        .fa_check {
+        #fa_check {
             color: #00ff00;
         }
-        .fa_remove {
+        #fa_remove {
             color: #ff0000;
         }
         #result {
@@ -67,20 +70,19 @@
                     <div id="nav-receive" class="col-12 bg-white border rounded">
                         <div class="row">
                             <div class="col-12 col-md-8 py-0 text-primary">
-                                <?php echo "待簽名單共：".count($inSign_lists)." 筆";?>
+                                <?php echo "請購與領用申請待簽名單共：".count($inSign_lists)." 筆";?>
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
                                 <?php if($sys_role == 0 && $check_ip){ ?>
-                                    <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs <?php echo !$mailTo_insign ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
-                                        title="send notify" onclick="step_0()">傳送 MAPP&nbsp<i class="fa-solid fa-comment-sms"></i>
-                                            <?php if($mailTo_insign){ ?>+&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i><?php } ?></button>
+                                    <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs btn-primary" data-toggle="tooltip" data-placement="bottom" 
+                                        title="TN PPC(mapp)" onclick="step_0()">傳送MAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
                                 <?php } ?>
                                 <button type="button" id="user_lists_btn" title="訊息收折" class="op_tab_btn" value="user_lists" onclick="op_tab(this.value)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
                             </div>
                         </div>
 
                         <div id="user_lists" class="user_lists col-12 mt-2 border rounded">
-                            <table>
+                            <table style="width: 95%;">
                                 <thead>
                                     <tr>
                                         <th>姓名(工號)</th>
@@ -132,31 +134,33 @@
         </div>
     </div>
 
+    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
+<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
+<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
+<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
     // init
-        var fa_OK = '<snap class="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';        // 打勾符號
-        var fa_NG = '<snap class="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';      // 打叉符號
-        var mail_OK = '<snap class="fa_check"><i class="fa-solid fa-paper-plane"></i> </snap>';             // 寄信符號
-        var mail_NG = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i> </snap>';   // 打叉符號
+        var fa_OK = '<snap id="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';    // 打勾符號
+        var fa_NG = '<snap id="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>'; // 打叉符號
         var fun         = '<?=$fun?>';
-        var check_ip    = '<?=$check_ip?>';
-        const uri       = '<?=$uri?>';
-        var inSign_lists = <?=json_encode($inSign_lists)?>;
-        var receive_url  = '領用路徑：'+uri+'/ppe/receive/';
-        var issue_url    = '請購路徑：'+uri+'/ppe/issue/';
+        var check_ip    = <?=$check_ip?>;
+        
+        var inSign_lists = <?=json_encode($inSign_lists);?>;
+        // var inSign_lists = [];
+        var ppe_url  = 'http://tw059332n.cminl.oa/ppe/receive/';
         var int_msg1 = '【環安PPE系統】待您簽核文件提醒\n';
         var int_msg2 = ' 您共有 ';
         var int_msg3 = ' 件待簽核文件尚未處理';
-        var int_msg4 = '，如已簽核完畢，請忽略此訊息！\n\n** 請至以下連結查看待簽核文件：\n';
-        var int_msg5 = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
+        var int_msg4 = '，如已簽核完畢，請忽略此訊息！\n** 請至以下連結查看待簽核文件：\n';
+        var int_msg5 = '\n溫馨提示：\n1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n<此訊息為系統自動發出，請勿回覆>';
         var push_result = {
                 'mapp' : {
                     'success' : 0,
@@ -176,6 +180,7 @@
 
         // 子功能
         $(function () {
+            // 在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
         })
         // tab_table的顯示關閉功能
@@ -190,8 +195,8 @@
         }
         // fun_2 倒數 n秒自動關閉視窗功能
         function CountDown() {
-            let delayTime = 1000;                   // 1000=1秒
-            let i = 15;                             // 15次==15秒
+            let delayTime = 1000;   // 1000=1秒
+            let i = 15;             // 15次==15秒
             const loop = () => {
                 if (i >= 0) {
                     document.getElementById("myMessage").innerHTML = "視窗關閉倒數 "+ i +" 秒";
@@ -209,7 +214,7 @@
         // fun_3 延遲模組
         function delayedLoop(i, callback) {
             if(i==0 || i==null){
-                i = 10;                                 // 10次==10秒
+                i = 10;             // 10次==10秒
             }
             const loop = () => {
                 if (i >= 0) {
@@ -217,7 +222,7 @@
                     setTimeout(loop, 1000);
                 } else {
                     document.getElementById("myMessage").innerHTML = "Fun: "+ callback +" 執行！";
-                    window[callback]();                 // 要執行的程式
+                    window[callback]();                  // 要執行的程式
                 }
                 i--;
             };
@@ -230,7 +235,7 @@
             $.ajax({
                 url:'../autolog/log.php',
                 method:'post',
-                async: false,
+                async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
                     function : 'storeLog',
@@ -240,6 +245,7 @@
                     t_stamp  : ''
                 },
                 success: function(res){
+                    // console.log("toLog -- success：", res);
                     toLog_result_check = true; 
                 },
                 error: function(res){
@@ -260,16 +266,17 @@
                     data:{
                         uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                         eid     : user_emp_id,                                  // 傳送對象
+                        // eid     : '10008048',                                   // 傳送對象 = 測試期間 只發給我
                         message : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
                         var mapp_result_check = true; 
-                        resolve(true);                                          // 成功時解析為 true 
+                        resolve(true); // 成功時解析為 true 
                     },
                     error: function(res){
                         var mapp_result_check = false;
                         console.log("push_mapp -- error：",res);
-                        reject(false);                                          // 失敗時拒絕 Promise
+                        reject(false); // 失敗時拒絕 Promise
                     }
                 });
                 return mapp_result_check;
@@ -284,20 +291,21 @@
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
                     data:{
-                        uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
-                        sysName : 'PPE',                                        // 貫名
+                        uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                        sysName : 'ppe',
                         to      : user_email,                                   // 傳送對象
-                        subject : int_msg1,                                     // 信件標題
-                        body    : mg_msg                                        // 訊息內容
+                        // to      : 'LEONG.CHEN@INNOLUX.COM',                     // 傳送對象 = 測試期間 只發給我
+                        subject : int_msg1,
+                        body    : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
                         var mail_result_check = true; 
-                        resolve(true);                                          // 成功時解析為 true 
+                        resolve(true); // 成功時解析為 true 
                     },
                     error: function(res){
                         var mail_result_check = false;
                         console.log("send_mail -- error：",res);
-                        reject(false);                                          // 失敗時拒絕 Promise
+                        reject(false); // 失敗時拒絕 Promise
                     }
                 });
                 return mail_result_check;
@@ -315,15 +323,15 @@
             } 
 
             $.ajax({
-                // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
-                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式新版
+                // url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式舊版
+                url:'http://tneship.cminl.oa/api/hrdb/index.php',       // 正式新版
                 method:'post',
-                async: false,                                               // ajax取得數據包後，可以return的重要參數
+                async: false,                                           // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
-                    functionname: 'showStaff',                              // 操作功能
-                    uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
-                    emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
+                    functionname: 'showStaff',                          // 操作功能
+                    uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                    emp_id: search                                      // 查詢對象key_word  // 使用開單人工號查詢
                 },
                 success: function(res){
                     var obj_val = res["result"];
@@ -353,8 +361,8 @@
                 thisDay  : thisToday,
                 autoLogs : user_logs
             }
-            user_logs_json = JSON.stringify(user_logs_obj);                                   // logs大陣列轉JSON字串
-            toLog(user_logs_json);                                                            // *** call fun.step_2 寫入log記錄檔
+            user_logs_json = JSON.stringify(user_logs_obj);                                 // logs大陣列轉JSON字串
+            toLog(user_logs_json);                                                          // *** call fun.step_2 寫入log記錄檔
 
             // swal組合訊息，根據發送結果選用提示內容與符號
             var swal_title = '領用申請單-發放訊息';
@@ -369,7 +377,7 @@
                     var swal_action = 'warning';
                 }
 
-                if(mailTo_insign){                                                          // email log
+                if(mailTo_insign){      // email log
                     if((push_result['email']['error'] == 0) && (push_result['email']['success'] != 0)){
                         swal_content += ' 、 寄送成功：'+ push_result['email']['success'];
                         swal_action = 'success';
@@ -382,8 +390,8 @@
                     }
                 }
 
-            $("body").mLoading("hide");                                                       // 關閉mLoading圖示
-            swal(swal_title ,swal_content ,swal_action, {timer:5000});                        // popOut swal + 自動關閉
+            $("body").mLoading("hide");                                                         // 關閉mLoading圖示
+            swal(swal_title ,swal_content ,swal_action, {timer:5000});                          // popOut swal + 自動關閉
         }
         // 2023/12/13 step_0 整理訊息、發送、顯示發送結果。
         function step_0(){
@@ -432,13 +440,14 @@
                             }else{
                                 mg_msg += ')';
                             }
-                            mg_msg += int_msg4 + receive_url +'\n'+issue_url + int_msg5;
+                            mg_msg += int_msg4 + ppe_url + int_msg5;
                         user_log['mg_msg']   = mg_msg;                                      // 小-物件log 紀錄mg_msg訊息
                         user_log['thisTime'] = thisTime;                                    // 小-物件log 紀錄thisTime
 
                         // *** 發送mapp
                         const mapp_result_check = async () => {
                             let mapp_result_check = await push_mapp(user_emp_id, mg_msg);   // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                            // let mapp_result_check = true;
                             return mapp_result_check;
                         };
 
@@ -446,6 +455,7 @@
                         const mail_result_check = async () => {
                             if(mailTo_insign && user_email){
                                 var mail_result_check = await sendmail(user_email, mg_msg);                // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
+                                // var mail_result_check = true;
                             }else{
                                 var mail_result_check = false;
                             }
@@ -459,23 +469,15 @@
                             .then(results => {
                                 const [mappResult, mailResult] = results;
                                 // 处理 mapp/mail 结果 // 標記結果顯示OK或NG，並顯示執行訊息
-                                    var action_id = document.querySelector('#id_' + user_emp_id);
-                                    // mapp處理
                                     user_log.mapp_res = mappResult ? 'OK' : 'NG';
                                     mappResult ? push_result['mapp']['success']++ : push_result['mapp']['error']++; 
+                                    user_log.mail_res = mailResult ? 'OK' : 'NG';
+                                    mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
+
+                                // 自定义的代码在这里执行 -- 執行訊息渲染wwwwwww                          var action_id = document.querySelector('#id_' + user_emp_id);
                                     var fa_icon_mapp = window['fa_' + user_log.mapp_res];
                                     action_id.innerHTML = fa_icon_mapp + action_id.innerText;
-                                    console_log = user.cname + "(" + user.emp_id + ")" + ' ... pushMapp: ' + fa_icon_mapp + user_log.mapp_res;
-                                    // mail處理
-                                    if(mailTo_insign && user_email){
-                                        user_log.mail_res = mailResult ? 'OK' : 'NG';
-                                        mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
-                                        var fa_icon_mail = window['mail_' + user_log.mail_res];
-                                        action_id.innerHTML = fa_icon_mapp + fa_icon_mail + action_id.innerText;
-                                        console_log += '  /  sendMail: ' + fa_icon_mail + user_log.mail_res;
-                                    }
-                                // 自定义的代码在这里执行 -- 執行訊息渲染                                                           
-                                    $('#result').append(console_log + '</br>');
+                                    $('#result').append(fa_icon_mapp + user.cname + "(" + user.emp_id + ")" + ' ... ' + user_log.mapp_res + '</br>');
 
                                 // 这里可以执行其他自定义的操作
                                 user_logs.push(user_log);                                               // 將log單筆小物件 塞入 logs大陣列中
@@ -541,18 +543,19 @@
             switch (fun) {
                 case 'receive':         // MAPP待簽發報
                     (async () => {
-                        await step_0();     // 等 func1 執行完畢  // step_0 整理訊息、發送、顯示發送結果。
+                        await step_0();     // 等待 func1 執行完畢  // step_0 整理訊息、發送、顯示發送結果。
                         CountDown();        // 當 func1 執行完畢後才會執行 func2    // 倒數 n秒自動關閉視窗~
                     })();
                     break;
 
                 default:
-                    $('#result').append('等待發報 : function error!</br>');
+                    $('#result').append('MAPP待簽發報 : function error!</br>');
             }
 
         }else{
-            $('#result').append('等待發報 : ...standBy...</br>');
+            $('#result').append('MAPP待簽發報 : standBy...</br>');
         }
+
     } );
 
 </script>

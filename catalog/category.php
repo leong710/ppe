@@ -31,7 +31,6 @@
                     <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
                 </div>
             </div>
-            <!-- 分類列表 -->
             <hr>
             <div class="px-4">
                 <table class="table table-striped table-hover">
@@ -128,7 +127,6 @@
                             </table>
                         </div>
 
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_cate_info"></div>
                     </div>
                 </div>
@@ -155,26 +153,26 @@
 
 <script>
 
-    var cate   = <?=json_encode($categories);?>;                                        // 引入cates資料
-    var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];               // 交給其他功能帶入 delete_cate_id
+    var cate   = <?=json_encode($categories);?>;                                                    // 引入cates資料
+    var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];                           // 交給其他功能帶入 delete_cate_id
 
-    function add_module(to_module){                                                     // 啟用新增模式
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
-        $('#reset_btn').click();                                                        // reset清除表單
+    function add_module(to_module){                                                                 // 啟用新增模式
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
+        $('#reset_btn').click();                                                                    // reset清除表單
         var add_btn = '<input type="submit" name="submit_cate" value="新增" class="btn btn-primary">';
-        $('#modal_action').append('新增');                      // model標題
-        $('#modal_button').append(add_btn);                     // 儲存鈕
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        $('#modal_action').append('新增');                                                          // model標題
+        $('#modal_button').append(add_btn);                                                         // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');                                       // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                                                      // 新增模式 = 解除
         document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('edit_mode_bgc');
         document.querySelector("#edit_"+to_module+" .modal-header").classList.add('add_mode_bgc');
     }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
-        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();   // 清除model功能
-        $('#reset_btn').click();                                                        // reset清除表單
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        $('#modal_action, #modal_button, #modal_delect_btn, #edit_'+to_module+'_info').empty();     // 清除model功能
+        $('#reset_btn').click();                                                                    // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');                                       // 指定清除按鈕
+        reset_btn.classList.add('unblock');                                                         // 編輯模式 = 隱藏
         document.querySelector("#edit_"+to_module+" .modal-header").classList.remove('add_mode_bgc');
         document.querySelector("#edit_"+to_module+" .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
@@ -220,10 +218,10 @@
                 async: false,                         // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
-                    function: 'cheng_flag',           // 操作功能
-                    table: e.target.name,
-                    id: e.target.id,
-                    flag: e.target.value
+                    function : 'cheng_flag',           // 操作功能
+                    table    : e.target.name,
+                    id       : e.target.id,
+                    flag     : e.target.value
                 },
                 success: function(res){
                     let res_r = res["result"];
@@ -250,7 +248,6 @@
                 }
             });
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
-
         }
     }
 

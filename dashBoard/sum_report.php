@@ -5,26 +5,16 @@
     accessDenied($sys_id);
 
     // // *** 篩選組合項目~~
-        if(isset($_REQUEST["form"])){                       // report表單類別
-            $form = $_REQUEST["form"];
-        }else{
-            $form = 'receive';                              
-        }
-        if(!in_array($form, ["receive", "issue", "trade"])){          // report表單類別--防呆
+        $form = (isset($_REQUEST["form"])) ? $_REQUEST["form"] : 'receive';         // report表單類別
+
+        if(!in_array($form, ["receive", "issue", "trade"])){                        // report表單類別--防呆
             $form = 'receive';
         }
 
-        if(isset($_REQUEST["report_yy"])){
-            $report_yy = $_REQUEST["report_yy"];
-        }else{
-            $report_yy = date('Y');                         // 今年
-        }
-        if(isset($_REQUEST["report_mm"])){
-            $report_mm = $_REQUEST["report_mm"];
-        }else{
-            // $report_mm = date('m');                      // 今月
-            $report_mm = "All";                             // 今月
-        }
+        $report_yy = (isset($_REQUEST["report_yy"])) ? $_REQUEST["report_yy"] : date('Y');  // 今年
+        $report_mm = (isset($_REQUEST["report_mm"])) ? $_REQUEST["report_mm"] : "All";      // 今月
+        // $report_mm = date('m');                      // 今月
+
         $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
             'report_yy' => $report_yy,
             'report_mm' => $report_mm
@@ -69,15 +59,10 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #fix_local tr > th {
@@ -384,17 +369,13 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
     var report_lists = <?=json_encode($report_lists)?>;           // 引入report_lists資料
@@ -519,7 +500,6 @@
     function groupBy_flag(name){
         var checkbox = document.getElementById(name+"_flag_Switch");
         var flag = checkbox.checked ? "On" : "Off";
-        // console.log(name, flag);
         var table_tr = document.querySelectorAll('.'+name+' > tbody > tr');
         if(flag=='Off'){
             table_tr.forEach(function(row){
@@ -527,7 +507,6 @@
             })
         }else{
             table_tr.forEach(function(row){
-                // console.log(row.children);
                 // 因為外層又包了一個Button導致目標下移
                 if(row.children[row.children.length-1].innerText != ""){
                     row.classList.remove('unblock');
@@ -556,7 +535,6 @@
             }
         }
         var htmlTableValue = JSON.stringify(rowData);
-        // console.log('htmlTableValue:', htmlTableValue);
         document.getElementById(name+'_htmlTable').value = htmlTableValue;
     }
 

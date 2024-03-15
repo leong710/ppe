@@ -18,9 +18,7 @@
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
-<style>
 
-</style>
 <div class="container my-2">
     <div class="row justify-content-center">
         <div class="col-xl-12 col-10 border rounded bg-white p-4 ">
@@ -126,7 +124,6 @@
                             </table>
                         </div>
 
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="formcase_info"></div>
                     </div>
                 </div>
@@ -146,33 +143,31 @@
     </div>
 </div>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var formcase        = <?=json_encode($formcases)?>;               // 引入formcases資料
-    var formcase_item   = ['id', '_type', 'title', 'flag'];           // 交給其他功能帶入 delete_cate_id
+    var formcase        = <?=json_encode($formcases)?>;                                     // 引入formcases資料
+    var formcase_item   = ['id', '_type', 'title', 'flag'];                                 // 交給其他功能帶入 delete_cate_id
 
     function add_module(to_module){     // 啟用新增模式
-        $('#modal_action, #modal_button, #modal_delect_btn, #formcase_info').empty();     // 清除model功能
+        $('#modal_action, #modal_button, #modal_delect_btn, #formcase_info').empty();       // 清除model功能
         $('#reset_btn').click();                                                                    // reset清除表單
         var add_btn = '<input type="submit" name="submit_formcase" value="新增" class="btn btn-primary">';
-        $('#modal_action').append('新增');                      // model標題
-        $('#modal_button').append(add_btn);                     // 儲存鈕
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        $('#modal_action').append('新增');                                                  // model標題
+        $('#modal_button').append(add_btn);                                                 // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');                               // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                                              // 新增模式 = 解除
         document.querySelector("#edit_modal .modal-header").classList.remove('edit_mode_bgc');
         document.querySelector("#edit_modal .modal-header").classList.add('add_mode_bgc');
     }
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
-        $('#modal_action, #modal_button, #modal_delect_btn, #formcase_info').empty();   // 清除model功能
-        $('#reset_btn').click();                                                        // reset清除表單
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        $('#modal_action, #modal_button, #modal_delect_btn, #formcase_info').empty();       // 清除model功能
+        $('#reset_btn').click();                                                            // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');                               // 指定清除按鈕
+        reset_btn.classList.add('unblock');                                                 // 編輯模式 = 隱藏
         document.querySelector("#edit_modal .modal-header").classList.remove('add_mode_bgc');
         document.querySelector("#edit_modal .modal-header").classList.add('edit_mode_bgc');
         // step1.將原排程陣列逐筆繞出來
@@ -214,10 +209,10 @@
             $.ajax({
                 url:'api.php',
                 method:'post',
-                async: false,                         // ajax取得數據包後，可以return的重要參數
+                async: false,                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
-                    function: 'cheng_flag',           // 操作功能
+                    function: 'cheng_flag',                 // 操作功能
                     table: e.target.name,
                     id: e.target.id,
                     flag: e.target.value

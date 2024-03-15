@@ -22,14 +22,10 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         table,td {
@@ -460,14 +456,11 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>    // Alex menu
     var navs = Array.from(document.querySelectorAll(".head > ul > li > a"));
@@ -486,7 +479,6 @@
     })
 
     $(function () {
-        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
 
         // 監聽表單內 input 變更事件

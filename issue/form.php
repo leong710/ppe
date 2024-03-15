@@ -19,29 +19,25 @@
     $query_arr = array(
         'form_type' => $form_type
     );
-    extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
+    extract(show_plan($query_arr));                 // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
     // 去年年份
     $thisYear = date('Y')-1 ;                       // 這裡要減1才會找出去年的用量
 
-        // 刪除表單
-        if(!empty($_POST["delete_issue"])){
-            $check_delete_result = delete_issue($_REQUEST);
-            if($check_delete_result){
-                echo "<script>alert('issue請購需求單 -- 已刪除');</script>";
-                header("refresh:0;url=index.php");
-                exit;		// 請注意
-            }else{
-                echo "<script>alert('issue請購需求單 -- 刪除失敗!!');</script>";
-            }
+    // 刪除表單
+    if(!empty($_POST["delete_issue"])){
+        $check_delete_result = delete_issue($_REQUEST);
+        if($check_delete_result){
+            echo "<script>alert('issue請購需求單 -- 已刪除');</script>";
+            header("refresh:0;url=index.php");
+            exit;		// 請注意
+        }else{
+            echo "<script>alert('issue請購需求單 -- 刪除失敗!!');</script>";
         }
+    }
 
     // 決定表單開啟方式
-    if(!empty($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'create';                         // 沒有action就新開單
-    }
+    $action = (!empty($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';    // 有action就帶action，沒有action就新開單
 
     if(!empty($_REQUEST["id"])){                    // 編輯 或 閱讀時
         $issue_row = show_issue($_REQUEST);
@@ -55,9 +51,9 @@
         $logs_arr = (array) $logs_dec;
 
     }else{
-        $issue_row = array( "id" => "" );           // 預設issue_row[id]=空array
-        $logs_arr = [];                             // 預設logs_arr=空array
-        $action = 'create';                         // 因為沒有id，列為新開單，防止action outOfspc
+        $issue_row  = array( "id" => "" );          // 預設issue_row[id]=空array
+        $logs_arr   = [];                           // 預設logs_arr=空array
+        $action     = 'create';                     // 因為沒有id，列為新開單，防止action outOfspc
     }
 
     if(!empty($_REQUEST["local_id"])){
@@ -79,23 +75,20 @@
         );
         $select_local = select_local($list_issue_setting);
         $buy_ty = $select_local["buy_ty"];
-        $catalogs = read_local_stock($list_issue_setting);    // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
+        $catalogs = read_local_stock($list_issue_setting);          // 後來改用這個讀取catalog清單外加該local的儲存量，作為需求首頁目錄
         $local_low_level = (array) json_decode($select_local["low_level"]);
         $myReceives = show_my_receive($list_issue_setting);         // 列出這個fab_id、今年度的領用單
 
     }else{
-        $select_local = array(
-            'id' => ''
-        );
-        $buy_ty = "";
-        $catalogs = [];
+        $select_local    = array( 'id' => ''  );
+        $buy_ty          = "";
+        $catalogs        = [];
         $local_low_level = [];
-        $myReceives = [];
+        $myReceives      = [];
     }
 
     $allLocals = show_allLocal();                   // 所有儲存站點
 
-    // function select_step(){
         // 身份陣列
         $step_arr = [
             '0' => '填單人',
@@ -135,28 +128,19 @@
         
         // $step套用身份
         $step = $step_arr[$step_index];
-    // }
 
 ?>
 
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #emp_id, #excelFile{    
@@ -524,7 +508,6 @@
                                             <th>Time Signed</th>
                                             <th>Status</th>
                                             <th>Comment</th>
-                                            <!-- <th>action</th> -->
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -609,29 +592,27 @@
                 </div>
             </div>
         </div>
-    <!-- goTop滾動畫面DIV 2/4-->
+
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
         </div>
     
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
 // // // info modal function
-    var action          = '<?=$action;?>';                               // 引入action資料
-    var catalog         = <?=json_encode($catalogs);?>;                  // 引入catalogs資料
-    var issue_row       = <?=json_encode($issue_row);?>;                 // 引入issue_row資料作為Edit
+    var action          = '<?=$action?>';                                // 引入action資料
+    var catalog         = <?=json_encode($catalogs)?>;                   // 引入catalogs資料
+    var issue_row       = <?=json_encode($issue_row)?>;                  // 引入issue_row資料作為Edit
     // var json            = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json            = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id              = '<?=$issue_row["id"]?>';
-    var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
-    var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量
-    var buy_ty          = '<?=$buy_ty;?>';                               // 取得fab的安全倍數
+    var myReceives      = <?=json_encode($myReceives)?>;                  // 引入myReceives資料，算年領用量
+    var receiveAmount   = [];                                             // 宣告變數陣列，承裝Receives年領用量
+    var buy_ty          = '<?=$buy_ty?>';                                 // 取得fab的安全倍數
     
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
@@ -645,6 +626,6 @@
 
 </script>
 
-<script src="issue_form.js?v=<?=time();?>"></script>
+<script src="issue_form.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

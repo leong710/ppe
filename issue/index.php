@@ -11,16 +11,13 @@
     $form_type   = "issue";
     
     // 身分選擇功能：定義user進來要看到的項目
-    // $is_emp_id = "All";    // 預設值=All
+    // $is_emp_id = "All";                          // 預設值=All
     $is_emp_id = $auth_emp_id;                      // 預設值 = 自己
     $is_fab_id = "All";                             // 預設值=All
 
     // 2-1.篩選：檢視allMy或All、其他廠區內表單
-        if(isset($_REQUEST["fab_id"])){
-            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
-        }else{
-            $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
-        }
+        // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠  // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
+        $is_fab_id = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : "allMy";
     // 2-2.篩選身分：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
             $is_emp_id = $_REQUEST["emp_id"];
@@ -28,12 +25,8 @@
             $is_emp_id = $auth_emp_id;
         }
     // 2-3.篩選年分~~
-        if(isset($_REQUEST["_year"])){
-            $_year = $_REQUEST["_year"];
-        }else{
-            // $_year = date('Y');                         // 今年
-            $_year = "All";                                // 全年
-        }
+        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All"; // 全年
+        // $_year = date('Y');                         // 今年
         
     // 組合查詢陣列
         $query_arr = array(
@@ -71,10 +64,10 @@
         $query_arr["fab_id"]  = $is_fab_id;                      // selectFab
 
         $row_lists       = show_issue_list($query_arr);
-        $sum_issues_ship = show_sum_issue_ship($query_arr);    // 統計看板--下：轉PR單
-        $issue_years     = show_issue_GB_year();               // 取出issue年份清單 => 供首頁面篩選
+        $sum_issues_ship = show_sum_issue_ship($query_arr);     // 統計看板--下：轉PR單
+        $issue_years     = show_issue_GB_year();                // 取出issue年份清單 => 供首頁面篩選
         // $_inplan         = show_plan($query_arr);              // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
-        extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
+        extract(show_plan($query_arr));                         // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
         $query_inSign_arr = array(
             'fun'       => "inSign",
@@ -107,15 +100,10 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .page_title, .op_tab_btn {
@@ -553,17 +541,13 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
     // init
@@ -573,7 +557,6 @@
     var start_time  = '<?=$start_time?>';
     var end_time    = '<?=$end_time?>';
                                     
-    // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })

@@ -22,14 +22,9 @@
     $catalog_stocks = show_stock_byCatalog();       // table-2：現場存量總清單 
     $stock_losts = show_stock_lost();               // table-3：安全存量警示清單 
 
-    // 今年年份
-    $today_year = date('Y');
-    // 半年分界線
-    if(date('m') <= 6 ){
-        $half = "H1";
-    }else{
-        $half = "H2";
-    }
+    $today_year = date('Y');                        // 今年年份
+    $half = (date('m') <= 6 ) ? "H1" : "H2";        // 半年分界線
+
     // 建立查詢陣列for顯示今年點檢表
     $check_yh = array(
         'checked_year' => $today_year,
@@ -49,15 +44,10 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" ></script>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .TOP {
@@ -306,7 +296,7 @@
                                             <tbody>
                                                 <!-- 定義陣列 -->
                                                 <?php
-                                                    $fab_balls = [];     // 燈號
+                                                    $fab_balls = [];                                        // 燈號
                                                     $caseNum = 0;
                                                     foreach($stock_percentages as $stock_percentage){ 
                                                         $stock_perc_low_level = $stock_percentage["low_level"];
@@ -323,11 +313,11 @@
 
                                                         } else if($stock_perc_low_level == 0){ 
                                                                 $stock_perc_color = "green";
-                                                                $bar_color = 'rgba(0, 255, 72, 1)';     // 綠色 green
+                                                                $bar_color = 'rgba(0, 255, 72, 1)';         // 綠色 green
 
                                                         } else {
                                                             $stock_perc_color = "blue";
-                                                            $bar_color = 'rgba(54, 162, 235, 1)';   // 藍色 blue 
+                                                            $bar_color = 'rgba(54, 162, 235, 1)';           // 藍色 blue 
                                  
                                                         }
                                                         array_push($fab_balls, array('fab_id' => $stock_percentage["fab_id"] ,'fab_title' => $stock_percentage["fab_title"], 'bgc' => $bar_color ));
@@ -488,14 +478,11 @@
         <div class="col-12"></div>
     <?php } ?>
 
-    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 
 <script>
@@ -512,12 +499,10 @@
         }
     }
 
-    // 在任何地方啟用工具提示框
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
 
-    // 神奇PHP變數帶入js方法
     // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
     // <php echo "var login_AUTH ='$login_AUTH';";?>              // 是否已經登入
 

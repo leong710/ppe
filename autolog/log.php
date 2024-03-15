@@ -9,13 +9,13 @@
 
         // step-1.確認基本數值
             $function = !empty($_REQUEST['function']) ? $_REQUEST['function'] : NULL;     // 操作功能
-            if(empty($function)){
-                if(!empty($aResult['error'])){ 
-                    $aResult['error'] .= ' 未指定function!'; 
-                }else{
-                    $aResult['error'] = ' 未指定function!'; 
-                }
+            
+            if (empty($function) && empty($aResult['error'])) {
+                $aResult['error'] = '未指定function!';
+            } elseif (empty($function) && !empty($aResult['error'])) {
+                $aResult['error'] .= ' 未指定function!';
             }
+            
 
         // step-2.組合查詢參數陣列
             // 接收來自前端的資料

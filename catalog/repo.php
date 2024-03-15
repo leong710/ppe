@@ -10,39 +10,30 @@
         if(isset($_POST["edit_stock_submit"])){ $swal_json = update_stock($_REQUEST); } // 編輯Edit
         if(isset($_POST["delete_stock"])){ $swal_json = delete_stock($_REQUEST); }      // 刪除delete
 
-    if(isset($_REQUEST["sn"])){ 
-        $sort_sn = $_REQUEST["sn"];                     // 有帶查詢
-    }else{
-        $sort_sn = NULL;
+    $sort_sn = (isset($_REQUEST["sn"])) ? $_REQUEST["sn"] : NULL;   // 有帶查詢
+
+    $catalog = edit_catalog($_REQUEST);                             // 上半部 器材資訊
+
+    if(empty($catalog)){                                            // 查無資料時返回指定頁面
+        echo "<script>history.back()</script>";                     // 用script導回上一頁。防止崩煃
     }
 
-    $catalog = edit_catalog($_REQUEST);                 // 上半部 器材資訊
-
-    if(empty($catalog)){                                // 查無資料時返回指定頁面
-        echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
-    }
-
-    $catalogStocks = show_catalogStock($_REQUEST);      // 下半部 庫存資訊=各廠庫存量
-    $locals = show_allLocal();                          // for器材撥補
+    $catalogStocks  = show_catalogStock($_REQUEST);                 // 下半部 庫存資訊=各廠庫存量
+    $locals         = show_allLocal();                              // for器材撥補
 
     // 初始化半年後日期，讓系統判斷與highLight
-    $toDay = date('Y-m-d');
-    $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));
+    $toDay          = date('Y-m-d');
+    $half_month     = date('Y-m-d', strtotime($toDay."+6 month -1 day"));
 
 ?>
 
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #PIC img {
@@ -388,26 +379,22 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 // // // 開局導入設定檔
-    var locals      = <?=json_encode($locals);?>;                           // 引入所有local的locals值
+    var locals      = <?=json_encode($locals)?>;                            // 引入所有local的locals值
     var low_level   = [];                                                   // 宣告low_level變數
-    var stock       = <?=json_encode($catalogStocks);?>;                    // 引入catalogStocks資料
+    var stock       = <?=json_encode($catalogStocks)?>;                     // 引入catalogStocks資料
     var stock_item  = ['id','local_id','cata_SN','standard_lv','amount','po_no','pno','stock_remark','lot_num'];    // 交給其他功能帶入 delete_supp_id
-    var swal_json   = <?=json_encode($swal_json);?>;                        // 引入swal_json值
+    var swal_json   = <?=json_encode($swal_json)?>;                         // 引入swal_json值
 
     // swl function    
     if(swal_json.length != 0){
@@ -516,13 +503,13 @@
 // // // add mode function
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info, #modal_sup').empty();     // 清除model功能
-        $('#reset_btn').click();                                                            // reset清除表單
+        $('#reset_btn').click();                                                                        // reset清除表單
         var add_btn = '<input type="submit" name="add_stock_submit" class="btn btn-primary" value="新增">';
-        $('#modal_action').append('新增');                      // model標題
-        $('#modal_sup').append('：<sup class="text-danger"> ~ 此撥補功能不扣任何存量，請謹慎使用!!!</sup>');  // model標題
-        $('#modal_button').append(add_btn);                     // 儲存鈕
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.remove('unblock');                  // 新增模式 = 解除
+        $('#modal_action').append('新增');                                                              // model標題
+        $('#modal_sup').append('：<sup class="text-danger"> ~ 此撥補功能不扣任何存量，請謹慎使用!!!</sup>'); // model標題
+        $('#modal_button').append(add_btn);                                                             // 儲存鈕
+        var reset_btn = document.getElementById('reset_btn');                                           // 指定清除按鈕
+        reset_btn.classList.remove('unblock');                                                          // 新增模式 = 解除
         document.querySelector("#edit_stock .modal-header").classList.remove('edit_mode_bgc');
         document.querySelector("#edit_stock .modal-header").classList.add('add_mode_bgc');
     }
@@ -530,9 +517,9 @@
     // fun-1.鋪編輯畫面
     function edit_module(to_module, row_id){
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info, #modal_sup').empty();     // 清除model功能
-        $('#reset_btn').click();                                                            // reset清除表單
-        var reset_btn = document.getElementById('reset_btn');   // 指定清除按鈕
-        reset_btn.classList.add('unblock');                     // 編輯模式 = 隱藏
+        $('#reset_btn').click();                                                                        // reset清除表單
+        var reset_btn = document.getElementById('reset_btn');                                           // 指定清除按鈕
+        reset_btn.classList.add('unblock');                                                             // 編輯模式 = 隱藏
         document.querySelector("#edit_stock .modal-header").classList.remove('add_mode_bgc');
         document.querySelector("#edit_stock .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
@@ -557,9 +544,9 @@
 
                 var add_btn = '<input type="submit" name="edit_stock_submit" class="btn btn-primary" value="儲存">';
                 var del_btn = '<input type="submit" name="delete_stock" value="刪除stock儲存品" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
-                $('#modal_action').append('編輯');          // model標題
-                $('#modal_delect_btn').append(del_btn);     // 刪除鈕
-                $('#modal_button').append(add_btn);         // 儲存鈕
+                $('#modal_action').append('編輯');                                                  // model標題
+                $('#modal_delect_btn').append(del_btn);                                             // 刪除鈕
+                $('#modal_button').append(add_btn);                                                 // 儲存鈕
                 return;
             }
         })

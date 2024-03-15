@@ -39,53 +39,36 @@
             );
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
-    // 查詢篩選條件：fab_id
-        if(isset($_SESSION[$sys_id]["fab_id"])){
-            $fab_id = $_SESSION[$sys_id]["fab_id"];                 // 1-1.取fab_id
-        }else{
-            $fab_id = "0";
-        }
-        if(isset($_REQUEST["fab_id"])){     // 有帶查詢，套查詢參數
-            $sort_fab_id = $_REQUEST["fab_id"];
-        }else{                              // 先給預設值
-            $sort_fab_id = $fab_id;
-        }
+    // 查詢篩選條件：fab_id 
+        $fab_id = (isset($_SESSION[$sys_id]["fab_id"])) ? $_SESSION[$sys_id]["fab_id"] : "0";   // 1-1.取fab_id
+        $sort_fab_id = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $fab_id;    // 有帶查詢，套查詢參數，沒有就先給預設值
         // 查詢篩選條件：cate_no
-        if(isset($_REQUEST["cate_no"])){
-            $sort_cate_no = $_REQUEST["cate_no"];
-        }else{
-            $sort_cate_no = "All";
-        }
+        $sort_cate_no = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
 
-        // 今年年份
-        $thisYear = date('Y');
-        // 半年分界線
-        if(date('m') <= 6 ){
-            $half = "H1";
-        }else{
-            $half = "H2";
-        }
+        $thisYear = date('Y');                      // 今年年份
+        $half = (date('m') <= 6 ) ? "H1" : "H2";    // 半年分界線
+        
     // 組合查詢條件陣列
         $query_arr = array(
             'fab_id'        => $sort_fab_id,
             'cate_no'       => $sort_cate_no,
             'thisYear'      => $thisYear,
-            'checked_year'  => $thisYear,               // 建立查詢陣列for顯示今年點檢表
-            'half'          => $half,                   // 建立查詢陣列for顯示今年點檢表
+            'checked_year'  => $thisYear,                  // 建立查詢陣列for顯示今年點檢表
+            'half'          => $half,                      // 建立查詢陣列for顯示今年點檢表
             'form_type'     => $form_type
         );
  
-        $stocks = show_stock($query_arr);                  // 依查詢條件儲存點顯示存量
-        $categories = show_categories();                   // 取得所有分類item
-        $sum_categorys = show_sum_category($query_arr);    // 統計分類與數量
-        $myReceives = show_my_receive($query_arr);         // 列出這個fab_id、今年度的領用單
+        $stocks         = show_stock($query_arr);          // 依查詢條件儲存點顯示存量
+        $categories     = show_categories();               // 取得所有分類item
+        $sum_categorys  = show_sum_category($query_arr);   // 統計分類與數量
+        $myReceives     = show_my_receive($query_arr);     // 列出這個fab_id、今年度的領用單
 
-        $check_yh_list = check_yh_list($query_arr);        // 查詢自己的點檢紀錄：半年檢
+        $check_yh_list  = check_yh_list($query_arr);       // 查詢自己的點檢紀錄：半年檢
         $check_yh_list_num = count($check_yh_list);        // 計算自己的點檢紀錄筆數：半年檢
 
-        $sortFab = show_fab($query_arr);                   // 查詢fab的細項結果
+        $sortFab        = show_fab($query_arr);            // 查詢fab的細項結果
 
-        extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
+        extract(show_plan($query_arr));                    // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
 
     // <!-- 20211215分頁工具 -->
@@ -116,7 +99,6 @@
     // 初始化半年後日期，讓系統判斷與highLight
         $toDay = date('Y-m-d');
         $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -244,13 +226,12 @@
                     <table id="stock_list" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <!-- <th>ai</th> -->
                                 <th><i class="fa fa-check" aria-hidden="true"></i> 儲存點位置</th>
                                 <th>分類</th>
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="
-                                    <?php echo ($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) ) ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
+                                    <?php echo ($sys_role <= 1 ) ? "編輯後按Enter才能儲存":"未有編輯權限";?>
                                     ">現量</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="同儲區&同品項將安全存量合併成一筆計算">安量</th>
                                 <th>備註說明</th>
@@ -266,7 +247,6 @@
                             ?>
                             <?php foreach($stocks as $stock){ ?>
                                 <tr <?php if($check_item != $stock['local_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
-                                    <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
                                             case "1": echo "bg-primary"; break;
@@ -283,7 +263,7 @@
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 
                                     <td id="<?php echo $stock['id'];?>" name="amount" class="fix_amount <?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_itb":"" ;?>" 
-                                        <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) ) ){ ?> contenteditable="true" <?php } ?>>
+                                        <?php if($sys_role <= 1 ){ ?> contenteditable="true" <?php } ?>>
                                         <?php echo $stock['amount'];?></td>
                                     <td class="<?php echo ($stock["amount"] < $stock['standard_lv']) ? "alert_it":"";?>"><?php echo $stock['standard_lv'];?></td>
                                     <td class="word_bk"><?php echo $stock['stock_remark'];?></td>
@@ -292,7 +272,7 @@
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
                                         <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 || ( $sys_role <= 2 && (in_array($sortFab["id"], $sfab_id)) )){ ?>
+                                            <?php if($sys_role <= 1 ){ ?>
                                                     <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
                                                         onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
                                             <?php }else{ echo $stock['updated_at']; } ?>

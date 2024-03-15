@@ -5,12 +5,8 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = $receive_url;                        // 回本頁
-    }
+    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];                 // 回本頁
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : $receive_url; // 回本頁
     
     $auth_cname     = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -20,12 +16,8 @@
     // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     $sys_sfab_id = get_sfab_id($sys_id, "arr");
 
-    // 決定表單開啟方式
-    if(isset($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'review';                         // 沒有action就新開單
-    }
+    // 決定表單開啟方式 // 有action就帶action，沒有action就新開單
+    $action = (isset($_REQUEST["action"])) ? $_REQUEST["action"] : 'review';                         
 
     if(!empty($_REQUEST["uuid"])){
         $receive_row = show_receive($_REQUEST);
@@ -505,15 +497,15 @@
 <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
-    var catalogs             = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料
-    var action               = '<?=$action;?>';                              // Edit選染    // 引入action資料
-    var receive_row          = <?=json_encode($receive_row);?>;              // Edit選染    // 引入receive_row資料作為Edit
-    var receive_collect_role = '<?=$receive_collect_role?>';                 // collect選染 // 引入receive_row_發放人權限作為渲染標記
-    // var json               = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
-    var json                 = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
-    var receive_url          = '<?=$receive_url;?>';                         // push訊息    // 本文件網址
+    var catalogs             = <?=json_encode($catalogs)?>;                 // 第一頁：info modal function 引入catalogs資料
+    var action               = '<?=$action?>';                              // Edit選染    // 引入action資料
+    var receive_row          = <?=json_encode($receive_row)?>;              // Edit選染    // 引入receive_row資料作為Edit
+    var receive_collect_role = '<?=$receive_collect_role?>';                // collect選染 // 引入receive_row_發放人權限作為渲染標記
+    // var json              = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var json                 = <?=json_encode($logs_arr)?>;                 // 鋪設logs紀錄 240124-改去除JSON.parse
+    var receive_url          = '<?=$receive_url?>';                         // push訊息    // 本文件網址
 </script>
 
-<script src="receive_show.js?v=<?=time();?>"></script>
+<script src="receive_show.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

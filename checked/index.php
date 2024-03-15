@@ -6,28 +6,20 @@
 
     // 先給預設值
     $auth_fab_id = $_SESSION[$sys_id]["fab_id"];
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];              // 取出$_session引用
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];         // 取出$_session引用
+    $sys_role    = $_SESSION[$sys_id]["role"];          // 取出$_session引用
 
     if(isset($_POST["checked_delete"])){ $swal_json = delete_checked_item($_REQUEST); }      // 刪除delete
 
-        // 今年年份
-        $thisYear = date('Y');                          // 今年
+        // 今年年份 // 今年
+        $thisYear = date('Y');                          
         // // *** 篩選組合項目~~
-        if(isset($_REQUEST["checked_year"])){
-            $checked_year = $_REQUEST["checked_year"];
-        }else{
-            $checked_year = $thisYear;                  // 今年
-            // $_year = "All";                          // 全部
-        }
-        // 半年分界線
-            if(date('m') <= 6 ){
-                $half = "H1";
-            }else{
-                $half = "H2";
-            }
+        $checked_year = (isset($_REQUEST["checked_year"])) ? $_REQUEST["checked_year"] : $thisYear;   // 今年
+        // $_year = "All";                              // 全部
 
-    $query_arr = array(                              // 組合查詢陣列
+        $half = (date('m') <= 6 ) ? "H1" : "H2";        // 半年分界線
+
+    $query_arr = array(                                 // 組合查詢陣列
         'fab_id'        => $auth_fab_id,
         'emp_id'        => $auth_emp_id,
         'checked_year'  => $checked_year,               // 建立查詢陣列for顯示今年點檢表
@@ -68,7 +60,6 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
         .TOP {
@@ -196,7 +187,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- 鋪設內容 -->
                                     <?php foreach($checked_years as $checked_year){ ?>
                                         <tr>
                                             <td><?php echo $checked_year['checked_year']."_".$checked_year['half']."</br>".$checked_year['form_type'];
@@ -393,18 +383,14 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
-    // 神奇PHP變數帶入js方法
     // <php echo "var check_yh_list_num ='$check_yh_list_num';";?>
     // 半年檢
     var check_yh_list_num   = 'x';

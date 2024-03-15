@@ -23,7 +23,6 @@
 
         // fun-2.更新現有庫存之安全存量
         case "update_stock_stand_lv":        // 編輯
-
             // step-1.把local中的low_level安全水位叫出來
                 $select_local = select_local($_REQUEST);
                 if(empty($select_local)){                                       // 查無資料時返回指定頁面
@@ -34,10 +33,8 @@
                 $buy_ty = $select_local["buy_ty"];                              // 限購規模
                 $low_level = json_decode($select_local["low_level"]);           // 安全存量
                 if(is_object($low_level)) { $low_level = (array)$low_level; }   // 物件轉陣列
-
             // step-2.把local中的low_level安全水位叫出來
                 $stock_cata_SN = show_stock_cata_SN($_REQUEST);       // 列出目前stock中對象local裡的cata_SN清單
-
             // step-3.
                 foreach($stock_cata_SN AS $row){
                     $process_local = array(
@@ -48,7 +45,6 @@
                     $swal_json = update_stock_stand_lv($process_local);
                 }
             break;
-
         default:            // 預定失效 
             echo "bg-light text-success"; 
             break;

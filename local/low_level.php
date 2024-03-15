@@ -48,21 +48,11 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
-        <!-- <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css"> -->
-        <!-- <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script> -->
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .img:checked + label{
@@ -399,24 +389,23 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 有數量自動勾選，沒數量自動取消 -->
 <script>
+    // 有數量自動勾選，沒數量自動取消
     // 找出Local_id算SN年領用量
-    var catalogs        = <?=json_encode($catalogs);?>;                  // 引入myReceives資料，算年領用量
-    var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
+    var catalogs        = <?=json_encode($catalogs)?>;                   // 引入myReceives資料，算年領用量
+    var myReceives      = <?=json_encode($myReceives)?>;                 // 引入myReceives資料，算年領用量
     var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量
-    var buy_ty          = '<?=$buy_ty;?>';                               // 取得fab的安全倍數
+    var buy_ty          = '<?=$buy_ty?>';                                // 取得fab的安全倍數
 
 </script>
 
-<script src="local_low_level.js?v=<?=time();?>"></script>
+<script src="local_low_level.js?v=<?=time()?>"></script>
  
 <?php include("../template/footer.php"); ?>

@@ -337,8 +337,8 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="omager" id="omager" class="form-control" required <?php echo ($sys_role != 0) ? "":"readonly";?> onchange="search_fun(this.value);">
-                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> * <?php echo ($sys_role != 0) ? "":"readOnly";?> </sup></label>
+                                                <input type="text" name="omager" id="omager" class="form-control" required <?php echo ($sys_role == 0) ? "":"readonly";?> onchange="search_fun(this.value);">
+                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> * <?php echo ($sys_role == 0) ? "":"readOnly";?> </sup></label>
                                                 <div id="omager_badge"></div>
                                             </div>
                                             <input type="hidden" name="in_signName" id="in_signName" class="form-control">

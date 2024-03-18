@@ -21,7 +21,7 @@
     if(isset($_POST["delete_local"])){ delete_local($_REQUEST); }
     if(isset($_POST["delete_ptlocal"])){ delete_ptlocal($_REQUEST); }
     // 調整flag ==> 20230712改用AJAX
-
+    
     // 3.組合查詢陣列
     $query_arr = array(
         'sys_id' => $sys_id,
@@ -37,6 +37,8 @@
 
     // 切換指定NAV分頁
     $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 2 = local
+
+    if(isset($_GET["make_server_window"])){ make_server_window($fabs); }
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -317,11 +319,26 @@
                     </div>
                     <hr>
                 </div>
+                <div class="">
+                    <table id="service_window">
+                        <thead>
+                            <tr>
+                                <th>FAB</th>
+                                <th>窗口姓名</th>
+                                <th>分機</th>
+                                <th>email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增編輯site-->
+<!-- 模組 新增編輯site-->
     <div class="modal fade" id="edit_site" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -387,7 +404,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 新增編輯fab-->
+<!-- 模組 新增編輯fab-->
     <div class="modal fade" id="edit_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
@@ -525,7 +542,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 新增編輯Local-->
+<!-- 模組 新增編輯Local-->
     <div class="modal fade" id="edit_local" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -600,7 +617,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組 新增編輯ptLocal 20240122 -->
+<!-- 模組 新增編輯ptLocal 20240122 -->
     <div class="modal fade" id="edit_ptlocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -702,5 +719,6 @@
 </script>
 
 <script src="local.js?v=<?=time()?>"></script>
+<script src="make_service_window.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

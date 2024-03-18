@@ -666,3 +666,17 @@
         // 1-1c sfab_id是陣列，要轉成字串
         return $result;
     }
+
+    // 20240318 ~ 製作服務窗口
+    function make_server_window($fabs){
+        // echo "<div class='text-white'><pre>";
+        // print_r($fabs);
+        // echo "</pre></div>";
+        echo "<div class='text-white'>";
+        foreach($fabs as $fab){
+            echo "Fab：".$fab["fab_title"]."&nbsp/&nbsp"."cname：".$fab["pm_emp_id"]."<br/>";
+        }
+        echo "</div>";
+    }
+
+    

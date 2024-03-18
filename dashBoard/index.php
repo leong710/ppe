@@ -181,7 +181,7 @@
                 </div>
 
                 <?php if($login_AUTH){ ?>
-                    <!-- 0.實驗性綜合統計數字看板 -->
+                    <!-- 0.綜合統計數字看板 -->
                     <div class="col_xl_10 col-10 rounded p-3 my-2" style="background-color: rgba(255, 255, 255, .7);">
                         <div class="row center">
                             <div class="col-6 col-md-3">
@@ -382,7 +382,6 @@
                                     </thead>
                                     <tbody>
                                         <?php foreach($catalog_stocks as $catalog){ 
-                                            // $cata_pc = round($catalog["stock_amount"]/($catalog["stock_stand"])*100,2);   // 預防出錯
                                             $cata_stock_amount = ( $catalog["stock_amount"] == 0 ? 1 : $catalog["stock_amount"] );
                                             $cata_stock_stand  = ( $catalog["stock_stand"]  == 0 ? 1 : $catalog["stock_stand"] );
                                             $cata_pc = round(($cata_stock_amount / $cata_stock_stand)*100,2);
@@ -439,7 +438,6 @@
                                     <tbody>
                                         <?php $check_item ="";
                                             foreach($stock_losts as $stock_lost){ 
-                                                // $stock_pc = round($stock_lost["stock_amount"]/($stock_lost["stock_stand"])*100,2);   // 預防出錯
                                                 $stock_lost_amount = ( $stock_lost["stock_amount"] == 0 ? 1 : $stock_lost["stock_amount"] );
                                                 $stock_lost_stand  = ( $stock_lost["stock_stand"]  == 0 ? 1 : $stock_lost["stock_stand"] );
                                                 $stock_pc = round(($stock_lost_amount / $stock_lost_stand)*100,2);
@@ -482,6 +480,7 @@
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
+
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 
@@ -500,6 +499,7 @@
     }
 
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
     })
 

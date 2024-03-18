@@ -224,7 +224,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組-權限說明 -->
+<!-- 模組-權限說明 -->
     <div class="modal fade" id="role_info" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -511,19 +511,20 @@
             return false;
         } 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
-                functionname: 'search',                         // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',   // ppe
-                search: search                                  // 查詢對象key_word
+                functionname: 'search',                                 // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                search: search                                          // 查詢對象key_word
             },
             success: function(res){
                 var res_r = res["result"];
-                postList(res_r);                            // 將結果轉給postList進行渲染
+                postList(res_r);                                        // 將結果轉給postList進行渲染
                 $("body").mLoading("hide");
-                document.getElementById("searchUser_btn").click();                              // 切到searchUser頁面
+                document.getElementById("searchUser_btn").click();      // 切到searchUser頁面
             },
             error (err){
                 console.log("search error:", err);

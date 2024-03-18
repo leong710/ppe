@@ -21,7 +21,6 @@
 
         // 1.左上功能--我的待簽清單
         if($fun == 'inSign'){                                               // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
-            // $sql .= " WHERE (_r.idty IN (1, 11, 13) AND _r.in_sign = ? ) ";
             $sql .= " WHERE (_r.idty IN (1, 11) AND _r.in_sign = ? ) OR (_r.idty = 13 AND FIND_IN_SET({$emp_id}, _f.pm_emp_id)) ";
 
         // 2.左下功能--廠區待領清單
@@ -38,8 +37,6 @@
             if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階   
                 $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
                 if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
-                    // $sql .= " LEFT JOIN _users _u ON _l.fab_id = _u.fab_id OR FIND_IN_SET(_l.fab_id, _u.sfab_id)
-                    //           WHERE (FIND_IN_SET(_l.fab_id, _u.sfab_id) OR (_l.fab_id = _u.fab_id)) AND (_u.emp_id = ?) ";
                     $sql .= " _l.fab_id IN ({$sfab_id}) ";
                 }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
                     $sql .= " _l.fab_id = ? ";
@@ -48,7 +45,7 @@
             }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
             if($is_emp_id != "All"){                                        // 處理過濾 is_emp_id != All  
                 $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
-                $sql .= " ( ? IN (_r.emp_id, _r.created_emp_id)) ";     // 申請單加上查詢對象的is_emp_id
+                $sql .= " ( ? IN (_r.emp_id, _r.created_emp_id)) ";         // 申請單加上查詢對象的is_emp_id
                 array_push($stmt_arr, $is_emp_id);
             }
         }
@@ -76,7 +73,6 @@
                 }else{
                     $stmt->execute();                                   //處理 byAll
                 }
-                // $stmt->execute([$fab_id == 'allMy' ? $emp_id : $fab_id]);
             } else {                                                // $_5我的待領清單myCollect 'myCollect'
                 $stmt->execute();
             }
@@ -145,7 +141,6 @@
             }
         }
 
-        // 後段-堆疊查詢語法：加入排序
         $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
                 

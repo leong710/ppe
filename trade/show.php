@@ -5,12 +5,7 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    $trade_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = $trade_url;                          // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
@@ -20,11 +15,7 @@
     $sys_sfab_id = get_sfab_id($sys_id, "arr");
 
     // 決定表單開啟方式
-    if(isset($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'review';                         // 沒有action就新開單
-    }
+    $action = (isset($_REQUEST["action"])) ? $_REQUEST["action"] : 'review';   // 有action就帶action，沒有action就新開單
 
     if(!empty($_REQUEST["id"])){
         $trade_row = show_trade($_REQUEST);                 // 讀取表單
@@ -147,21 +138,13 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
 
-    </style>
 </head>
 
 <body>
@@ -188,8 +171,6 @@
                                     case "13": echo "bg-danger'>待簽";              break;
                                     default  : echo "'>na";                         break; 
                                 }
-                            // echo "<sup> ".$trade_row['idty']."</sup>";
-                            // echo " ... ".$step;
                             echo "</span></h3>";
                         ?>
                     </div>
@@ -216,7 +197,6 @@
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
                     <form action="store.php" method="post">
-                    <!-- <form action="./zz/debug.php" method="post"> -->
 
                         <!-- 3.申請單成立 -->
                         <div class="bg-white rounded" id="nav-review" >
@@ -379,7 +359,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="font-size: 6px;" class="text-end">
+                            <div style="font-size: 12px;" class="text-end">
                                 logs-end
                             </div>
                         </div>
@@ -390,21 +370,17 @@
         </div>
     </div>
 
-    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
     var action      = '<?=$action;?>';                                  // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                     // 引入catalogs資料
     var trade_row   = <?=json_encode($trade_row);?>;                    // 引入trade_row資料作為Edit
-    // var json          = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json        = <?=json_encode($logs_arr)?>;                      // 鋪設logs紀錄 240124-改去除JSON.parse
 
 </script>

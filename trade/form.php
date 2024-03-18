@@ -5,11 +5,7 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
@@ -29,11 +25,7 @@
         // if(!empty($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
-    if(!empty($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'create';                         // 沒有action就新開單
-    }
+    $action = (!empty($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
     if(!empty($_REQUEST["id"])){                    // 編輯 或 閱讀時
         $trade_row = show_trade($_REQUEST);
@@ -122,21 +114,13 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
 </head>
 
@@ -150,7 +134,6 @@
                         <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥出庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
                         <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
@@ -357,8 +340,8 @@
                                         <!-- 表列5 說明 -->
                                         <div class="col-12 py-1">
                                             備註：
-                                            </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                            </br>&nbsp2.簽核：申請人=>承辦人=>PR待轉=>轉PR=>表單結案。 
+                                            </br>&nbsp1.填入入庫廠區。
+                                            </br>&nbsp2.簽核：申請人=>填單人確認調撥廠區與數量=>系統於調撥出庫/入庫廠區自動扣帳。 
                                         </div>
                                     </div>
                                     
@@ -378,7 +361,7 @@
                             </div>
 
                         </div>
-                        <!-- 彈出畫面模組 saveSubmit-->
+                        <!-- 模組 saveSubmit-->
                         <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable">
                                 <div class="modal-content">
@@ -430,7 +413,6 @@
                                             <th>Time Signed</th>
                                             <th>Status</th>
                                             <th>Comment</th>
-                                            <!-- <th>action</th> -->
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -457,7 +439,7 @@
                 </div>
             </div>
         </div>
-    <!-- 彈出說明模組 cata_info -->
+    <!-- 模組 cata_info -->
         <div class="modal fade" id="cata_info" tabindex="-1" aria-labelledby="cata_info" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg">
                 <div class="modal-content">
@@ -477,24 +459,21 @@
                 </div>
             </div>
         </div>
-    <!-- goTop滾動畫面DIV 2/4-->
+
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
         </div>
     
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
 // // // info modal function
-    var action      = '<?=$action;?>';                                      // 引入action資料
-    var catalogs    = <?=json_encode($catalogs);?>;                         // 引入catalogs資料
-    var allcatalogs = <?=json_encode($allcatalogs);?>;                      // 引入allcatalogs資料
-    var trade_row   = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
-    // var json        = JSON.parse('<=json_encode($logs_arr)?>');          // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var action      = '<?=$action?>';                                       // 引入action資料
+    var catalogs    = <?=json_encode($catalogs)?>;                          // 引入catalogs資料
+    var allcatalogs = <?=json_encode($allcatalogs)?>;                       // 引入allcatalogs資料
+    var trade_row   = <?=json_encode($trade_row)?>;                         // 引入trade_row資料作為Edit
     var json        = <?=json_encode($logs_arr)?>;                          // 鋪設logs紀錄 240124-改去除JSON.parse
     var id          = '<?=$trade_row["id"]?>';
 

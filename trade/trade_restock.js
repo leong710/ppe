@@ -184,13 +184,14 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
-                functionname: 'showStaff',                          // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
-                search: search                                      // 查詢對象key_word
+                functionname: 'showStaff',                              // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
                 var obj_val = res["result"];
@@ -337,11 +338,11 @@
             Object.keys(cart_row).forEach(function(cart_row_key){
                 var cata_SN    = cart_row_key;                   
                 var arr_amount = cart_row[cart_row_key];
-                check_item(cata_SN, 0);                 // call function 查找已存在的項目，並予以清除。
+                check_item(cata_SN, 0);                     // call function 查找已存在的項目，並予以清除。
                 add_item(cata_SN, arr_amount, 'off');
             })
         })
-        $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+        $('.nav-tabs button:eq(1)').tab('show');            // 切換頁面到購物車
 
     }
 

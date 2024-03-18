@@ -71,7 +71,6 @@
     for(let flagBtn of flagBtns){
         flagBtn.onclick = e => {
             let swal_content = e.target.name+'_id:'+e.target.id+'=';
-            console.log('e:',e.target.name,e.target.id);
             $.ajax({
                 url:'api.php',
                 method:'post',
@@ -108,7 +107,7 @@
                 }
             });
 
-            // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
+            // swal('套用資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
 
         }
@@ -127,13 +126,14 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
-            method:'get',
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
+            method:'post',
             dataType:'json',
             data:{
-                functionname: 'showStaff',                          // 操作功能
-                uuid: '39aad298-a041-11ed-8ed4-2cfda183ef4f',
-                search: search                                      // 查詢對象key_word
+                functionname: 'showStaff',                              // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
                 var res_r = res["result"];
@@ -141,12 +141,6 @@
                 if (res_r !== '') {
                     var obj_val = res_r;                                         // 取Object物件0
                     if(obj_val){     
-                        // $('#selectUserItem').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
-                        // tags.push(obj_val.emp_id, obj_val.cname);
-                        // let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
-                        // if(edit_pm_emp_id){
-                        //     edit_pm_emp_id.value = tags;
-                        // }
                         var com_val = obj_val.emp_id+','+obj_val.cname;
                         tagsInput_me(com_val);
 
@@ -233,7 +227,6 @@
 
     $(document).ready(function(){
         // 切換指定NAV分頁
-
-            //激活选项卡
-            $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
+        //激活选项卡
+        $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
     });

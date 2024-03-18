@@ -36,16 +36,12 @@
         $per_total = count($checked_lists);     //計算總筆數
         $per = 25;                              //每頁筆數
         $pages = ceil($per_total/$per);         //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        if(!isset($_GET['page'])){              //!isset 判斷有沒有$_GET['page']這個變數
-            $page = 1;	  
-        }else{
-            $page = $_GET['page'];
-        }
+        // !isset 判斷有沒有$_GET['page']這個變數
+        $page = (!isset($_GET['page'])) ? 1 : $_GET['page'];
         $start = ($page-1)*$per;                //每一頁開始的資料序號(資料庫序號是從0開始)
             // 合併嵌入分頁工具
             $query_arr["start"] = $start;
             $query_arr["per"] = $per;
-
         $div_checkeds = show_checked($query_arr);
         $page_start = $start +1;                //選取頁的起始筆數
         $page_end = $start + $per;              //選取頁的最後筆數
@@ -264,7 +260,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 除汙器材領用 品項 -->
+<!-- 模組 除汙器材領用 品項 -->
     <div class="modal fade" id="review_checked" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <!-- <div class="modal-dialog modal-fullscreen"> -->
         <div class="modal-dialog modal-xl">
@@ -345,7 +341,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組2 匯出CSV-->
+<!-- 模組2 匯出CSV-->
     <div class="modal fade" id="doCSV" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -387,6 +383,7 @@
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
+
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
@@ -401,6 +398,6 @@
 
 </script>
 
-<script src="checked.js?v=<?=time();?>"></script>
+<script src="checked.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

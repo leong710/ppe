@@ -5,11 +5,7 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -29,36 +25,21 @@
 
         
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
-            if($sys_role <=1 ){
-                $fab_scope = "All";                 // All
-            }else{
-                $fab_scope = "allMy";               // allMy
-            }
+            $fab_scope = ($sys_role <=1 ) ? "All" : "allMy";               // All :allMy
+
         // 查詢篩選條件：fab_id
-            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
-                $select_fab_id = $_REQUEST["select_fab_id"];
-            }else{                              // 先給預設值
-                $select_fab_id = $fab_scope;                // All
-            }
+            $select_fab_id = (isset($_REQUEST["select_fab_id"])) ? $_REQUEST["select_fab_id"] : $fab_scope; // 有帶查詢，套查詢參數          // 先給預設值  All
         
         // 1-1 將sys_fab_id加入sfab_id
-            if(!isset($sfab_id_str) && isset($_SESSION[$sys_id]["sfab_id_str"])){
-                // 1-1 將sys_fab_id加入sfab_id
-                $sfab_id_str = $_SESSION[$sys_id]["sfab_id_str"];     // 1-1c sfab_id是陣列，要轉成字串str
-            }else{
-                $sfab_id_str = get_sfab_id($sys_id, "str");          // 1-1c sfab_id是陣列，要轉成字串str
-            }   
+            // 1-1 將sys_fab_id加入sfab_id   // 1-1c sfab_id是陣列，要轉成字串str
+            $sfab_id_str = (!isset($sfab_id_str) && isset($_SESSION[$sys_id]["sfab_id_str"])) ? $_SESSION[$sys_id]["sfab_id_str"] : get_sfab_id($sys_id, "str");
             $sfab_id_arr = explode(',', $sfab_id_str);
 
         // 1-2 組合查詢條件陣列
         // 今年年份
             $thisYear = date('Y');
             // 半年分界線
-            if(date('m') <= 6 ){
-                $half = "H1";
-            }else{
-                $half = "H2";
-            }
+            $half = (date('m') <= 6 ) ? "H1" : "H2";
         
     // 組合查詢條件陣列
         $query_arr = array(
@@ -100,28 +81,7 @@
             // }
         extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
-    // <!-- 20211215分頁工具 -->
         $per_total = count($stocks);        //計算總筆數
-            // $per = 25;                          //每頁筆數
-            // $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-            //     if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
-            //         $page = 1;	  
-            //     }else{
-            //         $page = $_GET['page'];
-            //     }
-            //     $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
-            //     // 合併嵌入分頁工具
-            //     $query_arr['start'] = $start;
-            //     $query_arr['per'] = $per;
-
-            // $div_stocks = show_stock($query_arr);
-            // // $div_stocks = stock_page_div($start, $per, $query_arr);
-            // $page_start = $start +1;            //選取頁的起始筆數
-            // $page_end = $start + $per;          //選取頁的最後筆數
-            //     if($page_end>$per_total){       //最後頁的最後筆數=總筆數
-            //         $page_end = $per_total;
-            //     }
-    // <!-- 20211215分頁工具 -->
     
     // 今年年份
         $thisYear = date('Y');
@@ -143,25 +103,17 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
-        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
+        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">  <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
     <style>
         .body > ul {
             padding-left: 0px;
         }
-
         /* 凸顯可編輯欄位 */
             .fix_amount:hover {
                 /* font-size: 1.05rem; */
@@ -260,12 +212,9 @@
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 pb-0"></div>
                     </div>
-                    <!-- <hr> -->
-                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->               
                     <table id="stock_list" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <!-- <th>ai</th> -->
                                 <th><i class="fa fa-check" aria-hidden="true"></i> 儲存點位置</th>
                                 <th>PIC</th>
                                 <th>名稱</th>
@@ -278,18 +227,15 @@
                                 <th>備註說明</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="效期小於3個月將highlight">批號/期限</th>
                                 <th>Flag</th>
-                                <!-- <th>PO no</th> -->
                                 <th>最後更新</th>
                             </tr>
                         </thead>
-                        <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                         <tbody>
                             <?php 
                                 $check_item ="";
                             ?>
                             <?php foreach($stocks as $stock){ ?>
                                 <tr <?php echo ($check_item != $stock['local_id']) ? 'style="border-top:3px #FFD382 solid;"':'';?>>
-                                    <!-- <td style="font-size: 12px;"><php echo $stock['id'];?></td> -->
                                     <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."</br>".$stock['local_title'];?></td>
                                     <td><img src="../catalog/images/<?php echo $stock["PIC"];?>" class="img-thumbnail"></td>
          
@@ -313,7 +259,6 @@
                                     <td <?php if($stock["lot_num"] < $half_month){ ?> style="background-color:#FFBFFF;color:red;" data-toggle="tooltip" data-placement="bottom" title="有效期限小於：<?php echo $half_month;?>" <?php } ?>>
                                         <?php echo $stock['lot_num'];?></td>
                                     <td><?php echo $stock['flag'];?></td>
-                                    <!-- <td style="font-size: 12px;"><php echo $stock['po_no'];?></td> -->
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_cname'];?>">
                                         <?php if(isset($stock['id'])){ ?>
                                             <?php if($sys_role <= 1 ){ ?>
@@ -333,7 +278,7 @@
         </div>
     </div>
    
-<!-- 彈出畫面模組 新增、編輯ptstock品項 -->
+<!-- 模組 新增、編輯ptstock品項 -->
     <div class="modal fade" id="edit_ptstock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -435,7 +380,6 @@
                         <div class="col-12 rounded bg-light pt-0">
                             *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_ptstock_info"></div>
                     </div>
 
@@ -455,7 +399,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 所屬區域器材儲存量總表for年檢用 -->
+<!-- 模組 所屬區域器材儲存量總表for年檢用 -->
     <div class="modal fade" id="checkList" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -502,7 +446,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- 最後編輯資訊 -->
                     </div>
 
                     <div class="modal-footer">
@@ -518,7 +461,6 @@
                             <input type="hidden" name="cname"           value="<?php echo $auth_cname; ?>">
                             <input type="hidden" name="checked_year"    value="<?php echo $today_year;?>">
                             <input type="hidden" name="half"            value="<?php echo $half;?>">
-                            <!-- <input type="hidden" name="cate_no"         value="<php echo $sort_cate_no;?>"> -->
                             <input type="hidden" name="updated_user"    value="<?php echo $auth_cname;?>">
                             <?php if($sys_role <= 2){ ?>   
                                 <input type="submit" value="Submit" name="submit" class="btn btn-primary">
@@ -532,7 +474,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 除汙器材領用 品項 -->
+<!-- 模組 除汙器材領用 品項 -->
     <div class="modal fade" id="receive" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -633,18 +575,14 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-<script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/aos/aos.js"></script>                       <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>                  <!-- goTop滾動畫面script.js 4/4-->
+<script src="../../libs/sweetalert/sweetalert.min.js"></script>     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 
 <script>
 // // // 開局導入設定檔
@@ -675,6 +613,6 @@
     
 </script>
 
-<script src="pt_stock.js?v=<?=time();?>"></script>
+<script src="pt_stock.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

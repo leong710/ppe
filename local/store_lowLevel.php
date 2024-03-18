@@ -81,11 +81,11 @@
             // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});           // 關閉畫面
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back();});          // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});          // 關閉畫面
             }
     
         }else{

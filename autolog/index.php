@@ -31,16 +31,12 @@
         $per_total = count($row_lists);     //計算總筆數
         $per = 5;                           //每頁筆數
         $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        if(!isset($_GET['page'])){          //!isset 判斷有沒有$_GET['page']這個變數
-            $page = 1;	  
-        }else{
-            $page = $_GET['page'];
-        }
+        // !isset 判斷有沒有$_GET['page']這個變數
+        $page = (!isset($_GET['page'])) ? 1 : $_GET['page'];
         $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
             $query_arr["start"]  = $start;
             $query_arr["per"]    = $per;
-
         $row_lists_div = show_log_list($query_arr);
         $page_start = $start +1;            //選取頁的起始筆數
         $page_end = $start + $per;          //選取頁的最後筆數
@@ -307,7 +303,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組-API連線說明 -->
+<!-- 模組-API連線說明 -->
     <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -377,7 +373,9 @@
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
+
 </body>
+
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 

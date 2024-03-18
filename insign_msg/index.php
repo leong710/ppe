@@ -176,6 +176,7 @@
 
         // 子功能
         $(function () {
+            // 在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
         })
         // tab_table的顯示關閉功能
@@ -316,7 +317,7 @@
 
             $.ajax({
                 // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
-                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式新版
+                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',

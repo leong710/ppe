@@ -124,7 +124,7 @@
                 }
             });
 
-            // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
+            // swal(' ' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             
             if(swal_action == 'error'){
                 swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:3000});
@@ -178,7 +178,7 @@
             }
         });
         // 切換指定NAV分頁
+        // 激活选项卡
+        // $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
 
-            //激活选项卡
-            // $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
     });

@@ -107,13 +107,14 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
-                functionname: 'showStaff',                          // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
-                search: search                                      // 查詢對象key_word
+                functionname: 'showStaff',                              // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
                 var res_r = res["result"];
@@ -237,29 +238,29 @@
         receive_msg = sort_receive();       // 呼叫fun 取得整理的文字串
 
         $.ajax({
-            url:'http://10.53.248.167/SendNotify',                              // 20230505 正式修正要去掉port 801
+            // url:'http://10.53.248.167/SendNotify',                           // 20230505 正式修正要去掉port 801
+            url:'http://tneship.cminl.oa/api/pushmapp/index.php',               // 正式2024新版
             method:'post',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                eid : emp_id,                                                   // 傳送對象
+                uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',               // ppe
+                eid     : emp_id,                                               // 傳送對象
                 message : receive_msg                                           // 傳送訊息
             },
             success: function(res){
                 console.log("push_mapp -- success：",res);
-                // swal_content = '推送成功';
-                // swal_action = 'success';
+                swal_content = '推送成功';
+                swal_action = 'success';
             },
             error: function(res){
                 console.log("push_mapp -- error：",res);
-                // swal_content = '推送失敗';
-                // swal_action = 'error';
+                swal_content = '推送失敗';
+                swal_action = 'error';
             }
         });
         
         var swal_title = '領用申請單-發放訊息';
-        var swal_content = '推送成功';
-        var swal_action = 'success';
         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:2000});        // swal自動關閉
         $("body").mLoading("hide");
         

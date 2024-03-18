@@ -235,7 +235,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面說明模組 圖片瀏覽-->
+<!-- 模組 圖片瀏覽-->
     <div class="modal fade" id="about-1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
             <div class="modal-content">
@@ -253,7 +253,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 器材提撥、編輯stock品項 -->
+<!-- 模組 器材提撥、編輯stock品項 -->
     <div class="modal fade" id="edit_stock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -350,7 +350,6 @@
                         <div class="col-12 rounded bg-light pt-0">
                             *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_stock_info"></div>
                     </div>
 
@@ -365,7 +364,6 @@
                         </div>
                     </div>
                 </form>
-    
             </div>
         </div>
     </div>
@@ -379,6 +377,7 @@
             </div>
         </div>
     </div>
+    
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>

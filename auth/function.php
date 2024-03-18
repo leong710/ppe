@@ -36,7 +36,6 @@
             $stmt -> execute([$emp_id, $user, $cname, $fab_id, $sfab_id, $role, $idty]);
             echo "<script>alert('註冊成功，請重新登入')</script>";
             if(!isset($_SESSION["AUTH"])){
-                // require_once("count_visitor.php");      // 網站計數器
                 header("refresh:0;url=login.php");
                 return;
             }else{

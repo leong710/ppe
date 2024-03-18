@@ -2,7 +2,6 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
-    // accessDenied($sys_id);
     accessDeniedAdmin($sys_id);
 
     $auth_cname = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
@@ -73,7 +72,7 @@
     </div>
 </div>
 
-<!-- 彈出畫面模組 編輯、新增-->
+<!-- 模組 編輯、新增-->
 <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >
     <div class="modal-dialog">
         <div class="modal-content">

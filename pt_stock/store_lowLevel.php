@@ -1,6 +1,5 @@
 <?php
     require_once("../pdo.php");
-    // require_once("function.php");
     require_once("function_pt_local.php");
     extract($_REQUEST);
    
@@ -11,7 +10,7 @@
         case "store_lowLevel":      
             if(empty($select_local_id) || empty($low_level)){                          // 資料判斷 
                 echo "<script>alert('參數錯誤_1 !!! (你沒有選Local或填數量)');</script>";
-                header("refresh:0;url=low_level.php?select_fab_id={$select_fab_id}&select_local_id={$select_local_id}");                          // 用script導回上一頁。防止崩煃
+                header("refresh:0;url=low_level.php?select_fab_id={$select_fab_id}&select_local_id={$select_local_id}");  // 用script導回上一頁。防止崩煃
                 return;
             }else{
                 $swal_json = store_lowLevel($_REQUEST);
@@ -99,7 +98,7 @@
 
 <script>    
     
-    var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
+    var swal_json = <?=json_encode($swal_json)?>;                                      // 引入swal_json值
     var url = '<?=$up_href?>';
 
     $(document).ready(function () {
@@ -109,11 +108,11 @@
             // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});           // 關閉畫面
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back();});          // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});          // 關閉畫面
             }
     
         }else{

@@ -4,8 +4,6 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    // 調整flag ==> 20230712改用AJAX
-
     $sort_cate_no   = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
     $sort_category  = array( 'cate_no' => $sort_cate_no );
 
@@ -28,7 +26,6 @@
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
-
         /* PIC圖片初始設定 */
         .cover_btn {
             max-width: 250px;
@@ -57,7 +54,6 @@
 
     </style>
 </head>
-<!-- <div class="container"> -->
 <div class="col-12">
     <div class="row justify-content-center">
         <div class="col-xl-12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
@@ -166,9 +162,10 @@
     </div>
 </div>
 
-    <div id="gotop">
-        <i class="fas fa-angle-up fa-2x"></i>
-    </div>
+<div id="gotop">
+    <i class="fas fa-angle-up fa-2x"></i>
+</div>
+
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
@@ -220,7 +217,7 @@
     }
 
     // 20231128_下載Excel
-    var cata      = <?=json_encode($catalogs);?>;                                                   // 引入catalogs資料
+    var cata      = <?=json_encode($catalogs)?>;                                                   // 引入catalogs資料
     function submitDownloadExcel(to_module) {
         // 定義要抓的key=>value
         if(to_module == "cata"){

@@ -5,21 +5,16 @@
     accessDenied($sys_id);
 
     // 切換指定NAV分頁
-    if(isset($_REQUEST["activeTab"])){
-        $activeTab = $_REQUEST["activeTab"];
-    }else{
-        $activeTab = "1";       // 1 = _contact
-    }
+    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "1";       // 1 = _contact
     // 新增C
-    if(isset($_POST["supp_submit"])){ store_supp($_REQUEST); }
-    if(isset($_POST["contact_submit"])){ store_contact($_REQUEST); }
+    if(isset($_POST["supp_submit"]))    { store_supp($_REQUEST); }
+    if(isset($_POST["contact_submit"])) { store_contact($_REQUEST); }
     // 更新U
     if(isset($_POST["edit_supp_submit"])){ update_supp($_REQUEST); }
     if(isset($_POST["edit_contact_submit"])){ update_contact($_REQUEST); }
     // 刪除D
-    if(isset($_POST["delete_supp"])){ delete_supp($_REQUEST); }
-    if(isset($_POST["delete_contact"])){ delete_contact($_REQUEST); }
-    // 調整flag ==> 20230712改用AJAX
+    if(isset($_POST["delete_supp"]))    { delete_supp($_REQUEST); }
+    if(isset($_POST["delete_contact"])) { delete_contact($_REQUEST); }
 
     $contacts = show_contact();
     $supps = show_supp();
@@ -32,7 +27,6 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <style>
         .tab-content.active {
@@ -48,7 +42,6 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <!-- <div class="col_xl_8 col-8 rounded my-0 p-3  bg-white rounded" style="background-color: rgba(255, 255, 255, .6);"> -->
             <div class="col_xl_11 col-11 bg-light rounded my-0 p-3" >
                 <!-- NAV title -->
                 <div class="row">
@@ -60,15 +53,11 @@
                                     供應商&nbsp<span class="badge bg-secondary"><?php echo $count_supp;?></span></button>
                                 <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact_table" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
                                     聯絡人&nbsp<span class="badge bg-secondary"><?php echo $count_contact;?></span></button>
-                                <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
-                                    <!-- <a class="nav-link" href="" title="fab_安全水位設定"><i class="fa-solid fa-ban"></i>&nbsp安全水位設定</a> -->
-                                <?php } ?>
                             </div>
                         </nav>
                     </div>
                 </div>
                 <!-- 內頁 -->
-                <!-- <div id="table"> -->
                 <div class="tab-content" id="nav-tabContent">
                     
                     <!-- supp -->
@@ -115,7 +104,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($supps as $supp){ ?>
                                             <tr>
@@ -194,7 +182,6 @@
                                             <?php } ?>
                                         </tr>
                                     </thead>
-                                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                                     <tbody>
                                         <?php foreach($contacts as $contact){ ?>
                                             <tr>
@@ -308,7 +295,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_supp_info"></div>
                         </div>
                     </div>
@@ -355,7 +341,6 @@
                                         <option value="" >-- 請選擇供應商 --</option>
                                         <?php foreach($supps as $supp){ ?>
                                             <option value="<?php echo $supp["comp_no"];?>" title="<?php echo $supp["sname"];?>" >
-                                                <!-- <php echo $supp["flag"] == "Off" ? "hidden":"";?>> -->
                                             <?php echo $supp["id"]."_".$supp["comp_no"]." (".$supp["scname"].")"; echo ($supp["flag"] == "Off") ? " -- 已關閉":"";?></option>
                                         <?php } ?>
                                     </select> 
@@ -412,7 +397,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_contact_info"></div>
                         </div>
                     </div>
@@ -475,24 +459,21 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var supp            = <?=json_encode($supps);?>;                                // 引入supps資料
-    var contact         = <?=json_encode($contacts);?>;                             // 引入contacts資料
+    var supp            = <?=json_encode($supps)?>;                       // 引入supps資料
+    var contact         = <?=json_encode($contacts)?>;                    // 引入contacts資料
     var supp_item       = ['id','scname','sname','supp_remark','inv_title','comp_no','_address','flag'];    // 交給其他功能帶入 delete_supp_id
     var contact_item    = ['id','comp_no','cname','phone','email','fax','contact_remark','flag'];           // 交給其他功能帶入 delete_contact_id
 
@@ -507,15 +488,14 @@
     var import_excel_btn = document.getElementById('import_excel_btn');   // 按鈕-載入
 
     $(document).ready(function(){
-        // 切換指定NAV分頁
-            //设置要自动选中的选项卡的索引（从0开始）
-            var activeTab = '<?=$activeTab;?>';
-            //激活选项卡
-            $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
+        // 切換指定NAV分頁 设置要自动选中的选项卡的索引（从0开始）
+        var activeTab = '<?=$activeTab?>';
+        //激活选项卡
+        $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
     });
 
 </script>
 
-<script src="supp.js?v=<?=time();?>"></script>
+<script src="supp.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

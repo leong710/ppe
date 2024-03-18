@@ -121,20 +121,21 @@
 
 <script>    
     
-    var swal_json = <?=json_encode($swal_json);?>;                   // 引入swal_json值
+    var swal_json = <?=json_encode($swal_json)?>;                   // 引入swal_json值
     var myOmager  = <?=json_encode($myOmager)?>;                     // 引入myOmager值
     var url = 'index.php?select_fab_id=<?=$fab_id?>';
 
     // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~ // 20240220_增加mapp推播訊息
     function push_mapp(user_emp_id, mg_msg){
         $.ajax({
-            url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
+            // url:'http://10.53.248.167/SendNotify',                   // 20230505 正式修正要去掉port 801
+            url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
             method:'post',
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                // eid : user_emp_id,                                      // 傳送對象
-                eid : '10008048',                                       // 傳送對象 = 測試期間 只發給我
+                uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                eid     : user_emp_id,                                  // 傳送對象
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
@@ -162,11 +163,11 @@
                     push_mapp(myOmager_emp_id, mg_msg);
                 }
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back();});          // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});          // 關閉畫面
             }
     
         }else{

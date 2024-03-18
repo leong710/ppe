@@ -369,6 +369,7 @@
             </div>
         </div>
     </div>
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -377,6 +378,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+
 <script>
     var report_lists = <?=json_encode($report_lists)?>;           // 引入report_lists資料
     var catalogs     = <?=json_encode($catalogs)?>;               // 引入catalogs資料

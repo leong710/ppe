@@ -190,13 +190,14 @@
             return false;
         } 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
-                functionname: 'search',                         // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',   // ppe
-                search: search                                  // 查詢對象key_word
+                functionname: 'search',                                 // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
                 var res_r = res["result"];

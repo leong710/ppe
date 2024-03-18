@@ -158,8 +158,9 @@
         $('#idty_title').append(idty_title);
     }
     
-    // 在任何地方啟用工具提示框
+    // 子功能
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
     })
     

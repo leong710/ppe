@@ -65,7 +65,6 @@
             cursor: pointer;
             border: 5px solid #fff;
         }
-    
         .cover label img {
             width: 100%;
             height: 100%;
@@ -102,7 +101,6 @@
             padding: 30px;
             z-index: 9999;
         }
-    
         .tab-panel {
             display: none;
         }
@@ -116,7 +114,6 @@
             display:block; 
             margin:auto;
         }
-
         /* 限定整體高度 */
         .input-group {
             height: auto;
@@ -381,7 +378,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面說明模組 -->
+<!-- 模組 -->
     <div class="modal fade" id="about-1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
             <div class="modal-content">

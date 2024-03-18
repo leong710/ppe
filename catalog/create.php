@@ -360,7 +360,7 @@
             </div>
         </div>
     </div>
-<!-- 彈出畫面模組-preView 預覽 -->
+<!-- 模組-preView 預覽 -->
     <div class="modal fade" id="about-1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
             <div class="modal-content">
@@ -394,6 +394,7 @@
             </div>
         </div>
     </div>
+    
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>

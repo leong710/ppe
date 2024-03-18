@@ -140,7 +140,7 @@
         </div>
     </div>
     
-    <!-- 彈出畫面模組 Plan 編輯、新增-->
+    <!-- 模組 Plan 編輯、新增-->
         <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -252,7 +252,7 @@
 
 <script>
 
-    var formplans     = <?=json_encode($formplans);?>;                                      // 引入formplans資料
+    var formplans     = <?=json_encode($formplans)?>;                                      // 引入formplans資料
     var formplan_item = ['id','_type','remark','start_time','end_time','_inplan','flag'];  // 交給其他功能帶入 delete_cate_id
 
     function add_module(to_module){                                                         // 啟用新增模式

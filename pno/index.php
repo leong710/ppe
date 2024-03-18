@@ -19,17 +19,9 @@
         // 調整flag ==> 20230712改用AJAX
 
     // // *** PNO篩選組合項目~~
-        if(isset($_REQUEST["_year"])){
-            $_year = $_REQUEST["_year"];
-        }else{
-            // $_year = date('Y');                         // 今年
-            $_year = "All";                          // 全部
-        }
-            if($_year == "All"){
-                $thisYear = date('Y');                  // 取今年值 for 新增料號預設年度
-            }else{
-                $thisYear = $_year;                     // 取今年值 for 新增料號預設年度
-            }
+        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All";                          // 全部
+        // $_year = date('Y');                         // 今年
+        $thisYear = ($_year == "All") ? date('Y') : $_year;                     // 取今年值 for 新增料號預設年度
 
         $lastYear = $thisYear-1;                        // 取今年值 for 新增料號預設年度
         $query_array = array(
@@ -48,19 +40,12 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #fix_price tr > th {
@@ -154,7 +139,6 @@
                                 <th><?php echo ($sys_role <= 1) ? "action":""; ?></th>
                             </tr>
                         </thead>
-                        <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                         <tbody>
                             <?php foreach($pnos as $pno){ ?>
                                 <tr>
@@ -183,7 +167,6 @@
                                         <?php $price_arr = (array) json_decode($pno["price"]);
                                                 echo "$"; echo isset($price_arr[$thisYear-1]) ? number_format($price_arr[$thisYear-1]) : "0";?>
                                     </td>
-                                    <!-- <php echo "$"; echo isset($price_arr[$thisYear]) ? number_format($price_arr[$thisYear]) : "0";?> -->
                                     <td class="text-end fix_quote" id="<?php echo $pno["id"];?>" name="<?php echo $thisYear;?>" contenteditable="true">
                                         <?php echo isset($price_arr[$thisYear]) ? $price_arr[$thisYear] : "0";?>
                                     </td>
@@ -209,7 +192,7 @@
         </div>
     </div>
 
-    <!-- 彈出畫面模組 新增、編輯PNO料號 -->
+    <!-- 模組 新增、編輯PNO料號 -->
     <div class="modal fade" id="edit_pno" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -251,7 +234,6 @@
                                         <option value="" >-- 請選擇對應品項 --</option>
                                         <?php foreach($catalogs as $cata){ ?>
                                             <option value="<?php echo $cata["SN"];?>" >
-                                                    <!-- <php if($cata["flag"] == "Off"){ ?> hidden <php } ?>> -->
                                                 <?php echo $cata["cate_no"].".".$cata["cate_remark"]."_".$cata["SN"]."_".$cata["pname"]; 
                                                     echo $cata["model"] ? " [".$cata["model"]."]" :"";
                                                     echo ($cata["flag"] == "Off") ? " -- 已關閉":"";?>
@@ -297,7 +279,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_pno_info"></div>
                         </div>
                     </div>
@@ -366,24 +347,21 @@
             </div>
         </div>
     </div>
-    <!-- goTop滾動畫面DIV 2/4-->
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var pno          = <?=json_encode($pnos);?>;                                               // 引入pnos資料
-    var thisYear_num = Number(<?=$thisYear;?>);                                                // 引入$thisYear資料
-    var thisYear_str = String(<?=$thisYear;?>);                                                // 引入$thisYear資料
+    var pno          = <?=json_encode($pnos)?>;                                                // 引入pnos資料
+    var thisYear_num = Number(<?=$thisYear?>);                                                 // 引入$thisYear資料
+    var thisYear_str = String(<?=$thisYear?>);                                                 // 引入$thisYear資料
     var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','flag'];      // 交給其他功能帶入 delete_pno_id
 
 // 以下為控制 iframe
@@ -398,6 +376,6 @@
 
 </script>
 
-<script src="pno.js?v=<?=time();?>"></script>
+<script src="pno.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

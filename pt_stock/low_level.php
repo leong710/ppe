@@ -2,7 +2,6 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function_pt_local.php");
-    // accessDenied($sys_id);
     accessDeniedAdmin($sys_id);
     
     $sys_role    = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
@@ -13,28 +12,15 @@
         $sfab_id_str = get_sfab_id($sys_id, "str");     // 1-1c sfab_id是陣列，要轉成字串str
 
         // 1-2 組合查詢條件陣列
-            if($sys_role <=1 ){
-                $sort_sfab_id = "All";                // All
-                // $sort_sfab_id = $sfab_id_str;         // test
-            }else{
-                $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-            }
+            $sort_sfab_id = ($sys_role <=1 ) ? "All" : $sfab_id_str; // All : allMy 1-2.將字串sfab_id加入組合查詢陣列中
 
         // 去年年份
             $thisYear = date('Y')-1 ;                                       // 這裡要減1才會找出去年的用量
 
         // 查詢篩選條件：fab_id
-            if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
-                $select_fab_id = $_REQUEST["select_fab_id"];
-            }else{                              // 先給預設值
-                $select_fab_id = "";        // 空值
-            }
+            $select_fab_id = (isset($_REQUEST["select_fab_id"])) ? $_REQUEST["select_fab_id"] : ""; // 有帶查詢，套查詢參數 // 先給預設值  空值
         // 查詢篩選條件：local_id
-            if(isset($_REQUEST["select_local_id"])){     // 有帶查詢，套查詢參數
-                $select_local_id = $_REQUEST["select_local_id"];
-            }else{                              // 先給預設值
-                $select_local_id = "";
-            }
+            $select_local_id = (isset($_REQUEST["select_local_id"])) ? $_REQUEST["select_local_id"] : "";  // 有帶查詢，套查詢參數 // 先給預設值
 
     // 組合查詢條件陣列
         $query_arr = array(
@@ -87,22 +73,15 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                   <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
+        <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
         <!-- <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css"> -->
         <!-- <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script> -->
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
     <style>
         .img:checked + label{
             border: 3px solid #f00;
@@ -240,7 +219,7 @@
                                     catalog-end
                                 </div>
                             </div>
-                            <!-- 彈出畫面說明模組 saveSubmit-->
+                            <!-- 模組 saveSubmit-->
                             <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-scrollable">
                                     <div class="modal-content">
@@ -281,150 +260,148 @@
         </div>
     </div>
     
-    <!-- 彈出畫面模組-安全庫存量說明 -->
-        <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header bg-info">
-                        <h4 class="modal-title">安全庫存量說明 (<sup class="text-danger"> * </sup>參考)</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-12 col-md-6 py-0">
-                                <div>
-                                    安全庫存評估表
-                                </div>
-                                <table>
-                                    <thead> 
-                                        <tr>
-                                            <th>評估內容</th>
-                                            <th>評估等級</th>
-                                            <th>加權占比<sup class="text-danger"> *</sup></th>
-                                            <th>對應分值<sup class="text-danger"> *</sup></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td rowspan="3">需求重要性</td>
-                                            <td>A</td>
-                                            <td>90</td>
-                                            <td rowspan="3">40%</td>
-                                        </tr>
-                                        <tr><td>B</td><td>40</td></tr>
-                                        <tr><td>C</td><td>0</td></tr>
-        
-                                        <tr>
-                                            <td rowspan="3">需求預測性</td>
-                                            <td>高</td>
-                                            <td>90</td>
-                                            <td rowspan="3">20%</td>
-                                        </tr>
-                                        <tr><td>中</td><td>60</td></tr>
-                                        <tr><td>低</td><td>0</td></tr>
-        
-                                        <tr>
-                                            <td rowspan="3">供應穩定性</td>
-                                            <td>低</td>
-                                            <td>90</td>
-                                            <td rowspan="3">10%</td>
-                                        </tr>
-                                        <tr><td>中</td><td>60</td></tr>
-                                        <tr><td>高</td><td>0</td></tr>
-        
-                                        <tr>
-                                            <td rowspan="3">採購Lead Time</td>
-                                            <td>>30天</td>
-                                            <td>90</td>
-                                            <td rowspan="3">10%</td>
-                                        </tr>
-                                        <tr><td>10~30天</td><td>60</td></tr>
-                                        <tr><td><10天</td><td>10</td></tr>
-        
-                                        <tr>
-                                            <td rowspan="3">料件通用性</td>
-                                            <td>高</td>
-                                            <td>90</td>
-                                            <td rowspan="3">20%</td>
-                                        </tr>
-                                        <tr><td>中</td><td>60</td></tr>
-                                        <tr><td>低</td><td>0</td></tr>
-        
-                                    </tbody>
-                                </table>
+<!-- 模組-安全庫存量說明 -->
+    <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h4 class="modal-title">安全庫存量說明 (<sup class="text-danger"> * </sup>參考)</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 col-md-6 py-0">
+                            <div>
+                                安全庫存評估表
                             </div>
-                            
-                            <div class="col-12 col-md-6 py-0">
-                                <div>
-                                    安全庫存建議
-                                </div>
-                                <table>
-                                    <thead> 
-                                        <tr>
-                                            <th>分數</th>
-                                            <th>安全庫存量建議</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>>80</td>
-                                            <td>一個採購Lead Time的100%預計需求量</td>
-                                        </tr>
-                                        <tr>
-                                            <td>40~80</td>
-                                            <td>一個採購Lead Time的50%預計需求量</td>
-                                        </tr>
-                                        <tr>
-                                            <td>20~40</td>
-                                            <td>一個採購Lead Time的20%預計需求量</td>
-                                        </tr>
-                                        <tr>
-                                            <td><20</td>
-                                            <td>不備安全庫存</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                * 範例：(90x40%)+(60x20%)+(60x10%)+(90x10%)+(90x20%)=81</br></br>
-                                * ppePM計算方式：一年領用量1.1倍(來年自動滾算)
+                            <table>
+                                <thead> 
+                                    <tr>
+                                        <th>評估內容</th>
+                                        <th>評估等級</th>
+                                        <th>加權占比<sup class="text-danger"> *</sup></th>
+                                        <th>對應分值<sup class="text-danger"> *</sup></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowspan="3">需求重要性</td>
+                                        <td>A</td>
+                                        <td>90</td>
+                                        <td rowspan="3">40%</td>
+                                    </tr>
+                                    <tr><td>B</td><td>40</td></tr>
+                                    <tr><td>C</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">需求預測性</td>
+                                        <td>高</td>
+                                        <td>90</td>
+                                        <td rowspan="3">20%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>低</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">供應穩定性</td>
+                                        <td>低</td>
+                                        <td>90</td>
+                                        <td rowspan="3">10%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>高</td><td>0</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">採購Lead Time</td>
+                                        <td>>30天</td>
+                                        <td>90</td>
+                                        <td rowspan="3">10%</td>
+                                    </tr>
+                                    <tr><td>10~30天</td><td>60</td></tr>
+                                    <tr><td><10天</td><td>10</td></tr>
+    
+                                    <tr>
+                                        <td rowspan="3">料件通用性</td>
+                                        <td>高</td>
+                                        <td>90</td>
+                                        <td rowspan="3">20%</td>
+                                    </tr>
+                                    <tr><td>中</td><td>60</td></tr>
+                                    <tr><td>低</td><td>0</td></tr>
+    
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="col-12 col-md-6 py-0">
+                            <div>
+                                安全庫存建議
                             </div>
+                            <table>
+                                <thead> 
+                                    <tr>
+                                        <th>分數</th>
+                                        <th>安全庫存量建議</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>>80</td>
+                                        <td>一個採購Lead Time的100%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td>40~80</td>
+                                        <td>一個採購Lead Time的50%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td>20~40</td>
+                                        <td>一個採購Lead Time的20%預計需求量</td>
+                                    </tr>
+                                    <tr>
+                                        <td><20</td>
+                                        <td>不備安全庫存</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            * 範例：(90x40%)+(60x20%)+(60x10%)+(90x10%)+(90x20%)=81</br></br>
+                            * ppePM計算方式：一年領用量1.1倍(來年自動滾算)
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                        </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
                     </div>
                 </div>
             </div>
         </div>
-    <!-- toast -->
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-            <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
-                <div class="d-flex">
-                    <div class="toast-body" id="toast-body"></div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    </div>
+<!-- toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-body"></div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-    <!-- goTop滾動畫面DIV 2/4-->
-        <div id="gotop">
-            <i class="fas fa-angle-up fa-2x"></i>
-        </div>
+    </div>
+
+    <div id="gotop">
+        <i class="fas fa-angle-up fa-2x"></i>
+    </div>
 </body>
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/aos/aos_init.js"></script>
-<!-- 有數量自動勾選，沒數量自動取消 -->
+
+<script src="../../libs/aos/aos.js"></script>           <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>      <!-- goTop滾動畫面script.js 4/4-->
+
 <script>
-    // 找出Local_id算SN年領用量
-    var catalogs        = <?=json_encode($catalogs);?>;                  // 引入myReceives資料，算年領用量
-    var myReceives      = <?=json_encode($myReceives);?>;                // 引入myReceives資料，算年領用量
-    var receiveAmount   = [];                                            // 宣告變數陣列，承裝Receives年領用量
-    var buy_ty          = '<?=$buy_ty;?>';                               // 取得fab的安全倍數
+    var catalogs        = <?=json_encode($catalogs)?>;                  // 引入myReceives資料，算年領用量
+    var myReceives      = <?=json_encode($myReceives)?>;                // 引入myReceives資料，算年領用量
+    var receiveAmount   = [];                                           // 宣告變數陣列，承裝Receives年領用量
+    var buy_ty          = '<?=$buy_ty?>';                               // 取得fab的安全倍數
 
 </script>
 
-<script src="local_low_level.js?v=<?=time();?>"></script>
+<script src="local_low_level.js?v=<?=time()?>"></script>
  
 <?php include("../template/footer.php"); ?>

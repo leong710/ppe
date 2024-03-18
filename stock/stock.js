@@ -292,14 +292,7 @@
             show_myReceives();
         }
 
-        // 假如index找不到當下存在已完成的表單，就alarm它!
-        // if (check_yh_list_num == '0') {
-        //     let message  = '*** '+ thisYear +'_'+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ <i class="fa-solid fa-right-long"></i>&nbsp&nbsp&nbsp';
-        //         message += '<button type="button" style="background-color: transparent;" data-bs-toggle="modal" data-bs-target="#checkList">'
-        //                     +'<b><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp打開點檢表</button></b>';
-        //     alert( message, 'danger')
-        // }
-
+        // 假如index找不到當下存在已完成的表單，就alarm它
         if (_inplan && (sys_role <= 2) && (check_yh_list_num == '0')) {
             let message  = '*** '+ thisYear +'_'+ half +'年度 <b>'+case_title+'</b> 開放填寫時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp請各廠窗口務必在指定時間前完成填寫&nbsp~&nbsp';
             alert( message, 'warning')

@@ -148,7 +148,7 @@
                 }
             });
 
-            // swal('套用人事資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
+            // swal('資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
         }
     }

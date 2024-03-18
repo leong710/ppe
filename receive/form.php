@@ -5,11 +5,7 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -30,11 +26,7 @@
         // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
-    if(isset($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'create';                         // 沒有action就新開單
-    }
+    $action = (isset($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
     if(isset($_REQUEST["uuid"])){
         $receive_row = show_receive($_REQUEST);
@@ -104,22 +96,14 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
-        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
+        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">  <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>                                 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
     <style>
         #emp_id, #excelFile{    
             margin-bottom: 0px;
@@ -139,7 +123,6 @@
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
                         <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
@@ -149,7 +132,6 @@
                         領用單號：<?php echo ($action == 'create') ? "(尚未給號)": "receive_aid_".$receive_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$receive_row['created_at']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $receive_row["created_emp_id"]." / ".$receive_row["created_cname"] ;?>
-                        <!-- </br>表單身分：<php echo $step;?> -->
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <?php if(($sys_role <= 1 ) && (isset($receive_row['idty']) && $receive_row['idty'] != 0)){ ?>
@@ -175,7 +157,7 @@
                         </div>
                     </nav>
                     <!-- 內頁 -->
-                    <form action="store.php" method="post">
+                    <form action="store.php" method="post" onsubmit="this.cname.disabled=false,this.plant.disabled=false,this.dept.disabled=false,this.sign_code.disabled=false,this.omager.disabled=false" >
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
@@ -287,20 +269,20 @@
                                     <div class="row">
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating input-group">
-                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required placeholder="工號" value="<?php echo $auth_emp_id;?>">
+                                                <input type="text" name="emp_id" id="emp_id" class="form-control" required value="<?php echo $auth_emp_id;?>" onchange="search_fun('emp_id');">
                                                 <label for="emp_id" class="form-label">emp_id/工號：<sup class="text-danger"> *</sup></label>
                                                 <button type="button" class="btn btn-outline-primary" onclick="search_fun('emp_id');" data-toggle="tooltip" data-placement="bottom" title="以工號自動帶出其他資訊" ><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="cname" id="cname" class="form-control" required placeholder="申請人姓名" value="<?php echo $auth_cname;?>">
-                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> *</sup></label>
+                                                <input type="text" name="cname" id="cname" class="form-control" required readonly value="<?php echo $auth_cname;?>">
+                                                <label for="cname" class="form-label">cname/申請人姓名：<sup class="text-danger"> * readOnly</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="extp" id="extp" class="form-control" required placeholder="分機">
+                                                <input type="text" name="extp" id="extp" class="form-control" required >
                                                 <label for="extp" class="form-label">extp/分機：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -310,20 +292,20 @@
                                     <div class="row">
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="plant" id="plant" class="form-control" required placeholder="申請單位">
-                                                <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> *</sup></label>
+                                                <input type="text" name="plant" id="plant" class="form-control" required readonly>
+                                                <label for="plant" class="form-label">plant/申請單位：<sup class="text-danger"> * readOnly</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="dept" id="dept" class="form-control" required placeholder="部門名稱">
-                                                <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> *</sup></label>
+                                                <input type="text" name="dept" id="dept" class="form-control" required readonly>
+                                                <label for="dept" class="form-label">dept/部門名稱：<sup class="text-danger"> * readOnly</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required placeholder="部門代號" onblur="this.value = this.value.toUpperCase();">
-                                                <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> *</sup></label>
+                                                <input type="text" name="sign_code" id="sign_code" class="form-control" required readonly onblur="this.value = this.value.toUpperCase();">
+                                                <label for="sign_code" class="form-label">sign_code/部門代號：<sup class="text-danger"> * readOnly</sup></label>
                                             </div>
                                         </div>
                                     </div>
@@ -355,11 +337,8 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div class="form-floating">
-                                                <input type="text" name="omager" id="omager" class="form-control" required placeholder="主管工號"
-                                                        data-toggle="tooltip" data-placement="bottom" title="輸入主管工號"
-                                                        onchange="search_fun(this.value);">
-                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> *</sup></label>
-                                                <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
+                                                <input type="text" name="omager" id="omager" class="form-control" required <?php echo ($sys_role != 0) ? "":"readonly";?> onchange="search_fun(this.value);">
+                                                <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> * <?php echo ($sys_role != 0) ? "":"readOnly";?> </sup></label>
                                                 <div id="omager_badge"></div>
                                             </div>
                                             <input type="hidden" name="in_signName" id="in_signName" class="form-control">
@@ -399,7 +378,7 @@
                             </div>
                         </div>
 
-                        <!-- 彈出畫面模組 saveSubmit-->
+                        <!-- 模組 saveSubmit-->
                         <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable">
                                 <div class="modal-content">
@@ -448,7 +427,6 @@
                                             <th>Time Signed</th>
                                             <th>Status</th>
                                             <th>Comment</th>
-                                            <!-- <th>action</th> -->
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -466,7 +444,6 @@
     </div>
     <!-- toast -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-            <!-- <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000"> -->
             <div id="liveToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
                 <div class="d-flex">
                     <div class="toast-body" id="toast-body">
@@ -475,7 +452,7 @@
                 </div>
             </div>
         </div>
-    <!-- 彈出說明模組 cata_info -->
+    <!-- 模組 cata_info -->
         <div class="modal fade" id="cata_info" tabindex="-1" aria-labelledby="cata_info" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-lg">
                 <div class="modal-content">
@@ -533,22 +510,20 @@
                 </div>
             </div>
         </div> 
-    <!-- goTop滾動畫面DIV 2/4-->
+
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
         </div>
     
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/aos/aos.js"></script>       <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>  <!-- goTop滾動畫面script.js 4/4-->
 <script>
 // 開局設定init
-    var catalog          = <?=json_encode($catalogs);?>;                 // 第一頁：info modal function 引入catalogs資料
+    var catalog          = <?=json_encode($catalogs)?>;                  // 第一頁：info modal function 引入catalogs資料
     var action           = '<?=$action;?>';                              // Edit選染 // 引入action資料
-    var receive_row      = <?=json_encode($receive_row);?>;              // Edit選染 // 引入receive_row資料作為Edit
+    var receive_row      = <?=json_encode($receive_row)?>;               // Edit選染 // 引入receive_row資料作為Edit
     // var json           = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json             = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var uuid             = '<?=$receive_row["uuid"]?>';                  // 鋪設logs紀錄
@@ -565,6 +540,6 @@
 
 </script>
 
-<script src="receive_form.js?v=<?=time();?>"></script>
+<script src="receive_form.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

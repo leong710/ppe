@@ -5,11 +5,7 @@
     accessDeniedAdmin($sys_id);
 
     // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
     $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
@@ -22,30 +18,16 @@
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
-        if(!isset($sfab_id_str) && isset($_SESSION[$sys_id]["sfab_id_str"])){
-            // 1-1 將sys_fab_id加入sfab_id
-            $sfab_id_str = $_SESSION[$sys_id]["sfab_id_str"];     // 1-1c sfab_id是陣列，要轉成字串str
-        }else{
-            $sfab_id_str = get_sfab_id($sys_id, "str");          // 1-1c sfab_id是陣列，要轉成字串str
-        }   
+        $sfab_id_str = (!isset($sfab_id_str) && isset($_SESSION[$sys_id]["sfab_id_str"])) ? $_SESSION[$sys_id]["sfab_id_str"] : get_sfab_id($sys_id, "str"); // 1-1 將sys_fab_id加入sfab_id // 1-1c sfab_id是陣列，要轉成字串str
 
     // 1-2 組合查詢條件陣列
-        if($sys_role <=1 ){
-            $sort_sfab_id = "All";                // All = admin/pm
-            // $sort_sfab_id = $sfab_id_str;         // test = user
-        }else{
-            $sort_sfab_id = $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-        }
+        $sort_sfab_id = ($sys_role <=1 ) ? "All" : $sfab_id_str;         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
 
     // 查詢篩選條件：fab_id
         if(isset($_REQUEST["select_fab_id"])){     // 有帶查詢，套查詢參數
             $select_fab_id = $_REQUEST["select_fab_id"];
         }else{                              // 先給預設值
-            if($sys_role <=1 ){
-                $select_fab_id = "All";                // All
-            }else{
-                $select_fab_id = "allMy";         // allMy 1-2.將字串sfab_id加入組合查詢陣列中
-            }
+            $select_fab_id = ($sys_role <=1 ) ? "All" : "allMy"; // All : allMy 1-2.將字串sfab_id加入組合查詢陣列中
         }
     
     // 3.組合查詢陣列
@@ -65,31 +47,20 @@
         }
 
     // 切換指定NAV分頁
-    if(isset($_REQUEST["activeTab"])){
-        $activeTab = $_REQUEST["activeTab"];
-    }else{
-        $activeTab = "2";       // 2 = local
-    }
+    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 2 = local
 
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
-        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
+        <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">  <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
     <style>
         .body > ul {
             padding-left: 0px;
@@ -147,8 +118,6 @@
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 mb-0 pb-0"></div>
                     </div>
-                    <!-- <hr> -->
-                    <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                     <table id="local_list" class="table table-striped table-hover">
                         <thead>
                             <tr class="">
@@ -191,7 +160,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 新增編輯ptLocal 20240122 -->
+<!-- 模組 新增編輯ptLocal 20240122 -->
     <div class="modal fade" id="edit_ptlocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -249,7 +218,6 @@
                                     </tr>
                                 </table>
                             </div>
-                            <!-- 最後編輯資訊 -->
                             <div class="col-12 text-end p-0" id="edit_ptlocal_info"></div>
                         </div>
                     </div>
@@ -265,7 +233,6 @@
                         </div>
                     </div>
                 </form>
-    
             </div>
         </div>
     </div>
@@ -280,26 +247,22 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-<script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/aos/aos.js"></script>                       <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>                  <!-- goTop滾動畫面script.js 4/4-->
+<script src="../../libs/sweetalert/sweetalert.min.js"></script>     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 
 <script>
 
-    var ptlocal  = <?=json_encode($ptlocals);?>;                                                    // 引入locals資料
-    var ptlocal_item = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
+    var ptlocal  = <?=json_encode($ptlocals)?>;                                 // 引入locals資料
+    var ptlocal_item = ['id','fab_id','local_title','local_remark','flag'];     // 交給其他功能帶入 delete_local_id
     
 </script>
 
-<script src="pt_local.js?v=<?=time();?>"></script>
+<script src="pt_local.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

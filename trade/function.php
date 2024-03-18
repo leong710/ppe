@@ -48,7 +48,7 @@
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
             }else{
-                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
+                $stmt = $pdo->prepare($sql);                        // 讀取全部=不分頁
             }
 
         try {
@@ -128,8 +128,8 @@
         $pdo = pdo();
         extract($request);
 
-            $sign_code = substr($sign_code, 0, -2);     // 去掉最後兩個字 =>
-            $sign_code = "%".$sign_code."%";            // 加上模糊包裝
+            $sign_code = substr($sign_code, 0, -2);         // 去掉最後兩個字 =>
+            $sign_code = "%".$sign_code."%";                // 加上模糊包裝
 
         $sql = "SELECT _f.*
                 FROM _fab AS _f 
@@ -291,7 +291,7 @@
             // **** 預扣功能 end  
 
         }else if($form_type == "import"){       // import=入庫，不須執行預扣
-            $swal_json = array(                                 // for swal_json
+            $swal_json = array(                 // for swal_json
                 "fun"       => "store_restock",
                 "content"   => "其他入庫--"
             );
@@ -405,8 +405,8 @@
             return $swal_json;
         }
 
-        if($form_type == "export"){             // export=出庫，需要執行預扣庫存
-            $swal_json = array(                                 // for swal_json
+        if($form_type == "export"){                         // export=出庫，需要執行預扣庫存
+            $swal_json = array(                             // for swal_json
                 "fun"       => "update_trade",
                 "content"   => "調撥出庫--"
             );
@@ -455,7 +455,7 @@
             // **** 預扣功能 end  
 
         }else if($form_type == "import"){       // import=入庫，不須執行預扣
-            $swal_json = array(                                 // for swal_json
+            $swal_json = array(                 // for swal_json
                 "fun"       => "update_restock",
                 "content"   => "其他入庫--"
             );
@@ -753,14 +753,14 @@
 
         if($process_result){
             // 梳理表單資料製作logs前處理
-            // $item_enc = json_encode(array_filter($item));          // 去除陣列中空白元素再要編碼
+            // $item_enc = json_encode(array_filter($item));            // 去除陣列中空白元素再要編碼
             // 製作log紀錄前處理：塞進去製作元素
                 $logs_request["action"] = $action;
-                $logs_request["step"]   = $step;                    // 節點-簽單人角色
-                $logs_request["idty"]   = $idty;                    // 表單狀態
+                $logs_request["step"]   = $step;                        // 節點-簽單人角色
+                $logs_request["idty"]   = $idty;                        // 表單狀態
                 $logs_request["cname"]  = $updated_user." (".$updated_emp_id.")";            // 簽單人
                 $logs_request["logs"]   = $trade_row["logs"];           // 帶入舊logs
-                $logs_request["remark"] = $sign_comm;               // 簽核command
+                $logs_request["remark"] = $sign_comm;                   // 簽核command
             // 呼叫toLog製作log檔
                 $logs_enc = toLog($logs_request);
 
@@ -1093,7 +1093,7 @@
             }
 
             $lot_num        = "9999-12-31";                                             // 0.批號/效期
-            $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;  // 0.備註
+            $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;         // 0.備註
                 // // $stock_remark .= $stk_row_list[$i]['stock_remark'];
             
             // step-2 建立新紀錄到資料庫

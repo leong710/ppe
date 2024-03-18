@@ -174,13 +174,12 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- 尾段：衛材訊息 -->
                     <div class="col-12 mb-0">
                         <div style="font-size: 12px;" class="text-end">
                             catalog-end
                         </div>
                     </div>
-                    <!-- 彈出畫面說明模組 saveSubmit-->
+                    <!-- 模組 saveSubmit-->
                     <div class="modal fade" id="saveSubmit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable">
                             <div class="modal-content">
@@ -215,7 +214,7 @@
             </div>
             <hr>
 
-            <!-- 彈出畫面說明模組 update_stock_stand_lv-->
+            <!-- 模組 update_stock_stand_lv-->
             <div class="modal fade" id="update_stock_stand_lv" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable">
                     <div class="modal-content">
@@ -223,7 +222,6 @@
                             <h5 class="modal-title">立即同步現有庫存安量</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-
                         <form action="store_lowLevel.php" method="post" >
                             <div class="modal-body px-4">
                                 <div class="col-12 py-0 text-center text-danger">
@@ -240,7 +238,6 @@
                                     <h4>Q：確定送出?</h4>
                                 </div>
                             </div>
-                            
                             <div class="modal-footer">
                                 <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
                                 <input type="hidden" name="action"          value="update_stock_stand_lv">
@@ -251,7 +248,6 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </form>
-
                     </div>
                 </div>
             </div>
@@ -260,7 +256,7 @@
     </div>
 </div>
 
-<!-- 彈出畫面模組-安全庫存量說明 -->
+<!-- 模組-安全庫存量說明 -->
     <div class="modal fade" id="access_info" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -396,6 +392,7 @@
 
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
+
 <script>
     // 有數量自動勾選，沒數量自動取消
     // 找出Local_id算SN年領用量

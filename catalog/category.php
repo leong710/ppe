@@ -74,7 +74,7 @@
     </div>
 </div>
 
-<!-- 彈出畫面模組 編輯、新增-->
+<!-- 模組 編輯、新增-->
 <div class="modal fade" id="edit_cate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >
     <div class="modal-dialog">
         <div class="modal-content">
@@ -146,14 +146,12 @@
     </div>
 </div>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
 
-    var cate   = <?=json_encode($categories);?>;                                                    // 引入cates資料
+    var cate   = <?=json_encode($categories)?>;                                                    // 引入cates資料
     var cate_item   = ['id','cate_no','cate_title','cate_remark','flag'];                           // 交給其他功能帶入 delete_cate_id
 
     function add_module(to_module){                                                                 // 啟用新增模式

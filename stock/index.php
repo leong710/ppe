@@ -5,15 +5,11 @@
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
     
     $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role = $_SESSION[$sys_id]["role"];         // 取出$_session引用
+    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
     $form_type   = "stock";
 
     // add module function --
@@ -70,29 +66,7 @@
 
         extract(show_plan($query_arr));                    // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
-
-    // <!-- 20211215分頁工具 -->
-        $per_total = count($stocks);                //計算總筆數
-            // $per = 25;                          //每頁筆數
-            // $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-            //     if(!isset($_GET['page'])){      //!isset 判斷有沒有$_GET['page']這個變數
-            //         $page = 1;	  
-            //     }else{
-            //         $page = $_GET['page'];
-            //     }
-            //     $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
-            //     // 合併嵌入分頁工具
-            //     $query_arr['start'] = $start;
-            //     $query_arr['per'] = $per;
-
-            // $div_stocks = show_stock($query_arr);
-            // // $div_stocks = stock_page_div($start, $per, $query_arr);
-            // $page_start = $start +1;            //選取頁的起始筆數
-            // $page_end = $start + $per;          //選取頁的最後筆數
-            //     if($page_end>$per_total){       //最後頁的最後筆數=總筆數
-            //         $page_end = $per_total;
-            //     }
-    // <!-- 20211215分頁工具 -->
+        $per_total = count($stocks);                       //計算總筆數
     
     // 今年年份
         $thisYear = date('Y');
@@ -105,21 +79,13 @@
 <?php include("../template/nav.php"); ?>
 
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .body > ul {
@@ -222,7 +188,6 @@
                 </div>
                 <!-- by各Local儲存點： -->
                 <div class="col-12 bg-white">
-                    <!-- 20211215分頁工具 -->               
                     <table id="stock_list" class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -240,7 +205,6 @@
                                 <th>最後更新</th>
                             </tr>
                         </thead>
-                        <!-- 這裡開始抓SQL裡的紀錄來這裡放上 -->
                         <tbody>
                             <?php 
                                 $check_item ="";
@@ -282,14 +246,13 @@
                             <?php } ?>
                         </tbody>
                     </table>
-                    <!-- 20211215分頁工具 -->               
                 </div>
                 <hr>
             </div>
         </div>
     </div>
    
-<!-- 彈出畫面模組 新增、編輯stock品項 -->
+<!-- 模組 新增、編輯stock品項 -->
     <div class="modal fade" id="edit_stock" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -393,7 +356,6 @@
                         <div class="col-12 rounded bg-light pt-0">
                             *.注意：相同 儲存位置、器材、採購編號、批號期限 將合併計算!
                         </div>
-                        <!-- 最後編輯資訊 -->
                         <div class="col-12 text-end p-0" id="edit_stock_info"></div>
                     </div>
 
@@ -414,7 +376,7 @@
         </div>
     </div>
 
-<!-- 彈出畫面模組 所屬區域器材儲存量總表for年檢用 -->
+<!-- 模組 所屬區域器材儲存量總表for年檢用 -->
     <div class="modal fade" id="checkList" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -461,7 +423,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- 最後編輯資訊 -->
                     </div>
 
                     <div class="modal-footer">
@@ -502,17 +463,13 @@
         </div>
     </div>
 
-<!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 
 <script>
@@ -541,6 +498,6 @@
 
 </script>
 
-<script src="stock.js?v=<?=time();?>"></script>
+<script src="stock.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

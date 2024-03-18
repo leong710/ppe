@@ -159,18 +159,12 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-    <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                   <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
 
 </head>
 
@@ -198,10 +192,8 @@
                                     case "13": echo "bg-danger'>待簽";              break;
                                     default  : echo "'>na";                         break; 
                                 }
-                            // echo "<sup> ".$receive_row['idty']."</sup>";
                             echo !empty($receive_row['in_signName']) ? "：".$receive_row['in_signName']." " :"";
                             echo !empty($receive_row['flow']) ? " / ".$receive_row['flow']." " :"";
-                            // echo " ... ".$step;
                             echo "</span></h3>";
                         ?>
                     </div>
@@ -396,15 +388,13 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div style="font-size: 12px;" class="py-2 text-end">
-                                        
-                                    </div>
+                                    <div style="font-size: 12px;" class="py-2 text-end"></div>
                                 </div>
 
                             </div>
                         </div>
 
-                        <!-- 彈出畫面模組 submitModal-->
+                        <!-- 模組 submitModal-->
                         <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-scrollable ">
                                 <div class="modal-content">
@@ -418,7 +408,6 @@
                                         <div class="row unblock" id="forwarded">
                                             <div class="col-12" id="searchUser_table">
                                                 <div class="input-group search" id="select_inSign_Form">
-                                                    <!-- <button type="button" class="btn btn-outline-secondary form-label" onclick="resetMain();">清除</button> -->
                                                     <span class="input-group-text form-label">轉呈</span>
                                                     <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
                                                             aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
@@ -486,16 +475,14 @@
         </div>
     </div>
 
-    <!-- goTop滾動畫面DIV 2/4-->
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
+
 <script>
     var catalogs             = <?=json_encode($catalogs)?>;                 // 第一頁：info modal function 引入catalogs資料
     var action               = '<?=$action?>';                              // Edit選染    // 引入action資料

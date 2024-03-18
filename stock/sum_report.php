@@ -5,26 +5,14 @@
     accessDenied($sys_id);
 
     // // *** 篩選組合項目~~
-        if(isset($_REQUEST["form"])){                       // report表單類別
-            $form = $_REQUEST["form"];
-        }else{
-            $form = 'stock';                              // 預設存量
-        }
-        if(!in_array($form, ["stock", "receive", "issue", "trade"])){          // report表單類別--防呆
+        $form = (isset($_REQUEST["form"])) ? $_REQUEST["form"] : 'stock';       // report表單類別 // 預設存量
+        if(!in_array($form, ["stock", "receive", "issue", "trade"])){           // report表單類別--防呆
             $form = 'stock';
         }
+        $report_yy = (isset($_REQUEST["report_yy"])) ? $_REQUEST["report_yy"] : date('Y'); // 今年
+        $report_mm = (isset($_REQUEST["report_mm"])) ? $_REQUEST["report_mm"] : "All"; // 今月
+        // $report_mm = date('m');                      // 今月
 
-        if(isset($_REQUEST["report_yy"])){
-            $report_yy = $_REQUEST["report_yy"];
-        }else{
-            $report_yy = date('Y');                         // 今年
-        }
-        if(isset($_REQUEST["report_mm"])){
-            $report_mm = $_REQUEST["report_mm"];
-        }else{
-            // $report_mm = date('m');                      // 今月
-            $report_mm = "All";                             // 今月
-        }
         $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
             'report_yy' => $report_yy,
             'report_mm' => $report_mm
@@ -77,15 +65,10 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         #fix_local tr > th {
@@ -334,21 +317,16 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-<!-- 引入moment.js 參考資料 https://www.freecodecamp.org/chinese/news/javascript-date-format-how-to-format-a-date-in-js/ -->
-<!-- <script src="../../libs/moment/moment.min.js"></script> -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script> -->
+
 <script>
     var report_lists = <?=json_encode($report_lists)?>;           // 引入report_lists資料
     var catalogs     = <?=json_encode($catalogs)?>;               // 引入catalogs資料
@@ -368,50 +346,18 @@
             var flid_sn   = fab_id+'_'+local_id+'_'+cata_SN;
             var amount   = Number(row['amount']);
             var lot_num  = new Date(row['lot_num']).getTime();   // DAY2 -- 獲取比較日期並轉化為時間戳
-    
-            // 我想用JS進行日期的比較，格式是YYYY-MM-DD，當aDay - today >= 60 天，返回true，反之false
-                // var today = new Date();
-                // var aDay = new Date("2022-01-01"); // 改成你要比較的日期，格式是YYYY-MM-DD
-                // var timeDiff = aDay.getTime() - today.getTime(); // 取得兩日期之間的毫秒數差
-                // var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 將毫秒數差轉換成天數差
-                // if (daysDiff >= 60) { console.log("true"); }else{ console.log("false"); }
             
             var timeDiff = lot_num - Today;                              // 取得兩日期之間的毫秒數差
             var daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 將毫秒數差轉換成天數差
     
             if(amount >0){
                 // 第1頁 每個廠的總數值_all
-                    // 每個廠的總數值_all              
-                        if(reportAmount[fid_sn+'_all'])     { reportAmount[fid_sn+'_all'] += amount;      }else{ reportAmount[fid_sn+'_all'] = amount; }
-                        if(reportAmount[cata_SN+'_sum_all']){ reportAmount[cata_SN+'_sum_all'] += amount; }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
-                        // fab_all // 廠每個local的總數值_all              
-                        if(reportAmount[flid_sn+'_all'])        { reportAmount[flid_sn+'_all'] += amount;         }else{ reportAmount[flid_sn+'_all'] = amount; }
-                        if(reportAmount['f_'+fid_sn+'_sum_all']){ reportAmount['f_'+fid_sn+'_sum_all'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
-        
-                    // // 未過期_saf
-                    // if(daysDiff >= dueDay) {
-                    //     if(reportAmount[fid_sn+'_saf'])     { reportAmount[fid_sn+'_saf'] += amount;      }else{ reportAmount[fid_sn+'_saf'] = amount; }
-                    //     if(reportAmount[cata_SN+'_sum_saf']){ reportAmount[cata_SN+'_sum_saf'] += amount; }else{ reportAmount[cata_SN+'_sum_saf'] = amount; }
-                    //     // fab_saf // 廠每個local的總數值_saf              
-                    //     if(reportAmount[flid_sn+'_saf'])    { reportAmount[flid_sn+'_saf'] += amount;             }else{ reportAmount[flid_sn+'_saf'] = amount; }
-                    //     if(reportAmount['f_'+fid_sn+'_sum_saf']){ reportAmount['f_'+fid_sn+'_sum_saf'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_saf'] = amount; }
-        
-                    // // 快到期_war
-                    // }else if(daysDiff < dueDay && daysDiff > 1){            
-                    //     if(reportAmount[fid_sn+'_war'])     { reportAmount[fid_sn+'_war'] += amount;      }else{ reportAmount[fid_sn+'_war'] = amount; }
-                    //     if(reportAmount[cata_SN+'_sum_war']){ reportAmount[cata_SN+'_sum_war'] += amount; }else{ reportAmount[cata_SN+'_sum_war'] = amount; }
-                    //     // fab_war // 廠每個local的總數值_war              
-                    //     if(reportAmount[flid_sn+'_war'])        { reportAmount[flid_sn+'_war'] += amount;         }else{ reportAmount[flid_sn+'_war'] = amount; }
-                    //     if(reportAmount['f_'+fid_sn+'_sum_war']){ reportAmount['f_'+fid_sn+'_sum_war'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_war'] = amount; }
-        
-                    // // 已過期_dan
-                    // }else{
-                    //     if(reportAmount[fid_sn+'_dan'])     { reportAmount[fid_sn+'_dan'] += amount;      }else{ reportAmount[fid_sn+'_dan'] = amount; }
-                    //     if(reportAmount[cata_SN+'_sum_dan']){ reportAmount[cata_SN+'_sum_dan'] += amount; }else{ reportAmount[cata_SN+'_sum_dan'] = amount; }
-                    //     // fab_dan // 廠每個local的總數值_dan 
-                    //     if(reportAmount[flid_sn+'_dan'])        { reportAmount[flid_sn+'_dan'] += amount;         }else{ reportAmount[flid_sn+'_dan'] = amount; }
-                    //     if(reportAmount['f_'+fid_sn+'_sum_dan']){ reportAmount['f_'+fid_sn+'_sum_dan'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_dan'] = amount; }
-                    // }
+                // 每個廠的總數值_all              
+                    if(reportAmount[fid_sn+'_all'])     { reportAmount[fid_sn+'_all'] += amount;      }else{ reportAmount[fid_sn+'_all'] = amount; }
+                    if(reportAmount[cata_SN+'_sum_all']){ reportAmount[cata_SN+'_sum_all'] += amount; }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
+                    // fab_all // 廠每個local的總數值_all              
+                    if(reportAmount[flid_sn+'_all'])        { reportAmount[flid_sn+'_all'] += amount;         }else{ reportAmount[flid_sn+'_all'] = amount; }
+                    if(reportAmount['f_'+fid_sn+'_sum_all']){ reportAmount['f_'+fid_sn+'_sum_all'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
             }
         })
 
@@ -471,9 +417,6 @@
     $(document).ready(function () {
         show_ptreports();
     })
-        // var sinn = '<b>** 自動帶入 年領用累計 ... 完成</b>~';
-        // inside_toast(sinn);
-    // }
 
 
 </script>

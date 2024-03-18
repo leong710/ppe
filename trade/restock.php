@@ -4,15 +4,12 @@
     require_once("function.php");
     accessDenied($sys_id);
 
-    $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 複製本頁網址藥用
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = $receive_url;                        // 回本頁
-    }
+    // 複製本頁網址藥用
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_id_role = $_SESSION[$sys_id]["role"];      // 取出$_session引用
+
+    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];         // 取出$_session引用
+    $sys_id_role = $_SESSION[$sys_id]["role"];          // 取出$_session引用
 
         // 刪除表單
         if(isset($_POST["delete_trade"])){
@@ -29,12 +26,7 @@
         // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
 
     // 決定表單開啟方式
-    if(isset($_REQUEST["action"])){
-        $action = $_REQUEST["action"];              // 有action就帶action
-    }else{
-        $action = 'create';                         // 沒有action就新開單
-        
-    }
+    $action = (!empty($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
     if(isset($_REQUEST["id"])){
         $trade_row = show_trade($_REQUEST);
@@ -105,25 +97,15 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
     <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 -->
-        <!-- data table CSS+JS -->
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
-    <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-    <!-- mloading JS 1/3 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
 
-    </style>
 </head>
 
 <body>
@@ -136,7 +118,6 @@
                         <h3><i class="fa-solid fa-2"></i>&nbsp<b>其他入庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="index.php" class="btn btn-success"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回總表</a> -->
                         <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a>
                     </div>
                 </div>
@@ -389,7 +370,6 @@
                                             <th>Time Signed</th>
                                             <th>Status</th>
                                             <th>Comment</th>
-                                            <!-- <th>action</th> -->
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -401,18 +381,11 @@
                         </div>
                     </div>
                 </div>
-    
-                <!-- 尾段：衛材訊息 -->
-                <?php if(isset($_REQUEST["debug"])){
-                    include("debug_board.php"); 
-                } ?>
-
             </div>
         </div>
     </div>
     <!-- toast -->
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-            <!-- <div id="liveToast" class="toast bg-warning text-dark" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="2000"> -->
             <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="500">
                 <div class="d-flex">
                     <div class="toast-body" id="toast-body">
@@ -480,28 +453,22 @@
             </div>
         </div>
     
-    <!-- goTop滾動畫面DIV 2/4-->
         <div id="gotop">
             <i class="fas fa-angle-up fa-2x"></i>
         </div>
     
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/aos/aos_init.js"></script>
-
 
 <script>
 // 開局設定init
-    var action      = '<?=$action;?>';                               // Edit選染 // 引入action資料
-    var catalogs    = <?=json_encode($catalogs);?>;                  // 第一頁：info modal function 引入catalogs資料
-    var trade_row   = <?=json_encode($trade_row);?>;                 // Edit選染 // 引入trade_row資料作為Edit
-    // var json        = JSON.parse('<=json_encode($logs_arr)?>');   // 鋪設logs紀錄 240124-JSON.parse長度有bug
+    var action      = '<?=$action?>';                                // Edit選染 // 引入action資料
+    var catalogs    = <?=json_encode($catalogs)?>;                   // 第一頁：info modal function 引入catalogs資料
+    var trade_row   = <?=json_encode($trade_row)?>;                  // Edit選染 // 引入trade_row資料作為Edit
     var json        = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id          = '<?=$trade_row["id"]?>';                       // 鋪設logs紀錄
-
     
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)

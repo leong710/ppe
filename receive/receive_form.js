@@ -159,14 +159,15 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
-            async: false,                                           // ajax取得數據包後，可以return的重要參數
+            async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                functionname: 'showStaff',                          // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
-                search: search                                      // 查詢對象key_word
+                functionname: 'showStaff',                              // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word
             },
             success: function(res){
                 var obj_val = res["result"];
@@ -208,7 +209,8 @@
                                 $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
                                 $('#omager_badge').empty();
                                 input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
-                                $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
+                                // $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
+                                $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '&nbsp</div>');
                                 input_in_signName.value = obj_val.s2_cname;             // 帶入待簽人姓名
 
                                 showDelegation(obj_val.omager);                         // 呼叫查詢代理簽核程式，有結果就置換，沒有就保持!!
@@ -236,8 +238,8 @@
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
                         if(obj_val){ 
-                            console.log(fun,'obj_val:', obj_val);                           
-                            $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                            // $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
+                            $('#omager_badge').append('<div class="tag">' + obj_val.cname + '&nbsp</div>');
                             $("#omager").addClass("autoinput");
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
                             var sinn = '以工號&nbsp<b>'+obj_val.emp_id+'/'+obj_val.cname+'</b>&nbsp帶入上層主管資訊...完成!!';
@@ -262,14 +264,15 @@
     // fun3-1A 用上層主管工號查詢簽核代理人
     function showDelegation(search){
         $.ajax({
-            url:'http://tneship.cminl.oa/hrdb/api/index.php',       // 正式
+            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
-            async: false,                                           // ajax取得數據包後，可以return的重要參數
+            async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                functionname: 'showDelegation',                     // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
-                search: search                                      // 查詢對象key_word
+                functionname: 'showDelegation',                         // 操作功能
+                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                emp_id: search                                          // 查詢對象key_word 
             },
             success: function(res){
                 var obj_val = res["result"];
@@ -278,7 +281,8 @@
                     $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
                     $('#omager_badge').empty();
                     document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
-                    $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
+                    // $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
+                    $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '&nbsp</div>');
                     $("#omager").addClass("autoinput");
 
                     document.getElementById('in_signName').value = obj_val.DEPUTYCNAME;             // 將欄位帶入待簽人姓名                          
@@ -292,13 +296,13 @@
     }
 
     // fun3-2：omager上層主管：移除單項模組
-    $('#omager_badge').on('click', '.remove', function() {
-        $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
-        document.getElementById('omager').value = '';          // 將欄位cname清除
-        document.getElementById('in_signName').value = '';     // 將欄位in_signName清除
-        $('#omager').removeClass('autoinput');                 // 移除外框提示
-        // $('#omager_badge').empty();
-    });
+    // $('#omager_badge').on('click', '.remove', function() {
+    //     $(this).closest('.tag').remove();                       // 泡泡自畫面中移除
+    //     document.getElementById('omager').value = '';          // 將欄位cname清除
+    //     document.getElementById('in_signName').value = '';     // 將欄位in_signName清除
+    //     $('#omager').removeClass('autoinput');                 // 移除外框提示
+    //     // $('#omager_badge').empty();
+    // });
 
     // fun3-3：吐司顯示字條 // init toast
     function inside_toast(sinn){
@@ -530,6 +534,8 @@
         if(action != 'create'){                                // 確認action不是新表單，就進行Edit模式渲染
             edit_item();
             $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
+        }else{
+            search_fun('emp_id');
         }
 
     })

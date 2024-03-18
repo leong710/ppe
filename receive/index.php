@@ -20,12 +20,10 @@
     $fun = "myReceive";                         // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
 
     // 2-1.篩選：檢視allMy或All、其他廠區內表單
-        if(isset($_REQUEST["fab_id"])){
-            $is_fab_id = $_REQUEST["fab_id"];       // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
-        }else{
-            // $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is + coverFab)
-            $is_fab_id = "All";                   // 其他預設值 = All   => 全部flag=On的fab
-        }
+        $is_fab_id = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $is_fab_id = "All";                   
+        // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠
+        // 其他預設值 = All   => 全部flag=On的fab
+        // $is_fab_id = "allMy";                   // 其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is + coverFab)
         
     // 2-2.篩選身分：定義user進來要看到的項目
         if(isset($_REQUEST["emp_id"])){             // 有帶查詢，套查詢參數
@@ -35,12 +33,8 @@
         }
 
     // 2-3.篩選年分~~
-        if(isset($_REQUEST["_year"])){
-            $_year = $_REQUEST["_year"];
-        }else{
-            // $_year = date('Y');                       // 今年
-            $_year = "All";                              // 預設全年
-        }
+        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All";  // 預設全年
+        // $_year = date('Y');                       // 今年
 
     // 組合查詢陣列
         $query_arr = array(
@@ -107,16 +101,12 @@
         $per_total = count($row_lists);     // 計算總筆數
         $per = 25;                          // 每頁筆數
         $pages = ceil($per_total/$per);     // 計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        if(!isset($_GET['page'])){          // !isset 判斷有沒有$_GET['page']這個變數
-            $page = 1;	  
-        }else{
-            $page = $_GET['page'];
-        }
+        // !isset 判斷有沒有$_GET['page']這個變數
+        $page = (!isset($_GET['page'])) ? 1 : $_GET['page'];
         $start = ($page-1)*$per;            // 每一頁開始的資料序號(資料庫序號是從0開始)
         // 合併嵌入分頁工具
             $query_arr["start"] = $start;
             $query_arr["per"] = $per;
-
         $row_lists_div = show_my_receive($query_arr);
         $page_start = $start +1;            // 選取頁的起始筆數
         $page_end = $start + $per;          // 選取頁的最後筆數
@@ -128,16 +118,11 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <!-- goTop滾動畫面aos.css 1/4-->
-    <link href="../../libs/aos/aos.css" rel="stylesheet">
-    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
-    <!-- mloading JS 1/3 -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>
-    <!-- mloading CSS 2/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
-    <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>
+    <link href="../../libs/aos/aos.css" rel="stylesheet">                                   <!-- goTop滾動畫面aos.css 1/4-->
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
+    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
+    <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
     <style>
         .page_title, .op_tab_btn {
             color: white;
@@ -616,21 +601,18 @@
             </div>
         </div>
     </div>
-<!-- goTop滾動畫面DIV 2/4-->
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
 
-<!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos.js"></script>
-<!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/aos/aos_init.js"></script>
-<!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-<script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/aos/aos.js"></script>                   <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>              <!-- goTop滾動畫面script.js 4/4-->
+<script src="../../libs/sweetalert/sweetalert.min.js"></script> <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script>
-    // 在任何地方啟用工具提示框
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
     })
     // tab_table的顯示關閉功能

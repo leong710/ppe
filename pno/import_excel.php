@@ -60,17 +60,10 @@
     }
 
     // 回上一頁/本頁網址藥用
-        if(isset($_SERVER["HTTP_REFERER"])){
-            $up_href = $_SERVER["HTTP_REFERER"];                                    // 回上頁
-        }else{
-            $up_href = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];     // 回本頁
-        }
+    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
+
     // 
-    if(!empty($import_excel)){
-        $to_module = $import_excel;
-    }else{
-        $to_module = "";
-    }
+    $to_module = (!empty($import_excel)) ? $import_excel : "";
 
     $swal_json = array(
         "fun" => "store_".$to_module
@@ -135,9 +128,9 @@
 
 <script>    
     
-    var swal_json = <?=json_encode($swal_json);?>;                                      // 引入swal_json值
+    var swal_json = <?=json_encode($swal_json)?>;                                      // 引入swal_json值
     var url = 'index.php';
-    var up_url = '<?=$up_href;?>';
+    var up_url = '<?=$up_href?>';
 
     $(document).ready(function () {
         
@@ -147,11 +140,11 @@
             
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = up_url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = up_url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back();});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});     // 關閉畫面
             }
     
         }else{

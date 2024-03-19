@@ -10,9 +10,9 @@
         // step-1.確認基本數值
             $functionname = !empty($_REQUEST['functionname']) ? $_REQUEST['functionname'] : NULL;     // 操作功能
 
-            if (empty($function) && empty($aResult['error'])) {
+            if (empty($functionname) && empty($aResult['error'])) {
                 $aResult['error'] = '未指定function!';
-            } elseif (empty($function) && !empty($aResult['error'])) {
+            } elseif (empty($functionname) && !empty($aResult['error'])) {
                 $aResult['error'] .= ' 未指定function!';
             }
             

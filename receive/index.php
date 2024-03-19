@@ -2,6 +2,8 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
+    require_once("service_window.php");             // service window
+
     accessDenied($sys_id);
 
     $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
@@ -96,7 +98,8 @@
         $row_lists              = show_my_receive($query_arr);
 
         $receive_years  = show_receive_GB_year();               // 取出receive年份清單 => 供首頁面篩選
-    
+        $sw_arr = (array) json_decode($sw_json);                // service window 物件轉陣列
+        
     // <!-- 20211215分頁工具 -->
         $per_total = count($row_lists);     // 計算總筆數
         $per = 25;                          // 每頁筆數
@@ -210,6 +213,8 @@
                             </form>
                         </div>
                         <div class="col-4 col-md-3 py-1 text-end">
+                            <button type="button" id="service_window_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#service_window"><i class="fa-solid fa-circle-info"></i> 各廠聯絡窗口</button>
+
                             <?php if(isset($sys_role)){ ?>
                                 <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫領用申請</a>
                             <?php } ?>
@@ -592,6 +597,64 @@
             </div>
         </div>
     </div>
+
+    <!-- 模組 service window 20240319 -->
+    <div class="modal fade" id="service_window" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header rounded bg-success text-white p-2 m-2">
+                    <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> Service Window / 各廠聯絡窗口</h5>
+                    <button type="button" class="btn-close border rounded mx-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-3 pt-1">
+                    <div class="col-12 border rounded p-3">
+                        <table id="service_window">
+                            <thead>
+                                <tr>
+                                    <th>FAB</th>
+                                    <th>窗口姓名</th>
+                                    <th>分機</th>
+                                    <th>email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach($sw_arr as $sw_key => $sw_value){
+                                    $value_length = count($sw_value);
+                                    if($value_length < 1){
+                                        $append_str = '<tr><td>'.$sw_key.'</td><td>null</td><td></td><td></td></tr>';
+                                    }else{
+                                        if(is_object($sw_value)) { $sw_value = (array)$sw_value; }                      // 物件轉陣列
+                                        $td_key = '<td rowspan="'.$value_length.'">'.$sw_key.'</td>';
+                                        $append_str = "";
+                                        $i = 1;
+                                        foreach($sw_value as $sw_item => $sw_item_value){
+                                            if(is_object($sw_item_value)) { $sw_item_value = (array)$sw_item_value; }   // 物件轉陣列
+                                            $td_value = '. '.$sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
+                                            if($i === 1){
+                                                $append_str .= '<tr>'.$td_key.'<td>'.$i.$td_value;
+                                            }else{
+                                                $append_str .= '<tr><td>'.$i.$td_value;
+                                            }
+                                            $i++;
+                                        }
+                                    };
+                                    echo $append_str;
+                                }?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <!-- toast -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">

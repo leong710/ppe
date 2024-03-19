@@ -3,6 +3,7 @@
     require_once("../sso.php");
     require_once("function.php");
     require_once("function_dept.php");
+    require_once("service_window_api.php");             // service window
     accessDenied($sys_id);
     
     // 新增C
@@ -39,6 +40,8 @@
     $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 2 = local
 
     if(isset($_GET["make_server_window"])){ make_server_window($fabs); }
+
+    $sw_arr = (array) json_decode($sw_json);                // service window 物件轉陣列
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -134,7 +137,7 @@
                                     <tbody>
                                         <?php foreach($sites as $site){ ?>
                                             <tr>
-                                                <td style="font-size: 6px;"><?php echo $site['id']; ?></td>
+                                                <td style="font-size: 12px;"><?php echo $site['id']; ?></td>
                                                 <td class="text-start"><?php echo $site['site_title']; ?></td>
                                                 <td class="text-start"><?php echo $site['site_remark']; ?></td>
                                                 <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
@@ -188,7 +191,7 @@
                                     <tbody>
                                         <?php foreach($fabs as $fab){ ?>
                                             <tr>
-                                                <td style="font-size: 6px;"><?php echo $fab['id']; ?></td>
+                                                <td style="font-size: 12px;"><?php echo $fab['id']; ?></td>
                                                 <td class="text-start"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
                                                 <td class="text-start"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
                                                 <td <?php echo $fab['buy_ty'] !='a' ? 'style="background-color: yellow;"':'';?>><?php echo $fab['buy_ty']; ?></td>
@@ -209,6 +212,32 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-12 col-md-8 ">
+                                <h5>Service Window清單</h5><snap> >>> 上表有更新時，請記得套用更新!! 此清單會顯示在receive領用總表上，供民眾查詢使用 ~</snap>
+                            </div>
+                            <div class="col-12 col-md-4  text-end">
+                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                    <button type="button" id="add_fab_btn" class="btn btn-primary" onclick="return confirm(`確認更新service window清單嗎？`) && update_sw();" ><i class="fa-solid fa-arrows-rotate"></i> 套用更新</button>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="col-12 border rounded p-3 ">
+                        <!-- <div class="col-12"> -->
+                            <table id="service_window">
+                                <thead>
+                                    <tr>
+                                        <th>FAB</th>
+                                        <th>窗口姓名</th>
+                                        <th>分機</th>
+                                        <th>email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     
@@ -242,7 +271,7 @@
                                     <tbody>
                                         <?php foreach($locals as $local){ ?>
                                             <tr>
-                                                <td style="font-size: 6px;"><?php echo $local['id']; ?></td>
+                                                <td style="font-size: 12px;"><?php echo $local['id']; ?></td>
                                                 <td class="text-start"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
                                                 <td class="text-start"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
                                                 <td><a href="low_level.php?local_id=<?php echo $local['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($local['low_level']) ? "btn-success":"btn-warning";?>">
@@ -319,21 +348,7 @@
                     </div>
                     <hr>
                 </div>
-                <div class="">
-                    <table id="service_window">
-                        <thead>
-                            <tr>
-                                <th>FAB</th>
-                                <th>窗口姓名</th>
-                                <th>分機</th>
-                                <th>email</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                    </table>
-                </div>
+
             </div>
         </div>
     </div>
@@ -715,10 +730,11 @@
     
     var tags        = [];                                                                       // fun3-1：search Key_word
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
+    var sw_json     = '<?=$sw_json?>';
 
 </script>
 
 <script src="local.js?v=<?=time()?>"></script>
-<script src="make_service_window.js?v=<?=time()?>"></script>
+<script src="service_window_maker.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

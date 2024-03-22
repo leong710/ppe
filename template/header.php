@@ -11,5 +11,6 @@
     <link rel="stylesheet" href="../css/grid.css">
     <link rel="stylesheet" href="../css/style.css?v=<?=time();?>">
     <!-- ?v=?=time()?> 正式版要移除-->
+    <script src="../../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>

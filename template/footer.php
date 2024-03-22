@@ -10,7 +10,6 @@
     }?>
 </footer>
 
-<script src="../../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body><!-- 防止 ERR_CACHE_MISS -->
 <script>window.history.replaceState(null, null, window.location.href);</script>
 </html>

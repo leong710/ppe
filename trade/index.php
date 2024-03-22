@@ -290,7 +290,8 @@
                                         <tr>
                                             <td title="aid: <?php echo $row['id'];?>"><?php echo substr($row['out_date'],0,10); ?></td>
                                             <td style="font-size: 14px; word-break: break-all;">
-                                                <?php if(!empty($row["fab_o_title"])){ echo $row['fab_o_title'].'('.$row['fab_o_remark'].')';
+                                                <?php if(!empty($row["fab_o_title"])){ 
+                                                        echo $row['fab_o_title'].'('.$row['fab_o_remark'].')';
                                                     }else{
                                                         echo "<b>".($row["out_local"])."</b>";
                                                     }?>
@@ -298,7 +299,7 @@
                                             <td><?php echo $row['cname_o'];?></td>
                                             <td class="t-left"><?php echo $row["fab_i_title"].'('.$row['fab_i_remark'].')'.'_'.$row["local_i_title"];?></td>
                                             <td><?php echo $row['cname_i'];?></td>
-                                            <td style="font-size: 10px;"><?php echo substr($row['in_date'],0,10); ?></td>
+                                            <td style="font-size: 12px;"><?php echo substr($row['in_date'],0,10); ?></td>
                                             <td><?php $fab_role = ($row['fab_i_id'] == $sys_fab_id || (in_array($row['fab_i_id'], $sys_sfab_id)));
                                                 switch($row['idty']){
                                                     case "0"    : echo "完成";                  break;

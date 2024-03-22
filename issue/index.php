@@ -394,7 +394,7 @@
                                                 <?php echo (!empty($row["fab_o_title"])) ? $row["fab_o_title"].'('.$row['fab_o_remark'].')' : $row["out_local"];?>
                                             </td>
                                             <td><?php echo $row['cname_o'];?></td>
-                                            <td style="font-size: 6px;"><?php echo substr($row['in_date'],0,10); ?></td>
+                                            <td style="font-size: 12px;"><?php echo substr($row['in_date'],0,10); ?></td>
                                             <td><?php echo $row['ppty'];
                                                     switch($row['ppty']){
                                                         case "0": echo '.臨時'; break;

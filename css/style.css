@@ -282,9 +282,6 @@ a:hover {
         border: 2px solid greenyellow;
         padding: 5px;
     }
-    #excel_iframe{
-        height: 320px;
-    }
 
     .alert_it{
         color: #fa0e7e;

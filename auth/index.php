@@ -12,16 +12,11 @@
     if(isset($_POST["submit_delete_user"])){ $sw_json = deleteUser($_REQUEST); }
 
     // 切換指定NAV分頁
-    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "0";       // 0= PM名單
+    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "nav_btn_1";       // nav_btn_1= PM名單
 
     // 這裡讀取狀態：none正常、new新人、pause停用
     $showAllUsers = showAllUsers("");
-    $showAllUsers_none = showAllUsers("none");
-    $showAllUsers_new = showAllUsers("new");
-    $showAllUsers_pause = showAllUsers("pause");
 
-    $count_users_new = count($showAllUsers_new);
-    $count_users_pause = count($showAllUsers_pause);
     // $sites = show_site();
     $fabs = show_fab();
 
@@ -31,6 +26,7 @@
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <script src="../../libs/sweetalert/sweetalert.min.js"></script>                         <!-- 引入 SweetAlert -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <script src="../../libs/jquery/mloading_init.js"></script>
@@ -97,21 +93,16 @@
                 <div class="col-md-6 head">
                     <ul class="nav nav-pills">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#" title="none" id="none"><i class="fa-solid fa-circle-user"></i>&nbspPM名單</a>
+                            <button type="button" id="nav_btn_1" class="nav-link" value="0,1,2" onclick=" groupBy_role(this.value)" ><i class="fa-solid fa-circle-user"></i>&nbspPM名單
+                                <span id="none" class="badge bg-success"></span></button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" title="new" id="new"><i class="fa-solid fa-ghost"></i>&nbsp一般使用者
-                                <?php if($count_users_new !=0){?>
-                                    <span class="badge bg-danger"><?php echo $count_users_new;?></span>
-                                <?php }?>
-                            </a>
+                            <button type="button" id="nav_btn_2" class="nav-link" value="3" onclick=" groupBy_role(this.value)" ><i class="fa-solid fa-ghost"></i>&nbsp一般使用者
+                                <span id="new" class="badge bg-danger"></span></button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" title="pause" id="pause"><i class="fa-solid fa-ban"></i>&nbsp停用
-                                <?php if($count_users_pause !=0){?>
-                                    <span class="badge bg-secondary"><?php echo $count_users_pause;?></span>
-                                <?php }?>
-                            </a>
+                            <button type="button" id="nav_btn_3" class="nav-link" value=" " onclick=" groupBy_role(this.value)" ><i class="fa-solid fa-ban"></i>&nbsp停用
+                                <span id="pause" class="badge bg-secondary"></span></button>
                         </li>
                     </ul>
                 </div>
@@ -121,12 +112,13 @@
                 </div>
             </div>
             <!-- dataTable -->
-            <div class="col-12 p-4 pt-0">
-                <table id="table" class="table table-striped table-hover">
+            <div class="col-12 p-4 pt-0  ">
+                <table id="user_table" class="table table-striped table-hover">
                     <thead> 
                         <tr>
                             <th>id</th>
-                            <th>emp_id / cName / user</th>
+                            <th class="unblock">role</th>
+                            <th data-toggle="tooltip" data-placement="bottom" title="** 紅色字體為非在職名單 ~">emp_id / cName / user</th>
                             <th>fab_id</th>
                             <th>sfab_id</th>
                             <th>role▼</th>
@@ -135,111 +127,54 @@
                             <th>action</th>
                         </tr>
                     </thead>
-                    <!-- PM名單 -->
-                    <tbody id="none" class="">
-                        <?php foreach($showAllUsers_none as $user_none){ ?>
+                    <!-- user list -->
+                    <tbody>
+                        <?php foreach($showAllUsers as $user_row){ ?>
                             <tr>
-                                <td><?php echo $user_none["id"]; ?></td>
-                                <td class="t_left"><?php echo $user_none["emp_id"]." / ".$user_none["cname"]." / ";?><a href="edit.php?user=<?php echo $user_none["user"];?>"><?php echo $user_none["user"]; ?></a></td>
-                                <td class="t_left" title="<?php echo $user_none["fab_remark"];?>"><?php echo $user_none["fab_id"]."_".$user_none["fab_title"]; if($user_none["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                <td><?php echo $user_none["sfab_id"]; ?></td>
-                                <td <?php if($user_none["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
-                                    <?php switch($user_none["role"]){
-                                        case "0": echo "0_管理"; break;
-                                        case "1": echo "1_PM"; break;
-                                        case "2": echo "2_siteUser"; break;
-                                        case "3": echo "3_noBody"; break;
-                                        default: echo "停用";} ?></td>
-                                <td><?php echo $user_none["idty"];?>
-                                    <?php switch($user_none["idty"]){
-                                        case "0": echo "_管理"; break;
-                                        case "1": echo "_工程師"; break;
-                                        case "2": echo "_課副理"; break;
-                                        case "3": echo "_部經理層"; break;
-                                        case "4": echo "_廠處長層"; break;
-                                        default: echo "停用";} ?></td>
-                                <td title="<?php echo $user_none["created_at"];?>"><?php echo substr($user_none["created_at"],0,10);?></td>
+                                <td><?php echo $user_row["id"];?></td>
+                                <td class="unblock"><?php echo $user_row["role"];?></td>
+                                <td class="t_left" id="<?php echo 'emp_id_'.$user_row["emp_id"];?>"><?php echo $user_row["emp_id"]." / ".$user_row["cname"]." / ";?><a href="#" data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',<?php echo $user_row['id'];?>)"><?php echo $user_row["user"]; ?></a></td>
+                                <td class="t_left" title="<?php echo $user_row["fab_remark"];?>"><?php echo $user_row["fab_id"]."_".$user_row["fab_title"]; if($user_row["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
+                                <td><?php echo $user_row["sfab_id"]; ?></td>
+                                <td class="text-start" <?php if($user_row["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
+                                    <?php switch($user_row["role"]){
+                                        case "0": echo "0.&nbsp管理"; break;
+                                        case "1": echo "1.&nbspPM"; break;
+                                        case "2": echo "2.&nbspsiteUser"; break;
+                                        case "3": echo "3.&nbspnoBody"; break;
+                                        default: echo "【&nbsp停用&nbsp】";} ?></td>
+                                <td class="text-start"><?php echo $user_row["idty"];?>
+                                    <?php switch($user_row["idty"]){
+                                        case "0": echo ".&nbsp管理"; break;
+                                        case "1": echo ".&nbsp工程師"; break;
+                                        case "2": echo ".&nbsp課副理"; break;
+                                        case "3": echo ".&nbsp部經理"; break;
+                                        case "4": echo ".&nbsp廠處長"; break;
+                                        default: echo "【&nbsp停用&nbsp】";} ?></td>
+                                <td title="<?php echo $user_row["created_at"];?>"><?php echo substr($user_row["created_at"],0,10);?></td>
                                 <td>
-                                    <!-- <a href="edit.php?user=<php echo $user_none["user"];?>" class="btn btn-sm btn-xs btn-info">編輯</a> -->
-                                    <button type="button" value="<?php echo $user_none["id"];?>" class="btn btn-sm btn-xs btn-info" 
-                                        data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',this.value)" >編輯</button>
-                                </td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                    <!-- 一般使用者名單 -->
-                    <tbody id="new" class="unblock">
-                        <?php foreach($showAllUsers_new as $user_new){ ?>
-                            <tr>
-                                <td><?php echo $user_new["id"]; ?></td>
-                                <td class="t_left"><?php echo $user_new["emp_id"]." / ".$user_new["cname"]." / ";?><a href="edit.php?user=<?php echo $user_new["user"];?>"><?php echo $user_new["user"]; ?></a></td>
-                                <td class="t_left" title="<?php echo $user_new["fab_remark"];?>"><?php echo $user_new["fab_id"]."_".$user_new["fab_title"]; if($user_new["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                <td><?php echo $user_new["sfab_id"]; ?></td>
-                                <td <?php if($user_new["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
-                                    <?php switch($user_new["role"]){
-                                        case "0": echo "0_管理"; break;
-                                        case "1": echo "1_PM"; break;
-                                        case "2": echo "2_siteUser"; break;
-                                        case "3": echo "3_noBody"; break;
-                                        default: echo "停用";} ?></td>
-                                <td><?php echo $user_new["idty"];?>
-                                    <?php switch($user_new["idty"]){
-                                        case "0": echo "_管理"; break;
-                                        case "1": echo "_工程師"; break;
-                                        case "2": echo "_課副理"; break;
-                                        case "3": echo "_部經理層"; break;
-                                        case "4": echo "_廠處長層"; break;
-                                        default: echo "停用";} ?></td>
-                                <td title="<?php echo $user_new["created_at"];?>"><?php echo substr($user_new["created_at"],0,10); ?></td>
-                                <td>
-                                    <!-- <a href="edit.php?user=<php echo $user_new["user"];?>" class="btn btn-sm btn-xs btn-info">編輯</a> -->
-                                    <button type="button" value="<?php echo $user_new["id"];?>" class="btn btn-sm btn-xs btn-info" 
-                                        data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',this.value)" >編輯</button>
-                                </td>
-                            </tr>
-                        <?php }?>
-                    </tbody>
-                    <!-- 除權名單 -->
-                    <tbody id="pause" class="unblock">
-                        <?php foreach($showAllUsers_pause as $user_pause){ ?>
-                            <tr>
-                                <td><?php echo $user_pause["id"]; ?></td>
-                                <td class="t_left"><?php echo $user_pause["emp_id"]." / ".$user_pause["cname"]." / ";?><a href="edit.php?user=<?php echo $user_pause["user"];?>"><?php echo $user_pause["user"]; ?></a></td>
-                                <td class="t_left" title="<?php echo $user_pause["fab_remark"];?>"><?php echo $user_pause["fab_id"]."_".$user_pause["fab_title"]; if($user_pause["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                <td><?php echo $user_pause["sfab_id"]; ?></td>
-                                <td <?php if($user_pause["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
-                                    <?php switch($user_pause["role"]){
-                                        case "0": echo "0_管理"; break;
-                                        case "1": echo "1_PM"; break;
-                                        case "2": echo "2_siteUser"; break;
-                                        case "3": echo "3_noBody"; break;
-                                        default: echo "停用";} ?></td>
-                                <td><?php echo $user_pause["idty"];?>
-                                    <?php switch($user_pause["idty"]){
-                                        case "0": echo "_管理"; break;
-                                        case "1": echo "_工程師"; break;
-                                        case "2": echo "_課副理"; break;
-                                        case "3": echo "_部經理層"; break;
-                                        case "4": echo "_廠處長層"; break;
-                                        default: echo "停用";} ?></td>
-                                <td title="<?php echo $user_pause["created_at"];?>"><?php echo substr($user_pause["created_at"],0,10); ?></td>
-                                <td>
-                                    <div class="">
-                                        <!-- <a href="edit.php?user=<php echo $user_pause["user"];?>" class="btn btn-sm btn-xs btn-info">編輯</a> -->
-                                        <button type="button" value="<?php echo $user_pause["id"];?>" class="btn btn-sm btn-xs btn-info" 
-                                            data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',this.value)" >編輯</button>
-                                        <?php if($user_pause["role"] == ""){ ?>
-                                            <form action="" method="post">
-                                                <input type="hidden" name="id" value="<?php echo $user_pause["id"];?>">
-                                                <input type="submit" name="submit_delete_user" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
-                                            </form>
-                                        <?php } ?>
-                                    </div>    
+                                    <button type="button" value="<?php echo $user_row["id"];?>" class="btn btn-sm btn-xs btn-secondary" title="編輯"
+                                        data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',this.value)" ><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <?php if($user_row["role"] == ""){ ?>
+                                        <form action="" method="post" style="display: inline-block;">
+                                            <input type="hidden" name="id" value="<?php echo $user_row["id"];?>">
+                                            <button type="submit" name="submit_delete_user" class="btn btn-sm btn-xs btn-danger" title="刪除" onclick="return confirm('確認刪除？')"><i class="fa-solid fa-user-xmark"></i></button>
+                                        </form>
+                                    <?php } ?>
                                 </td>
                             </tr>
                         <?php } ?>
                     </tbody>
                 </table>
+                <hr>
+                <div class="row">
+                    <div class="col-6 col-md-6 py-0">
+                        <input type="hidden" name="emp_id" id="recheck_user" >
+                    </div>
+                    <div class="col-6 col-md-6 py-0 text-end" style="font-size: 12px;">
+                        202403 updated modal
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -247,9 +182,9 @@
     <div class="modal fade" id="role_info" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header rounded bg-success text-white p-2 m-2">
+                <div class="modal-header border rounded bg-success text-white p-3 m-2">
                     <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> role權限說明</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close border rounded mx-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="col-12 py-0 px-4">
@@ -333,16 +268,16 @@
         </div>
     </div>
 <!-- 模組-user modal -->
-    <div class="modal fade" id="user_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg"> 
+    <div class="modal fade" id="user_modal" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><span id="user_modal_action"></span> local user role</h5>
+                <div class="modal-header border rounded p-3 m-2">
+                    <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> <span id="user_modal_action"></span> local user role</h5>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="user_delete_id">&nbsp&nbsp&nbsp&nbsp&nbsp
                         <span id="user_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
                     </form>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close border rounded mx-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <form action="" method="post" class="needs-validation">
@@ -351,9 +286,9 @@
                         <div class="row">
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating input-group">
-                                    <input type="text" name="user" id="user" class="form-control" data-toggle="tooltip" data-placement="bottom" title="請輸入查詢對象 工號、姓名或NT帳號" required  onchange="search_fun();">
+                                    <input type="text" name="user" id="user" class="form-control" data-toggle="tooltip" data-placement="bottom" title="請輸入查詢對象 工號、姓名或NT帳號" required  onchange="search_fun('search');">
                                     <label for="user" class="form-label">user ID：<sup class="text-danger"> *</sup></label>
-                                    <button type="button" class="btn btn-outline-primary" onclick="search_fun()"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="search_fun('search')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 py-1">
@@ -423,15 +358,15 @@
                         <!-- line 5 -->
                         <div class="row">
                             <div class="col-12 py-1">
-                                <label for="" class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($_SESSION["AUTH"]["role"] >= 2 ) ? " - disabled":" 選填" ?></sup></label>
+                                <label class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($_SESSION["AUTH"]["role"] >= 2 ) ? " - disabled":" 選填" ?></sup></label>
                                 <div class="border rounded p-2">
                                     <table>
                                         <tbody>
                                             <tr>
                                                 <?php $i = 0; foreach($fabs as $fab){ ?>
-                                                    <td>
+                                                    <td class="text-start">
                                                         <input type="checkbox" name="sfab_id[]" value="<?php echo $fab["id"];?>" id="sfab_id_<?php echo $fab["id"];?>" class="form-check-input" >
-                                                        <label for="sfab_id_<?php echo $fab["id"];?>" class="form-check-label">&nbsp<?php echo $fab["fab_title"];?></label>
+                                                        <label for="sfab_id_<?php echo $fab["id"];?>" class="form-check-label">&nbsp<?php echo $fab["id"].".&nbsp".$fab["fab_title"];?></label>
                                                     </td>
                                                     <?php $i++; if($i%6 == 0){?> </tr> <?php }  ?> 
                                                 <?php } ?>
@@ -446,11 +381,11 @@
                     <div class="modal-footer">
                         <div class="text-end">
                             
-                            <input type="hidden" name="activeTab" value="1">
+                            <span id="activeTab" ></span>
                             <input type="hidden" name="id" id="user_edit_id" >
                             
                             <span id="user_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
-                            <input type="reset" class="btn btn-info" id="user_reset_btn" onclick="$('#emp_id, #cname, #user').removeClass('autoinput');" value="清除">
+                            <input type="reset" class="btn btn-info" id="user_reset_btn" onclick="$('#emp_id, #cname, #user, #idty').removeClass('autoinput');" value="清除">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -489,48 +424,36 @@
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-<script src="../../libs/aos/aos.js"></script>
-<script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
+<script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <script>    
     // modal
-    var user_modal = new bootstrap.Modal(document.getElementById('user_modal'), { keyboard: false });
+    var user_modal  = new bootstrap.Modal(document.getElementById('user_modal'), { keyboard: false });
     var searchUser_modal = new bootstrap.Modal(document.getElementById('searchUser'), { keyboard: false });
-    var user = <?=json_encode($showAllUsers)?>;
+    var user        = <?=json_encode($showAllUsers)?>;
     var user_item   = ['id','user','cname','emp_id','idty','role','fab_id','sfab_id'];          // 交給其他功能帶入
     var tags        = [];                                                                       // fun3-1：search Key_word
-    var sw_json     = '<?=json_encode($sw_json)?>';
+    var swal_json   = <?=json_encode($sw_json)?>;
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
 
     $(function () {
+        // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
-
         // Alex menu
-        var navs = Array.from(document.querySelectorAll(".head > ul > li > a"));
-        var tbodys = Array.from(document.querySelectorAll("#table > tbody"));
+        var navs = Array.from(document.querySelectorAll(".head > ul > li > button"));
         navs.forEach((nav)=>{
             nav.addEventListener('mousedown',function(){
                 // 標籤
-                document.querySelector(".head > ul > li > a.active").classList.remove('active')
-                this.classList.add('active')
-                // tbody
-                document.querySelector("#table > tbody:not(.unblock)").classList.add('unblock')
-                let index = navs.indexOf(this)
-                tbodys[index].classList.remove('unblock')
+                document.querySelector(".head > ul > li > button.active").classList.remove('active');
+                this.classList.add('active');
+                show_activeTab(this.id);          // 呼叫fun竄改activeTab按鈕+數值
             })
         })
 
         // 監聽表單內 input 變更事件
-        $('#emp_id, #cname, #user').change(function() {
+        $('#emp_id, #cname, #user, #idty').change(function() {
             $(this).removeClass('autoinput');   // 當有變更時，對該input加上指定的class
         });
-
-        // // 遍歷表單內所有 input
-            // $('#add_emp_id, #add_cname, #add_user').each(function() {
-            //     // 如果input已有value，則對該input加上指定的class
-            //     if ($(this).val()) {
-            //         $(this).removeClass('autoinput');
-            //     }
-            // });
 
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
@@ -562,31 +485,56 @@
         // document.querySelector('#key_word').value = '';
     }
     // 第一-階段：search Key_word
-    function search_fun(){
-        mloading("show");                       // 啟用mLoading
-        let search = $('#user').val().trim();       // search keyword取自user欄位
-        if(!search || (search.length < 2)){
-            $("body").mLoading("hide");
-            alert("查詢字數最少 2 個字以上!!");
+    function search_fun(fun){
+        mloading("show");                                               // 啟用mLoading
+        const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';            // ppe
+
+        if(fun=='search'){
+            var search = $('#user').val().trim();                       // search keyword取自user欄位
+            if(!search || (search.length < 2)){
+                $("body").mLoading("hide");
+                alert("查詢字數最少 2 個字以上!!");
+                return false;
+            } 
+            var request = {
+                functionname : 'search',                                // 操作功能
+                uuid         : uuid,                                    // ppe
+                search       : search                                   // 查詢對象key_word
+            }
+
+        }else if(fun=='showStaff'){
+            var search = $('#recheck_user').val().trim();               // search keyword取自user欄位
+            if(!search || (search.length < 2)){
+                $("body").mLoading("hide");
+                alert("查詢字數最少 2 個字以上!!");
+                return false;
+            } 
+            var request = {
+                functionname : 'showStaff',                             // 操作功能
+                uuid         : uuid,                                    // ppe
+                emp_id       : search                                   // 查詢對象key_word
+            }
+
+        }else{
             return false;
-        } 
+        }
+
         $.ajax({
             // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
-            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
-            method:'post',
-            dataType:'json',
-            data:{
-                functionname: 'search',                                 // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
-                search: search                                          // 查詢對象key_word
-            },
+            url: 'http://tneship.cminl.oa/api/hrdb/index.php',          // 正式2024新版
+            method: 'post',
+            dataType: 'json',
+            data: request,
             success: function(res){
                 var res_r = res["result"];
-                postList(res_r);                                        // 將結果轉給postList進行渲染
-                $("body").mLoading("hide");
-                // document.getElementById("searchUser_btn").click();      // 切到searchUser頁面
-                user_modal.hide();
-                searchUser_modal.show();      // 切到searchUser頁面
+                if(fun=='search'){
+                    postList(res_r);                                        // 將結果轉給postList進行渲染
+                }else{
+                    var emp_id_search = document.querySelector('#emp_id_'+search);
+                    if(res_r['emp_id'] == undefined && emp_id_search){
+                        emp_id_search.classList.add('alert_it');
+                    }
+                }
             },
             error (err){
                 console.log("search error:", err);
@@ -614,7 +562,7 @@
         var len = res_r.length;
         for (let i=0; i < len; i++) {
             // 把user訊息包成json字串以便夾帶
-            let user_json = '{"emp_id":"'+res_r[i].emp_id+'","cname":"'+ res_r[i].cname+'","user":"'+ res_r[i].user+'"}';
+            let user_json = '{"emp_id":"'+res_r[i].emp_id+'","cname":"'+ res_r[i].cname+'","user":"'+ res_r[i].user+'","cstext":"'+ res_r[i].cstext+'"}';
             div_result_tbody.innerHTML += 
                 '<tr>' +
                     '<td>' + res_r[i].emp_id +'</td>' +
@@ -628,37 +576,38 @@
                     '<i class="fa-regular fa-circle"></i></button>' + '</td>' +
                 '</tr>';
         }
-        $("body").mLoading("hide");                 // 關閉mLoading
+        $("body").mLoading("hide");                                 // 關閉mLoading
+        // document.getElementById("searchUser_btn").click();       // 切到searchUser頁面
+        user_modal.hide();
+        searchUser_modal.show();                                    // 切到searchUser頁面
 
     }
     // 第二階段：點選、渲染模組
     function tagsInput_me(val) {
         if (val !== '') {
             let obj_val = JSON.parse(val);                                          // 將JSON字串轉成Object物件
-            console.log(obj_val);
             document.querySelector('#user_modal #emp_id').value = obj_val.emp_id;   // 將欄位帶入數值 = emp_id
             document.querySelector('#user_modal #cname').value = obj_val.cname;     // 將欄位帶入數值 = cname
             document.querySelector('#user_modal #user').value = obj_val.user;       // 將欄位帶入數值 = user
 
-                // 创建一个正则表达式模式，用于模糊匹配包含"test"的单词
-                const pattern_2 = /副理/gi; // g 表示全局匹配，i 表示不区分大小写
-                const pattern_3 = /經理/gi; // g 表示全局匹配，i 表示不区分大小写
-                const pattern_4 = /處長/gi; // g 表示全局匹配，i 表示不区分大小写
+                // 创建正则表达式模式和对应的数值映射
+                const patterns = {
+                    "副理": 2,
+                    "經理": 3,
+                    "處長": 4
+                };
 
                 // 使用正则表达式的 exec 方法来查找目标字符串中的匹配项
                 let match;
-                while ((match = pattern_2.exec(obj_val.cstext)) !== null) {
-                    document.querySelector('#user_modal #idty').value = 2;       // 將欄位帶入數值 = 職稱
+                for (const [pattern, value] of Object.entries(patterns)) {
+                    const regex = new RegExp(pattern, 'gi');
+                    if ((match = regex.exec(obj_val.cstext)) !== null) {
+                        document.querySelector('#user_modal #idty').value = value; // 将字段带入值 = 职称.副理
+                        break;          // 找到匹配项后，跳出循环
+                    }
                 }
-                while ((match = pattern_3.exec(obj_val.cstext)) !== null) {
-                    document.querySelector('#user_modal #idty').value = 3;       // 將欄位帶入數值 = 職稱
-                }
-                while ((match = pattern_4.exec(obj_val.cstext)) !== null) {
-                    document.querySelector('#user_modal #idty').value = 4;       // 將欄位帶入數值 = 職稱
-                }
-            // document.querySelector('#user_modal #idty').value = idty;       // 將欄位帶入數值 = 職稱
 
-            $("#emp_id, #cname, #user").addClass("autoinput");
+            $("#emp_id, #cname, #user, #idty").addClass("autoinput");
             resetMain()                                                             // 清除搜尋頁面資料
             // document.getElementById("bt_addUser").click();                       // 切換返回到addUser新增頁面
             searchUser_modal.hide();      // 切到searchUser頁面
@@ -687,7 +636,8 @@
         
         var add_btn = '<input type="submit" name="submit_edit_'+to_module+'" class="btn btn-primary" value="儲存'+to_module+'">';
         $('#'+to_module+'_modal_button').append(add_btn);                       // 填上儲存鈕
-        var del_btn = '<input type="submit" name="submit_delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+        // var del_btn = '<input type="submit" name="submit_delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
+        var del_btn ='<button type="submit" name="submit_delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)"><i class="fa-solid fa-user-xmark"></i></button>';
         $('#'+to_module+'_modal_delect_btn').append(del_btn);                   // 填上刪除鈕
 
         $('#'+to_module+'_modal_action').append('編輯');                        // 更新model標題
@@ -702,7 +652,6 @@
         Object(window[to_module]).forEach(function(row){  
             if(row['id'] == row_id){
                 // step2.鋪畫面到module
-                var user_item    = ['id','user','cname','emp_id','idty','role','fab_id','sfab_id'];    // 交給其他功能帶入
                 Object(window[to_module+'_item']).forEach(function(item_key){
                     if(item_key == 'id'){
                         document.querySelector('#'+to_module+'_delete_id').value = row['id'];       // 鋪上delete_id = this id.no for delete form
@@ -734,10 +683,77 @@
         })
     }
 
-    $(document).ready(function(){
-        // 切換指定NAV分頁
-        $('.nav-tabs button:eq(' + activeTab + ')').tab('show');    //激活选项卡
+    function show_swal(swal_json){
+        swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});         // 3秒
+    }
 
+    // 空值遮蔽：On、Off
+    function groupBy_role(role_value){
+        mloading("show");                                               // 啟用mLoading
+        const arr_role = role_value.split(',').map(item => parseInt(item));
+        var table_tr = document.querySelectorAll('#user_table > tbody > tr');
+        table_tr.forEach(function(row){
+            var row_role = parseInt(row.children[1].innerText); // 將字串轉換為數字
+            if(arr_role.includes(row_role)){
+                row.classList.remove('unblock');
+            } else {
+                row.classList.add('unblock');
+            }
+        })  
+        $("body").mLoading("hide");
+    }
+    // user分類算人頭
+    function count_role(){
+        var count_role_arr = {
+            "none"  : 0,
+            "new"   : 0,
+            "pause" : 0
+        };
+        Object(user).forEach(function(row){
+            var row_role = parseInt(row['role']); // 將字串轉換為數字
+            if(row_role >= 0 && row_role <= 2 ){
+                count_role_arr["none"]++;
+            }else if(row_role == 3){
+                count_role_arr["new"]++;
+            }else{
+                count_role_arr["pause"]++;
+            }
+        })
+        // 渲染
+        Object.entries(count_role_arr).forEach(function([key, value]){
+            $('#'+key).append(value);                   // 填上數量
+        })
+    }
+    // 竄改user_modal activeTab按鈕+數值
+    function show_activeTab(active_no){
+        let activeTab_input = '<input type="hidden" name="activeTab" value="'+active_no+'"></input>';
+        $('#activeTab').empty();
+        $('#activeTab').append(activeTab_input);
+    }
+    // recheck user
+    function recheck_user(){
+        Object(user).forEach(function(row){
+            let emp_id = row['emp_id'];
+            $('#recheck_user').empty();                             // 清除recheck_user input功能
+            document.getElementById('recheck_user').value = emp_id;
+            search_fun('showStaff');
+        })
+    }
+
+    $(document).ready(function(){
+        // show swal
+        if(swal_json.length != 0){ show_swal(swal_json); }
+        // recheck user
+        recheck_user();
+        // user分類算人頭
+        count_role();
+        // NAV select 1
+        // groupBy_role('0,1,2');
+        // 切換指定NAV分頁btn
+        // document.querySelector(".head > ul > li > button.active").classList.remove('active');       // 移除激活
+        document.querySelector("#"+activeTab).classList.add('active');                              // 激活选项卡
+        $("#"+activeTab).click();                                                                   // 點選選項卡以便套用groupBy_role(...)
+        show_activeTab(activeTab);                                                                  // 呼叫fun竄改user_modal activeTab按鈕+數值
 
     });
     

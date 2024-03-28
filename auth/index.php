@@ -30,41 +30,7 @@
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <script src="../../libs/jquery/mloading_init.js"></script>
-    <style>
-        table,td {
-            border: 0px;
-            border-collapse: collapse;
-            padding: 5px;
-            /* text-align: left; */
-            /* background-color: #DEDEDE; */
-        }
-        tr > th {
-            color: blue;
-            text-align: center;
-            vertical-align: top; 
-            word-break: break-all; 
-            background-color: white;
-            font-size: 16px;
-        }
-        /* 互動視窗Modal中加入Form時，要注意擺放位置，因為引響滾軸的功能!! */
-            /* .modal-dialog{
-                overflow-y: initial !important
-            } */
-            /* .modal-body{
-                height: 450px;
-                overflow-y: auto;
-            } */
-        .unblock{
-            display: none;
-            /* transition: 3s; */
-        }
-        /*眼睛*/
-        #checkEye {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-        }        
+    <style>      
         .t_left {
             text-align: left;
             padding-left: 20px;
@@ -72,11 +38,6 @@
         #key_word, #user{    
             margin-bottom: 0px;
             text-align: center;
-        }
-        .autoinput {
-            /* background-color: greenyellow; */
-            border: 2px solid greenyellow;
-            padding: 5px;
         }
     </style>
 </head>
@@ -358,7 +319,7 @@
                         <!-- line 5 -->
                         <div class="row">
                             <div class="col-12 py-1">
-                                <label class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($_SESSION["AUTH"]["role"] >= 2 ) ? " - disabled":" 選填" ?></sup></label>
+                                <span class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($_SESSION["AUTH"]["role"] >= 2 ) ? " - disabled":" 選填" ?></sup></span>
                                 <div class="border rounded p-2">
                                     <table>
                                         <tbody>
@@ -585,33 +546,40 @@
     // 第二階段：點選、渲染模組
     function tagsInput_me(val) {
         if (val !== '') {
-            let obj_val = JSON.parse(val);                                          // 將JSON字串轉成Object物件
-            document.querySelector('#user_modal #emp_id').value = obj_val.emp_id;   // 將欄位帶入數值 = emp_id
-            document.querySelector('#user_modal #cname').value = obj_val.cname;     // 將欄位帶入數值 = cname
-            document.querySelector('#user_modal #user').value = obj_val.user;       // 將欄位帶入數值 = user
-
-                // 创建正则表达式模式和对应的数值映射
-                const patterns = {
-                    "副理": 2,
-                    "經理": 3,
-                    "處長": 4
-                };
-
-                // 使用正则表达式的 exec 方法来查找目标字符串中的匹配项
-                let match;
-                for (const [pattern, value] of Object.entries(patterns)) {
-                    const regex = new RegExp(pattern, 'gi');
-                    if ((match = regex.exec(obj_val.cstext)) !== null) {
-                        document.querySelector('#user_modal #idty').value = value; // 将字段带入值 = 职称.副理
-                        break;          // 找到匹配项后，跳出循环
+            let obj_val = JSON.parse(val);                  // 將JSON字串轉成Object物件
+            // 渲染
+            Object.entries(obj_val).forEach(function([user_key, user_value]){
+                if(user_key == "cstext"){
+                    // 使用正则表达式的 exec 方法来查找目标字符串中的匹配项
+                    var idty = document.getElementById('idty');
+                    if(idty){
+                        // 创建正则表达式模式和对应的数值映射
+                        const patterns = {
+                            "副理": 2,
+                            "經理": 3,
+                            "處長": 4
+                        };
+                        let match;
+                        for (const [pattern, value] of Object.entries(patterns)) {
+                            const regex = new RegExp(pattern, 'gi');
+                            if ((match = regex.exec(obj_val.cstext)) !== null) {
+                                document.querySelector('#user_modal #idty').value = value; // 将字段带入值 = 职称.副理
+                                break;          // 找到匹配项后，跳出循环
+                            }
+                        }
+                        $("#idty").addClass("autoinput");
+                    }
+                }else{
+                    var tag_key = document.getElementById(user_key);
+                    if(tag_key){
+                        tag_key.value = user_value;
+                        $("#"+user_key).addClass("autoinput");
                     }
                 }
-
-            $("#emp_id, #cname, #user, #idty").addClass("autoinput");
+            })
             resetMain()                                                             // 清除搜尋頁面資料
-            // document.getElementById("bt_addUser").click();                       // 切換返回到addUser新增頁面
             searchUser_modal.hide();      // 切到searchUser頁面
-            user_modal.show();
+            user_modal.show();            // 切換返回到addUser新增頁面
         }
     }
 

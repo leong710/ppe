@@ -446,9 +446,9 @@
                         // *** 發送mail
                         const mail_result_check = async () => {
                             if(mailTo_insign && user_email){
-                                var mail_result_check = await sendmail(user_email, mg_msg);                // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
+                                let mail_result_check = await sendmail(user_email, mg_msg);                // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
                             }else{
-                                var mail_result_check = false;
+                                let mail_result_check = false;
                             }
                             return mail_result_check;
                         };

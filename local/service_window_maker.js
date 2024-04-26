@@ -15,7 +15,10 @@ function update_sw(){
                     return false;
                 }
                 let pm_s_arr = search_sw_fun(pm_s);                 // call:查詢email
-                sw[el.fab_title].push(pm_s_arr);
+                console.log(pm_s_arr)
+                // if(pm_s_arr.length > 0){
+                    sw[el.fab_title].push(pm_s_arr);
+                // }
             })
         }
     });
@@ -94,11 +97,18 @@ function paint_service_window(sw){
             let td_key = '<td rowspan="'+value.length+'">'+fab+'</td>';
             var append_str = "";
             for(let i=0; i < value.length; i++ ){
-                let td_value = '. '+value[i]["cname"]+'</td><td>'+value[i]["tel_no"]+'</td><td>'+(value[i]["email"].toLowerCase())+'</td></tr>';
-                if(i === 0){
-                    append_str += '<tr>' + td_key + '<td>' + (i+1) + td_value;
+                // let td_value = '. '+value[i]["cname"]+'</td><td>'+value[i]["tel_no"]+'</td><td>'+(value[i]["email"].toLowerCase())+'</td></tr>';
+                if(value[i]["cname"]){
+                    var td_value = value[i]["cname"]+'</td><td>'+value[i]["tel_no"]+'</td><td>'+(value[i]["email"].toLowerCase())+'</td></tr>';
                 }else{
-                    append_str += '<tr><td>' + (i+1) + td_value;
+                    var td_value = '</td><td>'+'</td><td>'+'</td></tr>';
+                }
+                if(i === 0){
+                    // append_str += '<tr>' + td_key + '<td>' + (i+1) + td_value;
+                    append_str += '<tr>' + td_key + '<td>' + td_value;
+                }else{
+                    // append_str += '<tr><td>' + (i+1) + td_value;
+                    append_str += '<tr><td>' + td_value;
                 }
             }
         }

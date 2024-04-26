@@ -630,11 +630,15 @@
                                         $i = 1;
                                         foreach($sw_value as $sw_item => $sw_item_value){
                                             if(is_object($sw_item_value)) { $sw_item_value = (array)$sw_item_value; }   // 物件轉陣列
-                                            $td_value = '. '.$sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
-                                            if($i === 1){
-                                                $append_str .= '<tr>'.$td_key.'<td>'.$i.$td_value;
+                                            if(!empty($sw_item_value["cname"])){
+                                                $td_value = $sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
                                             }else{
-                                                $append_str .= '<tr><td>'.$i.$td_value;
+                                                $td_value = '</td><td>'.'</td><td>'.'</td></tr>';
+                                            }
+                                            if($i === 1){
+                                                $append_str .= '<tr>'.$td_key.'<td>'.$td_value;
+                                            }else{
+                                                $append_str .= '<tr><td>'.$td_value;
                                             }
                                             $i++;
                                         }

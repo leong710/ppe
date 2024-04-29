@@ -20,7 +20,7 @@
             Object(catalogs).forEach(function(cata){          
                 if(cata['SN'] === cata_SN){
                     // 240125-這裡前面加一個fack的checkbox
-                    var input_cb = '<input type="checkbox" class="select_item" checked disabled ><input type="hidden" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" value="'+add_amount['need']+'" >';
+                    var input_cb = '<input type="checkbox" class="form-check-input" checked disabled ><input type="hidden" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" value="'+add_amount['need']+'" >';
                     var add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
                     if(receive_collect_role){
                             var amount_need = add_amount['need'];               // 加工：取需求量
@@ -55,8 +55,8 @@
     // 查找購物車清單已存在的項目，並予以清除
     function check_item(cata_SN, swal_time) {
         // swal_time = 是否啟動swal提示 ： 0 = 不啟動
-        if(!swal_time){
-            swal_time = 1;
+        if(swal_time > 2){
+            swal_time = 2;
         }
         var shopping_cart_list = document.querySelectorAll('#shopping_cart_tbody > tr');
         if (shopping_cart_list.length > 0) {
@@ -203,8 +203,9 @@
     // 簽核類型渲染
     function submit_item(idty, idty_title){
         $('#idty, #idty_title, #action').empty();
-        document.getElementById('action').value = 'sign';
         document.getElementById('idty').value = idty;
+        // idty=99 => return the goods
+        document.getElementById('action').value = (receive_row['idty'] == 10 && idty == 99 ) ? 'return' : 'sign';
         $('#idty_title').append(idty_title);
         var forwarded_div = document.getElementById('forwarded');
         if(forwarded_div && (idty == 5)){
@@ -309,6 +310,44 @@
         
         return add_cata_item;
     }
+
+    // 20240429_return the goods
+    function return_the_goods(){
+        let receive_row_cart = JSON.parse(receive_row['cata_SN_amount']);
+        Object.keys(receive_row_cart).forEach(function(cart_key){
+            check_item(cart_key, 0);                        // call function 查找已存在的項目，並予以清除。form-control
+            let add_amount = receive_row_cart[cart_key];
+            Object(catalogs).forEach(function(cata){          
+                if(cata['SN'] === cart_key){
+                    let input_cb = '<input type="checkbox" class="form-check-input" checked disabled ><input type="hidden" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" value="'+add_amount['need']+'" >';
+                    let add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
+                    let amount_need = add_amount['need'];               // 加工：取需求量
+                    let amount_need_length = amount_need.length;        // 加工：取需求量的長度
+                    add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
+                    add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
+                    $('#shopping_cart_tbody').append(add_cata_item);
+                    return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
+                }
+            })
+        })
+        // 鋪設按鈕
+        let let_btn_s = '<button type="button" class="btn ';
+        let let_btn_m = '" data-bs-toggle="modal" data-bs-target="#submitModal" value="';
+        let let_btn_e = '" onclick="submit_item(this.value, this.innerHTML);">';
+        $('#form_btn_div').empty().append(let_btn_s+"btn-success"+let_btn_m+"99"+let_btn_e+"同意退貨 (Approve)</button>");
+
+        // 預設數值 //id="sign_comm_label"
+        $("#sign_comm_label").append('<sup class="text-danger"> *</sup>');
+        $("#sign_comm").prop('required', true);
+
+        //swal 顯示
+        let swal_title = '退貨編輯功能';
+        let swal_content = '開啟成功';
+        let swal_action = 'warning';
+        swal_time = 1 * 1000;
+        swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
+    }
+
 
     $(function () {
         // 在任何地方啟用工具提示框

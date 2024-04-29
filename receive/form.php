@@ -328,7 +328,7 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div style="display: flex;">
-                                                <label for="" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                <span for="" class="form-label">ppty/需求類別：</span></br>&nbsp
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked>
                                                 <label for="ppty_1" class="form-check-label">&nbsp一般&nbsp&nbsp</label>
                                                 <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required>

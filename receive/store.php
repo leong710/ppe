@@ -22,6 +22,9 @@
                 $swal_json = sign_receive($_REQUEST);
             }
             break;
+        case "return":        // 20240429 退貨
+                $swal_json = return_receive($_REQUEST);
+            break;
         default:            // 預定失效 
             echo "bg-light text-success"; 
             break;

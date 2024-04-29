@@ -491,6 +491,27 @@
         return $swal_json;
     }
 
+    // 20240429 結案後退貨
+    function return_receive($request){
+        $pdo = pdo();
+        extract($request);
+    
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "return_receive",
+            "content"   => "領用申請單--"
+        );
+
+        $receive_row = show_receive($request);                    // 調閱原表單
+        // 20231207 加入同時送出被覆蓋的錯誤偵測
+        if(isset($old_idty) && ($old_idty != $receive_row["idty"])){
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '退貨失敗'.' !! 注意 !! 當您送出表單的同時，該表單型態已被修改，送出無效，請返回確認 ~';
+            return $swal_json;
+        }
+
+
+    }
+
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_omager($emp_id){
         $pdo = pdo_hrdb();
@@ -751,7 +772,9 @@
             case "13":  $action = '交貨 (Delivery)';       break;
             case "14":  $action = '庫存-扣帳 (Debit)';      break;
             case "15":  $action = '庫存-回補 (Replenish)';  break;
+            case "15":  $action = '庫存-回補 (Replenish)';  break;
             case "16":  $action = '庫存-入賬 (Account)';    break;
+            case "99":  $action = '庫存-入賬 (Account)';    break;
             default:    $action = '錯誤 (Error)';         return;
         }
 

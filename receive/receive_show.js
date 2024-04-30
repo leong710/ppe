@@ -321,10 +321,10 @@
                 if(cata['SN'] === cart_key){
                     let input_cb = '<input type="checkbox" class="form-check-input" checked disabled ><input type="hidden" name="cata_SN_amount['+cata['SN']+'][need]" id="'+cata['SN']+'" value="'+add_amount['need']+'" >';
                     let add_cata_item = '<tr id="item_'+cata['SN']+'"><td>'+input_cb+'</td><td style="text-align: left;">'+cata['SN']+' / '+cata['pname']+'</td><td>'+cata['model']+'</td><td>'+cata['size']+'</td><td>'+add_amount['need']+' / '+cata['unit']+'</td>';
-                    let amount_need = add_amount['need'];               // 加工：取需求量
-                    let amount_need_length = amount_need.length;        // 加工：取需求量的長度
+                    let amount_pay = add_amount['pay'];               // 加工：取實發量
+                    let amount_pay_length = amount_pay.length;        // 加工：取實發量的長度
                     add_cata_item += '<td><input type="number" name="cata_SN_amount['+cata['SN']+'][pay]" class="collect amount t-center" placeholder="數量" min="0" ';
-                    add_cata_item += ' max="'+add_amount['need']+'" maxlength="'+amount_need_length+'" value="'+add_amount['pay']+'" oninput="if(value>'+amount_need+') value='+amount_need+'" >'+'</td></tr>';
+                    add_cata_item += ' max="'+amount_pay+'" maxlength="'+amount_pay_length+'" value="'+amount_pay+'" oninput="if(value>'+amount_pay+') value='+amount_pay+'" >'+'</td></tr>';
                     $('#shopping_cart_tbody').append(add_cata_item);
                     return;         // 假設每個<cata_SN>只會對應到一筆資料，找到後就可以結束迴圈了
                 }
@@ -344,7 +344,7 @@
         let swal_title = '退貨編輯功能';
         let swal_content = '開啟成功';
         let swal_action = 'warning';
-        swal_time = 1 * 1000;
+        swal_time = 5 * 1000;
         swal(swal_title ,swal_content ,swal_action, {buttons: false, timer:swal_time});        // swal自動關閉
     }
 
@@ -385,6 +385,16 @@
         omager_id = document.getElementById("omager").value     // 2.提取上層主管工號
         if(omager_id){
             search_fun('omager', omager_id)                     // 3.查詢工號並鋪設姓名
+        }
+        // 20240430 退貨按鈕消失
+        if(receive_row['idty'] == '10'){                        // 4.if 10結案 then disabled & unblock this return_btn
+            let flow_m      = new Date(receive_row['flow'].split(',')[0])
+            let now_time    = new Date()
+            let difference  = now_time - flow_m;                // 計算日期差距（毫秒單位）
+            let days        = Math.floor((difference % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+            if (days >= 14) {                                   // over 14days then do it 
+                $('#return_btn').prop('disabled', true).addClass("unblock");
+            }
         }
 
     })

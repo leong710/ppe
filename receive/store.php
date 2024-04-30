@@ -23,7 +23,7 @@
             }
             break;
         case "return":        // 20240429 退貨
-                $swal_json = return_receive($_REQUEST);
+                $swal_json = sign_receive($_REQUEST);
             break;
         default:            // 預定失效 
             echo "bg-light text-success"; 
@@ -62,7 +62,7 @@
             
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();

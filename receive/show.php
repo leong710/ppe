@@ -90,8 +90,14 @@
                                     default  : echo "'>na";                         break; 
                                 }
                             echo !empty($receive_row['in_signName']) ? "：".$receive_row['in_signName']." " :"";
-                            echo !empty($receive_row['flow']) ? " / ".$receive_row['flow']." " :"";
-                            echo $receive_row['idty']."</span></h3>";
+
+                            if($receive_row['idty'] == 10 && !empty($receive_row['flow'])){
+                                $flow_arr = explode(",", $receive_row['flow']);
+                                echo " / ".end($flow_arr)." ";
+                            }else{
+                                echo " / ".$receive_row['flow']." ";
+                            }
+                            echo "</span></h3>";
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
@@ -136,8 +142,8 @@
                                     echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button>";
                                 } 
                             // 20240429 承辦退貨選項 idty=10.同意退貨 => 10.結案 (Close)
-                            if( $receive_row['idty'] == 10 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ 
-                                echo $let_btn_s.'btn-danger" '.'onclick="return_the_goods()">退貨 (Return)</button>';
+                            if( $receive_row['idty'] == 10 && ((in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 )){ 
+                                echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button>';
                             }
                          ?>
                     </div>
@@ -146,8 +152,8 @@
                 <!-- container -->
                 <div class="col-12 p-0">
                     <!-- 內頁 -->
-                    <!-- <form action="store.php" method="post" > -->
-                    <form action="zz/debug.php" method="post" >
+                    <form action="store.php" method="post" >
+                    <!-- <form action="zz/debug.php" method="post" > -->
                                             
                         <!-- 3.申請單成立 -->
                         <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
@@ -331,14 +337,14 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="text" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
-                                        <input type="text" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                                        <input type="text" name="uuid"            id="uuid"           value="<?php echo $receive_row['uuid'];?>">
-                                        <input type="text" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $receive_row['fab_sign_code'];?>">
-                                        <input type="text" name="action"          id="action"         value="<?php echo $action;?>">
-                                        <input type="text" name="step"            id="step"           value="<?php echo $step;?>">
-                                        <input type="text" name="idty"            id="idty"           value="">
-                                        <input type="text" name="old_idty"        id="old_idty"       value="<?php echo $receive_row['idty'];?>">
+                                        <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
+                                        <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                                        <input type="hidden" name="uuid"            id="uuid"           value="<?php echo $receive_row['uuid'];?>">
+                                        <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="<?php echo $receive_row['fab_sign_code'];?>">
+                                        <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">
+                                        <input type="hidden" name="step"            id="step"           value="<?php echo $step;?>">
+                                        <input type="hidden" name="idty"            id="idty"           value="">
+                                        <input type="hidden" name="old_idty"        id="old_idty"       value="<?php echo $receive_row['idty'];?>">
                                         <?php if($sys_role <= 3){ ?>
                                             <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                                         <?php } ?>
@@ -399,10 +405,9 @@
     var action               = '<?=$action?>';                              // Edit選染    // 引入action資料
     var receive_row          = <?=json_encode($receive_row)?>;              // Edit選染    // 引入receive_row資料作為Edit
     var receive_collect_role = '<?=$receive_collect_role?>';                // collect選染 // 引入receive_row_發放人權限作為渲染標記
-    var receive_delivery_role = '<?=$receive_delivery_role?>';                // collect選染 // 引入receive_row_發放人權限作為渲染標記
-    // var json              = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
-    var json                 = <?=json_encode($logs_arr)?>;                 // 鋪設logs紀錄 240124-改去除JSON.parse
+    var json                 = <?=json_encode($logs_arr)?>;                 // 鋪設logs紀錄 240124-JSON.parse長度有bug   240124-改去除JSON.parse
     var receive_url          = '<?=$receive_url?>';                         // push訊息    // 本文件網址
+
 </script>
 
 <script src="receive_show.js?v=<?=time()?>"></script>

@@ -20,7 +20,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $inSign_list = $stmt->fetchAll();
+            $inSign_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $inSign_list;
 
         }catch(PDOException $e){

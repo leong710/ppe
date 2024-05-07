@@ -17,10 +17,10 @@
     // 確認電腦IP是否受認證
     $fa_check  = '<snap class="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';      // 打勾符號
     $fa_remove = '<snap class="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';    // 打叉符號
-	$uri = (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) ? 'https://' : 'http://';     // 取得開頭
-	$uri .= $_SERVER['HTTP_HOST'];                                                                  // 組合成http_host
-    $pc = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                                // 取得user IP
-    $check_ip = check_ip($_REQUEST);                                                                // 驗證IP權限
+	$uri       = (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) ? 'https://' : 'http://';  // 取得開頭
+	$uri      .= $_SERVER['HTTP_HOST'];                                                                // 組合成http_host
+    $pc        = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                            // 取得user IP
+    $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限
 
     // 載入所有待簽名單
     $inSign_lists = inSign_list();
@@ -142,22 +142,22 @@
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
 <script>
     // init
-        var fa_OK = '<snap class="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';        // 打勾符號
-        var fa_NG = '<snap class="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';      // 打叉符號
-        var mail_OK = '<snap class="fa_check"><i class="fa-solid fa-paper-plane"></i> </snap>';             // 寄信符號
-        var mail_NG = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i> </snap>';   // 打叉符號
-        var fun         = '<?=$fun?>';
-        var check_ip    = '<?=$check_ip?>';
-        const uri       = '<?=$uri?>';
+        var fa_OK        = '<snap class="fa_check"><i class="fa fa-check" aria-hidden="true"></i> </snap>';         // 打勾符號
+        var fa_NG        = '<snap class="fa_remove"><i class="fa fa-remove" aria-hidden="true"></i> </snap>';       // 打叉符號
+        var mail_OK      = '<snap class="fa_check"><i class="fa-solid fa-paper-plane"></i> </snap>';                // 寄信符號
+        var mail_NG      = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i> </snap>';      // 打叉符號
+        var fun          = '<?=$fun?>';
+        var check_ip     = '<?=$check_ip?>';
+        const uri        = '<?=$uri?>';
         var inSign_lists = <?=json_encode($inSign_lists)?>;
         var receive_url  = '領用路徑：'+uri+'/ppe/receive/';
         var issue_url    = '請購路徑：'+uri+'/ppe/issue/';
-        var int_msg1 = '【環安PPE系統】待您簽核文件提醒\n';
-        var int_msg2 = ' 您共有 ';
-        var int_msg3 = ' 件待簽核文件尚未處理';
-        var int_msg4 = '，如已簽核完畢，請忽略此訊息！\n\n** 請至以下連結查看待簽核文件：\n';
-        var int_msg5 = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
-        var push_result = {
+        var int_msg1     = '【環安PPE系統】待您簽核文件提醒\n';
+        var int_msg2     = ' 您共有 ';
+        var int_msg3     = ' 件待簽核文件尚未處理';
+        var int_msg4     = '，如已簽核完畢，請忽略此訊息！\n\n** 請至以下連結查看待簽核文件：\n';
+        var int_msg5     = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
+        var push_result  = {
                 'mapp' : {
                     'success' : 0,
                     'error'   : 0
@@ -168,12 +168,12 @@
                 }
             }
 
-        var Today = new Date();
-        const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');   // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
-        const thisTime = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0');                             // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        var Today       = new Date();
+        const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        const thisTime  = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0');                           // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
 
         const mailTo_insign = '<?=$mailTo_insign?>';    // 是否啟動寄送信件給待簽人員
-
+        
         // 子功能
         $(function () {
             // 在任何地方啟用工具提示框
@@ -316,15 +316,15 @@
             } 
 
             $.ajax({
-                // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+             // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
                 url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
-                    functionname: 'showStaff',                              // 操作功能
-                    uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
-                    emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
+                    functionname : 'showStaff',                             // 操作功能
+                    uuid         : '752382f7-207b-11ee-a45f-2cfda183ef4f',  // ppe
+                    emp_id       : search                                   // 查詢對象key_word  // 使用開單人工號查詢
                 },
                 success: function(res){
                     var obj_val = res["result"];

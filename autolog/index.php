@@ -63,6 +63,12 @@
             background-color: pink;
             font-weight: bold;
         }
+        .inb {
+            display: inline-block;
+        }
+        .inf {
+            display: inline-flex;
+        }
     </style>
 </head>
 <body>
@@ -191,15 +197,19 @@
                                             <tr id="<?php echo $log['id']; ?>">
                                                 <!-- 第1格.thisInfo 紀錄敘述 -->
                                                 <td>
-                                                    <?php echo "(aid:".$log['id'].")&nbsp".$log['thisDay']."</br>".$log['sys']." => ".count($logs_json)."次"."</br>".$log['t_stamp']; ?>
-                                                    <?php if($sys_role == 0){ ?>
-                                                        <form action="" method="post">
-                                                            <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
-                                                            <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
-                                                            <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
-                                                            <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
-                                                        </form>
-                                                    <?php }?>
+                                                    <?php 
+                                                        echo $log['t_stamp']."</br>";
+                                                        if($sys_role == 0){ ?>
+                                                            <form action="" method="post" class='inf'>
+                                                                <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
+                                                                <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
+                                                                <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
+                                                                <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                            </form>
+                                                    <?php 
+                                                        echo "&nbsp(aid:".$log['id'].")&nbsp" .$log['sys']." => ".count($logs_json)."次  ";
+                                                
+                                                    }?>
                                                 </td>
                                                 <!-- 第2格.Logs 紀錄內容 -->
                                                 <td>
@@ -207,19 +217,19 @@
                                                         <?php $i = 0;
                                                             foreach($logs_json AS $l){
                                                                 if(is_object($l)) { $l = (array)$l; } 
-                                                                echo "<tr><td class='".$l["mapp_res"]."'>".($i+1)."_"."&nbsp".$l["thisTime"]." => ".$l["mapp_res"]."</br>";
-                                                                echo !empty($l["cname"]) ? $l["cname"]." (".$l["emp_id"].") ".$l["waiting"] : "" ;
+                                                                echo "<tr><td class='".(isset($l["mail_res"]) ? $l["mail_res"]:'')."' style='text-align: left;'>";
                                                                 if($sys_role == 0){ ?>
-                                                                    <form action="" method="post">
+                                                                    <form action="" method="post" class='inf'>
                                                                         <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
                                                                         <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">
                                                                         <input type="hidden" name="log_id"      value="<?php echo $i;?>">
                                                                         <input type="hidden" name="id"          value="<?php echo $log['id'];?>">
                                                                         <input type="submit" name="delLog_item" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                                     </form>
-                                                                <?php } 
-                                                                echo "</td>" ;
-                                                                echo "<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
+                                                                <?php echo "&nbsp"; } 
+                                                                echo ($i+1)."_"."&nbsp".$l["thisTime"]." => ".(isset($l["mail_res"]) ? $l["mail_res"]:$l["mapp_res"])."</br>" .$l["cname"]." (".$l["emp_id"].") ";
+                                                                echo isset($l["emergency"]) ? "&nbsp急件：".$l["emergency"] : "" ;
+                                                                echo "</td>" ."<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
                                                                 $i++;
                                                             } 
                                                         ?>

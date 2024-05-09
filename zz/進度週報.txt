@@ -105,10 +105,17 @@
             6.點檢表加入MAPP通知 -- 以圖像式dashBoard替代
             7.領用表送出時加入MAPP通知大PM -- 已完成
          user提出疑問共11件：功能釐清與Bug修正完成共8件，尚有3件待釐清。
+         6.點檢表送出時MAPP通知主管 -- 持續中
+
+   -- 2024/04/??
+      添加service window功能，for receive index、store area FAB    
+   -- 2024/04/30
+      需求單加上退貨功能(紀錄、回補)
+   -- 2024/05/09
+      催簽功能優化，原本asis mapp+mail => tobe 一般：mail、急件：mail+mapp 
 
 -- 等待&開發中 2024/2/21
       除汙劑管理 -- 持續設計中
-         6.點檢表送出時MAPP通知主管 -- 持續中
 
 -- 同意暫緩
    2調撥出庫單要簽核主管 -- 主管loading -- owner同意暫緩

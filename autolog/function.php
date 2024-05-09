@@ -32,7 +32,7 @@
             }else{
                 $stmt->execute();
             }
-            $log_lists = $stmt->fetchAll();
+            $log_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $log_lists;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -48,7 +48,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $log_list_ym = $stmt->fetchAll();
+            $log_list_ym = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $log_list_ym;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -134,7 +134,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $showLog = $stmt->fetch();
+            $showLog = $stmt->fetch(PDO::FETCH_ASSOC);
             return $showLog;
         }catch(PDOException $e){
             echo $e->getMessage();

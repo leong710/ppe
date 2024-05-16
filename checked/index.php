@@ -1,13 +1,9 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
-
-    // 先給預設值
-    $auth_fab_id = $_SESSION[$sys_id]["fab_id"];
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];         // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];          // 取出$_session引用
 
     if(isset($_POST["checked_delete"])){ $swal_json = delete_checked_item($_REQUEST); }      // 刪除delete
 
@@ -20,7 +16,7 @@
         $half = (date('m') <= 6 ) ? "H1" : "H2";        // 半年分界線
 
     $query_arr = array(                                 // 組合查詢陣列
-        'fab_id'        => $auth_fab_id,
+        'fab_id'        => $sys_fab_id,
         'emp_id'        => $auth_emp_id,
         'checked_year'  => $checked_year,               // 建立查詢陣列for顯示今年點檢表
         'half'          => $half                        // 建立查詢陣列for顯示今年點檢表

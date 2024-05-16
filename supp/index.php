@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -68,7 +69,7 @@
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
                                 <div class="row">
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                    <?php if($sys_role <= 1){ ?>
                                         <div class="col-12 col-md-6 py-0">
                                             <?php if($count_supp != 0){ ?>
                                                 <!-- 下載EXCEL的觸發 -->
@@ -99,7 +100,7 @@
                                             <th>supp_remark</br>備註說明</th>
                                             <th>info</br>其他說明</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -118,14 +119,14 @@
                                                         echo "</br>發票地址：".$supp["_address"]; 
                                                     ?>
                                                 </td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?> 
+                                                <td><?php if($sys_role <= 1){ ?> 
                                                     <button type="button" name="supp" id="<?php echo $supp['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $supp['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $supp['flag'];?>"><?php echo $supp['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $supp["flag"] == "On" ? "btn-success":"btn-warning";?>">
                                                             <?php echo $supp["flag"] == "On" ? "顯示":"隱藏";?>
                                                         </span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <td><?php if($sys_role <= 1){ ?>
                                                     <button type="button" value="<?php echo $supp["id"];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_supp" onclick="edit_module('supp',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -145,7 +146,7 @@
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
                                 <div class="row">
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                    <?php if($sys_role <= 1){ ?>
                                         <div class="col-12 col-md-6 py-0">
                                             <?php if($count_contact != 0){ ?>
                                                 <!-- 下載EXCEL的觸發 -->
@@ -177,7 +178,7 @@
                                             <th>comp_no</br>供應商統編</th>
                                             <th>contact_remark</br>註解說明</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -193,13 +194,13 @@
                                                 <td style="text-align:left;"><?php echo $contact["comp_no"] ? $contact["comp_no"]." (".$contact["scname"].")":"-- 無 --"; 
                                                                                    echo ($contact["supp_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                                 <td style="text-align:left;"><?php echo $contact["contact_remark"]; ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <td><?php if($sys_role <= 1){ ?>
                                                         <button type="button" name="contact" id="<?php echo $contact['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $contact['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $contact['flag'];?>"><?php echo $contact['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $contact["flag"] == "On" ? "btn-success":"btn-warning";?>">
                                                             <?php echo $contact["flag"] == "On" ? "顯示":"隱藏";?></span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <td><?php if($sys_role <= 1){ ?>
                                                     <button type="button" value="<?php echo $contact["id"];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_contact" onclick="edit_module('contact',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -227,7 +228,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="activeTab"   id="supp_delete_activeTab"  value="">
                         <input type="hidden" name="id"          id="supp_delete_id">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                        <?php if($sys_role <= 1){ ?>
                             <span id="supp_modal_delect_btn"></span>
                         <?php } ?>
                     </form>
@@ -303,7 +304,7 @@
                             <input type="hidden" name="activeTab"  id="supp_activeTab"  value="">
                             <input type="hidden" name="id"         id="supp_edit_id"    value="">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
+                            <?php if($sys_role <= 1){ ?>   
                                 <span id="supp_modal_submit_btn"></span>
                             <?php } ?>
                             <input type="reset" class="btn btn-info" id="supp_reset_btn" value="清除">
@@ -325,7 +326,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="activeTab"   id="contact_delete_activeTab"  value="">
                         <input type="hidden" name="id"          id="contact_delete_id"         value="">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                        <?php if($sys_role <= 1){ ?>
                             <span id="contact_modal_delect_btn"></span>
                         <?php } ?>
                     </form>
@@ -405,7 +406,7 @@
                             <input type="hidden" name="activeTab"   id="contact_activeTab"  value="">
                             <input type="hidden" name="id"          id="contact_edit_id"    value="">
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?> 
+                            <?php if($sys_role <= 1){ ?> 
                                 <span id="contact_modal_submit_btn"></span>
                             <?php } ?>
                             <input type="reset" class="btn btn-info" id="contact_reset_btn" value="清除">

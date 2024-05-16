@@ -1,8 +1,10 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
+
 
     if(isset($_POST["delete"])){
         deleteUser($_REQUEST);
@@ -18,7 +20,7 @@
     $fabs = show_fab();
     $user = editUser($_REQUEST);
 
-    if(empty($user) || ($_SESSION[$sys_id]["role"] >=2 && $_SESSION[$sys_id]["id"] != $user["id"])){
+    if(empty($user) || ($sys_role >=2 && $_SESSION[$sys_id]["id"] != $user["id"])){
         header("location:../auth/");    // 用這個，因為跳太快
         exit;
     }
@@ -37,7 +39,7 @@
                     <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> Edit local user info&role</h5>
                 </div>
                 <div class="col-12 col-md-6 text-end">
-                    <?php if($user["role"] == "" && ($_SESSION[$sys_id]["role"] <= 1)){ ?>
+                    <?php if($user["role"] == "" && ($sys_role <= 1)){ ?>
                         <form action="" method="post">
                             <input type="hidden" name="id" value="<?php echo $user["id"];?>">
                             <button type="submit" name="delete" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)"><i class="fa-solid fa-user-xmark"></i></button>
@@ -54,8 +56,8 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <input type="text" name="user" class="form-control" id="floatingUser" value="<?php echo $user["user"];?>" <?php echo ($_SESSION[$sys_id]["role"] >= 1) ? "readonly":"required";?>>
-                                <label for="floatingUser" class="form-label">user/帳號：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 1) ? " - disabled":" *";?></sup></label>
+                                <input type="text" name="user" class="form-control" id="floatingUser" value="<?php echo $user["user"];?>" <?php echo ($sys_role >= 1) ? "readonly":"required";?>>
+                                <label for="floatingUser" class="form-label">user/帳號：<sup class='text-danger'><?php echo ($sys_role >= 1) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 py-2">
@@ -69,14 +71,14 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <input type="text" name="emp_id" class="form-control" id="floatingEmp_id" value="<?php echo $user["emp_id"];?>" <?php echo ($_SESSION[$sys_id]["role"] >= 1) ? "readonly":"required";?>>
-                                <label for="floatingEmp_id" class="form-label">emp_id/工號：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 1) ? " - disabled":" *";?></sup></label>
+                                <input type="text" name="emp_id" class="form-control" id="floatingEmp_id" value="<?php echo $user["emp_id"];?>" <?php echo ($sys_role >= 1) ? "readonly":"required";?>>
+                                <label for="floatingEmp_id" class="form-label">emp_id/工號：<sup class='text-danger'><?php echo ($sys_role >= 1) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <input type="text" name="cname" class="form-control" id="floatingCname" value="<?php echo $user["cname"];?>" <?php echo ($_SESSION[$sys_id]["role"] >= 1) ? "readonly":"required";?>>
-                                <label for="floatingCname" class="form-label">cname/中文姓名：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 1) ? " - disabled":" *";?></sup></label>
+                                <input type="text" name="cname" class="form-control" id="floatingCname" value="<?php echo $user["cname"];?>" <?php echo ($sys_role >= 1) ? "readonly":"required";?>>
+                                <label for="floatingCname" class="form-label">cname/中文姓名：<sup class='text-danger'><?php echo ($sys_role >= 1) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
                     </div>
@@ -84,27 +86,27 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <select name="idty" id="idty" class="form-select" <?php echo ($_SESSION[$sys_id]["role"] >= 2) ? "disabled":"";?>>
+                                <select name="idty" id="idty" class="form-select" <?php echo ($sys_role >= 2) ? "disabled":"";?>>
                                     <option value="" <?php  echo ($user["idty"] == "" ) ? "selected":"";?> >停用</option>
                                     <option value="1" <?php echo ($user["idty"] == "1" ) ? "selected":"";?> >1_工程師</option>
                                     <option value="2" <?php echo ($user["idty"] == "2" ) ? "selected":"";?> >2_課副理</option>
                                     <option value="3" <?php echo ($user["idty"] == "3" ) ? "selected":"";?> >3_部經理層</option>
                                     <option value="4" <?php echo ($user["idty"] == "4" ) ? "selected":"";?> >4_廠處長層</option>
                                 </select>
-                                <label for="idty" class="form-label">idty/身份定義：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>
+                                <label for="idty" class="form-label">idty/身份定義：<sup class="text-danger"><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <select name="role" id="role" class="form-select" <?php echo ($_SESSION[$sys_id]["role"] >= 2) ? "disabled":"";?>>
+                                <select name="role" id="role" class="form-select" <?php echo ($sys_role >= 2) ? "disabled":"";?>>
                                     <option value=""  for="role" <?php echo ($user["role"] == "") ? "selected":"";?>>停用</option>
                                     <option value="0" for="role" <?php echo ($user["role"] == "0") ? "selected":"";?>
-                                                                <?php echo ($_SESSION[$sys_id]["role"] >= 1) ? "hidden":"";?>>0_管理</option>
+                                                                <?php echo ($sys_role >= 1) ? "hidden":"";?>>0_管理</option>
                                     <option value="1" for="role" <?php echo ($user["role"] == "1") ? "selected":"";?>>1_PM</option>
                                     <option value="2" for="role" <?php echo ($user["role"] == "2") ? "selected":"";?>>2_siteUser</option>
                                     <option value="3" for="role" <?php echo ($user["role"] == "3") ? "selected":"";?>>3_noBody</option>
                                 </select>
-                                <label for="role" class="form-label">role/權限：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>
+                                <label for="role" class="form-label">role/權限：<sup class='text-danger'><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
                     </div>
@@ -112,14 +114,14 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <select name="fab_id" id="fab_id" class="form-select" aria-label="Floating label select example" required <?php echo ($_SESSION[$sys_id]["role"] >= 2) ? "disabled":"";?>>
+                                <select name="fab_id" id="fab_id" class="form-select" aria-label="Floating label select example" required <?php echo ($sys_role >= 2) ? "disabled":"";?>>
                                     <option value="" hidden>--請選擇主fab--</option>
                                     <?php foreach($fabs as $fab){ ?>
                                         <option value="<?php echo $fab["id"];?>" for="fab_id" <?php echo ($fab["id"] == $user["fab_id"]) ? "selected":"";?>>
                                             <?php echo $fab["id"].": ".$fab["fab_title"]." (".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? "--(已關閉)":"";?></option>
                                     <?php } ?>
                                 </select>
-                                <label for="fab_id" class="form-label">主fab_id：<sup class='text-danger'><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>
+                                <label for="fab_id" class="form-label">主fab_id：<sup class='text-danger'><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
 
@@ -128,7 +130,7 @@
                                 $user["sfab_id"] = explode(",",$user["sfab_id"]);       //資料表是字串，要炸成陣列
                                 $i = 0; 
                             ?>
-                            <span for="" class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] >= 2 ) ? " - disabled":" 選填" ?></sup></span>
+                            <span for="" class="form-label">副sfab_id：<sup class="text-danger"><?php echo ($sys_role >= 2 ) ? " - disabled":" 選填" ?></sup></span>
                             <div class="border rounded p-2">
                                 <table>
                                     <tbody>
@@ -136,7 +138,7 @@
                                             <?php foreach($fabs as $fab){ ?>
                                                 <td>
                                                     <input type="checkbox" name="sfab_id[]" value="<?php echo $fab["id"];?>" id="<?php echo $fab["id"];?>" class="form-check-input" 
-                                                        <?php echo in_array($fab["id"], $user["sfab_id"]) ? "checked":""; ?> <?php echo $_SESSION[$sys_id]["role"] >= 2 ? "disabled":"" ?>>
+                                                        <?php echo in_array($fab["id"], $user["sfab_id"]) ? "checked":""; ?> <?php echo $sys_role >= 2 ? "disabled":"" ?>>
                                                     <label for="<?php echo $fab["id"];?>" class="form-check-label">&nbsp<?php echo $fab["fab_title"];?></label>
                                                 </td>
                                                 <?php $i++; if($i%6 == 0){?> </tr> <?php }  ?> 

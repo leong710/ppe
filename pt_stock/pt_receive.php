@@ -1,14 +1,9 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
-
-    // 複製本頁網址藥用
-    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
-
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
     // CRUD module function --
         if(isset($_POST["ptreceive_store"])) { store_ptreceive($_REQUEST); }   // 新增

@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -25,7 +26,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 pb-0 text-end">
-                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                    <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_cate_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="add_module('cate')" > <i class="fa fa-plus"></i> 新增分類</button>
                     <?php } ?>
                     <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
@@ -41,7 +42,7 @@
                             <th>cate_title</th>
                             <th>cate_remark</th>
                             <th>flag</th>
-                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                            <?php if($sys_role <= 1){ ?>
                                 <th>action</th>
                             <?php } ?>
                         </tr>
@@ -53,14 +54,14 @@
                                 <td><?php echo $cate["cate_no"];?></td>
                                 <td><?php echo $cate["cate_title"];?></td>
                                 <td><?php echo $cate["cate_remark"];?></td>
-                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <td><?php if($sys_role <= 1){ ?>
                                         <button type="button" name="cate" id="<?php echo $cate['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $cate['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $cate['flag'];?>"><?php echo $cate['flag'];?></button>
                                     <?php }else{ ?>
                                         <span class="btn btn-sm btn-xs <?php echo $cate['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
                                             <?php echo $cate['flag'] == 'On' ? '顯示':'隱藏';?>
                                         </span>
                                     <?php } ?></td>
-                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                <td><?php if($sys_role <= 1){ ?>    
                                     <button type="button" id="edit_cate_btn" value="<?php echo $cate['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                         data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="edit_module('cate',this.value)" >編輯</button>
                                 <?php } ?></td>
@@ -83,7 +84,7 @@
                 &nbsp&nbsp&nbsp&nbsp&nbsp
                 <form action="" method="post">
                     <input type="hidden" name="id" id="cate_delete_id">
-                        <span id="modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                 </form>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -135,7 +136,7 @@
                     <div class="text-end">
                         <input type="hidden" name="id" id="cate_edit_id" >
                         <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <span id="modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                            <span id="modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                         <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     </div>

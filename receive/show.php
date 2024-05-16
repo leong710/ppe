@@ -1,18 +1,13 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
     $receive_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];                 // 回本頁
-    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : $receive_url; // 回本頁
-    
-    $auth_cname     = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
-    $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role       = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
-    // $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];    
+     
     // 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     $sys_sfab_id = get_sfab_id($sys_id, "arr");
 
@@ -120,30 +115,32 @@
                         
                             if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ 
                                 if(in_array($receive_row['idty'], [ 1 ])){ // 1.簽核中
-                                    echo $let_btn_s."btn-success".$let_btn_m."0".$let_btn_e."同意 (Approve)</button>";
+                                    echo $let_btn_s."btn-success".$let_btn_m."0".$let_btn_e."同意 (Approve)</button> ";
                                     if( ($receive_row["flow"] != "forward")  ){  
-                                        echo $let_btn_s."btn-info".$let_btn_m."5".$let_btn_e."轉呈 (Forwarded)</button>";
+                                        echo $let_btn_s."btn-info".$let_btn_m."5".$let_btn_e."轉呈 (Forwarded)</button> ";
                                     }
-                                    echo $let_btn_s."btn-danger".$let_btn_m."2".$let_btn_e."退回 (Reject)</button>";
                                 }
                             } 
+                            if((in_array($receive_row['idty'], [ 1, 12 ])) && (in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 ){ // 1.簽核中 12.待領
+                                echo $let_btn_s."btn-danger".$let_btn_m."2".$let_btn_e."退回 (Reject)</button> ";
+                            }
                             // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
                                 $receive_collect_role = (($receive_row['idty'] == 12) && ($receive_row['flow'] == 'collect') && (in_array($receive_row["fab_id"], $sys_sfab_id))); 
                                 if($receive_collect_role){ 
-                                    echo $let_btn_s."btn-primary".$let_btn_m."13".$let_btn_e."交貨 (Delivery)</button>";
+                                    echo $let_btn_s."btn-primary".$let_btn_m."13".$let_btn_e."交貨 (Delivery)</button> ";
                                 }  
                             // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
                                 $receive_delivery_role = ($receive_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
                                 if($receive_row['idty'] == 13 && $receive_delivery_role){  
-                                    echo $let_btn_s."btn-primary".$let_btn_m."11".$let_btn_e."承辦同意 (Approve)</button>";
+                                    echo $let_btn_s."btn-primary".$let_btn_m."11".$let_btn_e."承辦同意 (Approve)</button> ";
                                 } 
                             // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
                                 if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ 
-                                    echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button>";
+                                    echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button> ";
                                 } 
-                            // 20240429 承辦退貨選項 idty=10.同意退貨 => 10.結案 (Close)
+                            // 20240429 承辦退貨選項 idty=10.同意退貨 => 2.結案 (Close)
                             if( $receive_row['idty'] == 10 && ((in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 )){ 
-                                echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button>';
+                                echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button> ';
                             }
                          ?>
                     </div>

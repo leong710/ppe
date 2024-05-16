@@ -1,16 +1,17 @@
 <?php
-    require_once("function.php");
+   require_once("../user_info.php");
+   require_once("function.php");
 
     $webroot = "..";
     
     if(isset($_SESSION[$sys_id])){
         // 取出$_session引用
-        $auth_emp_id    = $_SESSION["AUTH"]["emp_id"];
-        $auth_cname     = $_SESSION["AUTH"]["cname"];
-        $auth_sign_code = $_SESSION["AUTH"]["sign_code"];
-        $sys_role       = $_SESSION[$sys_id]["role"];
-        $sys_fab_id     = $_SESSION[$sys_id]["fab_id"];     
-        $sys_sfab_id    = $_SESSION[$sys_id]["sfab_id"];  
+        // $auth_emp_id    = !empty($_SESSION["AUTH"]["emp_id"])    ? $_SESSION["AUTH"]["emp_id"]    : "";
+        // $auth_cname     = !empty($_SESSION["AUTH"]["cname"])     ? $_SESSION["AUTH"]["cname"]     : "";
+        // $auth_sign_code = !empty($_SESSION["AUTH"]["sign_code"]) ? $_SESSION["AUTH"]["sign_code"] : "";
+        // $sys_role       = !empty($_SESSION[$sys_id]["role"])     ? $_SESSION[$sys_id]["role"]     : "";
+        // $sys_fab_id     = !empty($_SESSION[$sys_id]["fab_id"])   ? $_SESSION[$sys_id]["fab_id"]   : "1";  
+        // $sys_sfab_id    = !empty($_SESSION[$sys_id]["sfab_id"])  ? $_SESSION[$sys_id]["sfab_id"]  : [];  
         $sys_auth = true; 
     }else{
         $sys_auth = false; 
@@ -22,11 +23,7 @@
         // 今年年份
         $today_year = date('Y');
         // 半年分界線
-        if(date('m') <= 6 ){
-            $half = "H1";
-        }else{
-            $half = "H2";
-        }
+        $half = (date('m') <= 6 ) ? "H1" : "H2";
 
         // 1-1 將sys_fab_id加入sfab_id
         if(empty($sfab_id_str)){
@@ -47,7 +44,7 @@
         );
 
     // 2023/12/14 這邊待處理
-    if($sys_auth == true && $sys_role <= 2){
+    if($sys_auth == true && ($sys_role <= 2 && $sys_role >= 0 )){
         //// 3領用
             $myReceive = show_myReceive($query_arr);   // 3.查詢領用申請
             if(!empty($myReceive)) { 
@@ -85,13 +82,14 @@
                 $checked_type[$plan_type]["onGoing"] = true;                        // 把執行中的plan標示出來
             }
 
-            foreach($sort_check_list AS $row){                                      // 把自己轄區已完成的點檢表繞出來
-                if(in_array($row["form_type"], array_keys($checked_type))){         // 檢點表form_type有在需要執行點檢的array_keys中...then
-                    $checked_type[$row["form_type"]]["cunt"]    = $row["cunt"];     // 已完成件數
-                    $checked_type[$row["form_type"]]["checked"] -= $row["cunt"];    // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+            if($sort_check_list){
+                foreach($sort_check_list AS $row){                                      // 把自己轄區已完成的點檢表繞出來
+                    if(in_array($row["form_type"], array_keys($checked_type))){         // 檢點表form_type有在需要執行點檢的array_keys中...then
+                        $checked_type[$row["form_type"]]["cunt"]    = $row["cunt"];     // 已完成件數
+                        $checked_type[$row["form_type"]]["checked"] -= $row["cunt"];    // 計算自己的點檢紀錄筆數 用廠的數量-已點檢的數量，>0:沒檢完，=0:已檢完
+                    }
                 }
             }
-
     }
 
     $num3 = $numReceive;

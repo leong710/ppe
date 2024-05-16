@@ -229,7 +229,7 @@
     // 2023/10/25 將領用申請單推送給按push的人~
     function push_mapp(emp_id){
 
-        emp_id = emp_id.trim();
+        // emp_id = emp_id.trim();
         if(!emp_id || (emp_id.length < 8)){
             alert("工號字數有誤 !!");
             $("body").mLoading("hide");
@@ -388,12 +388,12 @@
         }
         // 20240430 退貨按鈕消失
         if(receive_row['idty'] == '10'){                        // 4.if 10結案 then disabled & unblock this return_btn
-            let flow_m      = new Date(receive_row['flow'].split(',')[0])
-            let now_time    = new Date()
+            let now_time    = new Date();
+            let flow_m      = new Date(receive_row['flow'].split(',')[0]);
             let difference  = now_time - flow_m;                // 計算日期差距（毫秒單位）
             let days        = Math.floor((difference % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
             if (days >= 14) {                                   // over 14days then do it 
-                $('#return_btn').prop('disabled', true).addClass("unblock");
+                $('#return_btn').prop('disabled', true) // .addClass("unblock");
             }
         }
 

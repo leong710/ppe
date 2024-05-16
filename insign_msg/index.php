@@ -14,8 +14,7 @@
 
     $sys_role  = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : false;             // 取出$_session引用
     $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
-    $inSign_lists = inSign_list();                                                                     // 載入所有待簽名單
-
+    $inSign_lists    = inSign_list();                                                                  // 載入所有待簽名單
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -43,85 +42,105 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col-11">
-                <!-- 表頭 -->
-                <div class="row" style="vertical-align:bottom;color:#FFFFFF;">
-                    <div class="col-12 col-md-6 py-0">
-                        <h3>待簽清單統計</h3>
-                    </div>
-                    <div class="col-6 col-md-6 py-0 text-end">
-                    </div>
-                </div>
-
+            <!-- <div class="col-11"> -->
                 <div class="col-12 border rounded p-4" style="background-color: #D4D4D4;">
-                    <!-- 1.領用申請單待簽名冊(receive) -->
-                    <div id="nav-receive" class="col-12 bg-white border rounded">
-                        <div class="row">
-                            <div class="col-12 col-md-8 py-0 text-primary">
-                                <?php echo "待簽名單共：".count($inSign_lists)." 筆";?>
-                            </div>
-                            <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($sys_role == 0 && $check_ip){ ?>
-                                    <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs <?php echo !$mailTo_insign ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
-                                        title="send notify" onclick="notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
-                                <?php } ?>
-                                <button type="button" id="user_lists_btn" title="訊息收折" class="op_tab_btn" value="user_lists" onclick="op_tab(this.value)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                            </div>
+                    <!-- 表頭 -->
+                    <div class="row">
+                        <div class="col-12 col-md-6 py-0">
+                            <h3>待簽清單統計</h3>
                         </div>
-
-                        <div id="user_lists" class="user_lists col-12 mt-2 border rounded">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>姓名(工號)</th>
-                                        <th>1.請購待簽</th>
-                                        <th>3.領用待簽</th>
-                                        <th>total_waiting</th>
-                                        <th>急件數</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($inSign_lists as $inSign_list){ ?>
-                                        <tr>
-                                            <td id="<?php echo 'id_'.$inSign_list['emp_id'];?>"><?php echo $inSign_list["cname"]." (".$inSign_list["emp_id"].")";?></td>
-                                            <td><?php echo $inSign_list["issue_waiting"];?></td>
-                                            <td><?php echo $inSign_list["receive_waiting"];?></td>
-                                            <td><?php echo $inSign_list["total_waiting"];?></td>
-                                            <td><?php echo $inSign_list["ppty_3_count"];?></td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
+                        <div class="col-12 col-md-6 py-0 text-end">
+                            <?php if($sys_role == 0 && $check_ip){ ?>
+                                <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs <?php echo !$mailTo_insign ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
+                                    title="send notify" onclick="notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
+                            <?php } ?>
                         </div>
                     </div>
+
+                        <div id="nav-receive" class="col-12 bg-white border rounded">
+                            <!-- 1.領用申請單待簽名冊(receive) -->
+                            <div class="row">
+                                <div class="col-12 col-md-8 py-0 text-primary">
+                                    <?php echo "待簽名單共：".count($inSign_lists)." 筆";?>
+                                </div>
+                                <div class="col-12 col-md-4 py-0 text-end">
+                                    <button type="button" id="inSign_lists_btn" title="訊息收折" class="op_tab_btn" value="inSign_lists" onclick="op_tab(this.value)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                            <div id="inSign_lists" class="inSign_lists col-12 mt-2 border rounded">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>姓名(工號)</th>
+                                            <th>fab (local)</th>
+
+                                            <th>請購待簽</th>
+                                            <th>領用待簽</th>
+                                            <th>合計待簽</th>
+                                            <th>急件待簽</th>
+
+                                            <th class="text-danger">請購退件</th>
+                                            <th class="text-danger">領用退件</th>
+                                            <th class="text-danger">合計退件</th>
+                                            <th class="text-danger">急件退件</th>
+
+                                            <th class="text-success">待領</th>
+                                            <th class="text-success">急件</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($inSign_lists as $inSign_list){ ?>
+                                            <tr>
+                                                <td id="<?php echo 'id_'.$inSign_list['emp_id'];?>" style="text-align: start;"><?php echo $inSign_list["cname"]." (".$inSign_list["emp_id"].")";?></td>
+                                                <td><?php echo $inSign_list["fab_title"]."</br>(". $inSign_list["local_title"].")";?></td>
+                                                
+                                                <td><?php echo $inSign_list["issue_waiting"];?></td>
+                                                <td><?php echo $inSign_list["receive_waiting"];?></td>
+                                                <td><?php echo $inSign_list["total_waiting"];?></td>
+                                                <td class="text-primary"><?php echo $inSign_list["ppty_3_waiting"];?></td>
+                                                
+                                                <td><?php echo $inSign_list["issue_reject"];?></td>
+                                                <td><?php echo $inSign_list["receive_reject"];?></td>
+                                                <td><?php echo $inSign_list["total_reject"];?></td>
+                                                <td class="text-danger"><?php echo $inSign_list["ppty_3_reject"];?></td>
+
+                                                <td><?php echo $inSign_list["total_collect"];?></td>
+                                                <td class="text-success"><?php echo $inSign_list["ppty_3_collect"];?></td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
                     <div class="row">
-                        <div class="col-6 col-md-6 py-0">
+                        <div class="col-12 col-md-6 pb-0">
                             <b>執行訊息：</b>
                         </div>
-                        <div class="col-6 col-md-6 py-0 text-end">
+                        <div class="col-12 col-md-6 pb-0 text-end">
                         </div>
-                    </div>
-                    <!-- append執行訊息 -->
-                    <div class="col-12 bg-white border rounded py-2 my-0" id="result">
+                        <!-- append執行訊息 -->
+                        <div class="col-12 bg-white border rounded py-2 my-0" id="result">
+
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-6 col-md-4 py-0">
+                        <div class="col-6 col-md-4 pb-0">
    
                         </div>
-                        <div class="col-6 col-md-4 py-0 text-center">
+                        <div class="col-6 col-md-4 pb-0 text-center">
                             <div id="myMessage">
                                 <?php if(!empty($fun)){ echo "** 自動模式 **"; }else{ echo "** 手動模式 **"; }?>
                             </div>
                         </div>
-                        <div class="col-6 col-md-4 py-0 text-end">
+                        <div class="col-6 col-md-4 pb-0 text-end">
                             <?php echo ($sys_role == 0) ? "* [管理者模式]" : "* [路人模式]";?>
                             <?php echo $check_ip ? $fa_check:$fa_remove; echo " ".$pc;?>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        <!-- </div> -->
     </div>
 
     <div id="gotop">
@@ -143,14 +162,20 @@
         var fun          = '<?=$fun?>';                 // 是否啟動寄送信件給待簽人員
         var check_ip     = '<?=$check_ip?>';
         var inSign_lists = <?=json_encode($inSign_lists)?>;
+        var lists_obj    = { inSign_lists    : inSign_lists }
 
         var receive_url  = '領用路徑：'+uri+'/ppe/receive/';
         var issue_url    = '請購路徑：'+uri+'/ppe/issue/';
-        var int_msg1     = '【環安PPE系統】待您簽核文件提醒\n';
+
+        var int_msg1     = '【環安PPE系統】待您處理文件提醒\n';
         var int_msg2     = ' 您共有 ';
         var int_msg3     = ' 件待簽核文件尚未處理';
-        var int_msg4     = '，如已簽核完畢，請忽略此訊息！\n\n** 請至以下連結查看待簽核文件：\n';
+        var ret_msg3     = ' 件被退件文件尚未處理';
+        var col_msg3     = ' 件待收發文件尚未處理';
+        var int_msg4     = '，如已處理完畢，請忽略此訊息！\n\n** 請至以下連結查看待處理文件：\n';
+        var srt_msg4     = '，如已處理完畢，請忽略此訊息！\n\n';
         var int_msg5     = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
+
         var push_result  = {
                 'mapp' : {
                     'success' : 0,

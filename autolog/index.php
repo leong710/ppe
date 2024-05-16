@@ -57,10 +57,14 @@
             text-align: left;
         } */
         .mg_msg {
-            width: 75%;
+            width: 60%;
         }
         .NG {
             background-color: pink;
+            font-weight: bold;
+        }
+        .today {
+            background-color: paleturquoise;
             font-weight: bold;
         }
         .inb {
@@ -196,7 +200,7 @@
                                         ?>
                                             <tr id="<?php echo $log['id']; ?>">
                                                 <!-- 第1格.thisInfo 紀錄敘述 -->
-                                                <td>
+                                                <td class="<?php echo ($log['thisDay'] == date('Y/m/d')) ? 'today':'';?>">
                                                     <?php 
                                                         echo $log['t_stamp']."</br>";
                                                         if($sys_role == 0){ ?>
@@ -227,8 +231,8 @@
                                                                         <input type="submit" name="delLog_item" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                                     </form>
                                                                 <?php echo "&nbsp"; } 
-                                                                echo ($i+1)."_"."&nbsp".$l["thisTime"]." => ".(isset($l["mail_res"]) ? $l["mail_res"]:$l["mapp_res"])."</br>" .$l["cname"]." (".$l["emp_id"].") ";
-                                                                echo isset($l["emergency"]) ? "&nbsp急件：".$l["emergency"] : "" ;
+                                                                echo ($i+1) ."_" .$l["cname"]." (".$l["emp_id"].") ". (isset($l["emergency"]) ? "&nbsp急件：".$l["emergency"] : "") ;
+                                                                echo "&nbsp&nbsp".$l["thisTime"]." => " .(isset($l["mail_res"]) ? $l["mail_res"]:$l["mapp_res"]) ;
                                                                 echo "</td>" ."<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
                                                                 $i++;
                                                             } 

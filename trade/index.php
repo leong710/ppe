@@ -1,13 +1,10 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];  
     $form_type   = "trade";
     
     // 身分選擇功能：定義user進來要看到的項目

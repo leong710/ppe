@@ -1,12 +1,11 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
     // 先給預設值
-        $auth_cname = $_SESSION["AUTH"]["cname"];
-        $sys_role = $_SESSION[$sys_id]["role"];          // 取出$_session引用
         $url = "http://".$_SERVER["HTTP_HOST"].$_SERVER["PHP_SELF"];
 
     // CRUD

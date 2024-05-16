@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     require_once("function_dept.php");
     require_once("service_window_api.php");             // service window
@@ -99,7 +100,7 @@
                                 <button class="nav-link" id="nav-site-tab"  data-bs-toggle="tab" data-bs-target="#nav-site_table"  type="button" role="tab" aria-controls="nav-site"  aria-selected="false">Site</button>
                                 <button class="nav-link" id="nav-fab-tab"   data-bs-toggle="tab" data-bs-target="#nav-fab_table"   type="button" role="tab" aria-controls="nav-fab"   aria-selected="false">Fab</button>
                                 <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
-                                <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                <?php if($sys_role <= 2){ ?>
                                     <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp安全存量設定</a>
                                     <?php } ?>
                                 <button class="nav-link" id="nav-ptlocal-tab" data-bs-toggle="tab" data-bs-target="#nav-ptlocal_table" type="button" role="tab" aria-controls="nav-ptlocal" aria-selected="false">除汙儲存點</button>
@@ -115,7 +116,7 @@
                                 <h3>site管理</h3>
                             </div>
                             <div class="col-12 col-md-6 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <button type="button" id="add_site_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_site" onclick="add_module('site')" > <i class="fa fa-plus"></i> 新增site</button>
                                 <?php } ?>
                             </div>
@@ -129,7 +130,7 @@
                                             <th>site_title</th>
                                             <th>site_remark</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -140,14 +141,14 @@
                                                 <td style="font-size: 12px;"><?php echo $site['id']; ?></td>
                                                 <td class="text-start"><?php echo $site['site_title']; ?></td>
                                                 <td class="text-start"><?php echo $site['site_remark']; ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <td><?php if($sys_role <= 1){ ?>
                                                     <button type="button" name="site" id="<?php echo $site['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $site['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $site['flag'];?>"><?php echo $site['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $site['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
                                                             <?php echo $site['flag'] == 'On' ? '顯示':'隱藏';?>
                                                         </span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                                <td><?php if($sys_role <= 1){ ?>
                                                     <button type="button" id="edit_site_btn" value="<?php echo $site['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_site" onclick="edit_module('site',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -166,7 +167,7 @@
                                 <h3>fab管理</h3>
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <button type="button" id="add_fab_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_fab" onclick="add_module('fab')" > <i class="fa fa-plus"></i> 新增fab</button>
                                 <?php } ?>
                             </div>
@@ -183,7 +184,7 @@
                                             <th>sign_code</th>
                                             <th style="width: 25%;">pm_emp_id</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -197,13 +198,13 @@
                                                 <td <?php echo $fab['buy_ty'] !='a' ? 'style="background-color: yellow;"':'';?>><?php echo $fab['buy_ty']; ?></td>
                                                 <td class="text-center"><?php echo $fab['sign_code']; ?></td>
                                                 <td class="word_bk"><?php echo $fab['pm_emp_id']; ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>   
+                                                <td><?php if($sys_role <= 1){ ?>   
                                                         <button type="button" name="fab" id="<?php echo $fab['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $fab['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $fab['flag'];?>"><?php echo $fab['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $fab['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
                                                             <?php echo $fab['flag'] == 'On' ? '顯示':'隱藏';?></span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                                <td><?php if($sys_role <= 1){ ?>    
                                                     <button type="button" id="edit_fab_btn" value="<?php echo $fab['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_fab" onclick="edit_module('fab',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -219,7 +220,7 @@
                                 <h5>Service Window清單</h5><snap> >>> 上表有更新時，請記得套用更新!! 此清單會顯示在receive領用總表上，供民眾查詢使用 ~</snap>
                             </div>
                             <div class="col-12 col-md-4  text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <button type="button" id="add_fab_btn" class="btn btn-primary" onclick="return confirm(`確認更新service window清單嗎？`) && update_sw();" ><i class="fa-solid fa-arrows-rotate"></i> 套用更新</button>
                                 <?php } ?>
                             </div>
@@ -248,7 +249,7 @@
                                 <h3>Local儲存點管理</h3>
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <button type="button" id="add_local_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_local" onclick="add_module('local')" > <i class="fa fa-plus"></i> 新增Local</button>
                                 <?php } ?>
                             </div>
@@ -263,7 +264,7 @@
                                             <th>local_title (remark)</th>
                                             <th>low_level</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -276,13 +277,13 @@
                                                 <td class="text-start"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
                                                 <td><a href="low_level.php?local_id=<?php echo $local['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($local['low_level']) ? "btn-success":"btn-warning";?>">
                                                     <?php echo !empty($local['low_level']) ? "已設定":"未設定";?></a></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>  
+                                                <td><?php if($sys_role <= 1){ ?>  
                                                         <button type="button" name="local" id="<?php echo $local['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $local['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $local['flag'];?>"><?php echo $local['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $local['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
                                                             <?php echo $local['flag'] == 'On' ? '顯示':'隱藏';?></span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                                <td><?php if($sys_role <= 1){ ?>    
                                                     <button type="button" id="edit_local_btn" value="<?php echo $local['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_local" onclick="edit_module('local',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -301,7 +302,7 @@
                                 <h3>除汙儲存點管理</h3>
                             </div>
                             <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                <?php if($sys_role <= 1){ ?>
                                     <button type="button" id="add_ptlocal_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptlocal" onclick="add_module('ptlocal')" > <i class="fa fa-plus"></i> 新增除汙儲存點</button>
                                 <?php } ?>
                             </div>
@@ -316,7 +317,7 @@
                                             <th>local_title (remark)</th>
                                             <th>low_level</th>
                                             <th>flag</th>
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                            <?php if($sys_role <= 1){ ?>    
                                                 <th>action</th>
                                             <?php } ?>
                                         </tr>
@@ -329,13 +330,13 @@
                                                 <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
                                                 <td><a href="low_level.php?ptlocal_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
                                                     <?php echo !empty($ptlocal['low_level']) ? "已設定":"未設定";?></a></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>  
+                                                <td><?php if($sys_role <= 1){ ?>  
                                                         <button type="button" name="ptlocal" id="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $ptlocal['flag'];?>"><?php echo $ptlocal['flag'];?></button>
                                                     <?php }else{ ?>
                                                         <span class="btn btn-sm btn-xs <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
                                                             <?php echo $ptlocal['flag'] == 'On' ? '顯示':'隱藏';?></span>
                                                     <?php } ?></td>
-                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                                <td><?php if($sys_role <= 1){ ?>    
                                                     <button type="button" id="edit_ptlocal_btn" value="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                                         data-bs-toggle="modal" data-bs-target="#edit_ptlocal" onclick="edit_module('ptlocal',this.value)" >編輯</button>
                                                 <?php } ?></td>
@@ -362,7 +363,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="id" id="site_delete_id">
                         &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="site_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="site_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -409,7 +410,7 @@
                             <input type="hidden" name="activeTab" value="0">
                             <input type="hidden" name="id" id="site_edit_id" >
                             <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
-                                <span id="site_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                                <span id="site_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="site_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -428,7 +429,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="id" id="fab_delete_id">
                         &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="fab_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="fab_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -547,7 +548,7 @@
                             <input type="hidden" name="activeTab" value="1">
                             <input type="hidden" name="id" id="fab_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                <span id="fab_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                                <span id="fab_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="fab_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -566,7 +567,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="id" id="local_delete_id">
                         &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="local_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="local_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -575,14 +576,14 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-floating">
-                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
+                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($sys_role > 1) ? "disabled":"";?>>
                                         <option value="" hidden>--請選擇fab廠別--</option>
                                         <?php foreach($fabs as $fab){ ?>
                                             <option value="<?php echo $fab["id"];?>" >
                                                 <?php echo $fab["id"]."_".$fab["fab_title"]."(".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? ' -- 已關閉':''; ?></option>
                                         <?php } ?>
                                     </select>
-                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] > 1) ? " - disabled":" *"; ?></sup></label>
+                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($sys_role > 1) ? " - disabled":" *"; ?></sup></label>
                                 </div>
                             </div>
                             <div class="col-12">
@@ -622,7 +623,7 @@
                             <input type="hidden" name="activeTab" value="2">
                             <input type="hidden" name="id" id="local_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                <span id="local_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                                <span id="local_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="local_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>
@@ -641,7 +642,7 @@
                     <form action="" method="post">
                         <input type="hidden" name="id" id="ptlocal_delete_id">
                         &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="ptlocal_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="ptlocal_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -650,14 +651,14 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-floating">
-                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
+                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($sys_role > 1) ? "disabled":"";?>>
                                         <option value="" hidden>--請選擇fab廠別--</option>
                                         <?php foreach($fabs as $fab){ ?>
                                             <option value="<?php echo $fab["id"];?>" for="edit_fab_id">
                                                 <?php echo $fab["id"]."_".$fab["fab_title"]."(".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? ' -- 已關閉':''; ?></option>
                                         <?php } ?>
                                     </select>
-                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] > 1) ? " - disabled":" *"; ?></sup></label>
+                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($sys_role > 1) ? " - disabled":" *"; ?></sup></label>
                                 </div>
                             </div>
                             <div class="col-12">
@@ -697,7 +698,7 @@
                             <input type="hidden" name="activeTab" value="3">
                             <input type="hidden" name="id" id="ptlocal_edit_id" >
                             <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                <span id="ptlocal_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                                <span id="ptlocal_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="ptlocal_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
                         </div>

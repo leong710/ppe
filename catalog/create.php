@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -310,7 +311,7 @@
                 <hr>
                 <div class="text-end">
                     <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                    <?php if($sys_role <= 1){ ?>
                         <input type="submit" value="儲存" name="submit" class="btn btn-primary" id="show_loading_btn">
                     <?php } ?>
                     <input type="button" value="取消" class="btn btn-secondary" onclick="history.back()">

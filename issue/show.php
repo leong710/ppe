@@ -1,22 +1,13 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
     $issue_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; // 回本頁
-    if(isset($_SERVER["HTTP_REFERER"])){
-        $up_href = $_SERVER["HTTP_REFERER"];            // 回上頁
-    }else{
-        $up_href = $issue_url;                          // 回本頁
-    }
     
-    $auth_cname  = $_SESSION["AUTH"]["cname"];          // 取出$_session引用
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];         // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];          // 取出$_session引用
-    $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    // $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];    
     // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列，要轉成字串str
 

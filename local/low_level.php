@@ -1,10 +1,10 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
-    
-    $sys_role    = $_SESSION[$sys_id]["role"];                      // 取出$_session引用
+ 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
         $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列

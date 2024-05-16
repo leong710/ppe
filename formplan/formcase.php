@@ -1,11 +1,9 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDeniedAdmin($sys_id);
-
-    $auth_cname = $_SESSION["AUTH"]["cname"];     // 取出$_session引用
-    $sys_role   = $_SESSION[$sys_id]["role"];     // 取出$_session引用
 
     // CRUD
         if(isset($_POST["submit_formcase"])){ store_formcase($_REQUEST); }  // 新增

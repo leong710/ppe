@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
     
@@ -136,7 +137,7 @@
                     <h4>編輯catalog資訊</h4>
                 </div>
                 <div class="col-12 col-md-6 py-0 text-end">
-                    <?php if(($_SESSION[$sys_id]["role"] == 0) && ($catalog["flag"] == "Off")){?>
+                    <?php if(($sys_role == 0) && ($catalog["flag"] == "Off")){?>
                         <form action="" method="post">
                             <input type="hidden" name="id" value="<?php echo $catalog["id"];?>">
                             <input type="submit" name="delete" value="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('我們不建議您刪除! 如果可以請用[flag顯示開關將]其關閉即可!\n\n確認刪除？')">
@@ -326,7 +327,7 @@
                 <div class="text-end">
                     <input type="hidden" value="<?php echo $catalog["id"];?>" name="id">
                     <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                    <?php if($sys_role <= 1){ ?>
                         <input type="submit" value="儲存" name="submit" class="btn btn-primary">
                     <?php } ?>
                     <input type="button" value="取消" class="btn btn-secondary" onclick="history.back()">

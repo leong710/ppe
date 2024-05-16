@@ -1,7 +1,7 @@
 <?php
 // // // *** none function group
     function accessDenied($sys_id){
-        $url='http://'.$_SERVER['HTTP_HOST'].'/';   // 複製本頁網址藥用
+        $url='http://'.$_SERVER['HTTP_HOST'].'/';                           // 複製本頁網址藥用
         if(!isset($_SESSION)){                                              // 確認session是否啟動
             session_start();
         }
@@ -44,6 +44,9 @@
 
                     }else{                                                  // 權限被禁用
                         echo "<script>alert('{$sys_local_row["cname"]} Local帳號停用，請洽管理員')</script>";
+                        session_destroy();
+                        header("refresh:0;url={$url}{$sys_id}");
+                        exit;
                     }
                 }else{                                                      // 沒有sys_id的人員權限資料
                     // echo "<script>alert('{$user} local無資料，請洽管理員')</script>";

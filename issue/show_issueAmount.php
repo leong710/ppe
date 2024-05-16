@@ -1,12 +1,9 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
-
-    $auth_cname  = $_SESSION["AUTH"]["cname"];      // 取出$_session引用
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
 
     if(isset($_POST["issue2pr_submit"])){    // 轉PR => 11
         update_issue2pr($_REQUEST);

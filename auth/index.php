@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDeniedAdmin($sys_id);
 
@@ -236,7 +237,7 @@
                     <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> <span id="user_modal_action"></span> local user role</h5>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="user_delete_id">&nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="user_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="user_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close border rounded mx-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -292,8 +293,8 @@
                                 <div class="form-floating">
                                     <select name="role" id="role" class="form-select">
                                         <option value=""  for="role">停用</option>
-                                        <option value="0" for="role" <?php echo $_SESSION[$sys_id]["role"] > 0 ? "hidden":"";?>>0_管理</option>
-                                        <option value="1" for="role" <?php echo $_SESSION[$sys_id]["role"] > 1 ? "hidden":"";?>>1_PM</option>
+                                        <option value="0" for="role" <?php echo $sys_role > 0 ? "hidden":"";?>>0_管理</option>
+                                        <option value="1" for="role" <?php echo $sys_role > 1 ? "hidden":"";?>>1_PM</option>
                                         <option value="2" for="role" selected >2_siteUser</option>
                                         <option value="3" for="role" >3_noBody</option>
                                     </select>
@@ -345,7 +346,7 @@
                             <span id="activeTab" ></span>
                             <input type="hidden" name="id" id="user_edit_id" >
                             
-                            <span id="user_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                            <span id="user_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="user_reset_btn" onclick="$('#emp_id, #cname, #user, #idty').removeClass('autoinput');" value="清除">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>

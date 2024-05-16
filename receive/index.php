@@ -1,15 +1,12 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     require_once("service_window.php");             // service window
 
     accessDenied($sys_id);
 
-    $auth_emp_id = $_SESSION["AUTH"]["emp_id"];     // 取出$_session引用
-    $sys_role    = $_SESSION[$sys_id]["role"];      // 取出$_session引用
-    $sys_fab_id  = $_SESSION[$sys_id]["fab_id"];     
-    $sys_sfab_id = $_SESSION[$sys_id]["sfab_id"];  
     $form_type   = "receive";
     $fun         = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
 

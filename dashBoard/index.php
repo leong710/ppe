@@ -9,11 +9,12 @@
     if(!empty($_SESSION["AUTH"]["pass"]) && !isset($_SESSION[$sys_id])){
 		accessDenied_sys($sys_id);                  // 套用sys_id權限
     }
-
+    
     $login_AUTH = (isset($_SESSION[$sys_id])) ? true : false ;
+    $sys_role   = !empty($_SESSION[$sys_id]["role"]) ? $_SESSION[$sys_id]["role"] : "";
 
     // 讓一般nobody用戶帶到 我的申請文件
-    if($login_AUTH && $_SESSION[$sys_id]["role"] >= 3 && empty($_SESSION["AUTH"]["dept"])){
+    if($login_AUTH && $sys_role >= 3 && empty($_SESSION["AUTH"]["dept"])){
         header("refresh:0;url=../receive/");
         exit;
     }

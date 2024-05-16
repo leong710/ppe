@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -89,7 +90,7 @@
                         <h4>器材資訊</h4>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                        <?php if($sys_role <= 1 ){ ?>
                             <button type="button" id="add_stock_btn" title="管理員限定" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-upload" aria-hidden="true"></i> 單品撥補</button>
                         <?php } ?>
                         <a class="btn btn-success" onclick="history.back()"><i class="fa fa-external-link" aria-hidden="true"></i> 返回目錄</a>
@@ -213,7 +214,7 @@
                                     <?php echo $catalogStock["lot_num"];?></td>
                                 <td><?php echo $catalogStock["po_no"];?></td>
                                 <td>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1 ){ ?>
+                                    <?php if($sys_role <= 1 ){ ?>
                                         <button type="button" id="edit_stock_btn" value="<?php echo $catalogStock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
                                             class="btn btn-sm btn-xs btn-info" onclick="edit_module('stock', this.value)" >編輯</button>
                                     <?php } ?>
@@ -262,7 +263,7 @@
                     &nbsp&nbsp&nbsp&nbsp&nbsp
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
-                        <span id="modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                        <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -302,8 +303,8 @@
                                 <div class="col-12 col-md-6 py-0">
                                     <div class="form-floating">
                                         <input type="number" name="standard_lv" id="edit_standard_lv" class="form-control t-center" placeholder="標準數量(管理員填)" min="1" max="400"
-                                            <?php echo $_SESSION[$sys_id]["role"] >= 2 ? "readonly":""; ?> >
-                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] >= 2) ? " - disabled":" *";?></sup></label>
+                                            <?php echo $sys_role >= 2 ? "readonly":""; ?> >
+                                        <label for="edit_standard_lv" class="form-label">standard_lv/安全存量：<sup class="text-danger"><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
                                     </div>
                                 </div>
                                 <!-- 右側-批號 -->

@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     accessDenied($sys_id);
 
@@ -62,7 +63,7 @@
                     <h5>Catalog/目錄管理</h5>
                 </div>
                 <div class="col-md-4 py-0 text-end">
-                    <?php if($_SESSION[$sys_id]["role"] <= 2 && $per_total != 0){ ?>
+                    <?php if($sys_role <= 2 && $per_total != 0){ ?>
                         <!-- 下載EXCEL的觸發 -->
                         <form id="cata_myForm" method="post" action="../_Format/download_excel.php">
                             <input type="hidden" name="htmlTable" id="cata_htmlTable" value="">
@@ -73,7 +74,7 @@
                 </div>
                 <!-- 表頭按鈕 -->
                 <div class="col-md-4 py-0 text-end">
-                    <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                    <?php if($sys_role <= 1){ ?>
                         <a href="create.php" title="新增catalog" class="btn btn-primary"> <i class="fa fa-plus"></i> 新增品項</a>
                         <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
                     <?php } ?>
@@ -121,7 +122,7 @@
                                                   echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?>
                                         </div>
                                         <div class="col-12 py-0 text-center">
-                                            <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                            <?php if($sys_role <= 1){ ?>
                                                 <button type="button" name="catalog" id="<?php echo $catalog['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $catalog['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $catalog['flag'];?>"><?php echo $catalog['flag'];?></button>
                                                 <a href="edit.php?sn=<?php echo $catalog["SN"];?>&img=<?php echo $catalog["PIC"];?>&cate_no=<?php echo $sort_cate_no;?>" class="btn btn-sm btn-xs btn-info" title="最後編輯：<?php echo $catalog["updated_at"]." / by: ".$catalog["updated_user"];?>">編輯</a>
                                             <?php } ?>

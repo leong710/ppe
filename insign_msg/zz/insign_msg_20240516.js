@@ -87,7 +87,6 @@
         }
         // 20240314 將訊息推送到TN PPC(mapp)給對的人~
         function push_mapp(user_emp_id, mg_msg) {
-            // return true;
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
@@ -97,7 +96,6 @@
                     data:{
                         uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                         eid     : user_emp_id,                                  // 傳送對象
-                        // eid     : '10008048',                                  // 傳送對象
                         message : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
@@ -115,7 +113,6 @@
         }
         // 20240314 將訊息郵件發送給對的人~
         function sendmail(user_email, mg_msg){
-            // return true;
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2024新版
@@ -126,7 +123,6 @@
                         uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                         sysName : 'PPE',                                        // 貫名
                         to      : user_email,                                   // 傳送對象
-                        // to      : 'leong.chen@innolux.com',                                   // 傳送對象
                         subject : int_msg1,                                     // 信件標題
                         body    : mg_msg                                        // 訊息內容
                     },
@@ -217,13 +213,12 @@
 
         // 2024/05/09 notify_insign()整理訊息、發送、顯示發送結果。
         function notify_insign(){
-            mloading("show");                                                       // 啟用mLoading
+            mloading("show");                       // 啟用mLoading
             // mloading();
             var totalUsers = 0;                                                     // 总用户数量
             var completedUsers = 0;                                                 // 已完成发送操作的用户数量
             var user_logs = [];                                                     // 宣告儲存Log用的 大-陣列Logs
             $('#result').empty();                                                   // 清空執行訊息欄位
-
             Object.keys(lists_obj).forEach((list_key)=>{
                 let a_list = lists_obj[list_key];
                 if(a_list && a_list.length >= 1){                                   // 有件數 > 0 舊執行通知
@@ -234,8 +229,7 @@
                     Object(a_list).forEach(function(user){
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         var user_email  = String(user['email']).trim();             // 定義 user_email + 去空白
-                        var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect'])
-                        var user_mapp   = (emergency_count > 0) ? true : false;// 當3急件數量!=0，就使用mapp加急通知!
+                        var user_mapp   = (user['ppty_3_count'] > 0) ? true : false;// 當3急件數量!=0，就使用mapp加急通知!
     
                         // step.1 確認工號是否有誤
                         if(!user_emp_id || (user_emp_id.length < 8)){
@@ -247,29 +241,19 @@
                             return false;
     
                         } else {
-                            // 宣告儲存Log內的單筆 小-物件log
-                            var user_log = { 
-                                emp_id          : user['emp_id'],
-                                cname           : user['cname'],
-                                email           : user_email,
-
-                                issue_waiting   : user['issue_waiting'],
-                                receive_waiting : user['receive_waiting'],
-                                waiting         : user['total_waiting'],
-
-                                issue_reject    : user['issue_reject'],
-                                receive_reject  : user['receive_reject'],
-                                Reject          : user['total_reject'],
-
-                                collect         : user['total_collect'],
-                                emergency       : emergency_count
-                            }
                             // step.1-1 組合訊息文字
-                            var mg_msg  = int_msg1 ;//+ " (" + user['cname'] + ")";
-                            
-                            // 待簽核 waiting
-                            if(user['total_waiting'] > 0){
-                                mg_msg += "\r\n";
+                            if(list_key == 'inSign_lists'){         // 待簽核提醒
+                                var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
+                                    emp_id          : user['emp_id'],
+                                    cname           : user['cname'],
+                                    email           : user_email,
+                                    issue_waiting   : user['issue_waiting'],
+                                    receive_waiting : user['receive_waiting'],
+                                    waiting         : user['total_waiting'],
+                                    emergency       : user['ppty_3_count'],
+                                }
+                                var mg_msg  = int_msg1;
+                                mg_msg += "(" + user['cname'] + ")";
                                 mg_msg += int_msg2 + user['total_waiting'] + int_msg3 + '(';    // 20240112 新添加 請購和領用
                                 if(user['issue_waiting'] > 0){
                                     mg_msg += '請購'+user['issue_waiting']+'件'
@@ -280,49 +264,59 @@
                                     }
                                     mg_msg += '領用'+user['receive_waiting']+'件'
                                 }
-                                mg_msg += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
-                            }
-                            // 被退件 reject
-                            if(user['total_reject'] > 0){
-                                mg_msg += "\r\n";
-                                mg_msg += int_msg2 + user['total_reject'] + ret_msg3 + '(';    // 20240112 新添加 請購和領用
-                                if(user['issue_reject'] > 0){
-                                    mg_msg += '請購'+user['issue_reject']+'件'
+                                mg_msg += (user['ppty_3_count'] > 0) ? '、急件'+user['ppty_3_count']+'件)' : ')';
+
+                                // var logs_source = mg_msg;                           // 20240514...縮減log文字內容
+                                var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
+                                mg_msg += int_msg4 + receive_url +'\n'+issue_url + int_msg5;
+                                
+                            }else if(list_key == 'inCollect_lists'){  // 其他的：例如待領提醒
+                                var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
+                                    emp_id          : user['emp_id'],
+                                    cname           : user['cname'],
+                                    email           : user_email,
+                                    collect_waiting : user['collect_count'],
+                                    emergency       : user['ppty_3_count'],
                                 }
-                                if(user['receive_reject'] > 0){
-                                    if(user['issue_reject'] > 0){
+                                var mg_msg  = col_msg1;
+                                mg_msg += "(" + user['cname'] + ")";
+                                mg_msg += col_msg2 + user['collect_count'] + col_msg3 ;    
+                                mg_msg += (user['ppty_3_count'] > 0) ? '(急件'+user['ppty_3_count']+'件)' : ')';
+                                
+                                // var logs_source = "(" + user['cname'] + ")" + col_msg2 + user['collect_count'] + col_msg3 ;   // 20240514...縮減log文字內容
+                                var logs_source = mg_msg.replace(col_msg1, "");   // 20240514...縮減log文字內容
+                                mg_msg += col_msg4 + receive_url + int_msg5;
+
+                            }else{
+                                var user_log = {                                            // 宣告儲存Log內的單筆 小-物件log
+                                    emp_id          : user['emp_id'],
+                                    cname           : user['cname'],
+                                    email           : user_email,
+                                    issue_Reject    : user['issue_Reject'],
+                                    receive_Reject  : user['receive_Reject'],
+                                    Reject          : user['total_Reject'],
+                                    emergency       : user['ppty_3_count'],
+                                }
+                                var mg_msg  = rej_msg1;
+                                mg_msg += "(" + user['cname'] + ")";
+                                mg_msg += rej_msg2 + user['total_Reject'] + rej_msg3 + '(';    // 20240112 新添加 請購和領用
+                                if(user['issue_Reject'] > 0){
+                                    mg_msg += '請購'+user['issue_Reject']+'件'
+                                }
+                                if(user['receive_Reject'] > 0){
+                                    if(user['issue_Reject'] > 0){
                                         mg_msg += '、';
                                     }
-                                    mg_msg += '領用'+user['receive_reject']+'件'
+                                    mg_msg += '領用'+user['receive_Reject']+'件'
                                 }
-                                mg_msg += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')';
-                            }
-                            // 待收發 collect
-                            if(user['total_collect'] > 0){
-                                mg_msg += "\r\n";
-                                mg_msg += int_msg2 + user['total_collect'] + col_msg3 ;    
-                                mg_msg += (user['ppty_3_collect'] > 0) ? '(急件'+user['ppty_3_collect']+'件)' : '';
+                                mg_msg += (user['ppty_3_count'] > 0) ? '、急件'+user['ppty_3_count']+'件)' : ')';
+
+                                var logs_source = mg_msg.replace(rej_msg1, "");   // 20240514...縮減log文字內容
+                                mg_msg += rej_msg4 + receive_url +'\n'+issue_url + int_msg5;
                             }
 
-                            var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
-                            // 拼接尾段訊息
-                            if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0)) {
-                                mg_msg += int_msg4 ;    // 套用有網址長訊息
-                                if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
-                                    mg_msg += receive_url;      // 套用receive網址
-                                }
-                                if((user['issue_waiting'] > 0) || (user['issue_reject'] >0 )){
-                                    if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
-                                        mg_msg += '\n';
-                                    }
-                                    mg_msg += issue_url;        // 套用issue網址
-                                }
-                                mg_msg += int_msg5;
-                            }else{
-                                mg_msg += srt_msg4;     // 套用無網址短訊息
-                            }
-
-                            user_log['mg_msg']   = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                            // user_log['mg_msg']   = mg_msg;                               // 小-物件log 紀錄mg_msg訊息
+                            user_log['mg_msg']   = logs_source.replace("文件尚未處理", "");  // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
                             user_log['thisTime'] = thisTime;                                // 小-物件log 紀錄thisTime
     
                             // step.2 執行通知 --

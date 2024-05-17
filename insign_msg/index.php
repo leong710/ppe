@@ -94,18 +94,18 @@
                                                 <td id="<?php echo 'id_'.$inSign_list['emp_id'];?>" style="text-align: start;"><?php echo $inSign_list["cname"]." (".$inSign_list["emp_id"].")";?></td>
                                                 <td><?php echo $inSign_list["fab_title"]."</br>(". $inSign_list["local_title"].")";?></td>
                                                 
-                                                <td><?php echo $inSign_list["issue_waiting"];?></td>
-                                                <td><?php echo $inSign_list["receive_waiting"];?></td>
-                                                <td><?php echo $inSign_list["total_waiting"];?></td>
-                                                <td class="text-primary"><?php echo $inSign_list["ppty_3_waiting"];?></td>
+                                                <td><?php echo $inSign_list["issue_waiting"] > 0 ? $inSign_list["issue_waiting"] : "" ;?></td>
+                                                <td><?php echo $inSign_list["receive_waiting"] > 0 ? $inSign_list["receive_waiting"] : "" ;?></td>
+                                                <td><?php echo $inSign_list["total_waiting"] > 0 ? $inSign_list["total_waiting"] : "" ;?></td>
+                                                <td class="text-primary"><?php echo $inSign_list["ppty_3_waiting"] > 0 ? $inSign_list["ppty_3_waiting"] : "" ;?></td>
                                                 
-                                                <td><?php echo $inSign_list["issue_reject"];?></td>
-                                                <td><?php echo $inSign_list["receive_reject"];?></td>
-                                                <td><?php echo $inSign_list["total_reject"];?></td>
-                                                <td class="text-danger"><?php echo $inSign_list["ppty_3_reject"];?></td>
+                                                <td><?php echo $inSign_list["issue_reject"] > 0 ? $inSign_list["issue_reject"] : "" ;?></td>
+                                                <td><?php echo $inSign_list["receive_reject"] > 0 ? $inSign_list["receive_reject"] : "" ;?></td>
+                                                <td><?php echo $inSign_list["total_reject"] > 0 ? $inSign_list["total_reject"] : "" ;?></td>
+                                                <td class="text-danger"><?php echo $inSign_list["ppty_3_reject"] > 0 ? $inSign_list["ppty_3_reject"] : "" ;?></td>
 
-                                                <td><?php echo $inSign_list["total_collect"];?></td>
-                                                <td class="text-success"><?php echo $inSign_list["ppty_3_collect"];?></td>
+                                                <td><?php echo $inSign_list["total_collect"] > 0 ? $inSign_list["total_collect"] : "" ;?></td>
+                                                <td class="text-success"><?php echo $inSign_list["ppty_3_collect"] > 0 ? $inSign_list["ppty_3_collect"] : "" ;?></td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>

@@ -328,12 +328,12 @@
                 <div class="col-11 bg-light rounded p-4">
                     <div class="row">
                         <div class="col-12 col-md-6 py-0">
-                            <h4>選擇PIC照片</h4>
+                            <h4>選擇PIC照片<sup class="text-danger"> * 限jpg、png、gif、bmp</sup></h4>
                         </div>
                         <div class="col-12 col-md-6 py-0 text-end">
                             <form action="upload.php" method="post" enctype="multipart/form-data">
                                 <div class="input-group">
-                                    <input type="file" class="form-control" name="img" id="img">
+                                    <input type="file" class="form-control" name="img" id="img" accept=".jpg,.png,.gif,.bmp" placeholder="* 限jpg、png、gif、bmp" >
                                     <button type="submit" class="btn btn-outline-secondary" style="height: 100%;">上傳圖片</button>
                                 </div>
                             </form>

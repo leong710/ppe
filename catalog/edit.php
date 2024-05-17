@@ -28,6 +28,8 @@
     $categories = show_categories();                    // 取得分類
     $catalog    = edit_catalog($_REQUEST);              // 取得要編輯的器材
 
+
+
     if(empty($catalog)){
         echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
     }
@@ -344,13 +346,13 @@
                 <div class="col-11 bg-light rounded p-4">
                     <div class="row">
                         <div class="col-12 col-md-6 py-0">
-                            <h4>選擇PIC照片</h4>
+                            <h4>選擇PIC照片<sup class="text-danger"> * 限jpg、png、gif、bmp</sup></h4>
                         </div>
                         <div class="col-12 col-md-6 py-0 text-end">
                             <form action="upload_edit.php" method="post" enctype="multipart/form-data">
                                 <div class="input-group">
                                     <input type="hidden" value="<?php echo $catalog["id"]; ?>" name="id">
-                                    <input type="file" class="form-control" name="img" id="img">
+                                    <input type="file" class="form-control" name="img" id="img" accept=".jpg,.png,.gif,.bmp" placeholder="* 限jpg、png、gif、bmp" >
                                     <button type="submit" class="btn btn-outline-secondary" style="height: 100%;">上傳圖片</button>
                                 </div>
                             </form>
@@ -438,7 +440,8 @@
                 type:'get',
                 data: {
                     id: '<?=$catalog["id"]?>',
-                    img: $('.img:checked').val().substr(6 +1)      // 6 = images +1 = bypass %2f
+                    sn: '<?=$_REQUEST["sn"]?>',
+                    img: $('.img:checked').val().substr(6 +1)       // 6 = images +1 = bypass %2f
                 },
                 success(){
                     location.href = this.url;

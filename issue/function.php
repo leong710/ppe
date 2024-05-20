@@ -981,9 +981,10 @@
                         ) ps ON	_cata.SN = ps.cata_SN
                 ORDER BY _cate.id, _cata.id ASC ";
 
-        $sql = "SELECT c.*, cate.cate_title, cate.id AS cate_id, ps.*
+        $sql = "SELECT c.*, cate.cate_title, cate.id AS cate_id, ps.*, _p.part_no, _p.pno_remark, _p._year, _p.size
                 FROM _cata c
                 LEFT JOIN _cate cate ON c.cate_no = cate.cate_no
+                LEFT JOIN _pno _p ON c.SN = _p.cata_SN
                 LEFT JOIN (
                         SELECT s.cata_SN, SUM(s.amount) AS amount, s.stock_stand, s.sqty
                         FROM `_stock` s
@@ -1000,7 +1001,7 @@
                         WHERE l.id = ?
                         GROUP BY l.id, s.cata_SN
                     ) ps ON c.SN = ps.cata_SN
-                WHERE c.flag = 'On'
+                WHERE _p.flag = 'On'
                 ORDER BY cate.id, c.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

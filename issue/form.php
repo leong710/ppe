@@ -21,7 +21,7 @@
         if($check_delete_result){
             echo "<script>alert('issue請購需求單 -- 已刪除');</script>";
             header("refresh:0;url=index.php");
-            exit;		// 請注意
+            exit;		                            // 請注意
         }else{
             echo "<script>alert('issue請購需求單 -- 刪除失敗!!');</script>";
         }
@@ -232,6 +232,7 @@
                                                             class="cata_info_btn" onclick="info_module('catalog',this.value);"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
                                                         <?php 
                                                             echo $catalog["SN"] ? '</br>SN：'.$catalog["SN"]:'</br>';
+                                                            echo $catalog["part_no"] ? '</br>part_no：'.$catalog["part_no"]:'</br>';
                                                             echo $catalog["cata_remark"] ? '</br>敘述：'.$catalog["cata_remark"]:'</br>';?></td>
                                                     <td><span class="badge rounded-pill <?php switch($catalog["cate_id"]){
                                                                                 case "1": echo "bg-primary"; break;

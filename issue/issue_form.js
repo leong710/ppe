@@ -3,6 +3,7 @@
         "SN"            : "SN/編號", 
         "cate_no"       : "category/分類", 
         "pname"         : "pname/品名", 
+        "part_no"       : "part_no/料號", 
         "cata_remark"   : "cata_remark/敘述說明",
         "OBM"           : "OBM/品牌/製造商",
         "model"         : "model/型號",

@@ -8,10 +8,8 @@
     $form_type   = "trade";
     
     // 身分選擇功能：定義user進來要看到的項目
-    // $is_emp_id = "All";                          // 預設值=All
-    $is_emp_id = $auth_emp_id;                      // 預設值 = 自己
-    $is_fab_id = "All";                             // 預設值=All
-    // $is_fab_id = "allMy";                           // 預設值=allMy
+    $is_emp_id = $auth_emp_id;                      // 預設值 = 自己    // 預設值=All
+    $is_fab_id = "All";                             // 預設值=All       // 預設值=allMy
         
     // 2-1.篩選：檢視allMy或All、其他廠區內表單
     // 有帶查詢fab_id，套查詢參數   => 只看要查詢的單一廠  其他預設值 = allMy   => 有關於我的轄區廠(fab_id + sfab_is)
@@ -25,8 +23,7 @@
         }
         
     // 2-3.篩選年分~~
-        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All";  // 全年
-        // $_year = date('Y');                         // 今年
+        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : date('Y') ;  // 今年 // 全年 "All"
 
     // 組合查詢陣列
         $query_arr = array(
@@ -141,7 +138,7 @@
                     <!-- tab head -->
                     <div class="row">
                         <div class="col-8 col-md-9 py-1">
-                            <form action="" method="POST">
+                            <form action="" method="GET">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                     <select name="_year" id="sort_year" class="form-select">
@@ -173,12 +170,12 @@
                             </form>
                         </div>
                         <div class="col-4 col-md-3 py-1 text-end">
-                            <?php if($sys_role <= 1){ ?>
-                                <a href="restock.php?action=create" class="btn btn-success" ><i class="fa-solid fa-download"></i> 其他入庫</a>
-                            <?php } ?>                            
-                            <?php if($sys_role <= 2){ ?>
-                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa-solid fa-upload" aria-hidden="true"></i> 調撥出庫</a>
-                            <?php } ?>
+                            <?php if($sys_role <= 1){ 
+                                echo "<button type='button' value='restock.php?action=create' class='btn btn-success' onclick='openUrl(this.value)' ><i class='fa-solid fa-download' aria-hidden='true'></i> 其他入庫</button> ";
+                            }                             
+                            if($sys_role <= 2){
+                                echo " <button type='button' value='form.php?action=create' class='btn btn-primary' onclick='openUrl(this.value)' ><i class='fa-solid fa-upload' aria-hidden='true'></i> 調撥出庫</button>";
+                            } ?>
                         </div>
                     </div>
                     
@@ -189,8 +186,7 @@
                             <!-- 20211215分頁工具 進階改良版 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
-                                    <?php
-                                        //每頁顯示筆數明細
+                                    <?php //每頁顯示筆數明細
                                         echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                     ?>
                                 </div>
@@ -309,36 +305,32 @@
                                                 }?></td>
                                             <td>
                                                 <!-- Action功能欄 -->
-                                                <?php if((($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) 
-                                                        && ($row['idty'] == '1')){ ?> 
-                                                    <!-- 待簽：in_local對應人員 -->
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=acceptance" class="btn btn-sm btn-xs btn-success">驗收</a>
-                                                <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id)))
-                                                        && ($row['idty'] == '2')){ ?>
-                                                    <!-- 待簽：out_local對應人員 -->
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=review" class="btn btn-sm btn-xs btn-warning">待辦</a>
-                                                <?php }else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_o_id'], $sys_sfab_id)))
-                                                        && ($row['idty'] == '4')){ ?>
-                                                    <!-- 待簽：out_local對應人員 -->
-                                                    <a href="form.php?id=<?php echo $row['id'];?>&action=edit" class="btn btn-sm btn-xs btn-success">編輯</a>
-                                                <?php }else{ ?>
-                                                    <!-- siteUser功能 -->
-                                                    <a href="show.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-xs btn-info">檢視</a>
-                                                <?php }?>
+                                                <?php if((($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) && ($row['idty'] == '1')){ 
+                                                    // 待簽：in_local對應人員
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=acceptance' class='btn btn-sm btn-xs btn-success' onclick='openUrl(this.value)'>驗收</button>";
+                                                } else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) && ($row['idty'] == '2')){ 
+                                                    // 待簽：out_local對應人員
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=review' class='btn btn-sm btn-xs btn-warning' onclick='openUrl(this.value)'>待辦</button>";
+                                                } else if((($row['fab_o_id'] == $sys_fab_id) || (in_array($row['fab_o_id'], $sys_sfab_id))) && ($row['idty'] == '4')){
+                                                    // 待簽：out_local對應人員
+                                                    echo "<button type='button' value='form.php?id={$row["id"]}&action=edit' class='btn btn-sm btn-xs btn-success' onclick='openUrl(this.value)'>編輯</button>";
+                                                } else { 
+                                                    // siteUser功能
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=review' class='btn btn-sm btn-xs btn-info' onclick='openUrl(this.value)'>檢視</button>";
+                                                } ?>
                                             </td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
                             </table>
-                            <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo isset($is_emp_id) ? "$is_emp_id":"";?> 的篩選文件! ] </div>
-                            <?php } ?>
+                            <?php if($per_total <= 0){ 
+                                echo "<div class='col-12 border rounded bg-white text-center text-danger'> [ 查無 ".(isset($is_emp_id) ? "$is_emp_id":"")." 的篩選文件! ] </div>";
+                            } ?>
                             <hr>
                             <!-- 20211215分頁工具 進階改良版 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
-                                    <?php
-                                        //每頁顯示筆數明細
+                                    <?php //每頁顯示筆數明細
                                         echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                     ?>
                                 </div>
@@ -441,6 +433,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
     $(function () {
         // 在任何地方啟用工具提示框

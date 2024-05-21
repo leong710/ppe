@@ -14,7 +14,7 @@
     $categories = show_categories();
 ?>
 <?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+<!-- <php include("../template/nav.php"); ?> -->
  
 <div class="container my-2">
     <div class="row justify-content-center">
@@ -29,7 +29,8 @@
                     <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_cate_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="add_module('cate')" > <i class="fa fa-plus"></i> 新增分類</button>
                     <?php } ?>
-                    <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
+                    <!-- <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a> -->
+                    <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp返回管理</button>
                 </div>
             </div>
             <hr>
@@ -149,6 +150,7 @@
 
 <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 
 <script>
 

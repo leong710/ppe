@@ -500,7 +500,6 @@
             });
     })
 
-
     $(document).ready(function () {
         
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439

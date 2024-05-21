@@ -43,6 +43,7 @@
     <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
+    <script src="../../libs/openUrl/openUrl.js"></script>                                   <!-- 彈出子畫面 -->
     <style>
         body{
             color: white;
@@ -67,7 +68,8 @@
             
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
+                // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url;});     // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow()});      // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();

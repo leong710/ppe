@@ -130,7 +130,7 @@
 ?>
 
 <?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -169,7 +169,7 @@
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                     </div>
                 </div>
 
@@ -371,6 +371,7 @@
 
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
     var action      = '<?=$action;?>';                                  // 引入action資料
     var catalogs    = <?=json_encode($catalogs);?>;                     // 引入catalogs資料

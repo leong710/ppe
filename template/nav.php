@@ -107,18 +107,9 @@
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i class="fa-regular fa-square-plus"></i>&nbsp外層Link</a></li> -->
                     <!-- 下拉式選單 -->
                     <?php if($sys_role >= 0){ ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link active dropdown-toggle" id="navbarDD_1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-cart-plus"></i>&nbsp領用管理
-                                <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDD_1">
-                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/form.php"><i class="fa fa-edit"></i>&nbsp領用申請</a></li>
-                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>領用申請總表</b>
-                                    <?php if($numReceive !=0){?>
-                                        &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numReceive; ?></span>
-                                    <?php }?></a></li>
-                            </ul>
-                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理
+                                <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a></li>
 
                         <?php if($sys_role <= 2.5 ){ ?>
                             <li class="nav-item dropdown">
@@ -126,48 +117,44 @@
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
                                         <?php 
                                             if(($checked_type["stock"]["onGoing"] === true && $checked_type["stock"]["checked"] != 0) ||
-                                               ($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0)){ ?>
-                                                    <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-bell"></i></span>
-                                        <?php } 
-                                              echo ($num12 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num12.'</span>':''; ?></a>
+                                                ($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0)){ 
+                                                    echo "<span class='badge rounded-pill bg-danger'><i class='fa-solid fa-bell'></i></span>";
+                                            } 
+                                            echo (($num12+$num3) !=0) ? '<span class="badge rounded-pill bg-danger">'.($num12+$num3).'</span>':''; ?></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/"><i class="fa-solid fa-boxes-stacked"></i>&nbsp<b>倉庫庫存</b>
-                                        <?php if($checked_type["stock"]["onGoing"] === true && $checked_type["stock"]["checked"] != 0){ ?>
-                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
-                                        <?php }?></a></li>
+                                        <?php if($checked_type["stock"]["onGoing"] === true && $checked_type["stock"]["checked"] != 0){ 
+                                            echo "<span class='badge rounded-pill bg-danger'><i class='fa-solid fa-car-on'></i></span>";
+                                         }?></a></li>
 
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>PPE器材管控清單</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/dashBoard/sum_report.php"><i class="fa-solid fa-list"></i><i class="fa-solid fa-truck"></i>&nbsp進出量與成本匯總</a></li>
-
+                                    
                                     <li><hr class="dropdown-divider"></li>
-                                    <?php if($sys_role <= 2 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/form.php"><i class="fa-solid fa-upload"></i>&nbsp調撥出庫</a></li>
-                                    <?php } if($sys_role <= 1 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/restock.php"><i class="fa-solid fa-download"></i>&nbsp其他入庫</a></li>
-                                    <?php }?>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-3"></i>&nbsp<b>領用申請總表</b>
+                                        <?php if($numReceive !=0){
+                                            echo "&nbsp<span class='badge rounded-pill bg-danger'>{$numReceive}</span>";
+                                        }?></a></li>
+
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/trade/"><i class="fa-solid fa-2"></i>&nbsp<b>出入作業總表</b>
-                                        <?php if($numTrade !=0){?>
-                                            &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numTrade; ?></span>
-                                        <?php }?></a></li>
+                                        <?php if($numTrade !=0){
+                                            echo "&nbsp<span class='badge rounded-pill bg-danger'>{$numTrade}</span>";
+                                        }?></a></li>
 
-                                    <li><hr class="dropdown-divider"></li>
-                                    <?php if($sys_role <= 2 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/form.php"><i class="fa fa-edit" aria-hidden="true"></i>&nbsp請購需求</a></li>
-                                    <?php }?>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/issue/"><i class="fa-solid fa-1"></i>&nbsp<b>請購需求總表</b>
-                                        <?php if($numIssue !=0){?>
-                                            &nbsp<span class="badge rounded-pill bg-danger"><?php echo $numIssue; ?></span>
-                                        <?php }?></a></li>
+                                        <?php if($numIssue !=0){
+                                            echo "&nbsp<span class='badge rounded-pill bg-danger'>{$numIssue}</span>";
+                                        }?></a></li>
 
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
 
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b>
-                                        <?php if($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0){ ?>
-                                            <span class="badge rounded-pill bg-danger"><i class="fa-solid fa-car-on"></i></span>
-                                        <?php }?></a></li>
+                                        <?php if($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0){ 
+                                            echo "<span class='badge rounded-pill bg-danger'><i class='fa-solid fa-car-on'></i></span>";
+                                        }?></a></li>
 
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>除汙器材管控清單</b></a></li>
                                 </ul>
@@ -217,11 +204,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_reg" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                             title="<?php echo $sys_auth ? 'sys_role：'.$sys_role:'';?>">
-                            <?php if(isset($_SESSION["AUTH"]["pass"]) && $_SESSION["AUTH"]["pass"] == "ldap"){
-                                        echo '<i class="fa fa-user" aria-hidden="true"></i>';
-                                    } else {
-                                        echo '<i class="fa fa-user-secret" aria-hidden="true"></i>';
-                                    } 
+                            <?php
+                                    echo (isset($_SESSION["AUTH"]["pass"]) && $_SESSION["AUTH"]["pass"] == "ldap") ? '<i class="fa fa-user" aria-hidden="true"></i>':'<i class="fa fa-user-secret" aria-hidden="true"></i>';
                                     // echo (isset($_SESSION[$sys_id]["site_title"])) ? "(".$_SESSION[$sys_id]["site_title"].") ":"";
                                     echo (isset($_SESSION["AUTH"]["dept"])) ? "&nbsp(".$_SESSION["AUTH"]["dept"].")":"";
                                     echo $sys_auth ? "&nbsp".$auth_cname:""; 

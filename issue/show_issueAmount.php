@@ -7,7 +7,9 @@
 
     if(isset($_POST["issue2pr_submit"])){    // 轉PR => 11
         update_issue2pr($_REQUEST);
-        echo "<script>alert('PR開單已完成!')</script>";
+        echo "<script>alert('PR開單已完成!');
+            window.close();
+            </script>";
         header("refresh:0;url=index.php");
         exit;
     }
@@ -74,7 +76,7 @@
 
 ?>
 <?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+<!-- <php include("../template/nav.php"); ?> -->
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
@@ -108,7 +110,7 @@
                                         <i class="fa fa-upload" aria-hidden="true"></i> 匯出&nbspExcel</button>
                                 </form>
                             <?php } ?>
-                            <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                            <button type="button" class="btn btn-secondary" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                         </div>
                     </div> 
                 </div>
@@ -202,9 +204,9 @@
     </div>
 </body>
     
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
 
     $(function () {

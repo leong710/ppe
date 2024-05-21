@@ -111,9 +111,11 @@
                                 </form>  
                             </div>
                             <div class="col-6 col-md-4 py-0 text-end">
-                                <?php if($sys_role <= 1){ ?>
-                                    <a href="../insign_msg/" title="MAPP發報" class="btn btn-success" >待簽清單統計與發報&nbsp<i class="fa-solid fa-comment-sms"></i></a>
-                                <?php } ?>
+                                <?php if($sys_role <= 1){ 
+                                    // <a href="../insign_msg/" title="MAPP發報" class="btn btn-success" >待簽清單統計與發報&nbsp<i class="fa-solid fa-comment-sms"></i></a>
+                                    echo " <button type='button' value='../insign_msg' title='Notify發報' class='btn btn-success' onclick='openUrl(this.value)' >待簽清單統計與發報&nbsp<i class='fa-solid fa-comment-sms'></i></button>";
+                                
+                                } ?>
                                 <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#access_info">
                                     <i class="fa fa-info-circle" aria-hidden="true"></i> API連線說明</a>
                             </div>
@@ -124,8 +126,7 @@
                                 <!-- 20211215分頁工具 -->               
                                 <div class="row">
                                     <div class="col-12 col-md-6 pb-0">	
-                                        <?php
-                                            //每頁顯示筆數明細
+                                        <?php //每頁顯示筆數明細
                                             echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                         ?>
                                     </div>
@@ -247,8 +248,7 @@
                                 <!-- 20211215分頁工具 -->               
                                 <div class="row">
                                     <div class="col-12 col-md-6 pt-0">	
-                                        <?php
-                                            //每頁顯示筆數明細
+                                        <?php //每頁顯示筆數明細
                                             echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                         ?>
                                     </div>
@@ -392,6 +392,7 @@
 
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 
 <script>
 

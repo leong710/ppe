@@ -74,10 +74,11 @@
                 </div>
                 <!-- 表頭按鈕 -->
                 <div class="col-md-4 py-0 text-end">
-                    <?php if($sys_role <= 1){ ?>
-                        <a href="create.php" title="新增catalog" class="btn btn-primary"> <i class="fa fa-plus"></i> 新增品項</a>
-                        <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
-                    <?php } ?>
+                    <?php if($sys_role <= 1){
+                        echo "<a href='create.php' title='新增catalog' class='btn btn-primary'> <i class='fa fa-plus'></i> 新增品項</a>";
+                        // <a href="category.php" title="編輯category" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯分類</a>
+                        echo " <button type='button' value='category.php' class='btn btn-warning' onclick='openUrl(this.value)' title='編輯category' > <i class='fa fa-wrench'></i> 編輯分類</button>";
+                    } ?>
                 </div>
             </div>
                 
@@ -170,6 +171,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
 
 <script>
 

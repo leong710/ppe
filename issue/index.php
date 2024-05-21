@@ -155,7 +155,7 @@
                     <div class="row">
                         <!-- 篩選功能 -->
                         <div class="col-8 col-md-9 py-1">
-                            <form action="" method="POST">
+                            <form action="" method="GET">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                     <select name="_year" id="sort_year" class="form-select">
@@ -187,12 +187,12 @@
                             </form>
                         </div>
                         <div class="col-4 col-md-3 py-1 text-end">
-                            <?php if($sys_role <= 1){ ?>
-                                <a href="show_issueAmount.php" title="管理員限定" class="btn btn-warning"><i class="fa-brands fa-stack-overflow"></i> 待轉PR總表</a>
-                            <?php } ?>
-                            <?php if($sys_role <= 2 && $_inplan){ ?>
-                                <a href="form.php?action=create" class="btn btn-primary"><i class="fa fa-edit" aria-hidden="true"></i> 填寫請購需求</a>
-                            <?php } ?>
+                            <?php if($sys_role <= 1){ 
+                                echo "<button type='button' value='show_issueAmount.php' class='btn btn-warning' onclick='openUrl(this.value)' title='管理員限定' ><i class='fa-brands fa-stack-overflow'></i> 待轉PR總表</button> ";
+                            } 
+                            if($sys_role <= 2 && $_inplan){ 
+                                echo " <button type='button' value='form.php?action=create' class='btn btn-primary' onclick='openUrl(this.value)' ><i class='fa fa-edit' aria-hidden='true'></i> 請購需求</button>";
+                            } ?>
                         </div>
                     </div>
                     <!-- tab body -->
@@ -234,26 +234,28 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php foreach($my_inSign_lists as $my_inSign){ ?>
-                                                        <tr>
-                                                            <td title="aid:<?php echo $my_inSign['id'];?>"><?php echo substr($my_inSign['create_date'],0,10);?></td>
-                                                            <td class="word_bk"><a href="show.php?id=<?php echo $my_inSign['id'];?>&action=sign" title="aid:<?php echo $my_inSign['id'];?>">
-                                                                <?php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];?></a></td>
-                                                            <td><?php $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
-                                                                switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
-                                                                    case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';        break;
-                                                                    case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
-                                                                    case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
-                                                                    default     : echo $my_inSign['idty']."--";   break;
-                                                                }; ?>
-                                                            </td>
-                                                        </tr>
-                                                    <?php } ?>
+                                                    <?php foreach($my_inSign_lists as $my_inSign){
+                                                        echo "<tr>"."<td title='aid:{$my_inSign["id"]}'>".substr($my_inSign["create_date"],0,10)."</td>";
+                                                        echo "<td class='word_bk'>";
+                                                        echo "<button type='button' value='show.php?id={$my_inSign["id"]}&action=sign' title='aid:{$my_inSign["id"]}' onclick='openUrl(this.value)' class='tran_btn' >";
+                                                        echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"]."</button>";
+                                                            // <a href="show.php?id=<?php echo $my_inSign['id'];>&action=sign" title="aid:<php echo $my_inSign['id'];>">
+                                                                // <php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];></a> 
+                                                        echo "</td><td>";
+                                                        $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
+                                                        switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
+                                                            case "1"    : echo '<span class="badge rounded-pill bg-danger">待簽</span>';                   break;
+                                                            case "11"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                            case "13"   : echo '<span class="badge rounded-pill bg-warning text-dark">待結</span>';        break;
+                                                            default     : echo $my_inSign['idty']."--";   break;
+                                                        };
+                                                        echo "</td></tr>";
+                                                    } ?>
                                                 </tbody>
                                             </table>
-                                        <?php }else{ ?>
-                                            <div class="col-12 rounded bg-white text-center text-danger"> [ 您沒有待簽核的文件! ] </div>
-                                        <?php } ?>
+                                        <?php } else {
+                                            echo "<div class='col-12 rounded bg-white text-center text-danger'> [ 您沒有待簽核的文件! ] </div>";
+                                        } ?>
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-12 pt-0">
@@ -268,13 +270,13 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach($sum_issues_ship as $sum_issue_ship){ ?>
-                                                    <tr>
-                                                        <td><?php echo substr($sum_issue_ship['in_date'],0,10);?></td>
-                                                        <td style="word-break: break-all;"><a href="review_issueAmount.php?pr_no=<?php echo $sum_issue_ship['_ship']; ?>" data-toggle="tooltip" data-placement="bottom" title="<?php echo $sum_issue_ship['ship_count']."&nbsp件";?>">
-                                                            <?php echo $sum_issue_ship['_ship'];?></td>
-                                                    </tr>
-                                                <?php } ?>
+                                                <?php foreach($sum_issues_ship as $sum_issue_ship){ 
+                                                    echo "<tr><td>".substr($sum_issue_ship['in_date'],0,10)."</td><td style='word-break: break-all;'>";
+                                                        // <a href="review_issueAmount.php?pr_no=<?php echo $sum_issue_ship['_ship'];>" data-toggle="tooltip" data-placement="bottom" title="<?php echo $sum_issue_ship['ship_count']."&nbsp件";>">
+                                                            // <php echo $sum_issue_ship['_ship'];></a>
+                                                    echo "<button type='button' value='review_issueAmount.php?pr_no={$sum_issue_ship["_ship"]}' data-toggle='tooltip' data-placement='bottom' title='{$sum_issue_ship["ship_count"]}&nbsp件'";
+                                                    echo " onclick='openUrl(this.value)' class='tran_btn' >{$sum_issue_ship["_ship"]}</button>"."</td></tr>";
+                                                } ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -286,8 +288,7 @@
                             <!-- 20211215分頁工具 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
-                                    <?php
-                                        //每頁顯示筆數明細
+                                    <?php //每頁顯示筆數明細
                                         echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                     ?>
                                 </div>
@@ -418,33 +419,32 @@
                                             </td>
                                             <td>
                                                 <!-- Action功能欄 -->
-                                                <?php if(($row['idty'] == '1') && ($sys_role <= 1)){ // 1待簽 ?>        
-                                                    <!-- 待簽：PM+管理員功能 -->
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=sign" class="btn btn-sm btn-xs btn-primary">簽核</a>
-                                                    <!-- siteUser功能 -->
-                                                <?php } else if(($row['idty'] == '11') && ($sys_role <= 1)){ ?>
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
-                                                    <!-- siteUser功能 -->
-                                                <?php } else if((in_array($row['idty'], [2, 13])) && (($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) ){ ?>
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=sign" class="btn btn-sm btn-xs btn-warning">待辦</a>
-                                                <?php } else { ?>
-                                                    <!-- siteUser功能 -->
-                                                    <a href="show.php?id=<?php echo $row['id'];?>&action=review" class="btn btn-sm btn-xs btn-info">檢視</a>
-                                                <?php }?>
+                                                <?php if(($row['idty'] == '1') && ($sys_role <= 1)){ // 1待簽
+                                                    // 待簽：PM+管理員功能
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=sign' class='btn btn-sm btn-xs btn-primary' onclick='openUrl(this.value)'>簽核</button>";
+                                                    // siteUser功能
+                                                } else if(($row['idty'] == '11') && ($sys_role <= 1)){
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=sign' class='btn btn-sm btn-xs btn-warning' onclick='openUrl(this.value)'>待辦</button>";
+                                                    // siteUser功能
+                                                } else if((in_array($row['idty'], [2, 13])) && (($row['fab_i_id'] == $sys_fab_id) || (in_array($row['fab_i_id'], $sys_sfab_id))) ){
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=sign' class='btn btn-sm btn-xs btn-warning' onclick='openUrl(this.value)'>待辦</button>";
+                                                } else {
+                                                    // siteUser功能
+                                                    echo "<button type='button' value='show.php?id={$row["id"]}&action=review' class='btn btn-sm btn-xs btn-info' onclick='openUrl(this.value)'>檢視</button>";
+                                                } ?>
                                             </td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>
                             </table>
-                            <?php if($per_total <= 0){ ?>
-                                <div class="col-12 border rounded bg-white text-center text-danger"> [ 查無 <?php echo isset($is_emp_id) ? "$is_emp_id":"";?> 的篩選文件! ] </div>
-                            <?php } ?>
+                            <?php if($per_total <= 0){ 
+                                echo "<div class='col-12 border rounded bg-white text-center text-danger'> [ 查無 ".(isset($is_emp_id) ? "$is_emp_id":"")." 的篩選文件! ] </div>";
+                            } ?>
                             <hr>
                             <!-- 20211215分頁工具 -->               
                             <div class="row">
                                 <div class="col-12 col-md-6 pt-1">	
-                                    <?php
-                                        //每頁顯示筆數明細
+                                    <?php //每頁顯示筆數明細
                                         echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
                                     ?>
                                 </div>
@@ -546,6 +546,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
     // init
     var sys_role    = '<?=$sys_role?>';
@@ -583,7 +584,7 @@
         // 假如index找不到當下存在已完成的表單，就alarm它!
         if (_inplan && (sys_role <= 2)) {
             let message  = '*** <b>'+case_title+'</b> 開放申請時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp有需求請務必在指定時間前完成申請&nbsp~&nbsp';
-            message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<a href="form.php?action=create">'+'<b>打開請購需求單</b></a>';
+            message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<button value="form.php?action=create" onclick="openUrl(this.value)" ><b>打開請購需求單</b></button>';
             alert( message, 'warning')
         }
 

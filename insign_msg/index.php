@@ -52,8 +52,10 @@
                         <div class="col-12 col-md-6 py-0 text-end">
                             <?php if($sys_role == 0 && $check_ip){ ?>
                                 <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs <?php echo !$mailTo_insign ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
-                                    title="send notify" onclick="notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
+                                    title="send notify" onclick="return confirm('確認發報？') && notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
+                                    
                             <?php } ?>
+                            <button type="button" class="btn btn-secondary" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                         </div>
                     </div>
 
@@ -151,6 +153,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
     // init
         var fa_OK        = '<?=$fa_check?>';            // 打勾符號

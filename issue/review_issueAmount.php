@@ -81,7 +81,7 @@
 
 ?>
 <?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+<!-- <php include("../template/nav.php"); ?> -->
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
@@ -104,9 +104,10 @@
 
                     <div class="col-12 col-md-6 text-end">
                         <div class="">
-                            <?php if($sys_role <= 1  ){?>  
-                                <a href="../trade/restock.php?pr_no=<?php echo $pr_no;?>" target="_blank" title="發貨確認" class="btn btn-primary" ><i class="fa-solid fa-arrow-right-to-bracket"></i> PR請購進貨</a>
-                                <?php if(count($issues) > 0) { ?> 
+                            <?php if($sys_role <= 1  ){
+                                // <a href="../trade/restock.php?pr_no=<?php echo $pr_no;>" target="_blank" title="發貨確認" class="btn btn-primary" ><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbspPR請購進貨</a>
+                                echo "<button type='button' value='../trade/restock.php?pr_no={$pr_no}' onclick='closeWindow(); openUrl(this.value)' title='發貨確認' class='btn btn-primary' ><i class='fa-solid fa-arrow-right-to-bracket'></i>&nbspPR請購進貨</button>";
+                                if(count($issues) > 0) { ?> 
                                     <!-- 20231128 下載Excel -->
                                     <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
                                         <input type="hidden" name="htmlTable"   id="htmlTable"  value="">
@@ -116,7 +117,8 @@
                                     </form>
                                 <?php } ?>
                             <?php } ?>
-                            <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a>
+                            <!-- <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a> -->
+                            <button type="button" class="btn btn-secondary" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                         </div>
                     </div> 
                 </div>
@@ -204,9 +206,9 @@
     
 </body>
 
-<script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
 
     $(function () {

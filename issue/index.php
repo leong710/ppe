@@ -584,7 +584,7 @@
         // 假如index找不到當下存在已完成的表單，就alarm它!
         if (_inplan && (sys_role <= 2)) {
             let message  = '*** <b>'+case_title+'</b> 開放申請時間：<b><u>'+ start_time +'</u></b>&nbsp至&nbsp<b><u>'+ end_time +'</u></b>&nbsp有需求請務必在指定時間前完成申請&nbsp~&nbsp';
-            message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<button value="form.php?action=create" onclick="openUrl(this.value)" ><b>打開請購需求單</b></button>';
+            message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<button value="form.php?action=create" onclick="openUrl(this.value)" class="tran_btn" ><b>打開請購需求單</b></button>';
             alert( message, 'warning')
         }
 

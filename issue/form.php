@@ -156,12 +156,12 @@
                 </div>
 
                 <div class="row px-2">
-                    <div class="col-12 col-md-5">
+                    <div class="col-12 col-md-6">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "issue_aid_".$issue_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
-                    <div class="col-12 col-md-7 text-end">
+                    <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇收貨廠區 -->
                         <?php if($action == 'create' && !$_inplan){ ?>
                             <div class="col-12 text-center text-danger">
@@ -170,7 +170,7 @@
                         <?php } else { ?>
                             <form action="" method="post">
                                 <div class="form-floating">
-                                    <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
+                                    <select name="local_id" id="select_local_id" class="form-control" required style='width:90%;' onchange="this.form.submit()">
                                         <option value="" hidden>--請選擇 需求 儲存點--</option>
                                         <?php foreach($allLocals as $allLocal){ ?>
                                             <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  

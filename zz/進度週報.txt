@@ -129,7 +129,8 @@
       建立Libs\openUrl\openUrl.js，內含function： openUrl(url)、updateMainWindow()、closeWindow()
       追加：catalog\編輯分類、表單計畫\編輯表單
 
-
+   -- 2024/05/22
+      庫存管理頁面增加圖片，以便管理辨識
 
 -- 等待&開發中 2024/2/21
       除汙劑管理 -- 持續設計中

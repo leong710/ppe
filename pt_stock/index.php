@@ -31,11 +31,11 @@
             $sfab_id_arr = explode(',', $sfab_id_str);
 
         // 1-2 組合查詢條件陣列
-        // 今年年份
-            $thisYear = date('Y');
-            // 半年分界線
-            $half = (date('m') <= 6 ) ? "H1" : "H2";
-        
+            $thisYear   = date('Y');                                            // 今年年份
+            $half       = (date('m') <= 6 ) ? "H1" : "H2";                      // 半年分界線
+            $toDay      = date('Y-m-d');                                        // 初始化半年後日期，讓系統判斷與highLight
+            $half_month = date('Y-m-d', strtotime($toDay."+3 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳 // 20240201 定90天
+            
     // 組合查詢條件陣列
         $query_arr = array(
             'select_fab_id' => $select_fab_id,
@@ -77,13 +77,7 @@
         extract(show_plan($query_arr));                        // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
         $per_total = count($stocks);        //計算總筆數
-    
-    // 今年年份
-        $thisYear = date('Y');
-    // 初始化半年後日期，讓系統判斷與highLight
-        $toDay = date('Y-m-d');
-        $half_month = date('Y-m-d', strtotime($toDay."+3 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳 // 20240201 定90天
-        
+           
     // 取得swal內容
         if(isset($swal_json["fun"]) && ($swal_json["fun"] == "store_ptreceive") && ($swal_json["action"] == "success")){
             $ppe_pms = show_PPE_PM();

@@ -165,7 +165,7 @@
         extract($request);
         $sql = "SELECT _stk.*, 
                         _l.local_title, _l.local_remark, _f.id AS fab_id, _f.fab_title, _f.fab_remark, _s.id as site_id, _s.site_title, _s.site_remark,
-                        _cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
+                        _cata.PIC, _cata.pname, _cata.cata_remark, _cata.SN, _cate.id AS cate_id, _cate.cate_title, _cate.cate_remark, _cate.cate_no, _cata.flag AS cata_flag 
                 FROM `_stock` _stk 
                 LEFT JOIN _local _l ON _stk.local_id = _l.id 
                 LEFT JOIN _fab _f ON _l.fab_id = _f.id 

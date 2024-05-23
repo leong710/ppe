@@ -209,7 +209,7 @@
                                                                 <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
                                                                 <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
                                                                 <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
-                                                                <input type="submit" name="deleteLog" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                                <input type="submit" name="deleteLog" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                             </form>
                                                     <?php 
                                                         echo "&nbsp(aid:".$log['id'].")&nbsp" .$log['sys']." => ".count($logs_json)."次  ";
@@ -222,14 +222,14 @@
                                                         <?php $i = 0;
                                                             foreach($logs_json AS $l){
                                                                 if(is_object($l)) { $l = (array)$l; } 
-                                                                echo "<tr><td class='".(isset($l["mail_res"]) ? $l["mail_res"]:'')."' style='text-align: left;'>";
+                                                                echo "<tr><td class='".(isset($l["mail_res"]) ? $l["mail_res"]:' '). (!empty($l["emergency"]) ? ' alert_it':' ') ."' style='text-align: left;'>";
                                                                 if($sys_role == 0){ ?>
                                                                     <form action="" method="post" class='inf'>
                                                                         <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
                                                                         <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">
                                                                         <input type="hidden" name="log_id"      value="<?php echo $i;?>">
                                                                         <input type="hidden" name="id"          value="<?php echo $log['id'];?>">
-                                                                        <input type="submit" name="delLog_item" value="刪除" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                                        <input type="submit" name="delLog_item" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                                     </form>
                                                                 <?php echo "&nbsp"; } 
                                                                 echo ($i+1) ."_" .$l["cname"]." (".$l["emp_id"].") ". (isset($l["emergency"]) ? "&nbsp急件：".$l["emergency"] : "") ;

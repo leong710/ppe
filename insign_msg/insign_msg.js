@@ -97,7 +97,7 @@
                     data:{
                         uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                         eid     : user_emp_id,                                  // 傳送對象
-                        // eid     : '10008048',                                  // 傳送對象
+                        // eid     : '10008048',                                   // 傳送對象
                         message : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
@@ -114,7 +114,7 @@
             });
         }
         // 20240314 將訊息郵件發送給對的人~
-        function sendmail(user_email, mg_msg){
+        function sendmail(user_email, int_msg1_title, mg_msg){
             // return true;
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -126,8 +126,8 @@
                         uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
                         sysName : 'PPE',                                        // 貫名
                         to      : user_email,                                   // 傳送對象
-                        // to      : 'leong.chen@innolux.com',                                   // 傳送對象
-                        subject : int_msg1,                                     // 信件標題
+                        // to      : 'leong.chen@innolux.com',                     // 傳送對象
+                        subject : int_msg1_title,                               // 信件標題
                         body    : mg_msg                                        // 訊息內容
                     },
                     success: function(res){
@@ -234,9 +234,9 @@
                     Object(a_list).forEach(function(user){
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         var user_email  = String(user['email']).trim();             // 定義 user_email + 去空白
-                        var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect'])
-                        var user_mapp   = (emergency_count > 0) ? true : false;// 當3急件數量!=0，就使用mapp加急通知!
-    
+                        var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect']);
+                        var user_mapp   = (emergency_count > 0) ? true : false;     // 當3急件數量!=0，就使用mapp加急通知!
+
                         // step.1 確認工號是否有誤
                         if(!user_emp_id || (user_emp_id.length < 8)){
                             // alert("工號字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
@@ -265,7 +265,9 @@
                                 emergency       : emergency_count
                             }
                             // step.1-1 組合訊息文字
-                            var mg_msg  = int_msg1 ;//+ " (" + user['cname'] + ")";
+                            var mg_msg  = int_msg1 + "\n"; //+ " (" + user['cname'] + ")";
+                            // 定義每一封mail title
+                                var int_msg1_title = int_msg1 + " (";
                             
                             // 待簽核 waiting
                             if(user['total_waiting'] > 0){
@@ -281,6 +283,10 @@
                                     mg_msg += '領用'+user['receive_waiting']+'件'
                                 }
                                 mg_msg += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
+
+                                // 定義每一封mail title
+                                    int_msg1_title += "待簽核" + user['total_waiting'] +'件';
+                                    int_msg1_title += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
                             }
                             // 被退件 reject
                             if(user['total_reject'] > 0){
@@ -296,12 +302,22 @@
                                     mg_msg += '領用'+user['receive_reject']+'件'
                                 }
                                 mg_msg += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')';
+
+                                // 定義每一封mail title
+                                    int_msg1_title += (user['total_waiting'] > 0) ? '、(' : '';
+                                    int_msg1_title += "被退件" + user['total_reject'] +'件';
+                                    int_msg1_title += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')'
                             }
                             // 待收發 collect
                             if(user['total_collect'] > 0){
                                 mg_msg += "\r\n";
                                 mg_msg += int_msg2 + user['total_collect'] + col_msg3 ;    
                                 mg_msg += (user['ppty_3_collect'] > 0) ? '(急件'+user['ppty_3_collect']+'件)' : '';
+
+                                // 定義每一封mail title
+                                    int_msg1_title += (user['total_reject'] > 0) ? '、(' : '';
+                                    int_msg1_title += "待收發" + user['total_collect'] +'件';
+                                    int_msg1_title += (user['ppty_3_collect'] > 0) ? '、急件'+user['ppty_3_collect']+'件)' : ')';
                             }
 
                             var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
@@ -322,14 +338,16 @@
                                 mg_msg += srt_msg4;     // 套用無網址短訊息
                             }
 
-                            user_log['mg_msg']   = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                            logs_source          = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                            logs_source          = logs_source.replace(/您共有 /g, "");       // 小-物件log 紀錄mg_msg訊息 // 20240522...縮減log文字內容
+                            user_log['mg_msg']   = logs_source;                             // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
                             user_log['thisTime'] = thisTime;                                // 小-物件log 紀錄thisTime
     
                             // step.2 執行通知 --
                             // *** 2-1 發送mail
                             const mail_result_check = async () => {
                                 // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
-                                let mail_result_check = (user_email) ? await sendmail(user_email, mg_msg) : false;
+                                let mail_result_check = (user_email) ? await sendmail(user_email, int_msg1_title, mg_msg) : false;
                                 return mail_result_check;
                             };
     

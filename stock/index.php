@@ -36,9 +36,11 @@
         // 查詢篩選條件：cate_no
         $sort_cate_no = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
 
-        $thisYear = date('Y');                      // 今年年份
-        $half = (date('m') <= 6 ) ? "H1" : "H2";    // 半年分界線
-        
+        $thisYear   = date('Y');                                            // 今年年份
+        $half       = (date('m') <= 6 ) ? "H1" : "H2";                      // 半年分界線
+        $toDay      = date('Y-m-d');                                        // 初始化半年後日期，讓系統判斷與highLight
+        $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
+
     // 組合查詢條件陣列
         $query_arr = array(
             'fab_id'        => $sort_fab_id,
@@ -63,11 +65,7 @@
 
         $per_total = count($stocks);                       //計算總筆數
     
-    // 今年年份
-        $thisYear = date('Y');
-    // 初始化半年後日期，讓系統判斷與highLight
-        $toDay = date('Y-m-d');
-        $half_month = date('Y-m-d', strtotime($toDay."+6 month -1 day"));   // strtotime()将任何字符串的日期时间描述解析为 Unix 时间戳
+
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -187,6 +185,7 @@
                         <thead>
                             <tr>
                                 <th><i class="fa fa-check" aria-hidden="true"></i> 儲存點位置</th>
+                                <th>PIC</th>
                                 <th>分類</th>
                                 <th>名稱</th>
                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>今年總累計">年領用</th>
@@ -206,7 +205,8 @@
                             ?>
                             <?php foreach($stocks as $stock){ ?>
                                 <tr <?php if($check_item != $stock['local_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
-                                    <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."_".$stock['local_title'];?></td>
+                                    <td class="word_bk" title="aid_<?php echo $stock['id'];?>"><?php echo $stock['fab_title']."</br>".$stock['local_title'];?></td>
+                                    <td><img src="../catalog/images/<?php echo $stock["PIC"];?>" class="img-thumbnail"></td>
                                     <td><span class="badge rounded-pill <?php switch($stock["cate_id"]){
                                             case "1": echo "bg-primary"; break;
                                             case "2": echo "bg-success"; break;
@@ -217,7 +217,7 @@
                                             case "7": echo "bg-secondary"; break;
                                             default: echo "bg-light text-success"; break;
                                         }?>"><?php echo $stock["cate_no"].".".$stock["cate_title"];?></span></td>
-                                    <td class="word_bk"><?php echo $stock["SN"]."_".$stock['pname'];
+                                    <td class="word_bk"><?php echo $stock["SN"]."</br>".$stock['pname'];
                                                               echo ($stock["cata_flag"] == "Off") ? "<sup class='text-danger'>-已關閉</sup>":"";?></td>
                                     <td id="receive_<?php echo $stock['local_id'].'_'.$stock['cata_SN'];?>">--</td>
 

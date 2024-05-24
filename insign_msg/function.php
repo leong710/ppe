@@ -114,7 +114,8 @@
                         HAVING _r.emp_id IS NOT NULL
 
                     ) AS merged_results
-                GROUP BY emp_id ";
+                GROUP BY emp_id 
+                ORDER BY receive_waiting DESC, receive_reject DESC, total_collect DESC ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

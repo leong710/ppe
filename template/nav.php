@@ -44,7 +44,7 @@
         );
 
     // 2023/12/14 這邊待處理
-    if($sys_auth == true && ($sys_role <= 2 && $sys_role >= 0 )){
+    if($sys_auth == true && ($sys_role <= 2.5 && $sys_role >= 0 )){
         //// 3領用
             $myReceive = show_myReceive($query_arr);   // 3.查詢領用申請
             if(!empty($myReceive)) { 
@@ -66,12 +66,12 @@
             $sfab_id_cunt  = count(explode(",", $sfab_id_str));     // 取得自己部轄區名單id，字串轉陣列 + 算個數
         //// init
             $checked_type = array (                                 // 先定義出有需要執行點檢的表單名稱 ***
-                "stock"     => array (                              // stock
+                "stock"     => array (                              // stock_PPE
                                 "onGoing" => false,                 // 把執行中的plan，預設false
                                 "cunt"    => 0 ,                    // 已完成件數防止崩潰，起始值0
                                 "checked" => $sfab_id_cunt          // 等待完成件數，預設值是廠區數量
                             ) ,
-                "ptstock"   => array (                              // ptstock
+                "ptstock"   => array (                              // ptstock_除汙劑
                                 "onGoing" => false,
                                 "cunt"    => 0 ,
                                 "checked" => $sfab_id_cunt
@@ -109,7 +109,7 @@
                     <?php if($sys_role >= 0){ ?>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理
-                                <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a></li>
+                            <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a></li>
 
                         <?php if($sys_role <= 2.5 ){ ?>
                             <li class="nav-item dropdown">

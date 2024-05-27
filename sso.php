@@ -51,8 +51,23 @@
                 }else{                                                      // 沒有sys_id的人員權限資料
                     // echo "<script>alert('{$user} local無資料，請洽管理員')</script>";
                     // header("location:../auth/register.php?user=$user");     // 沒有local資料，帶入註冊頁面
-                    $_SESSION[$sys_id]["role"] = 3;
-                    $_SESSION[$sys_id]["fab_id"] = 0;
+
+                    // 20240527_確認是否是環安處成員~
+                    $user = strtoupper($_SESSION["AUTH"]["user"]);  // strtoupper(大寫)
+                    $pdo = pdo_hrdb();
+                    $sql = "SELECT s.*
+                            FROM [hrDB].[dbo].[STAFF] s
+                            INNER JOIN [hrDB].[dbo].[DEPT] d ON s.dept_no = d.sign_code
+                            WHERE s.[user] = ? ";
+                    $stmt = $pdo -> prepare($sql);
+                    $stmt -> execute([$user]);
+                    $esh_mb = $stmt -> fetch();
+                    if($esh_mb){
+                        $_SESSION[$sys_id]["role"] = 2.5;   // tnesh_user
+                    }else{
+                        $_SESSION[$sys_id]["role"] = 3;     // 外部user
+                    }
+                    $_SESSION[$sys_id]["fab_id"]  = 0;
                     $_SESSION[$sys_id]["sfab_id"] = [];
                     return;
                 }

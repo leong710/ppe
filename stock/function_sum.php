@@ -11,7 +11,7 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();                                       //處理 byAll
-            $fabs = $stmt->fetchAll();
+            $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -30,7 +30,7 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();                                       //處理 byAll
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -46,7 +46,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -73,7 +73,7 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -110,7 +110,7 @@
             $report_ym = $report_yy."-".$report_mm;
             $stmt->execute([$report_yy ,$report_mm]);
         }
-            $receives = $stmt->fetchAll();
+            $receives = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $receives;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -127,7 +127,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $allReceive_yys = $stmt->fetchAll();
+            $allReceive_yys = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allReceive_yys;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -145,7 +145,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$report_yy]);
-            $allReceive_ymms = $stmt->fetchAll();
+            $allReceive_ymms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allReceive_ymms;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -179,7 +179,7 @@
             $report_ym = $report_yy."-".$report_mm;
             $stmt->execute([$report_ym]);
         }
-            $issues = $stmt->fetchAll();
+            $issues = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $issues;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -196,7 +196,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $allIssue_yys = $stmt->fetchAll();
+            $allIssue_yys = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allIssue_yys;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -213,7 +213,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$report_yy]);
-            $allIssue_ymms = $stmt->fetchAll();
+            $allIssue_ymms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allIssue_ymms;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -248,7 +248,7 @@
             $report_ym = $report_yy."-".$report_mm;
             $stmt->execute([$report_ym]);
         }
-            $issues = $stmt->fetchAll();
+            $issues = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $issues;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -265,7 +265,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $alltrade_yys = $stmt->fetchAll();
+            $alltrade_yys = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $alltrade_yys;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -282,7 +282,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$report_yy]);
-            $allTrade_ymms = $stmt->fetchAll();
+            $allTrade_ymms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allTrade_ymms;
         }catch(PDOException $e){
             echo $e->getMessage();

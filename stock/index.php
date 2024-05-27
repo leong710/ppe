@@ -19,7 +19,7 @@
 
     // 組合查詢陣列 -- 把fabs讀進來作為[篩選]的select option
         // 1-1a 將fab_id加入sfab_id
-        $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
+            $sfab_id = get_sfab_id($sys_id, "arr");     // 1-1c sfab_id是陣列
             // 1-1c sfab_id是陣列，要轉成字串
             $sfab_id_str = implode(",",$sfab_id);                   // 1-1c sfab_id是陣列，要轉成字串
 
@@ -31,8 +31,8 @@
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id 
-        $fab_id = (isset($_SESSION[$sys_id]["fab_id"])) ? $_SESSION[$sys_id]["fab_id"] : "0";   // 1-1.取fab_id
-        $sort_fab_id = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $fab_id;    // 有帶查詢，套查詢參數，沒有就先給預設值
+        $fab_id       = (isset($_SESSION[$sys_id]["fab_id"])) ? $_SESSION[$sys_id]["fab_id"] : "0";   // 1-1.取fab_id
+        $sort_fab_id  = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $fab_id;    // 有帶查詢，套查詢參數，沒有就先給預設值
         // 查詢篩選條件：cate_no
         $sort_cate_no = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
 
@@ -44,28 +44,31 @@
     // 組合查詢條件陣列
         $query_arr = array(
             'fab_id'        => $sort_fab_id,
+            'sfab_id'       => $sfab_id_str,                        // 1-2.將字串sfab_id加入組合查詢陣列中
             'cate_no'       => $sort_cate_no,
             'thisYear'      => $thisYear,
             'checked_year'  => $thisYear,                  // 建立查詢陣列for顯示今年點檢表
             'half'          => $half,                      // 建立查詢陣列for顯示今年點檢表
             'form_type'     => $form_type
         );
- 
-        $stocks         = show_stock($query_arr);          // 依查詢條件儲存點顯示存量
+        
+    // init.3_create/edit catalog 
         $categories     = show_categories();               // 取得所有分類item
         $sum_categorys  = show_sum_category($query_arr);   // 統計分類與數量
+    // init.4_
+        $stocks         = show_stock($query_arr);          // 依查詢條件儲存點顯示存量
+    // init.5_
         $myReceives     = show_my_receive($query_arr);     // 列出這個fab_id、今年度的領用單
-
+    // init.6_
         $check_yh_list  = check_yh_list($query_arr);       // 查詢自己的點檢紀錄：半年檢
         $check_yh_list_num = count($check_yh_list);        // 計算自己的點檢紀錄筆數：半年檢
-
+    // init.7_
         $sortFab        = show_fab($query_arr);            // 查詢fab的細項結果
 
-        extract(show_plan($query_arr));                    // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
+    extract(show_plan($query_arr));                    // 查詢表單計畫 20240118 == 讓表單呈現 true 或 false
 
-        $per_total = count($stocks);                       //計算總筆數
+    $per_total = count($stocks);                       //計算總筆數
     
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -115,7 +118,7 @@
             <div class="col_xl_12 col-12 p-4 rounded" style="background-color: rgba(255, 255, 255, .8);">
                 <div class="row">
                     <div class="col-md-4 py-0">
-                        <h5><?php echo isset($sortFab["id"]) ? $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")":"";?>_庫存管理： </h5>
+                        <h5><?php echo isset($sortFab["id"]) ? $sortFab["id"].".".$sortFab["fab_title"]." (".$sortFab["fab_remark"].")_":"";?>庫存管理： </h5>
                     </div>
                     <!-- sort/groupBy function -->
                     <div class="col-md-4 py-0">
@@ -124,12 +127,12 @@
                                 <span class="input-group-text">篩選</span>
                                 <select name="fab_id" id="groupBy_fab_id" class="form-select" onchange="this.form.submit()">
                                     <option value="" hidden>-- 請選擇local --</option>
-                                    <?php foreach($fabs as $fab){ ?>
-                                        <?php if($sys_role <= 1 || (in_array($fab["id"], $sfab_id)) ){ ?>  
-                                            <option value="<?php echo $fab["id"];?>" <?php echo $fab["id"] == $sortFab["id"] ? "selected":"";?>>
-                                                <?php echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"";?></option>
-                                        <?php } ?>
-                                    <?php } ?>
+                                    <?php foreach($fabs as $fab){ 
+                                        if($sys_role <= 1 || (in_array($fab["id"], $sfab_id)) ){   
+                                            echo "<option value='{$fab["id"]}' ".( !empty($sortFab["id"]) && ($fab["id"] == $sortFab["id"]) ? "selected":"" ).">";
+                                            echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; echo ($fab["flag"] == "Off") ? " - (已關閉)":"" ."</option>";
+                                        } 
+                                    } ?>
                                 </select>
                             </div>
                         </form>

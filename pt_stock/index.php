@@ -55,10 +55,8 @@
             // $create_locals = show_local2create($query_arr);   // create：取得select_fab_id下的Local儲存點
             // $edit_locals = show_local2edit($query_arr);       // edit：取得sFab_id下所有的Local儲存點
             $locals = show_fabs_local($query_arr);
-
         // init.3_create/edit catalog by cate_no = J
             $catalogs  = show_ptcatalogs();                   // 取得所有catalog - J項目，供create使用
-
         // init.4_
             $stocks     = show_ptstock($query_arr);            // 依查詢條件儲存點顯示存量
         // init.5_

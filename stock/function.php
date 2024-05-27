@@ -15,7 +15,7 @@
         if($stmt_check -> rowCount() >0){     
             // 確認no編號是否已經被註冊掉，用rowCount最快~不要用fetch
             echo "<script>alert('local同批號衛材已存在，將進行合併計算~')</script>";
-            $row = $stmt_check -> fetch();
+            $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
             $amount += $row["amount"];
 
             $sql = "UPDATE _stock
@@ -67,7 +67,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $stock = $stmt->fetch();
+            $stock = $stmt->fetch(PDO::FETCH_ASSOC);
             return $stock;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -87,7 +87,7 @@
             if($stmt_check -> rowCount() >0){     
                 // 確認no編號是否已經被註冊掉，用rowCount最快~不要用fetch
                 echo "<script>alert('local同批號衛材已存在，將進行合併計算~')</script>";
-                $row = $stmt_check -> fetch();
+                $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
                 $amount += $row["amount"];
     
                 $sql = "UPDATE _stock
@@ -191,7 +191,7 @@
             }else{
                 $stmt->execute([$fab_id]);
             }
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -216,7 +216,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -236,7 +236,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id, $thisYear]);
-            $my_receive_lists = $stmt->fetchAll();
+            $my_receive_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $my_receive_lists;
 
         }catch(PDOException $e){
@@ -257,7 +257,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -272,7 +272,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $categories = $stmt->fetchAll();
+            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $categories;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -299,7 +299,7 @@
         $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$fab_id]);
-                $sum_category = $stmt->fetchAll();
+                $sum_category = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 return $sum_category;
             }catch(PDOException $e){
                 echo $e->getMessage();
@@ -362,10 +362,10 @@
         try {
             if($site_id != 'All'){
                 $stmt->execute([$site_id]);
-                $sites = $stmt->fetch();
+                $sites = $stmt->fetch(PDO::FETCH_ASSOC);
             }else{
                 $stmt->execute();
-                $sites = $stmt->fetchAll();
+                $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
             return $sites;
         }catch(PDOException $e){
@@ -391,13 +391,13 @@
             if($fab_id != 'All'){
                 $stmt->execute([$fab_id]);
                 if($fab_id == "allMy"){
-                    $fabs = $stmt->fetchAll();
+                    $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }else{
-                    $fabs = $stmt->fetch();
+                    $fabs = $stmt->fetch(PDO::FETCH_ASSOC);
                 }
             }else{
                 $stmt->execute();
-                $fabs = $stmt->fetchAll();
+                $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
             return $fabs;
         }catch(PDOException $e){
@@ -419,7 +419,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $coverFab_lists = $stmt->fetchAll();
+            $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
 
         }catch(PDOException $e){
@@ -440,7 +440,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -458,7 +458,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -477,7 +477,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -491,7 +491,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             return $user;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -647,7 +647,7 @@
             }else{
                 $stmt->execute();
             }
-            $formplans = $stmt->fetchAll();
+            $formplans = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $formplans;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -740,7 +740,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -756,7 +756,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id, $checked_year, $half, $form_type]);
-            $check_yh_list = $stmt->fetchAll();
+            $check_yh_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $check_yh_list;
         }catch(PDOException $e){
             echo $e->getMessage();

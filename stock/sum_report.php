@@ -9,8 +9,8 @@
         if(!in_array($form, ["stock", "receive", "issue", "trade"])){           // report表單類別--防呆
             $form = 'stock';
         }
-        $report_yy = (isset($_REQUEST["report_yy"])) ? $_REQUEST["report_yy"] : date('Y'); // 今年
-        $report_mm = (isset($_REQUEST["report_mm"])) ? $_REQUEST["report_mm"] : "All"; // 今月
+        $report_yy = (isset($_REQUEST["report_yy"])) ? $_REQUEST["report_yy"] : date('Y');  // 今年
+        $report_mm = (isset($_REQUEST["report_mm"])) ? $_REQUEST["report_mm"] : "All";      // 今月
         // $report_mm = date('m');                      // 今月
 
         $query_arr = array(                                 // 組合查詢陣列 -- 建立查詢陣列for顯示今年領用單
@@ -61,6 +61,7 @@
     $fabs       = show_fab();                                 // 標題用：區域名稱
     $locals     = show_local();                               // 二層標題用：區域名稱
     $catalogs   = show_catalogs();                            // 標題用：器材名稱
+
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -218,17 +219,23 @@
                                 <tbody>
                                     <?php foreach($catalogs as $catalog){
                                         echo "<tr>";
-                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start' >{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'><div class='row' style='vertical-align: middle;'>";
+                                            echo "<div class='col-md-4 p-0 t-center'><img src='../catalog/images/{$catalog["PIC"]}' class='img-thumbnail'></div>";
+                                            echo "<div class='col-md-8 p-0' >{$catalog["SN"]} ".(!empty($catalog["part_no"]) ? "/ ".$catalog["part_no"] : "");
+                                            echo "</br>{$catalog["pname"]}</div></div></td>";
                                             echo "<td>
-                                                    <div class='bg-primary text-white'>總量</div>
+                                                <div class='bg-primary text-white'>現量</div>
+                                                    <div class='text-success'>安量</div>
                                                     </td>";
                                             foreach($fabs as $fab){
                                                 echo "<td>
-                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_all'></div>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_all'    class='empty-div' ></div>
+                                                        <div id='{$fab["fab_id"]}_{$catalog["SN"]}_lv_all' class='empty-div text-success' ></div>
                                                         </td>";
                                             };
                                             echo "<td class='sum'>
-                                                    <div id='{$catalog["SN"]}_sum_all'></div>
+                                                    <div id='{$catalog["SN"]}_sum_all'    class='empty-div' ></div>
+                                                    <div id='{$catalog["SN"]}_sum_lv_all' class='empty-div text-success' ></div>
                                                     </td>";
                                         echo "</tr>";
                                     } ?>
@@ -279,19 +286,25 @@
                             // tbody
                             foreach($catalogs as $catalog){
                                 echo "<tr>";
-                                    echo "<td id='{$local["id"]}_{$catalog["SN"]}' class='text-start'>".$catalog["SN"]."</br>".$catalog["pname"]."</td>";
+                                    echo "<td id='{$local["id"]}_{$catalog["SN"]}' class='text-start'>";
+                                    echo "{$catalog["SN"]} ".(!empty($catalog["part_no"]) ? "/ ".$catalog["part_no"] : "");
+                                    echo "</br>{$catalog["pname"]}";
+                                    echo "</td>";
                                     echo "<td>
-                                            <div class='bg-primary text-white'>總量</div>
+                                            <div class='bg-primary text-white'>現量</div>
+                                            <div class='text-success'>安量</div>
                                             </td>";
                                     foreach ($locals as $local) {
                                         if($local["fab_id"] == $fab["fab_id"]){
                                             echo "<td>
-                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_all'></div>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_all'    class='empty-div'></div>
+                                                    <div id='{$fab["fab_id"]}_{$local["id"]}_{$catalog["SN"]}_lv_all' class='empty-div text-success'></div>
                                                     </td>";
                                         }
                                     }
                                     echo "<td class='sum'>
-                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_all'></div>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_all'    class='empty-div'></div>
+                                            <div id='f_{$fab["fab_id"]}_{$catalog["SN"]}_sum_lv_all' class='empty-div text-success'></div>
                                             </td>";
                                 echo "</tr>";
                             }
@@ -343,8 +356,9 @@
             var local_id = row['local_id'];
             var cata_SN  = row['cata_SN'];
             var fid_sn   = fab_id+'_'+cata_SN;
-            var flid_sn   = fab_id+'_'+local_id+'_'+cata_SN;
-            var amount   = Number(row['amount']);
+            var flid_sn  = fab_id+'_'+local_id+'_'+cata_SN;
+            var amount      = Number(row['amount']);
+            var standard_lv = Number(row['standard_lv']);
             var lot_num  = new Date(row['lot_num']).getTime();   // DAY2 -- 獲取比較日期並轉化為時間戳
             
             var timeDiff = lot_num - Today;                              // 取得兩日期之間的毫秒數差
@@ -353,11 +367,15 @@
             if(amount >0){
                 // 第1頁 每個廠的總數值_all
                 // 每個廠的總數值_all              
-                    if(reportAmount[fid_sn+'_all'])     { reportAmount[fid_sn+'_all'] += amount;      }else{ reportAmount[fid_sn+'_all'] = amount; }
-                    if(reportAmount[cata_SN+'_sum_all']){ reportAmount[cata_SN+'_sum_all'] += amount; }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
+                    if(reportAmount[fid_sn+'_all'])        { reportAmount[fid_sn+'_all'] += amount;               }else{ reportAmount[fid_sn+'_all'] = amount; }
+                    if(reportAmount[cata_SN+'_sum_all'])   { reportAmount[cata_SN+'_sum_all'] += amount;          }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
+                    // if(reportAmount[fid_sn+'_lv_all'])     { reportAmount[fid_sn+'_lv_all'] += standard_lv;       }else{ reportAmount[fid_sn+'_lv_all'] = standard_lv; }
+                    // if(reportAmount[cata_SN+'_sum_lv_all']){ reportAmount[cata_SN+'_sum_lv_all'] += standard_lv;  }else{ reportAmount[cata_SN+'_sum_lv_all'] = standard_lv; }
                     // fab_all // 廠每個local的總數值_all              
-                    if(reportAmount[flid_sn+'_all'])        { reportAmount[flid_sn+'_all'] += amount;         }else{ reportAmount[flid_sn+'_all'] = amount; }
-                    if(reportAmount['f_'+fid_sn+'_sum_all']){ reportAmount['f_'+fid_sn+'_sum_all'] += amount; }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
+                    if(reportAmount[flid_sn+'_all'])           { reportAmount[flid_sn+'_all'] += amount;                 }else{ reportAmount[flid_sn+'_all'] = amount; }
+                    if(reportAmount['f_'+fid_sn+'_sum_all'])   { reportAmount['f_'+fid_sn+'_sum_all'] += amount;         }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
+                    // if(reportAmount[flid_sn+'_lv_all'])        { reportAmount[flid_sn+'_lv_all'] += standard_lv;         }else{ reportAmount[flid_sn+'_lv_all'] = standard_lv; }
+                    // if(reportAmount['f_'+fid_sn+'_sum_lv_all']){ reportAmount['f_'+fid_sn+'_sum_lv_all'] += standard_lv; }else{ reportAmount['f_'+fid_sn+'_sum_lv_all'] = standard_lv; }
             }
         })
 

@@ -72,6 +72,13 @@
         #reviewBtn {
             font-size: 1.5em;
         }
+        /* inline */
+            .inb {
+                display: inline-block;
+            }
+            .inf {
+                display: inline-flex;
+            }
     </style>
 </head>
 <body>
@@ -263,6 +270,13 @@
             <div class="modal-content">
                 <div class="modal-header add_mode_bgc">
                     <h4 class="modal-title"><span id="modal_action"></span>檢視點檢紀錄</h4>
+                    &nbsp&nbsp&nbsp&nbsp
+                    <form action="" method="POST" class="inb">
+                        <input type="hidden" name="id" id="checked_delete_id" value="">
+                        <?php if($sys_role <= 2.5){ ?>
+                            <input type="submit" name="checked_delete" value="刪除紀錄" class="btn btn-danger inb" onclick="return confirm('確認刪除？')">
+                        <?php } ?>
+                    </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
@@ -319,18 +333,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <form action="" method="POST">
-                                <input type="hidden" name="id" id="checked_delete_id" value="">
-                                <?php if($sys_role <= 1){ ?>
-                                    <input type="submit" name="checked_delete" value="刪除紀錄" class="btn btn-sm btn-xs btn-danger" onclick="return confirm('確認刪除？')">
-                                <?php } ?>
-                            </form>
-                        </div>
-                        <div class="col-12 col-md-6 text-end">
-                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                        </div>
+                    <div class="col-12 col-md-6 text-end">
+                        <button type="reset" class="btn btn-secondary " data-bs-dismiss="modal">關閉</button>
                     </div>
                 </div>
             </div>

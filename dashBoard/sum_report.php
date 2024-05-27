@@ -219,7 +219,10 @@
                                             $this_price = 0;
                                         }
                                         echo "<tr>";
-                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'>{$catalog["SN"]}</br>{$catalog["pname"]}</td>";
+                                            echo "<td id='cata_{$catalog["SN"]}' class='text-start'><div class='row' style='vertical-align: middle;'>";
+                                            echo "<div class='col-md-4 p-0 t-center'><img src='../catalog/images/{$catalog["PIC"]}' class='img-thumbnail'></div>";
+                                            echo "<div class='col-md-8 p-0' >{$catalog["SN"]} ".(!empty($catalog["part_no"]) ? "/ ".$catalog["part_no"] : "");
+                                            echo "</br>{$catalog["pname"]}</div></div></td>";
                                             foreach($locals as $local){
                                                 echo "<td><div id='{$local["id"]}_{$catalog["SN"]}'></td>";
                                             };

@@ -233,12 +233,14 @@
                                         <?php echo $stock['lot_num'];?></td>
                                     <td style="font-size: 12px;"><?php echo $stock['po_no'];?></td>
                                     <td style="width:8%;font-size: 12px;" title="最後編輯: <?php echo $stock['updated_user'];?>">
-                                        <?php if(isset($stock['id'])){ ?>
-                                            <?php if($sys_role <= 1 ){ ?>
-                                                    <button type="button" id="edit_stock_btn" value="<?php echo $stock["id"];?>" data-bs-toggle="modal" data-bs-target="#edit_stock" 
-                                                        onclick="edit_module('stock', this.value)" ><?php echo $stock['updated_at'];?></button>
-                                            <?php }else{ echo $stock['updated_at']; } ?>
-                                        <?php } ?></td>
+                                        <?php if(isset($stock['id'])){ 
+                                            if($sys_role <= 1 ){ 
+                                                    echo "<button type='button' id='edit_stock_btn' value='{$stock["id"]}' data-bs-toggle='modal' data-bs-target='#edit_stock' 
+                                                        onclick='edit_module(`stock`, this.value)' class='tran_btn' >{$stock["updated_at"]}</button>";
+                                            }else{ 
+                                                echo $stock['updated_at']; 
+                                            }
+                                        } ?></td>
                                 </tr>
                                 <?php $check_item = $stock['local_title'];?>
                             <?php } ?>

@@ -440,6 +440,29 @@
         $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
     }
 
+    // 20240529 確認自己是否為彈出視窗 !! 只在完整url中可運行 = tw123456p.cminl.oa
+    function checkPopup() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener) || (sessionStorage.getItem('isPopup') === 'true')) {
+            console.log('popup');
+            sessionStorage.removeItem('isPopup');
+
+            let nav = document.querySelector('nav');                // 獲取 <nav> 元素
+                nav.classList.add('unblock');                           // 添加 'unblock' class
+
+            let rtn_btns = document.querySelectorAll('.rtn_btn');   // 獲取所有帶有 'rtn_btn' class 的按鈕
+                rtn_btns.forEach(function(btn) {                        // 遍歷這些按鈕，並設置 onclick 事件
+                    btn.onclick = function() {
+                        if (confirm('確認返回？')) {
+                            closeWindow();                                  // true=更新 / false=不更新
+                        }
+                    };
+                });
+        }else{
+            console.log('main');
+        }
+    }
+
     $(function () {
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
@@ -501,6 +524,8 @@
     })
 
     $(document).ready(function () {
+
+        checkPopup();
         
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({

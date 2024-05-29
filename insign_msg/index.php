@@ -55,7 +55,7 @@
                                     title="send notify" onclick="return confirm('確認發報？') && notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
                                     
                             <?php } ?>
-                            <button type="button" class="btn btn-secondary" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                            <button type="button" class="btn btn-secondary rtn_btn" onclick="location.href = '../index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                         </div>
                     </div>
 
@@ -153,7 +153,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
+<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>           <!-- 彈出子畫面 -->
 <script>
     // init
         var fa_OK        = '<?=$fa_check?>';            // 打勾符號

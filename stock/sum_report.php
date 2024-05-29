@@ -369,13 +369,13 @@
                 // 每個廠的總數值_all              
                     if(reportAmount[fid_sn+'_all'])        { reportAmount[fid_sn+'_all'] += amount;               }else{ reportAmount[fid_sn+'_all'] = amount; }
                     if(reportAmount[cata_SN+'_sum_all'])   { reportAmount[cata_SN+'_sum_all'] += amount;          }else{ reportAmount[cata_SN+'_sum_all'] = amount; }
-                    // if(reportAmount[fid_sn+'_lv_all'])     { reportAmount[fid_sn+'_lv_all'] += standard_lv;       }else{ reportAmount[fid_sn+'_lv_all'] = standard_lv; }
-                    // if(reportAmount[cata_SN+'_sum_lv_all']){ reportAmount[cata_SN+'_sum_lv_all'] += standard_lv;  }else{ reportAmount[cata_SN+'_sum_lv_all'] = standard_lv; }
+                    if(reportAmount[fid_sn+'_lv_all'])     { reportAmount[fid_sn+'_lv_all'] += standard_lv;       }else{ reportAmount[fid_sn+'_lv_all'] = standard_lv; }
+                    if(reportAmount[cata_SN+'_sum_lv_all']){ reportAmount[cata_SN+'_sum_lv_all'] += standard_lv;  }else{ reportAmount[cata_SN+'_sum_lv_all'] = standard_lv; }
                     // fab_all // 廠每個local的總數值_all              
                     if(reportAmount[flid_sn+'_all'])           { reportAmount[flid_sn+'_all'] += amount;                 }else{ reportAmount[flid_sn+'_all'] = amount; }
                     if(reportAmount['f_'+fid_sn+'_sum_all'])   { reportAmount['f_'+fid_sn+'_sum_all'] += amount;         }else{ reportAmount['f_'+fid_sn+'_sum_all'] = amount; }
-                    // if(reportAmount[flid_sn+'_lv_all'])        { reportAmount[flid_sn+'_lv_all'] += standard_lv;         }else{ reportAmount[flid_sn+'_lv_all'] = standard_lv; }
-                    // if(reportAmount['f_'+fid_sn+'_sum_lv_all']){ reportAmount['f_'+fid_sn+'_sum_lv_all'] += standard_lv; }else{ reportAmount['f_'+fid_sn+'_sum_lv_all'] = standard_lv; }
+                    if(reportAmount[flid_sn+'_lv_all'])        { reportAmount[flid_sn+'_lv_all'] += standard_lv;         }else{ reportAmount[flid_sn+'_lv_all'] = standard_lv; }
+                    if(reportAmount['f_'+fid_sn+'_sum_lv_all']){ reportAmount['f_'+fid_sn+'_sum_lv_all'] += standard_lv; }else{ reportAmount['f_'+fid_sn+'_sum_lv_all'] = standard_lv; }
             }
         })
 

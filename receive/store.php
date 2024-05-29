@@ -64,7 +64,7 @@
             if(swal_json['action'] == 'success'){
                 // location.href = this.url;
                 // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});     // 關閉畫面
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow()});      // 關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true)});      // 關閉畫面+更新
                 
             }else if(swal_json['action'] == 'error'){
                 // history.back();

@@ -397,8 +397,7 @@
                                             } ?>
                                             <tr>
                                                 <td style="text-align: left;">
-                                                    <a href="../catalog/repo.php?sn=<?php echo $catalog["cata_SN"];?>"><?php echo $catalog["cata_SN"]."_".$catalog["cata_pname"];?></a>
-                                                    <!-- <button type="button" value="..\catalog\repo.php?sn=<php echo $catalog["cata_SN"];?>" onclick="openUrl(this.value)" class="tran_btn text-primary"><php echo $catalog["cata_SN"]."_".$catalog["cata_pname"];?></button> -->
+                                                    <button type="button" value="..\catalog\repo.php?sn=<?php echo $catalog["cata_SN"];?>&popup=true" onclick="openUrl(this.value)" class="tran_btn text-primary"><?php echo $catalog["cata_SN"]."_".$catalog["cata_pname"];?></button>
                                                 </td>
                                                 <td><?php echo $catalog["stock_stand"];?></td>
                                                 <td <?php if($cata_pc < 60){ ?> style="background-color:pink; color:red; font-size:1.2em;"<?php }?>><?php echo $catalog["stock_amount"];?></td>
@@ -457,8 +456,7 @@
                                             <tr <?php if($check_item != $stock_lost['fab_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
                                                 <td style="text-align: left;"><?php echo $stock_lost["fab_title"]."_".$stock_lost["local_title"];?></td>
                                                 <td style="text-align: left;">
-                                                    <a href="../catalog/repo.php?sn=<?php echo $stock_lost["cata_SN"];?>"><?php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></a>
-                                                    <!-- <button type="button" value="..\catalog\repo.php?sn=<php echo $stock_lost["cata_SN"];?>" onclick="openUrl(this.value)" class="tran_btn text-primary"><php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></button> -->
+                                                    <button type="button" value="..\catalog\repo.php?sn=<?php echo $stock_lost["cata_SN"];?>&popup=true" onclick="openUrl(this.value)" class="tran_btn text-primary"><?php echo $stock_lost["cata_SN"]."_".$stock_lost["cata_pname"];?></button>
                                                 </td>
                                                 <td><?php echo $stock_lost["stock_stand"];?></td>
                                                 <td style="<?php echo ($stock_pc < 100 && $stock_pc >= 80) ? 'background-color:yellow; color:red;':'';
@@ -490,7 +488,7 @@
 
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
-<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
+<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>           <!-- 彈出子畫面 -->
 
 <script>
 
@@ -521,6 +519,34 @@
 
         alertPlaceholder.append(wrapper);
     }
+
+    // 20240529_伴隨popoutWindow的closeWindow()，維持navTab本頁
+    $(document).ready(function() {
+        // 監聽選項卡點擊事件
+        $('.nav-link').on('click', function() {
+            let activeTabIndex = $('.nav-tabs .nav-link').index(this);
+            // 更新 URL 的查詢參數
+            const url = new URL(window.location);
+            url.searchParams.set('activeTab', activeTabIndex);
+            history.replaceState(null, null, url);
+        });
+
+        // 初始化時根據 URL 查詢參數設置選中的選項卡
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTabIndex = urlParams.get('activeTab');
+
+        if (activeTabIndex !== null) {
+            $('.nav-tabs .nav-link').removeClass('active').attr('aria-selected', 'false');
+            $('.tab-pane').removeClass('show active');
+
+            const activeTab = $('.nav-tabs .nav-link').eq(activeTabIndex);
+            activeTab.addClass('active').attr('aria-selected', 'true');
+
+            const activeTabPane = $(activeTab.data('bs-target'));
+            activeTabPane.addClass('show active');
+        }
+    });
+
 
 </script>
 

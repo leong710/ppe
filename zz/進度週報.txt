@@ -138,6 +138,12 @@
       -- 2024/05/27
          sso新增辨識是否為環安夥伴：role=2.5
          器材管控清單增加：圖片、安量(暫時遮蔽)
+      -- 2024/05/29
+         1.ppe首頁(dashBoard)、catalog index 新增優化：點擊[器材名稱]改以popup方式開啟浮動視窗。
+         2.ppe首頁(dashBoard) NAV tab選擇後，reLoad更新頁面，將維持在原頁面。
+         3.器材資訊+庫存資訊(repo.php)、編輯catalog資訊(edit.php)新增優化：辨別自身是否為popup，隱藏NAV bar、變更返回上頁=closeWindow
+         4.openUrl.js更新優化；closeWindow(value) 可根據需求，決定讓main頁面是否更新。(主要是讓沒有異動的畫面進行保持，有異動再更新，降低server Loading)
+         5.領用申請表(form.php、show.php)新增優化：辨別自身是否為popup，隱藏NAV bar、變更返回上頁=closeWindow
 
 -- 等待&開發中 2024/2/21
       除汙劑管理 -- 持續設計中

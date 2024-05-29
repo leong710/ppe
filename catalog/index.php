@@ -118,15 +118,17 @@
                                 <td style="text-align: left;">
                                     <div class="row">
                                         <div class="col-12 py-0">
-                                            <a href="repo.php?sn=<?php echo $catalog["SN"];?>" title="品名"><h5><?php echo $catalog["pname"];?></h5></a>
+                                            <button type="button" value="repo.php?sn=<?php echo $catalog["SN"];?>" onclick="openUrl(this.value)" class="tran_btn text-primary" title="品名"><h5><b><?php echo $catalog["pname"];?></b></h5></button>
+                                            </br>
                                             <?php echo $catalog["SN"] ? 'SN：'.$catalog["SN"]:'';
                                                   echo $catalog["cata_remark"] ? '</br>( 敘述：'.$catalog["cata_remark"].' )':'</br>';?>
                                         </div>
                                         <div class="col-12 py-0 text-center">
-                                            <?php if($sys_role <= 1){ ?>
-                                                <button type="button" name="catalog" id="<?php echo $catalog['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $catalog['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $catalog['flag'];?>"><?php echo $catalog['flag'];?></button>
-                                                <a href="edit.php?sn=<?php echo $catalog["SN"];?>&img=<?php echo $catalog["PIC"];?>&cate_no=<?php echo $sort_cate_no;?>" class="btn btn-sm btn-xs btn-info" title="最後編輯：<?php echo $catalog["updated_at"]." / by: ".$catalog["updated_user"];?>">編輯</a>
-                                            <?php } ?>
+                                            <?php if($sys_role <= 1){ 
+                                                echo "<button type='button' name='catalog' id='{$catalog["id"]}' class='btn btn-sm btn-xs flagBtn ".($catalog["flag"] == "On" ? "btn-success":"btn-warning")." ' value='{$catalog["flag"]}'>{$catalog["flag"]}</button>";
+                                                echo "&nbsp";
+                                                echo "<button type='button' value='edit.php?sn={$catalog["SN"]}&img={$catalog["PIC"]}&cate_no={$sort_cate_no}' onclick='openUrl(this.value)' class='btn btn-sm btn-xs btn-info' title='最後編輯：{$catalog["updated_at"]} / by: {$catalog["updated_user"]}'>編輯</button>";
+                                            } ?>
                                         </div>
                                     </div>
                                 </td>
@@ -171,7 +173,7 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-<script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
+<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>       <!-- 彈出子畫面 -->
 
 <script>
 

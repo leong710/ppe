@@ -1,3 +1,4 @@
+<script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
@@ -9,13 +10,15 @@
 
     if(isset($_POST["delete"])){
         delete_catalog($_REQUEST);
-        header("location:../catalog/");
+        // header("location:../catalog/");
+        echo "<script>closeWindow(true)</script>";
         exit;
     }
 
     if(isset($_POST["submit"])){
         update_catalog($_REQUEST);
-        header("location:../catalog/?cate_no={$sort_cate_no}");
+        // header("location:../catalog/?cate_no={$sort_cate_no}");
+        echo "<script>closeWindow(true)</script>";
         exit;
     }
 
@@ -27,8 +30,6 @@
     $pnos       = show_pno($sort_PNO_year);             // 取得料號清單
     $categories = show_categories();                    // 取得分類
     $catalog    = edit_catalog($_REQUEST);              // 取得要編輯的器材
-
-
 
     if(empty($catalog)){
         echo "<script>history.back()</script>";         // 用script導回上一頁。防止崩煃
@@ -147,9 +148,7 @@
                     <?php }?>
                     <!-- loading 畫面css 2/4-->
                     <a href="#" id="show_loading" data-bs-toggle="modal" data-bs-target="#modal_loading" class="unblock">show_loading</a>
-                    <button type="button" id="history_back" class="main-btn btn btn-secondary" onclick="history.back()">
-                        <i class="fa fa-external-link" aria-hidden="true"></i> 回上頁
-                    </button>
+                    <button type="button" id="history_back" class="main-btn btn btn-secondary rtn_btn" onclick="history.back()"><i class="fa fa-external-link" aria-hidden="true"></i> 回上頁</button>
                 </div>
             </div>
             <hr>
@@ -332,7 +331,7 @@
                     <?php if($sys_role <= 1){ ?>
                         <input type="submit" value="儲存" name="submit" class="btn btn-primary">
                     <?php } ?>
-                    <input type="button" value="取消" class="btn btn-secondary" onclick="history.back()">
+                    <input type="button" value="取消" class="btn btn-secondary rtn_btn" onclick="history.back()">
                 </div>
             </form>
         </div>
@@ -551,14 +550,38 @@
         }
     });
 
+    // 20240529 確認自己是否為彈出視窗 !! 只在完整url中可運行 = tw123456p.cminl.oa
+    function checkPopup() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener) || (sessionStorage.getItem('isPopup') === 'true')) {
+            console.log('popup');
+            sessionStorage.removeItem('isPopup');
+
+            let nav = document.querySelector('nav');                // 獲取 <nav> 元素
+                nav.classList.add('unblock');                           // 添加 'unblock' class
+
+            let rtn_btns = document.querySelectorAll('.rtn_btn');   // 獲取所有帶有 'rtn_btn' class 的按鈕
+                rtn_btns.forEach(function(btn) {                        // 遍歷這些按鈕，並設置 onclick 事件
+                    btn.onclick = function() {
+                        closeWindow();                                  // true=更新 / false=不更新
+                    };
+                });
+        }else{
+            console.log('main');
+        }
+    }
+
     $(document).ready( function () {
+
+        checkPopup();
+
         resetMain();        // 先清除表單
         $('#scomp_no').value = '';
         $('#selectScomp_noItem').empty();
         tags = [];                                              // 清除tag名單陣列
         var pmLists = {};
         // 第0階段：套用既有數據
-        var intt_val_str = <?=json_encode($catalog["scomp_no"]);?>;         // 引入副PM資料            
+        var intt_val_str = <?=json_encode($catalog["scomp_no"])?>;         // 引入副PM資料            
         var intt_val = [];
         if(intt_val_str.length !== 0){                          // 過濾原本spm字串不能為空
             intt_val = intt_val_str.split(',');                 // 直接使用 split 方法得到陣列

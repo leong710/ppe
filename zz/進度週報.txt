@@ -144,6 +144,10 @@
          3.器材資訊+庫存資訊(repo.php)、編輯catalog資訊(edit.php)新增優化：辨別自身是否為popup，隱藏NAV bar、變更返回上頁=closeWindow
          4.openUrl.js更新優化；closeWindow(value) 可根據需求，決定讓main頁面是否更新。(主要是讓沒有異動的畫面進行保持，有異動再更新，降低server Loading)
          5.領用申請表(form.php、show.php)新增優化：辨別自身是否為popup，隱藏NAV bar、變更返回上頁=closeWindow
+      -- 2024/05/30
+         1.修正receive、trade、issue之index分頁工具bug，優化select選項語法
+         2.優化receive篩選增加月份
+         3.新增receive下載Excel功能，唯獨申請項目仍是原先的json狀態，由user自行轉換。
 
 -- 等待&開發中 2024/2/21
       除汙劑管理 -- 持續設計中

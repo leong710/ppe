@@ -168,16 +168,16 @@
                                             if( ($receive_row['created_emp_id'] == $auth_emp_id) || ($receive_row['emp_id'] == $auth_emp_id) || ($sys_role <= 1) ){
                                                 // 表單狀態：2退回 4編輯 6暫存
                                                 if(in_array($receive_row['idty'], [ 2, 4, 6 ])){ 
-                                                    echo "<a href='form.php?uuid={$receive_row['uuid']}&action=edit'  class='btn btn-primary'>編輯 (Edit)</a>";
+                                                    echo "<a href='form.php?uuid={$receive_row['uuid']}&action=edit'  class='btn btn-primary'>編輯 (Edit)</a> ";
                                                 }
                                                 // 表單狀態：1送出 2退回 4編輯 5轉呈 6暫存
                                                 if(in_array($receive_row['idty'], [ 1, 2, 4, 5, 6 ])){ 
-                                                    echo $let_btn_s."bg-warning text-dark".$let_btn_m."3".$let_btn_e."作廢 (Abort)</button>";
+                                                    echo $let_btn_s."bg-warning text-dark".$let_btn_m."3".$let_btn_e."作廢 (Abort)</button> ";
                                                 } 
                                             } 
                                             if($receive_row['idty'] == 12 && $receive_row['flow'] == 'collect'  // 12.待領、待收
                                                         && (in_array($receive_row["fab_id"], $sys_sfab_id) || in_array($auth_emp_id, [$receive_row['emp_id'], $receive_row['created_emp_id']])) ){
-                                                echo $let_btn_s.'btn-success" '." onclick='push_mapp({$auth_emp_id})' data-toggle='tooltip' data-placement='bottom' title='mapp給自己'><i class='fa-brands fa-facebook-messenger'></i> 推送 (Push)</button>";
+                                                echo $let_btn_s.'btn-success" '." onclick='push_mapp({$auth_emp_id})' data-toggle='tooltip' data-placement='bottom' title='mapp給自己'><i class='fa-brands fa-facebook-messenger'></i> 推送 (Push)</button> ";
                                             } 
                                         ?>
                                     </div>

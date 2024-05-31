@@ -34,8 +34,13 @@
                 $sql .= " WHERE (year(_r.created_at) = ? )";              // ? = $year
                 array_push($stmt_arr, $_year);
             }
-            if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階   
+            if($_month != 'All'){
                 $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
+                $sql .= " (month(_r.created_at) = ? )";                  // ? = $month
+                array_push($stmt_arr, $_month);
+            }
+            if($fab_id != "All"){                                           // 處理 fab_id != All 進行二階   
+                $sql .= ($_year != "All" || $_month != "All" ? " AND ":" WHERE ") ;
                 if($fab_id == "allMy"){                                     // 處理 fab_id = allMy 我的轄區
                     $sql .= " _l.fab_id IN ({$sfab_id}) ";
                 }else{                                                      // 處理 fab_id != allMy 就是單點fab_id
@@ -44,7 +49,7 @@
                 }
             }                                                               // 處理 fab_id = All 就不用套用，反之進行二階
             if($is_emp_id != "All"){                                        // 處理過濾 is_emp_id != All  
-                $sql .= ($_year != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
+                $sql .= ($_year != "All" || $_month != "All" || $fab_id != "All" ? " AND ":" WHERE ") ;
                 $sql .= " ( ? IN (_r.emp_id, _r.created_emp_id)) ";         // 申請單加上查詢對象的is_emp_id
                 array_push($stmt_arr, $is_emp_id);
             }
@@ -77,7 +82,7 @@
                 $stmt->execute();
             }
 
-            $my_receive_lists = $stmt->fetchAll();
+            $my_receive_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $my_receive_lists;
 
         }catch(PDOException $e){

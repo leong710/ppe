@@ -14,7 +14,7 @@
     // 1.決定開啟表單的功能：
     $form_type   = "receive";
     $fun         = "myReceive";                     // 沒帶fun，預設套 myReceive = 2我的申請單 (預設頁面)
-    // $fun = "myFab";                          // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
+    // $fun = "myFab";                              // 有帶fun，直接套用 myFab = 3轄區申請單 (管理頁面)
 
     // 2-1.篩選：檢視allMy或All、其他廠區內表單
         $is_fab_id = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $is_fab_id = "All";                   
@@ -30,8 +30,10 @@
         }
 
     // 2-3.篩選年分~~
-        $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : date('Y');  // 預設今年
+        $_year  = (isset($_REQUEST["_year"]))  ? $_REQUEST["_year"] : date('Y');   // 預設今年
         // $_year = date('Y');                       // 今年    // 全年 All
+        $_month = (isset($_REQUEST["_month"])) ? $_REQUEST["_month"] : "All";      // 今月
+        // $_month = date('m');                      // 今月
 
     // 組合查詢陣列
         $query_arr = array(
@@ -42,6 +44,7 @@
             // 'is_fab_id' => $is_fab_id,
             'is_emp_id' => $is_emp_id,
             '_year'     => $_year,
+            '_month'    => $_month,
         );
         
     // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
@@ -129,6 +132,13 @@
         .bsod {
             box-shadow: 3px 3px 5px rgba(0,0,0,.5);
         }
+            /* inline */
+            .inb {
+                display: inline-block;
+            }
+            .inf {
+                display: inline-flex;
+            }
     </style>
 </head>
 <body>
@@ -177,36 +187,54 @@
 
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                     <select name="_year" id="sort_year" class="form-select">
-                                        <option for="sort_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
-                                        <?php foreach($receive_years as $receive_year){ ?>
-                                            <option for="sort_year" value="<?php echo $receive_year["_year"];?>" <?php if($receive_year["_year"] == $_year){ ?>selected<?php } ?>>
-                                                <?php echo $receive_year["_year"]."y";?></option>
-                                        <?php } ?>
+                                        <?php 
+                                            echo "<option for='sort_year' value='All' ".(($_year == "All") ? "selected":"disabled")." >-- 年度 / All --</option>";
+                                            foreach($receive_years as $receive_year){ 
+                                                echo "<option for='sort_year' value='{$receive_year["_year"]}' ".(($receive_year["_year"] == $_year) ? "selected" : "")." >{$receive_year["_year"]}y</option>";
+                                            } ?>
+                                    </select>
+                                    <select name="_month" id="sort_month" class="form-select">
+                                        <?php 
+                                            echo "<option value='All' ".(($_month == "All") ? "selected":"" )." >-- 全月份 / All --</option>";
+                                            foreach (range(1, 12) as $item) {
+                                                $item_str = str_pad($item, 2, '0', STR_PAD_LEFT);
+                                                echo "<option value='{$item_str}' ".(($item_str == $_month ) ? "selected":"" )." >{$item_str}m</option>";
+                                            } ?>
                                     </select>
                                     <select name="fab_id" id="sort_fab_id" class="form-select" >
-                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
-                                        <?php if($sys_role <= 2 ){ ?>
-                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
-                                        <?php } ?>
-                                        <?php foreach($myFab_lists as $myFab){ ?>
-                                            <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
-                                                <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
-                                        <?php } ?>
+                                        <?php 
+                                            echo "<option for='sort_fab_id' value='All' ".(($is_fab_id == "All") ? "selected":"").">-- All fab --</option>";
+                                            if($sys_role <= 2 ){ 
+                                                echo "<option for='sort_fab_id' value='allMy' ".(($is_fab_id == "allMy") ? "selected":"").">-- All my fab --</option>";
+                                            } 
+                                            foreach($myFab_lists as $myFab){ 
+                                                echo "<option for='sort_fab_id' value='{$myFab["id"]}' title='fab_id:{$myFab["id"]}' ".(($is_fab_id == $myFab["id"]) ? "selected":"") ."> 
+                                                    {$myFab["fab_title"]} ({$myFab["fab_remark"]})".(($myFab["flag"] == "Off") ? "(已關閉)":"")."</option>";
+                                            } ?>
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select">
-                                        <?php if($sys_role <= 2 ){ ?>
-                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
-                                        <?php } ?>
-                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
-                                            <?php echo $auth_emp_id."_".$_SESSION["AUTH"]["cname"];?></option>
+                                        <?php if($sys_role <= 2 ){ 
+                                                echo "<option for='sort_emp_id' value='All' ".(($is_emp_id == "All") ? "selected":"").">-- All user --</option>";
+                                            } 
+                                            echo "<option for='sort_emp_id' value='{$auth_emp_id}' ".(($is_emp_id == $auth_emp_id) ? "selected":"").">{$auth_emp_id}_{$auth_cname}</option>";
+                                        ?>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
                             </form>
                         </div>
                         <div class="col-4 col-md-3 py-1 text-end">
+                            <?php if(($per_total != 0) && ($sys_role <= 2.5)){ ?>
+                                <div class="inb">
+                                    <!-- 20231128 下載Excel -->
+                                    <form id="myForm" method="post" action="../_Format/download_excel.php">
+                                        <input type="hidden" name="htmlTable" id="htmlTable" value="">
+                                        <button type="submit" name="submit" class="btn btn-success" value="receive" onclick="submitDownloadExcel(this.value)" >
+                                            <i class="fa fa-download" aria-hidden="true"></i> 匯出</button>
+                                    </form>
+                                </div>
+                            <?php } ?>
                             <button type="button" id="service_window_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#service_window"><i class="fa-solid fa-circle-info"></i> 聯絡窗口</button>
-
                             <?php if(isset($sys_role)){ 
                                 echo " <button type='button' value='form.php?action=create' class='btn btn-primary' onclick='openUrl(this.value)' ><i class='fa fa-edit' aria-hidden='true'></i> 領用申請</button>";
                             } ?>
@@ -343,6 +371,14 @@
                                                         $page_h .= "&fun=".$fun;
                                                         $page_u .= "&fun=".$fun;		
                                                     }
+                                                    if(isset($_year)){
+                                                        $page_h .= "&_year=".$_year;
+                                                        $page_u .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($_month)){
+                                                        $page_h .= "&_month=".$_month;
+                                                        $page_u .= "&_month=".$_month;		
+                                                    }
                                                     if(isset($is_emp_id)){
                                                         $page_h .= "&emp_id=".$is_emp_id;
                                                         $page_u .= "&emp_id=".$is_emp_id;		
@@ -377,6 +413,12 @@
                                                             if(isset($fun)){
                                                                 $page_n .= "&fun=".$fun;
                                                             }
+                                                            if(isset($_year)){
+                                                                $page_n .= "&_year=".$_year;		
+                                                            }
+                                                            if(isset($_month)){
+                                                                $page_n .= "&_month=".$_month;		
+                                                            }
                                                             if(isset($is_emp_id)){
                                                                 $page_n .= "&emp_id=".$is_emp_id;
                                                             }
@@ -397,6 +439,14 @@
                                                     if(isset($fun)){
                                                         $page_d .= "&fun=".$fun;
                                                         $page_e .= "&fun=".$fun;		
+                                                    }
+                                                    if(isset($_year)){
+                                                        $page_d .= "&_year=".$_year;
+                                                        $page_e .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($_month)){
+                                                        $page_d .= "&_month=".$_month;
+                                                        $page_e .= "&_month=".$_month;		
                                                     }
                                                     if(isset($is_emp_id)){
                                                         $page_d .= "&emp_id=".$is_emp_id;
@@ -510,6 +560,14 @@
                                                         $page_h .= "&fun=".$fun;
                                                         $page_u .= "&fun=".$fun;		
                                                     }
+                                                    if(isset($_year)){
+                                                        $page_h .= "&_year=".$_year;
+                                                        $page_u .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($_month)){
+                                                        $page_h .= "&_month=".$_month;
+                                                        $page_u .= "&_month=".$_month;		
+                                                    }
                                                     if(isset($is_emp_id)){
                                                         $page_h .= "&emp_id=".$is_emp_id;
                                                         $page_u .= "&emp_id=".$is_emp_id;		
@@ -544,6 +602,12 @@
                                                             if(isset($fun)){
                                                                 $page_n .= "&fun=".$fun;
                                                             }
+                                                            if(isset($_year)){
+                                                                $page_n .= "&_year=".$_year;		
+                                                            }
+                                                            if(isset($_month)){
+                                                                $page_n .= "&_month=".$_month;		
+                                                            }
                                                             if(isset($is_emp_id)){
                                                                 $page_n .= "&emp_id=".$is_emp_id;
                                                             }
@@ -564,6 +628,14 @@
                                                     if(isset($fun)){
                                                         $page_d .= "&fun=".$fun;
                                                         $page_e .= "&fun=".$fun;		
+                                                    }
+                                                    if(isset($_year)){
+                                                        $page_d .= "&_year=".$_year;
+                                                        $page_e .= "&_year=".$_year;		
+                                                    }
+                                                    if(isset($_month)){
+                                                        $page_d .= "&_month=".$_month;
+                                                        $page_e .= "&_month=".$_month;		
                                                     }
                                                     if(isset($is_emp_id)){
                                                         $page_d .= "&emp_id=".$is_emp_id;
@@ -682,6 +754,40 @@
         } else {
             tab_table.style.display = "none";
         }
+    }
+
+    // 20231128_下載Excel
+    function submitDownloadExcel() {
+        // 先定義一個陣列(裝輸出資料使用)for 下載Excel
+        let listData        = <?=json_encode($row_lists)?>;                   // 引入$row_lists資料
+        // 定義要抓的key=>value
+        let list_item_keys = {
+            "id"             : "aid", 
+            "created_at"     : "開單日期", 
+            "plant"          : "申請單位", 
+            "dept"           : "申請部門", 
+            "sign_code"      : "部門代號",
+            "cname"          : "領用人", 
+            "emp_id"         : "工號", 
+            "cata_SN_amount" : "需求清單", 
+            "receive_remark" : "用途說明",
+            "fab_title"      : "提貨廠區", 
+            "fab_remark"     : "提貨廠區說明", 
+            "local_title"    : "儲存點",
+            "local_remark"   : "儲存點說明",
+            "ppty"           : "類別\n0臨時1一般3緊急",
+            "idty"           : "狀態\n10結案",
+            "updated_at"     : "最後編輯"
+        };
+        let sort_listData = [];         // 建立陣列
+        for(let i=0; i < listData.length; i++){
+            sort_listData[i] = {};      // 建立物件
+            Object.keys(list_item_keys).forEach(function(item_key){
+                sort_listData[i][list_item_keys[item_key]] = listData[i][item_key];
+            })
+        }
+        let htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById('htmlTable').value = htmlTableValue;
     }
 
     $(document).ready(function () {

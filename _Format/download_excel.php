@@ -4,20 +4,27 @@
     // 以下為"PhpSpreadsheet"啟動碼
     require '../../libs/vendor/autoload.php';  // 导入 PhpSpreadsheet 库
 
+        function numberToLetters($number) {
+            $letters = '';
+            while ($number > 0) {
+                $remainder = ($number - 1) % 26;
+                $letters = chr($remainder + 65) . $letters;
+                $number = intval(($number - 1) / 26);
+            }
+            return $letters;
+        }
+
     use PhpOffice\PhpSpreadsheet\Spreadsheet;
     use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-    $data = json_decode($_POST["htmlTable"], true);
-    if(!empty($_REQUEST["submit"])){
-        $to_module = $_REQUEST["submit"];
-    }else{
-        $to_module = "downLoad_excel";
-    }
-    $now = date("Y-m-d");
+    $data      = json_decode($_POST["htmlTable"], true);
+    $to_module = (!empty($_REQUEST["submit"])) ? $_REQUEST["submit"] : "downLoad_excel";
+    $now       = date("Y-m-d");
     // 創建一個新的 Excel 對象
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet()->freezePane('A2');      // 冻结窗格，锁定行和列
-    
+            
+
     // 將數據寫入 Excel
         // 寫入標題行
         $keys = array_keys($data[0]);
@@ -29,6 +36,10 @@
             $sheet->setCellValueByColumnAndRow($column, 1, $key);
             $column++;
         }
+
+        $col_word = numberToLetters($column-1);
+        $spreadsheet->getActiveSheet()->setAutoFilter("A1:{$col_word}1");        // 設置篩選功能應用於第1列// A列，從第1行到第n行
+
         // 寫入數據
         $row = 2;
         foreach ($data as $item) {
@@ -91,6 +102,10 @@
                 $filename_head = "除汙器材領用記錄_";
                 $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];   // 定義調整蘭寬 
                 break;
+            case "receive":
+                $filename_head = "PPE器材領用記錄";
+                $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I' ,'J' ,'K' ,'L' ,'M' ,'N' ,'O' ,'P'];   // 定義調整蘭寬 
+                break;
             default:
                 $filename_head = $to_module;
                 $columns = [];
@@ -110,6 +125,7 @@
     // 調整欄列寬高換行
     $spreadsheet->getActiveSheet()->getStyle('1:1')->getAlignment()->setWrapText(true); // 1列-自動換行
     $spreadsheet->getActiveSheet()->getRowDimension(1)->setRowHeight(-1);               // 1列-自動欄高
+
 
     $filename = $filename_head."_".$now.'.xlsx';  // 設定檔名 
 

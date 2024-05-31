@@ -142,28 +142,29 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                     <select name="_year" id="sort_year" class="form-select">
-                                        <option for="sort_year" value="All" <?php if($_year == "All"){ ?>selected<?php } ?> >-- 年度 / All --</option>
-                                        <?php foreach($trade_years as $trade_year){ ?>
-                                            <option for="sort_year" value="<?php echo $trade_year["_year"];?>" <?php if($trade_year["_year"] == $_year){ ?>selected<?php } ?>>
-                                                <?php echo $trade_year["_year"]."y";?></option>
-                                        <?php } ?>
+                                        <?php 
+                                            echo "<option for='sort_year' value='All' ".(($_year == "All") ? "selected":"disabled")." >-- 年度 / All --</option>";
+                                            foreach($trade_years as $trade_year){
+                                                echo "<option for='sort_year' value='{$trade_year["_year"]}' ".(($trade_year["_year"] == $_year) ? "selected" : "").">{$trade_year["_year"]}y</option>";
+                                            } ?>
                                     </select>
                                     <select name="fab_id" id="sort_fab_id" class="form-select" >
-                                        <option for="sort_fab_id" value="All" <?php echo $is_fab_id == "All" ? "selected":"";?>>-- All fab --</option>
-                                        <?php if($sys_role <= 2 ){ ?>
-                                            <option for="sort_fab_id" value="allMy" <?php echo $is_fab_id == "allMy" ? "selected":"";?>>-- All my fab --</option>
-                                        <?php } ?>
-                                        <?php foreach($myFab_lists as $myFab){ ?>
-                                            <option for="sort_fab_id" value="<?php echo $myFab["id"];?>" title="fab_id:<?php echo $myFab["id"];?>" <?php echo $is_fab_id == $myFab["id"] ? "selected":"";?>>
-                                                <?php echo $myFab["fab_title"]." (".$myFab["fab_remark"].")"; echo $myFab["flag"] == "Off" ? "(已關閉)":"";?></option>
-                                        <?php } ?>
+                                        <?php 
+                                            echo "<option for='sort_fab_id' value='All' ".(($is_fab_id == "All") ? "selected":"").">-- All fab --</option>";
+                                            if($sys_role <= 2 ){ 
+                                                echo "<option for='sort_fab_id' value='allMy' ".(($is_fab_id == "allMy") ? "selected":"").">-- All my fab --</option>";
+                                            } 
+                                            foreach($myFab_lists as $myFab){ 
+                                                echo "<option for='sort_fab_id' value='{$myFab["id"]}' title='fab_id:{$myFab["id"]}' ".(($is_fab_id == $myFab["id"]) ? "selected":"") ."> 
+                                                    {$myFab["fab_title"]} ({$myFab["fab_remark"]})".(($myFab["flag"] == "Off") ? "(已關閉)":"")."</option>";
+                                            } ?>
                                     </select>
                                     <select name="emp_id" id="sort_emp_id" class="form-select">
-                                        <?php if($sys_role <= 2 ){ ?>
-                                            <option for="sort_emp_id" value="All" <?php echo $is_emp_id == "All" ? "selected":"";?>>-- All user --</option>
-                                        <?php } ?>
-                                        <option for="sort_emp_id" value="<?php echo $auth_emp_id;?>" <?php echo $is_emp_id == $auth_emp_id ? "selected":"";?>>
-                                            <?php echo $auth_emp_id."_".$auth_cname;?></option>
+                                        <?php if($sys_role <= 2 ){ 
+                                                echo "<option for='sort_emp_id' value='All' ".(($is_emp_id == "All") ? "selected":"").">-- All user --</option>";
+                                            } 
+                                            echo "<option for='sort_emp_id' value='{$auth_emp_id}' ".(($is_emp_id == $auth_emp_id) ? "selected":"").">{$auth_emp_id}_{$auth_cname}</option>";
+                                        ?>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>
                                 </div>
@@ -209,6 +210,10 @@
                                                         $page_h .= "&emp_id=".$is_emp_id;
                                                         $page_u .= "&emp_id=".$is_emp_id;		
                                                     }
+                                                    if(isset($is_fab_id)){
+                                                        $page_h .= "&fab_id=".$is_fab_id;
+                                                        $page_u .= "&fab_id=".$is_fab_id;		
+                                                    }
                                                 echo $page_h.">首頁 </a> ";
                                                 echo $page_u.">上一頁 </a> ";	
                                             }
@@ -238,6 +243,9 @@
                                                         if(isset($is_emp_id)){
                                                             $page_n .= "&emp_id=".$is_emp_id;
                                                         }
+                                                        if(isset($is_fab_id)){
+                                                            $page_n .= "&fab_id=".$is_fab_id;
+                                                        }
                                                         echo $page_n.'>'.$i.'</a> ';
                                                     }
                                                 }
@@ -256,6 +264,10 @@
                                                     if(isset($is_emp_id)){
                                                         $page_d .= "&emp_id=".$is_emp_id;
                                                         $page_e .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                    if(isset($is_fab_id)){
+                                                        $page_d .= "&fab_id=".$is_fab_id;
+                                                        $page_e .= "&fab_id=".$is_fab_id;		
                                                     }
                                                 echo $page_d."> 下一頁</a> ";
                                                 echo $page_e."> 末頁</a> ";
@@ -353,6 +365,10 @@
                                                         $page_h .= "&emp_id=".$is_emp_id;
                                                         $page_u .= "&emp_id=".$is_emp_id;		
                                                     }
+                                                    if(isset($is_fab_id)){
+                                                        $page_h .= "&fab_id=".$is_fab_id;
+                                                        $page_u .= "&fab_id=".$is_fab_id;		
+                                                    }
                                                 echo $page_h.">首頁 </a> ";
                                                 echo $page_u.">上一頁 </a> ";	
                                             }
@@ -382,6 +398,9 @@
                                                         if(isset($is_emp_id)){
                                                             $page_n .= "&emp_id=".$is_emp_id;
                                                         }
+                                                        if(isset($is_fab_id)){
+                                                            $page_n .= "&fab_id=".$is_fab_id;
+                                                        }
                                                         echo $page_n.'>'.$i.'</a> ';
                                                     }
                                                 }
@@ -400,6 +419,10 @@
                                                     if(isset($is_emp_id)){
                                                         $page_d .= "&emp_id=".$is_emp_id;
                                                         $page_e .= "&emp_id=".$is_emp_id;		
+                                                    }
+                                                    if(isset($is_fab_id)){
+                                                        $page_d .= "&fab_id=".$is_fab_id;
+                                                        $page_e .= "&fab_id=".$is_fab_id;		
                                                     }
                                                 echo $page_d."> 下一頁</a> ";
                                                 echo $page_e."> 末頁</a> ";

@@ -183,15 +183,15 @@
         cell.innerHTML = newValue;
 
         $.ajax({
-            url:'api.php',
-            method:'post',
-            async: false,                                           // ajax取得數據包後，可以return的重要參數
-            dataType:'json',
-            data:{
-                function: 'update_amount',           // 操作功能
-                _id: _request['rowId'],
-                _rowName: _request['rowName'],
-                _amount: _request['newValue']
+            url    :'api.php',
+            method :'post',
+            async  : false,                                           // ajax取得數據包後，可以return的重要參數
+            dataType :'json',
+            data   :{
+                function : 'update_amount',           // 操作功能
+                _id      : _request['rowId'],
+                _rowName : _request['rowName'],
+                _amount  : _request['newValue']
             },
             success: function(res){
                 swal_action = 'success';

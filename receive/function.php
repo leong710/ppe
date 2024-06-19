@@ -73,7 +73,7 @@
                 $stmt->execute([$emp_id]);
 
             }else if ($fun == 'myReceive') {    // $_1我申請單myReceive
-                if(($_year != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
+                if(($_year != 'All') || ($_month != 'All') || (($fab_id != "All") && ($fab_id != "allMy")) || ($is_emp_id != "All")){
                     $stmt->execute($stmt_arr);                          //處理 byUser & byYear
                 }else{
                     $stmt->execute();                                   //處理 byAll

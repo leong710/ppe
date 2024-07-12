@@ -179,32 +179,56 @@
         this.setAttribute("data-original-value", this.textContent.trim());      // 獲取當前單元格的原始值並設置到屬性中
     }
     // tableFun_4.API更新
-    function updateCellValue(cell, newValue, _request) {
-        cell.innerHTML = newValue;
+    async function updateCellValue(cell, newValue, _request) {
+        // cell.innerHTML = newValue;
+            // $.ajax({
+            //     url    :'api.php',
+            //     method :'post',
+            //     async  : false,                                           // ajax取得數據包後，可以return的重要參數
+            //     dataType :'json',
+            //     data   :{
+            //         function : 'update_amount',           // 操作功能
+            //         _id      : _request['rowId'],
+            //         _rowName : _request['rowName'],
+            //         _amount  : _request['newValue']
+            //     },
+            //     success: function(res){
+            //         swal_action = 'success';
+            //         update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
+            //     },
+            //     error: function(e){
+            //         swal_action = 'error';
+            //         console.log("error");
+            //     }
+            // });
+        return new Promise((resolve, reject) => {
 
-        $.ajax({
-            url    :'api.php',
-            method :'post',
-            async  : false,                                           // ajax取得數據包後，可以return的重要參數
-            dataType :'json',
-            data   :{
-                function : 'update_amount',           // 操作功能
-                _id      : _request['rowId'],
-                _rowName : _request['rowName'],
-                _amount  : _request['newValue']
-            },
-            success: function(res){
-                swal_action = 'success';
-                update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
-            },
-            error: function(e){
-                swal_action = 'error';
-                console.log("error");
-            }
+            const fun       = 'update_amount';
+            const _id       = _request['rowId'];
+            const _rowName  = _request['rowName'];
+            const _newValue = _request['newValue'];
+
+            let formData = new FormData();
+                formData.append('fun', fun);
+                formData.append('id', _id);                         // 後端依照fun進行parm參數的採用
+                formData.append(_rowName, _newValue);               // 後端依照fun進行parm參數的採用
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', 'load_fun.php', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    let response = JSON.parse(xhr.responseText);    // 接收回傳
+                    let result = response['result'];        // 擷取主要物件
+                    inside_toast(result);
+                    resolve(cell.innerHTML = newValue)              // resolve(true) = 表單載入成功，then 呼叫--myCallback
+
+                } else {
+                    let err_msg = 'fun load '+fun+' failed. Please try again.';
+                    alert(err_msg);
+                    reject(err_msg); // 載入失敗，reject
+                }
+            };
+            xhr.send(formData);
         });
-        
-        var sinn = '寫入 - ( '+_request['rowName']+' : '+_request['newValue']+' ) <b>'+ swal_action +'</b>&nbsp!!';
-        inside_toast(sinn);
 
     }
     // tableFun_5.更新Catch中的數值

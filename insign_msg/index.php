@@ -165,6 +165,7 @@
         var fun          = '<?=$fun?>';                 // 是否啟動寄送信件給待簽人員
         var check_ip     = '<?=$check_ip?>';
         var inSign_lists = <?=json_encode($inSign_lists)?>;
+        console.log('inSign_lists...', inSign_lists);
         var lists_obj    = { inSign_lists : inSign_lists }
 
         var receive_url  = '領用路徑：'+uri+'/ppe/receive/';

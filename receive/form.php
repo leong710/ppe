@@ -201,7 +201,7 @@
                                                     <td>
                                                         <div class="input-group">
                                                             <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount text-center"
-                                                                placeholder="數量" min="0" max="999" maxlength="3" oninput="if(value.length>3)value=value.slice(0,3)">
+                                                                placeholder="數量" min="0" max="9999" maxlength="4" oninput="if(value.length>4)value=value.slice(0,4)">
                                                             <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="btn btn-outline-secondary add_btn" value="" 
                                                                 title="加入購物車" onclick="add_item(this.name,this.value,'off');"><i class="fa fa-plus"></i></button>
                                                         </div>
@@ -519,7 +519,7 @@
 <script>
 // 開局設定init
     var catalog          = <?=json_encode($catalogs)?>;                  // 第一頁：info modal function 引入catalogs資料
-    var action           = '<?=$action;?>';                              // Edit選染 // 引入action資料
+    var action           = '<?=$action?>';                               // Edit選染 // 引入action資料
     var receive_row      = <?=json_encode($receive_row)?>;               // Edit選染 // 引入receive_row資料作為Edit
     // var json           = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json             = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse

@@ -368,11 +368,15 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$uuid]);
-            return true;
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '刪除成功';
+
         }catch(PDOException $e){
             echo $e->getMessage();
-            return false;
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '刪除失敗';
         }
+        return $swal_json;
     }
     // sign動作的_receive表單 20230807 // 20240429 加入結案後99退貨
     function sign_receive($request){

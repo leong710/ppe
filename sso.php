@@ -30,7 +30,7 @@
                         WHERE u.user = ? ";
                 $stmt = $pdo -> prepare($sql);
                 $stmt -> execute([$user]);
-                $sys_local_row = $stmt -> fetch();
+                $sys_local_row = $stmt -> fetch(PDO::FETCH_ASSOC);
     
                 if($sys_local_row){                                         // 有sys_id的人員權限資料
                     if($sys_local_row["role"] != ""){                       // 權限沒被禁用
@@ -61,7 +61,7 @@
                             WHERE s.[user] = ? ";
                     $stmt = $pdo -> prepare($sql);
                     $stmt -> execute([$user]);
-                    $esh_mb = $stmt -> fetch();
+                    $esh_mb = $stmt -> fetch(PDO::FETCH_ASSOC);
                     if($esh_mb){
                         $_SESSION[$sys_id]["role"] = 2.5;   // tnesh_user
                     }else{

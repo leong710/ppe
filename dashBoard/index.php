@@ -67,9 +67,9 @@
             background-size: contain;
             /* padding-top: 300px; */
         }
-        .ul , li {
-            color: #FFFFFF;
-        }
+        /* .ul , li { */
+            /* color: #FFFFFF; */
+        /* } */
 
         .cs_a{
             /* background-image: linear-gradient(to bottom, #548C00, #CCFF80); */

@@ -6,12 +6,6 @@
     
     if(isset($_SESSION[$sys_id])){
         // 取出$_session引用
-        // $auth_emp_id    = !empty($_SESSION["AUTH"]["emp_id"])    ? $_SESSION["AUTH"]["emp_id"]    : "";
-        // $auth_cname     = !empty($_SESSION["AUTH"]["cname"])     ? $_SESSION["AUTH"]["cname"]     : "";
-        // $auth_sign_code = !empty($_SESSION["AUTH"]["sign_code"]) ? $_SESSION["AUTH"]["sign_code"] : "";
-        // $sys_role       = !empty($_SESSION[$sys_id]["role"])     ? $_SESSION[$sys_id]["role"]     : "";
-        // $sys_fab_id     = !empty($_SESSION[$sys_id]["fab_id"])   ? $_SESSION[$sys_id]["fab_id"]   : "1";  
-        // $sys_sfab_id    = !empty($_SESSION[$sys_id]["sfab_id"])  ? $_SESSION[$sys_id]["sfab_id"]  : [];  
         $sys_auth = true; 
     }else{
         $sys_auth = false; 
@@ -95,12 +89,68 @@
     $num3 = $numReceive;
     $num12 = $numIssue + $numTrade;
 ?>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <style>
+        .app-header {
+            position: relative;
+            -ms-flex-direction: row;
+            flex-direction: row;
+            height: 55px;
+            padding: 0;
+            margin: 0;
+            background-color: #fff;
+            border-bottom: 1px solid #c8ced3;
+        }
+        .app-header .nav-item {
+            position: relative;
+            min-width: 50px;
+            margin: 0;
+            text-align: center;
+            color: #7d7d7d;
+        }
+        .app-header .nav-item .nav-link {
+            padding-top: 1;
+            padding-bottom: 0;
+            background: 0;
+            border: 0;
+        }
+        .navbar-nav .nav-link {
+            padding-right: 0;
+            padding-left: 0;
+            color: #73818f;
+        }
+        .sysTitle {
+            font-weight: bold;
+            font-size: 20px;
+            margin-top: -5px;
+        }
+        .h6, h6 {
+            margin-bottom: .5rem;
+            font-family: inherit;
+            font-weight: 500;
+            line-height: 1.2;
+            color: inherit;
+            font-size: .875rem;
+        }
+    </style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light app-header">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?php echo $webroot;?>/dashBoard/">tnESH-PPE防護具管理</a>
+
+        <a class="navbar-brand" href="<?php echo $webroot;?>/">
+            <img class="navbar-brand-full pl-3" src="../template/tnesh_logo.png" height="40" width="100" alt="tnESH Logo">
+        </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <ul class="navbar-nav me-auto sysTitle">
+            <li class="nav-item px-1">
+                <a class="nav-link" href="<?php echo $webroot;?>/" class="p-0">防護具管理系統(PPE)</a>
+                <h6 id="hFullName">Personal Protective Equipment</h6>
+            </li>
+        </ul>
+
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if($sys_auth){ ?>

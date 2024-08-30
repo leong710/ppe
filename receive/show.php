@@ -122,7 +122,7 @@
                                     }
                                 }
                             } 
-                            if((in_array($receive_row['idty'], [ 1, 12 ])) && (in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 ){ // 1.簽核中 12.待領
+                            if((in_array($receive_row['idty'], [ 1, 12 ])) && ((in_array($receive_row["fab_id"], $sys_sfab_id) && $sys_role <= 2 ) || ($receive_row['in_sign'] == $auth_emp_id))){ // 1.簽核中 12.待領
                                 echo $let_btn_s."btn-danger".$let_btn_m."2".$let_btn_e."退回 (Reject)</button> ";
                             }
                             // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)

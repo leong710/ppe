@@ -126,7 +126,7 @@
         
         // $step套用身份
         $step = $step_arr[$step_index];
-
+    
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -181,7 +181,8 @@
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
-                            <?php if((($trade_row["fab_i_id"] == $sys_fab_id || in_array($trade_row["fab_i_id"], $sys_sfab_id)) && $trade_row["in_user_id"] == $auth_emp_id) || $sys_role <= 1 ){ ?>
+                            <!-- && $trade_row["in_user_id"] == $auth_emp_id -->
+                            <?php if((($trade_row["fab_i_id"] == $sys_fab_id || in_array($trade_row["fab_i_id"], $sys_sfab_id)) ) || $sys_role <= 1 ){ ?> 
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#submitModal" value="0" onclick="submit_item(this.value, this.innerHTML);">同意 (Approve)</button>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#submitModal" value="2" onclick="submit_item(this.value, this.innerHTML);">退回 (Reject)</button>
                         <?php } } ?>

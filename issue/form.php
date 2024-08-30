@@ -261,23 +261,29 @@
                                                             $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level_cata_SN; 
                                                         ?>
 
-                                                        <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red":"blue";?>">
-                                                            <b><?php echo "安量:&nbsp".$buy_qty."&nbsp/&nbsp現量: "; echo (!empty($catalog["amount"])) ? $catalog["amount"] : "0"; ?></b>
+                                                        <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red" : "blue"; ?>">
+                                                            <b><?php echo "安量:&nbsp" . $buy_qty . "&nbsp/&nbsp現量: " . (!empty($catalog["amount"]) ? $catalog["amount"] : "0"); ?></b>
                                                         </div>
                                                         <div class="input-group">
-                                                            <input type="number" id="<?php echo $catalog['SN'];?>" class="form-control amount t-center"
-                                                                placeholder="<?php echo "限購： ".$buy_qty."&nbsp/&nbsp".$catalog["unit"];?>" 
-                                                                min="1" 
-                                                                <?php if($sys_role <= 1){ ?>
-                                                                    onblur="add_cart_btn(this.id, this.value);" 
-                                                                <?php } else { ?>
-                                                                    max="<?php echo $buy_qty;?>" maxlength="<?php echo strlen($buy_qty);?>" 
-                                                                    oninput="if(value.length><?php echo strlen($buy_qty);?>)value=value.slice(0,<?php echo strlen($buy_qty);?>)"
-                                                                    onblur="if(value >= <?php echo $buy_qty;?>)value=<?php echo $buy_qty;?>; add_cart_btn(this.id, this.value);" 
-                                                                <?php } ?>
-                                                                >
-                                                            <button type="button" name="<?php echo $catalog['SN'];?>" id="add_<?php echo $catalog['SN'];?>" class="btn btn-outline-secondary add_btn" value=""
-                                                                title="加入購物車" onclick="add_item(this.name, this.value, 'off');"><i class="fa fa-plus"></i></button>
+                                                            <input type="number" id="<?php echo $catalog['SN']; ?>" class="form-control amount t-center"
+                                                                    placeholder="<?php echo "限購：&nbsp;" . $buy_qty . "&nbsp;/&nbsp;" . $catalog["unit"]; ?>" min="1"
+                                                                    onblur="add_cart_btn(this.id, this.value);"
+                                                                <?php
+                                                                    // 240827 因應大PM需求，解除限購機制。
+                                                                    // <_php if($sys_role <= 1){ _>
+                                                                    //     onblur="add_cart_btn(this.id, this.value);"
+                                                                    // <_php } else { _>
+                                                                    //     max="<_php echo $buy_qty; _>" maxlength="<_php echo strlen($buy_qty); _>"
+                                                                    //     oninput="if(value.length > <_php echo strlen($buy_qty); _>) value=value.slice(0, <_php echo strlen($buy_qty); _>);"
+                                                                    //     onblur="if(value >= <_php echo $buy_qty; _>) value=<_php echo $buy_qty; _>; add_cart_btn(this.id, this.value);"
+                                                                    // <_php } _>
+                                                                ?>
+                                                            >
+                                                            <button type="button" name="<?php echo $catalog['SN']; ?>" id="add_<?php echo $catalog['SN']; ?>" 
+                                                                    class="btn btn-outline-secondary add_btn" value="" 
+                                                                    title="加入購物車" onclick="add_item(this.name, this.value, 'off');">
+                                                                <i class="fa fa-plus"></i>
+                                                            </button>
                                                         </div>
                                                     
                                                     </td>

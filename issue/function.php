@@ -1020,7 +1020,7 @@
                 FROM _cata
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
                 LEFT JOIN _pno ON _cata.SN = _pno.cata_SN
-                WHERE _cata.flag = 'On'
+                -- WHERE _cata.flag = 'On'
                 ORDER BY _cata.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {

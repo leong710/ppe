@@ -56,9 +56,9 @@
                     $user = strtoupper($_SESSION["AUTH"]["user"]);  // strtoupper(大寫)
                     $pdo = pdo_hrdb();
                     $sql = "SELECT s.*
-                            FROM [hrDB].[dbo].[STAFF] s
-                            INNER JOIN [hrDB].[dbo].[DEPT] d ON s.dept_no = d.sign_code
-                            WHERE s.[user] = ? ";
+                            FROM `hrDB`.`STAFF` s
+                            INNER JOIN `hrDB`.`DEPT` d ON s.dept_no = d.sign_code
+                            WHERE s.`user` = ? ";
                     $stmt = $pdo -> prepare($sql);
                     $stmt -> execute([$user]);
                     $esh_mb = $stmt -> fetch(PDO::FETCH_ASSOC);

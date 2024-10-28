@@ -67,8 +67,8 @@
         extract($request);
         $search = "%".$search."%";      // 採用模糊搜尋 工號、姓名、NT_ID
         $sql = "SELECT u.* 
-                FROM staff u
-                WHERE ( u.emp_id LIKE ? OR u.[user] LIKE ? OR u.cname LIKE ? )
+                FROM `STAFF` u
+                WHERE ( u.emp_id LIKE ? OR u.user LIKE ? OR u.cname LIKE ? )
                 ORDER BY u.emp_id DESC ";
         $stmt = $pdo->prepare($sql);
         try{
@@ -88,8 +88,8 @@
         // $sql = "SELECT st.emp_id, st.cname, st.emp_scope, st.emp_sub_scope, st.emp_group, st.emp_type, st.dept_no, st.emp_dept, st.omager, st.updated_at,  
         $sql = "SELECT u.*,  
                     s2.emp_id AS s2_emp_id, s2.cname AS s2_cname, s2.emp_scope AS s2_emp_scope, s2.dept_no AS s2_dept_no, s2.emp_dept AS s2_emp_dept, s2.emp_sub_scope AS s2_emp_sub_scope
-                FROM staff u
-                LEFT JOIN staff s2 ON u.omager = s2.emp_id
+                FROM `STAFF` u
+                LEFT JOIN `STAFF` s2 ON u.omager = s2.emp_id
                 WHERE u.emp_id = ? ";
         $stmt = $pdo->prepare($sql);
         try{

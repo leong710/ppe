@@ -183,8 +183,8 @@
     function query_omager($emp_id){
         $pdo = pdo_hrdb();
         $sql = "SELECT u.emp_id, u.cname , u.omager AS omager_emp_id, s.cname AS omager_cname
-                FROM STAFF u
-                LEFT JOIN STAFF s ON u.omager = s.emp_id 
+                FROM `STAFF` u
+                LEFT JOIN `STAFF` s ON u.omager = s.emp_id 
                 where u.emp_id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
@@ -201,8 +201,8 @@
     function query_FAB_omager($sign_code){
         $pdo = pdo_hrdb();
         $sql = "SELECT _d.OSHORT, _d.OFTEXT, _d.OMAGER, CONCAT(_s.NACHN, _s.VORNA) AS cname
-                FROM [HCM_VW_DEPT08] _d
-                LEFT JOIN [HCM_VW_EMP01_hiring] _s ON _d.OMAGER = _s.PERNR
+                FROM `HCM_VW_DEPT08` _d
+                LEFT JOIN `HCM_VW_EMP01_hiring` _s ON _d.OMAGER = _s.PERNR
                 WHERE _d.OSHORT = ? ";
         $stmt = $pdo->prepare($sql);
         try {

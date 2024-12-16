@@ -14,7 +14,7 @@
 
     $sys_role  = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : false;             // 取出$_session引用
     $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
-    $inSign_lists    = inSign_list();                                                                  // 載入所有待簽名單
+    $inSign_lists = inSign_list();                                                                     // 載入所有待簽名單
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -48,6 +48,7 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-0">
                             <h3>待簽清單統計</h3>
+                            <span id="dabugTitle" style="color:red;"><b></b></span>
                         </div>
                         <div class="col-12 col-md-6 py-0 text-end">
                             <?php if($sys_role == 0 && $check_ip){ ?>
@@ -148,6 +149,8 @@
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
+
 </body>
 
 <script src="../../libs/aos/aos.js"></script>

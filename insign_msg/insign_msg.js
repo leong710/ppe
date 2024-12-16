@@ -1,9 +1,13 @@
- 
+    const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';
+    // 241209 確認是否是測試帳號
+        const debugMode = { 
+            'test'     : false , 
+            'title'    : '!!! Now is DEBUGMODE !!!',
+            'to_empId' : '10008048',
+            'to_email' : 'leong.chen@innolux.com'
+        };
+     
     // 子功能
-        $(function () {
-            // 在任何地方啟用工具提示框
-            $('[data-toggle="tooltip"]').tooltip();
-        })
         // fun_1 tab_table的顯示關閉功能
         function op_tab(tab_value){
             $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
@@ -48,6 +52,29 @@
                 i--;
             };
             loop();
+        }
+        // fun.0-2：吐司顯示字條 +堆疊
+        function inside_toast(sinn){
+            // 創建一個新的 toast 元素
+            var newToast = document.createElement('div');
+                newToast.className = 'toast align-items-center bg-warning';
+                newToast.setAttribute('role', 'alert');
+                newToast.setAttribute('aria-live', 'assertive');
+                newToast.setAttribute('aria-atomic', 'true');
+                newToast.setAttribute('autohide', 'true');
+                newToast.setAttribute('delay', '1000');
+                // 設置 toast 的內部 HTML
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+            // 將新 toast 添加到容器中
+            document.getElementById('toastContainer').appendChild(newToast);
+            // 初始化並顯示 toast
+            var toast = new bootstrap.Toast(newToast);
+            toast.show();
+            // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
+            newToast.addEventListener('hidden.bs.toast', function () {
+                newToast.remove();
+            });
         }
 
     // 主技能
@@ -95,22 +122,19 @@
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
                     data:{
-                        uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                        uuid    : uuid,                                         // ppe
                         eid     : user_emp_id,                                  // 傳送對象
-                        // eid     : '10008048',                                   // 傳送對象
                         message : mg_msg                                        // 傳送訊息
                     },
                     success: function(res){
-                        var mapp_result_check = true; 
+                        // console.log("push_mapp -- success",res);
                         resolve(true);                                          // 成功時解析為 true 
                     },
                     error: function(res){
-                        var mapp_result_check = false;
                         console.log("push_mapp -- error：",res);
                         reject(false);                                          // 失敗時拒絕 Promise
                     }
                 });
-                return mapp_result_check;
             });
         }
         // 20240314 將訊息郵件發送給對的人~
@@ -123,24 +147,21 @@
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
                     data:{
-                        uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                        uuid    : uuid,                                         // ppe
                         sysName : 'PPE',                                        // 貫名
                         to      : user_email,                                   // 傳送對象
-                        // to      : 'leong.chen@innolux.com',                     // 傳送對象
                         subject : int_msg1_title,                               // 信件標題
                         body    : mg_msg                                        // 訊息內容
                     },
                     success: function(res){
-                        var mail_result_check = true; 
+                        // console.log("push_mapp -- success",res);
                         resolve(true);                                          // 成功時解析為 true 
                     },
                     error: function(res){
-                        var mail_result_check = false;
                         console.log("send_mail -- error：",res);
                         reject(false);                                          // 失敗時拒絕 Promise
                     }
                 });
-                return mail_result_check;
             });
         }
         // 20240314 search user_empid return email
@@ -214,11 +235,9 @@
             $("body").mLoading("hide");                                                       // 關閉mLoading圖示
             swal(swal_title ,swal_content ,swal_action, {timer:5000});                        // popOut swal + 自動關閉
         }
-
         // 2024/05/09 notify_insign()整理訊息、發送、顯示發送結果。
-        function notify_insign(){
+        async function notify_insign(){
             mloading("show");                                                       // 啟用mLoading
-            // mloading();
             var totalUsers = 0;                                                     // 总用户数量
             var completedUsers = 0;                                                 // 已完成发送操作的用户数量
             var user_logs = [];                                                     // 宣告儲存Log用的 大-陣列Logs
@@ -237,167 +256,173 @@
                         var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect']);
                         var user_mapp   = (emergency_count > 0) ? true : false;     // 當3急件數量!=0，就使用mapp加急通知!
 
-                        // step.1 確認工號是否有誤
-                        if(!user_emp_id || (user_emp_id.length < 8)){
-                            // alert("工號字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
-                            // $("body").mLoading("hide");
-                            console.log("工號字數有誤：", user_emp_id);
-                            push_result['mapp']['error']++; 
-                            push_result['email']['error']++; 
-                            return false;
-    
-                        } else {
-                            // 宣告儲存Log內的單筆 小-物件log
-                            var user_log = { 
-                                emp_id          : user['emp_id'],
-                                cname           : user['cname'],
-                                email           : user_email,
+                        // 宣告儲存Log內的單筆 小-物件log
+                        var user_log = { 
+                            emp_id          : user['emp_id'],
+                            cname           : user['cname'],
+                            email           : user_email,
 
-                                issue_waiting   : user['issue_waiting'],
-                                receive_waiting : user['receive_waiting'],
-                                waiting         : user['total_waiting'],
+                            issue_waiting   : user['issue_waiting'],
+                            receive_waiting : user['receive_waiting'],
+                            waiting         : user['total_waiting'],
 
-                                issue_reject    : user['issue_reject'],
-                                receive_reject  : user['receive_reject'],
-                                Reject          : user['total_reject'],
+                            issue_reject    : user['issue_reject'],
+                            receive_reject  : user['receive_reject'],
+                            Reject          : user['total_reject'],
 
-                                collect         : user['total_collect'],
-                                emergency       : emergency_count
-                            }
-                            // step.1-1 組合訊息文字
-                            var mg_msg  = int_msg1 + "\n"; //+ " (" + user['cname'] + ")";
-                            // 定義每一封mail title
-                                var int_msg1_title = int_msg1 + " (";
-                            
-                            // 待簽核 waiting
-                            if(user['total_waiting'] > 0){
-                                mg_msg += "\r\n";
-                                mg_msg += int_msg2 + user['total_waiting'] + int_msg3 + '(';    // 20240112 新添加 請購和領用
-                                if(user['issue_waiting'] > 0){
-                                    mg_msg += '請購'+user['issue_waiting']+'件'
-                                }
-                                if(user['receive_waiting'] > 0){
-                                    if(user['issue_waiting'] > 0){
-                                        mg_msg += '、';
-                                    }
-                                    mg_msg += '領用'+user['receive_waiting']+'件'
-                                }
-                                mg_msg += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
-
-                                // 定義每一封mail title
-                                    int_msg1_title += "待簽核" + user['total_waiting'] +'件';
-                                    int_msg1_title += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
-                            }
-                            // 被退件 reject
-                            if(user['total_reject'] > 0){
-                                mg_msg += "\r\n";
-                                mg_msg += int_msg2 + user['total_reject'] + ret_msg3 + '(';    // 20240112 新添加 請購和領用
-                                if(user['issue_reject'] > 0){
-                                    mg_msg += '請購'+user['issue_reject']+'件'
-                                }
-                                if(user['receive_reject'] > 0){
-                                    if(user['issue_reject'] > 0){
-                                        mg_msg += '、';
-                                    }
-                                    mg_msg += '領用'+user['receive_reject']+'件'
-                                }
-                                mg_msg += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')';
-
-                                // 定義每一封mail title
-                                    int_msg1_title += (user['total_waiting'] > 0) ? '、(' : '';
-                                    int_msg1_title += "被退件" + user['total_reject'] +'件';
-                                    int_msg1_title += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')'
-                            }
-                            // 待收發 collect
-                            if(user['total_collect'] > 0){
-                                mg_msg += "\r\n";
-                                mg_msg += int_msg2 + user['total_collect'] + col_msg3 ;    
-                                mg_msg += (user['ppty_3_collect'] > 0) ? '(急件'+user['ppty_3_collect']+'件)' : '';
-
-                                // 定義每一封mail title
-                                    int_msg1_title += (user['total_reject'] > 0) ? '、(' : '';
-                                    int_msg1_title += "待收發" + user['total_collect'] +'件';
-                                    int_msg1_title += (user['ppty_3_collect'] > 0) ? '、急件'+user['ppty_3_collect']+'件)' : ')';
-                            }
-
-                            var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
-                            // 拼接尾段訊息
-                            if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0)) {
-                                mg_msg += int_msg4 ;    // 套用有網址長訊息
-                                if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
-                                    mg_msg += receive_url;      // 套用receive網址
-                                }
-                                if((user['issue_waiting'] > 0) || (user['issue_reject'] >0 )){
-                                    if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
-                                        mg_msg += '\n';
-                                    }
-                                    mg_msg += issue_url;        // 套用issue網址
-                                }
-                                mg_msg += int_msg5;
-                            }else{
-                                mg_msg += srt_msg4;     // 套用無網址短訊息
-                            }
-
-                            logs_source          = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
-                            logs_source          = logs_source.replace(/您共有 /g, "");       // 小-物件log 紀錄mg_msg訊息 // 20240522...縮減log文字內容
-                            user_log['mg_msg']   = logs_source;                             // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
-                            user_log['thisTime'] = thisTime;                                // 小-物件log 紀錄thisTime
-    
-                            // step.2 執行通知 --
-                            // *** 2-1 發送mail
-                            const mail_result_check = async () => {
-                                // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
-                                let mail_result_check = (user_email) ? await sendmail(user_email, int_msg1_title, mg_msg) : false;
-                                return mail_result_check;
-                            };
-    
-                            // *** 2-2 發送mapp
-                            const mapp_result_check = async () => {
-                                // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                                let mapp_result_check = (user_mapp) ? await push_mapp(user_emp_id, mg_msg) : false;
-                                return mapp_result_check;
-                            };
-    
-                            // step.3 存储每个用户的异步操作 Promise
-                            promises.push(
-                                // 等待mapp_result_check()和mail_result_check()都完成后再执行自定义的代码
-                                Promise.all([mapp_result_check(), mail_result_check()])
-                                .then(results => {
-                                    const [mappResult, mailResult] = results;
-                                    // 处理 mapp/mail 结果 // 標記結果顯示OK或NG，並顯示執行訊息
-                                        var action_id = document.querySelector('#'+list_key+' #id_' + user_emp_id);
-                                    // mail處理
-                                        if(user_email){
-                                            user_log.mail_res = mailResult ? 'OK' : 'NG';
-                                            mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
-                                            var fa_icon_mail = window['mail_' + user_log.mail_res];
-                                            action_id.innerHTML = fa_icon_mail + action_id.innerText;
-                                            console_log = user.cname + " (" + user.emp_id + ")" + ' ...  sendMail： ' + fa_icon_mail + user_log.mail_res;
-                                        }
-                                    // mapp處理
-                                        if(user_mapp){
-                                            user_log.mapp_res = mappResult ? 'OK' : 'NG';
-                                            mappResult ? push_result['mapp']['success']++ : push_result['mapp']['error']++; 
-                                            var fa_icon_mapp = window['fa_' + user_log.mapp_res];
-                                            action_id.innerHTML = fa_icon_mapp + fa_icon_mail + action_id.innerText;
-                                            console_log += '  /  pushMapp： ' + fa_icon_mapp + user_log.mapp_res;
-                                        }
-    
-                                    // 自定义的代码在这里执行 -- 執行訊息渲染                                                           
-                                        $('#result').append(console_log + '</br>');
-    
-                                    // 这里可以执行其他自定义的操作
-                                    user_logs.push(user_log);                                    // 將log單筆小物件 塞入 logs大陣列中
-                                    completedUsers++;                                            // 增加已完成发送操作的用户数量
-                                    if (completedUsers == totalUsers) {                          // 检查是否所有用户的发送操作都已完成
-                                        swap_toLog(user_logs);                                   // 所有发送操作完成后调用 swap_toLog
-                                    }
-                                })
-                                .catch(error => {
-                                    console.log('Error:', error);
-                                })
-                            );
+                            collect         : user['total_collect'],
+                            emergency       : emergency_count
                         }
+                        // step.1-1 組合訊息文字
+                        var mg_msg  = int_msg1 + "\n"; //+ " (" + user['cname'] + ")";
+                        // 定義每一封mail title
+                            var int_msg1_title = int_msg1 + " (";
+                        
+                        // 待簽核 waiting
+                        if(user['total_waiting'] > 0){
+                            mg_msg += "\r\n";
+                            mg_msg += int_msg2 + user['total_waiting'] + int_msg3 + '(';    // 20240112 新添加 請購和領用
+                            if(user['issue_waiting'] > 0){
+                                mg_msg += '請購'+user['issue_waiting']+'件'
+                            }
+                            if(user['receive_waiting'] > 0){
+                                if(user['issue_waiting'] > 0){
+                                    mg_msg += '、';
+                                }
+                                mg_msg += '領用'+user['receive_waiting']+'件'
+                            }
+                            mg_msg += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
+
+                            // 定義每一封mail title
+                                int_msg1_title += "待簽核" + user['total_waiting'] +'件';
+                                int_msg1_title += (user['ppty_3_waiting'] > 0) ? '、急件'+user['ppty_3_waiting']+'件)' : ')';
+                        }
+                        // 被退件 reject
+                        if(user['total_reject'] > 0){
+                            mg_msg += "\r\n";
+                            mg_msg += int_msg2 + user['total_reject'] + ret_msg3 + '(';    // 20240112 新添加 請購和領用
+                            if(user['issue_reject'] > 0){
+                                mg_msg += '請購'+user['issue_reject']+'件'
+                            }
+                            if(user['receive_reject'] > 0){
+                                if(user['issue_reject'] > 0){
+                                    mg_msg += '、';
+                                }
+                                mg_msg += '領用'+user['receive_reject']+'件'
+                            }
+                            mg_msg += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')';
+
+                            // 定義每一封mail title
+                                int_msg1_title += (user['total_waiting'] > 0) ? '、(' : '';
+                                int_msg1_title += "被退件" + user['total_reject'] +'件';
+                                int_msg1_title += (user['ppty_3_reject'] > 0) ? '、急件'+user['ppty_3_reject']+'件)' : ')'
+                        }
+                        // 待收發 collect
+                        if(user['total_collect'] > 0){
+                            mg_msg += "\r\n";
+                            mg_msg += int_msg2 + user['total_collect'] + col_msg3 ;    
+                            mg_msg += (user['ppty_3_collect'] > 0) ? '(急件'+user['ppty_3_collect']+'件)' : '';
+
+                            // 定義每一封mail title
+                                int_msg1_title += (user['total_reject'] > 0) ? '、(' : '';
+                                int_msg1_title += "待收發" + user['total_collect'] +'件';
+                                int_msg1_title += (user['ppty_3_collect'] > 0) ? '、急件'+user['ppty_3_collect']+'件)' : ')';
+                        }
+
+                        var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
+                        // 拼接尾段訊息
+                        if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0)) {
+                            mg_msg += int_msg4 ;    // 套用有網址長訊息
+                            if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
+                                mg_msg += receive_url;      // 套用receive網址
+                            }
+                            if((user['issue_waiting'] > 0) || (user['issue_reject'] >0 )){
+                                if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
+                                    mg_msg += '\n';
+                                }
+                                mg_msg += issue_url;        // 套用issue網址
+                            }
+                            mg_msg += int_msg5;
+                        }else{
+                            mg_msg += srt_msg4;     // 套用無網址短訊息
+                        }
+
+                        logs_source          = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                        logs_source          = logs_source.replace(/您共有 /g, "");      // 小-物件log 紀錄mg_msg訊息 // 20240522...縮減log文字內容
+                        user_log['mg_msg']   = logs_source;                             // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                        user_log['thisTime'] = thisTime;                                // 小-物件log 紀錄thisTime
+
+                        // step.2 執行通知 --
+                        // *** 2-1 發送mail
+                        const mail_result_check = async () => {
+                            // --- 確認email是否有誤
+                            if(!user_email || (user_email.length < 12)){
+                                // alert("email字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
+                                console.log("email 有誤：", user_emp_id, user_email);
+                                push_result['mapp']['error']++; 
+                                push_result['email']['error']++; 
+                                return false;
+                            }
+                            // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
+                            let mail_result_check = (user_email) ? await sendmail((debugMode.test ? debugMode.to_email : user_email), int_msg1_title, mg_msg) : false;
+                            return mail_result_check;
+                        };
+
+                        // *** 2-2 發送mapp
+                        const mapp_result_check = async () => {
+                            // --- 確認工號是否有誤
+                            if(!user_emp_id || (user_emp_id.length < 8)){
+                                // alert("工號字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
+                                console.log("工號 有誤：", user_emp_id);
+                                push_result['mapp']['error']++; 
+                                push_result['email']['error']++; 
+                                return false;
+                            }
+                            // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                            let mapp_result_check = (user_mapp) ? await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg) : false;
+                            return mapp_result_check;
+                        };
+
+                        // step.3 存储每个用户的异步操作 Promise
+                        promises.push(
+                            // 等待mapp_result_check()和mail_result_check()都完成后再执行自定义的代码
+                            Promise.all([mapp_result_check(), mail_result_check()])
+                            .then(results => {
+                                const [mappResult, mailResult] = results;
+                                // 处理 mapp/mail 结果 // 標記結果顯示OK或NG，並顯示執行訊息
+                                    var action_id = document.querySelector('#'+list_key+' #id_' + user_emp_id);
+                                    let console_log;
+                                // mail處理
+                                    if(user_email){
+                                        user_log.mail_res = mailResult ? 'OK' : 'NG';
+                                        mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
+                                        var fa_icon_mail = window['mail_' + user_log.mail_res];
+                                        action_id.innerHTML = fa_icon_mail + action_id.innerText;
+                                        console_log = user.cname + " (" + user.emp_id + ")" + ' ...  sendMail： ' + fa_icon_mail + user_log.mail_res;
+                                    }
+                                // mapp處理
+                                    if(user_mapp){
+                                        user_log.mapp_res = mappResult ? 'OK' : 'NG';
+                                        mappResult ? push_result['mapp']['success']++ : push_result['mapp']['error']++; 
+                                        var fa_icon_mapp = window['fa_' + user_log.mapp_res];
+                                        action_id.innerHTML = fa_icon_mapp + fa_icon_mail + action_id.innerText;
+                                        console_log += '  /  pushMapp： ' + fa_icon_mapp + user_log.mapp_res;
+                                    }
+
+                                // 自定义的代码在这里执行 -- 執行訊息渲染                                                           
+                                    $('#result').append(console_log + '</br>');
+
+                                // 这里可以执行其他自定义的操作
+                                user_logs.push(user_log);                                    // 將log單筆小物件 塞入 logs大陣列中
+                                completedUsers++;                                            // 增加已完成发送操作的用户数量
+                                if (completedUsers == totalUsers) {                          // 检查是否所有用户的发送操作都已完成
+                                    swap_toLog(user_logs);                                   // 所有发送操作完成后调用 swap_toLog
+                                }
+                            })
+                            .catch(error => {
+                                console.log('Error:', error);
+                            })
+                        );
                     });
                 }else{                                                                          // 沒件數 == 0 就不用執行通知，但依樣要生成Log
                     var user_log = {                                                            // 宣告儲存Log內的單筆 小-物件log
@@ -431,7 +456,6 @@
 
             $("body").mLoading("hide");                                                         // 關閉mLoading圖示
         }
-
         // 20240529 確認自己是否為彈出視窗 !! 只在完整url中可運行 = tw123456p.cminl.oa
         function checkPopup() {
             var urlParams = new URLSearchParams(window.location.search);
@@ -455,9 +479,20 @@
             }
         }
 
-
-    $(function () {
-        mloading("show");                                               // 啟用mLoading
+    // fun啟動自動執行
+    $(document).ready( function () {
+        // 啟用mLoading
+        mloading("show");
+        checkPopup();
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
+        // 241209 debugMode
+        if(debugMode.test){
+            const dm = document.getElementById("dabugTitle");
+            dm.innerHTML = debugMode.title;
+            inside_toast(debugMode.title)
+            console.log(debugMode.title);
+        }
         // 把所有名單上的人頭代上email
         Object.keys(lists_obj).forEach((list_key)=>{
             let a_list = lists_obj[list_key];
@@ -470,14 +505,9 @@
                 }
             }
         })
-        $("body").mLoading("hide");
-    })
-
-    // fun啟動自動執行
-    $(document).ready( function () {
-        checkPopup();
         // op_tab('user_lists');   // 關閉清單
         $('#result').append('等待發報 : ');
+
         if(check_ip && fun){
             switch (fun) {
                 case 'notify_insign':         // MAPP待簽發報
@@ -486,12 +516,12 @@
                         CountDown();        // 當 func1 執行完畢後才會執行 func2    // 倒數 n秒自動關閉視窗~
                     })();
                     break;
-
                 default:
                     $('#result').append('function error!</br>');
             }
-
         }else{
             $('#result').append(' ...standBy...</br>');
         }
+
+        $("body").mLoading("hide");
     } );

@@ -87,7 +87,7 @@
                                 <h3>MAPP發報記錄管理</h3>
                             </div>
                             <div class="col-6 col-md-4 py-0">
-                                <form action="" method="post">
+                                <form action="" method="get">
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                         <select name="_year" id="_year" class="form-select">
@@ -138,12 +138,20 @@
                                                 if($page=='1'){
                                                     echo "首頁 ";
                                                     echo "上一頁 ";		
-                                                }else if(isset($list_ym)){
-                                                    echo "<a href=?list_ym=".$list_ym."&page=1>首頁 </a> ";
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".($page-1).">上一頁 </a> ";	
                                                 }else{
-                                                    echo "<a href=?page=1>首頁 </a> ";
-                                                    echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                                    $page_h = "<a href=?page=1";
+                                                    $page_u = "<a href=?page=".($page-1);
+                                                        if(isset($_year)){
+                                                            $page_h .= "&_year=".$_year;
+                                                            $page_u .= "&_year=".$_year;		
+                                                        }
+                                                        if(isset($_month)){
+                                                            $page_h .= "&_month=".$_month;
+                                                            $page_u .= "&_month=".$_month;		
+                                                        }
+                    
+                                                    echo $page_h.">首頁 </a> ";
+                                                    echo $page_u.">上一頁 </a> ";
                                                 }
         
                                                 //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
@@ -163,10 +171,15 @@
                                                     if($page-$lnum <= $i && $i <= $page+$rnum){
                                                         if($i==$page){
                                                             echo $i.' ';
-                                                        }else if(isset($list_ym)){
-                                                            echo '<a href=?list_ym='.$list_ym.'&page='.$i.'>'.$i.'</a> ';
                                                         }else{
-                                                            echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                            $page_n = '<a href=?page='.$i;
+                                                            if(isset($_year)){
+                                                                $page_n .= "&_year=".$_year;		
+                                                            }
+                                                            if(isset($_month)){
+                                                                $page_n .= "&_month=".$_month;		
+                                                            }
+                                                            echo $page_n.'>'.$i.'</a> ';
                                                         }
                                                     }
                                                 }
@@ -174,12 +187,19 @@
                                                 if($page==$pages){
                                                     echo " 下一頁";
                                                     echo " 末頁";
-                                                }else if(isset($list_ym)){
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".($page+1)."> 下一頁</a>";
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".$pages."> 末頁</a>";		
                                                 }else{
-                                                    echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                                    echo "<a href=?page=".$pages."> 末頁</a>";		
+                                                    $page_d = "<a href=?page=".($page+1);
+                                                    $page_e = "<a href=?page=".$pages;
+                                                        if(isset($_year)){
+                                                            $page_d .= "&_year=".$_year;
+                                                            $page_e .= "&_year=".$_year;		
+                                                        }
+                                                        if(isset($_month)){
+                                                            $page_d .= "&_month=".$_month;
+                                                            $page_e .= "&_month=".$_month;		
+                                                        }
+                                                    echo $page_d."> 下一頁</a> ";
+                                                    echo $page_e."> 末頁</a> ";			
                                                 }
                                             }
                                         ?>
@@ -260,12 +280,20 @@
                                                 if($page=='1'){
                                                     echo "首頁 ";
                                                     echo "上一頁 ";		
-                                                }else if(isset($list_ym)){
-                                                    echo "<a href=?list_ym=".$list_ym."&page=1>首頁 </a> ";
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".($page-1).">上一頁 </a> ";	
                                                 }else{
-                                                    echo "<a href=?page=1>首頁 </a> ";
-                                                    echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                                    $page_h = "<a href=?page=1";
+                                                    $page_u = "<a href=?page=".($page-1);
+                                                        if(isset($_year)){
+                                                            $page_h .= "&_year=".$_year;
+                                                            $page_u .= "&_year=".$_year;		
+                                                        }
+                                                        if(isset($_month)){
+                                                            $page_h .= "&_month=".$_month;
+                                                            $page_u .= "&_month=".$_month;		
+                                                        }
+                    
+                                                    echo $page_h.">首頁 </a> ";
+                                                    echo $page_u.">上一頁 </a> ";
                                                 }
         
                                                 //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
@@ -285,10 +313,15 @@
                                                     if($page-$lnum <= $i && $i <= $page+$rnum){
                                                         if($i==$page){
                                                             echo $i.' ';
-                                                        }else if(isset($list_ym)){
-                                                            echo '<a href=?list_ym='.$list_ym.'&page='.$i.'>'.$i.'</a> ';
                                                         }else{
-                                                            echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                            $page_n = '<a href=?page='.$i;
+                                                            if(isset($_year)){
+                                                                $page_n .= "&_year=".$_year;		
+                                                            }
+                                                            if(isset($_month)){
+                                                                $page_n .= "&_month=".$_month;		
+                                                            }
+                                                            echo $page_n.'>'.$i.'</a> ';
                                                         }
                                                     }
                                                 }
@@ -296,12 +329,19 @@
                                                 if($page==$pages){
                                                     echo " 下一頁";
                                                     echo " 末頁";
-                                                }else if(isset($list_ym)){
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".($page+1)."> 下一頁</a>";
-                                                    echo "<a href=?list_ym=".$list_ym."&page=".$pages."> 末頁</a>";		
                                                 }else{
-                                                    echo "<a href=?page=".($page+1)."> 下一頁</a>";
-                                                    echo "<a href=?page=".$pages."> 末頁</a>";		
+                                                    $page_d = "<a href=?page=".($page+1);
+                                                    $page_e = "<a href=?page=".$pages;
+                                                        if(isset($_year)){
+                                                            $page_d .= "&_year=".$_year;
+                                                            $page_e .= "&_year=".$_year;		
+                                                        }
+                                                        if(isset($_month)){
+                                                            $page_d .= "&_month=".$_month;
+                                                            $page_e .= "&_month=".$_month;		
+                                                        }
+                                                    echo $page_d."> 下一頁</a> ";
+                                                    echo $page_e."> 末頁</a> ";
                                                 }
                                             }
                                         ?>

@@ -1,7 +1,10 @@
-    const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';
+    const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';            // ppe
     // 241209 確認是否是測試帳號
         const debugMode = { 
-            'test'     : false , 
+            'test'     : (fun == 'debug') ? true : false,           // true  = 啟動測試 
+            'mapp'     : false ,                                     // false = 放棄執行
+            'email'    : false ,                                     // false = 放棄執行
+            'toLog'    : true ,                                     // false = 放棄執行
             'title'    : '!!! Now is DEBUGMODE !!!',
             'to_empId' : '10008048',
             'to_email' : 'leong.chen@innolux.com'
@@ -25,6 +28,7 @@
             const loop = () => {
                 if (i >= 0) {
                     document.getElementById("myMessage").innerHTML = "視窗關閉倒數 "+ i +" 秒";
+                    i--;
                     setTimeout(loop, delayTime);
                 } else {
                     // callback();                  // 要執行的程式
@@ -32,7 +36,6 @@
                     window.open('', '_self', '');
                     window.close();
                 }
-                i--;
             };
             loop();
         }
@@ -77,44 +80,55 @@
             });
         }
 
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
     // 主技能
         // 20240515 整理log記錄檔並轉拋toLog
-        function swap_toLog(user_logs){
+        async function swap_toLog(user_logs){
             // 打包整理Logs的陣列
             user_logs_obj = {
                 thisDay  : thisToday,
                 autoLogs : user_logs
             }
             user_logs_json = JSON.stringify(user_logs_obj);                                   // logs大陣列轉JSON字串
-            toLog(user_logs_json);                                                            // *** call fun.step_2 寫入log記錄檔
+            await toLog(user_logs_json);                                                            // *** call fun.step_2 寫入log記錄檔
         }
         // 20231213 寫入log記錄檔~
         function toLog(logs_msg){
-            $.ajax({
-                url      : '../autolog/log.php',
-                method   : 'post',
-                async    : false,
-                dataType : 'json',
-                data     : {
-                    function : 'storeLog',
-                    thisDay  : thisToday,
-                    sys      : 'ppe',
-                    logs     : logs_msg,
-                    t_stamp  : ''
-                },
-                success: function(res){
-                    toLog_result_check = true; 
-                },
-                error: function(res){
-                    console.log("toLog -- error：", res);
-                    toLog_result_check = false;
-                }
+            if(!debugMode.toLog){
+                return true;
+            }
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url      : '../autolog/log.php',
+                    method   : 'post',
+                    async    : false,
+                    dataType : 'json',
+                    data     : {
+                        function : 'storeLog',
+                        thisDay  : thisToday,
+                        sys      : 'ppe',
+                        logs     : logs_msg,
+                        t_stamp  : ''
+                    },
+                    success: function(res){
+                        resolve(true);                                          // 成功時解析為 true 
+                    },
+                    error: function(res){
+                        console.log("toLog -- error：", res);
+                        reject(false);                                          // 失敗時拒絕 Promise
+                    }
+                });
             });
-            return toLog_result_check;
+
         }
         // 20240314 將訊息推送到TN PPC(mapp)給對的人~
         function push_mapp(user_emp_id, mg_msg) {
-            // return true;
+            if(!debugMode.mapp){
+                return true;
+            }
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
@@ -139,7 +153,9 @@
         }
         // 20240314 將訊息郵件發送給對的人~
         function sendmail(user_email, int_msg1_title, mg_msg){
-            // return true;
+            if(!debugMode.email){
+                return true;
+            }
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2024新版
@@ -169,20 +185,21 @@
             var comid2 = null;
 
             if(!search || (search.length < 8)){
-                alert("查詢工號字數最少 8 個字以上!!");
+                let reject_msg = "查詢 工號字數最少 8 個字!! 請確認："+search;
+                console.log(reject_msg);
+                alert(reject_msg);
                 $("body").mLoading("hide");
                 return false;
             } 
 
             $.ajax({
-             // url:'http://tneship.cminl.oa/hrdb/api/index.php',           // 正式舊版
                 url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
-                method:'post',
-                async: false,                                               // ajax取得數據包後，可以return的重要參數
+                method  :'post',
+                async   : false,                                            // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
+                    uuid         : uuid,                                    // ppe
                     functionname : 'showStaff',                             // 操作功能
-                    uuid         : '752382f7-207b-11ee-a45f-2cfda183ef4f',  // ppe
                     emp_id       : search                                   // 查詢對象key_word  // 使用開單人工號查詢
                 },
                 success: function(res){
@@ -206,7 +223,6 @@
         }
         // 20240314 配合await將swal外移
         function show_swal_fun(push_result){
-
             // swal組合訊息，根據發送結果選用提示內容與符號
             var swal_title = '領用申請單-發放訊息';
             
@@ -243,14 +259,15 @@
             var user_logs = [];                                                     // 宣告儲存Log用的 大-陣列Logs
             $('#result').empty();                                                   // 清空執行訊息欄位
 
-            Object.keys(lists_obj).forEach((list_key)=>{
+            for (const list_key of Object.keys(lists_obj)) {
                 let a_list = lists_obj[list_key];
                 if(a_list && a_list.length >= 1){                                   // 有件數 > 0 舊執行通知
                     var promises = [];                                              // 存储所有异步操作的 Promise
                     totalUsers += a_list.length;                                    // 总用户数量
-    
                     // step.0 逐筆把清單繞出來
-                    Object(a_list).forEach(function(user){
+                    for (const [index, user] of a_list.entries()) {
+                        await sleep(1000);                                          // 先等待時間
+                        // console.log(`發送請求給: ${index}`);
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         var user_email  = String(user['email']).trim();             // 定義 user_email + 去空白
                         var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect']);
@@ -276,7 +293,7 @@
                         // step.1-1 組合訊息文字
                         var mg_msg  = int_msg1 + "\n"; //+ " (" + user['cname'] + ")";
                         // 定義每一封mail title
-                            var int_msg1_title = int_msg1 + " (";
+                        var int_msg1_title = int_msg1 + " (";
                         
                         // 待簽核 waiting
                         if(user['total_waiting'] > 0){
@@ -364,8 +381,7 @@
                                 return false;
                             }
                             // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
-                            let mail_result_check = (user_email) ? await sendmail((debugMode.test ? debugMode.to_email : user_email), int_msg1_title, mg_msg) : false;
-                            return mail_result_check;
+                            return await sendmail((debugMode.test ? debugMode.to_email : user_email), int_msg1_title, mg_msg);
                         };
 
                         // *** 2-2 發送mapp
@@ -379,8 +395,7 @@
                                 return false;
                             }
                             // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                            let mapp_result_check = (user_mapp) ? await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg) : false;
-                            return mapp_result_check;
+                            return await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg);
                         };
 
                         // step.3 存储每个用户的异步操作 Promise
@@ -423,7 +438,10 @@
                                 console.log('Error:', error);
                             })
                         );
-                    });
+                    };
+
+                    // 等待所有 promises 完成
+                    await Promise.all(promises);
                 }else{                                                                          // 沒件數 == 0 就不用執行通知，但依樣要生成Log
                     var user_log = {                                                            // 宣告儲存Log內的單筆 小-物件log
                         emp_id   : '',
@@ -437,8 +455,7 @@
                     $('#result').append(fa_OK + '(無待簽文件) ... done'+'</br>');                // 插入下方顯示
                     swap_toLog(user_logs);                                           // 没有用户需要通知时直接调用 swap_toLog
                 }
-
-            })
+            }
                 
             show_swal_fun(push_result);                                                         // 调用 show_swal_fun
             // 將其歸零，避免汙染
@@ -479,8 +496,10 @@
             }
         }
 
+
+
     // fun啟動自動執行
-    $(document).ready( function () {
+    $(document).ready( async function () {
         // 啟用mLoading
         mloading("show");
         checkPopup();
@@ -510,10 +529,16 @@
 
         if(check_ip && fun){
             switch (fun) {
+                case 'debug':                               // debug mode，mapp&mail=>return true
+                    break;
                 case 'notify_insign':         // MAPP待簽發報
                     (async () => {
-                        await notify_insign();     // 等 func1 執行完畢  // notify_insign 整理訊息、發送、顯示發送結果。
-                        CountDown();        // 當 func1 執行完畢後才會執行 func2    // 倒數 n秒自動關閉視窗~
+                        try {
+                            await notify_insign();     // 等 func1 執行完畢  // notify_insign 整理訊息、發送、顯示發送結果。
+                            CountDown();        // 當 func1 執行完畢後才會執行 func2    // 倒數 n秒自動關閉視窗~
+                        } catch (error) {
+                            console.error('發生錯誤:', error);
+                        }
                     })();
                     break;
                 default:

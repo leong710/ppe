@@ -2,8 +2,8 @@
     // 241209 確認是否是測試帳號
         const debugMode = { 
             'test'     : (fun == 'debug') ? true : false,           // true  = 啟動測試 
-            'mapp'     : false ,                                     // false = 放棄執行
-            'email'    : false ,                                     // false = 放棄執行
+            'mapp'     : true ,                                     // false = 放棄執行
+            'email'    : true ,                                     // false = 放棄執行
             'toLog'    : true ,                                     // false = 放棄執行
             'title'    : '!!! Now is DEBUGMODE !!!',
             'to_empId' : '10008048',
@@ -127,6 +127,7 @@
         // 20240314 將訊息推送到TN PPC(mapp)給對的人~
         function push_mapp(user_emp_id, mg_msg) {
             if(!debugMode.mapp){
+                console.log(user_emp_id, mg_msg);
                 return true;
             }
             return new Promise((resolve, reject) => {
@@ -136,9 +137,11 @@
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
                     data:{
-                        uuid    : uuid,                                         // ppe
-                        eid     : user_emp_id,                                  // 傳送對象
-                        message : mg_msg                                        // 傳送訊息
+                        uuid         : uuid,                                    // ppe
+                        kind         : 'broadChat',                             // 訊息頻道
+                        ask          : 'to',                                    // 個人
+                        ACCOUNT_LIST : user_emp_id,                             // 傳送對象
+                        TEXT_CONTENT : mg_msg,                                  // 傳送訊息
                     },
                     success: function(res){
                         // console.log("push_mapp -- success",res);
@@ -154,6 +157,7 @@
         // 20240314 將訊息郵件發送給對的人~
         function sendmail(user_email, int_msg1_title, mg_msg){
             if(!debugMode.email){
+                console.log(user_email, int_msg1_title, mg_msg);
                 return true;
             }
             return new Promise((resolve, reject) => {
@@ -381,7 +385,8 @@
                                 return false;
                             }
                             // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
-                            return await sendmail((debugMode.test ? debugMode.to_email : user_email), int_msg1_title, mg_msg);
+                            let mail_result_check = (user_email) ? await sendmail((debugMode.test ? debugMode.to_email : user_email), int_msg1_title, mg_msg) : false;
+                            return mail_result_check;
                         };
 
                         // *** 2-2 發送mapp
@@ -395,7 +400,8 @@
                                 return false;
                             }
                             // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                            return await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg);
+                            let mapp_result_check = (user_mapp) ? await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg) : false;
+                            return mapp_result_check;
                         };
 
                         // step.3 存储每个用户的异步操作 Promise
@@ -511,6 +517,7 @@
             dm.innerHTML = debugMode.title;
             inside_toast(debugMode.title)
             console.log(debugMode.title);
+            console.table(debugMode);
         }
         // 把所有名單上的人頭代上email
         Object.keys(lists_obj).forEach((list_key)=>{

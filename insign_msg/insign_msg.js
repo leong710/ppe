@@ -270,8 +270,8 @@
                     totalUsers += a_list.length;                                    // 总用户数量
                     // step.0 逐筆把清單繞出來
                     for (const [index, user] of a_list.entries()) {
-                        await sleep(1000);                                          // 先等待時間
                         // console.log(`發送請求給: ${index}`);
+                        await sleep(1000);                                          // 先等待時間
                         var user_emp_id = String(user['emp_id']).trim();            // 定義 user_emp_id + 去空白
                         var user_email  = String(user['email']).trim();             // 定義 user_email + 去空白
                         var emergency_count = Number(user['ppty_3_waiting']) + Number(user['ppty_3_reject']) + Number(user['ppty_3_collect']);

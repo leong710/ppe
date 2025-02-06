@@ -466,12 +466,11 @@
                 
             }else if($idty == 13){                                   // case = 13交貨 (Delivery)
                 $sql .= " , in_sign = ? , in_signName=? , flow = ? , cata_SN_amount = ? ";
-                    // $query_omager = query_omager($updated_emp_id);      // 尋找業務負責人的環安主管。
-                    // $in_sign = $query_omager['omager_emp_id'];          // 由 存換成 NULL ==> 業務負責人/負責人主管
-                $in_sign = NULL;                                        // 由 12->13時，即業務窗口簽核，未到主管
-                $in_signName = NULL;                                    // 由 存換成 NULL
-                $flow = 'PPEpm';                                        // 由 存換成 delivery 13交貨
-                $idty_after = $idty;                                    // 由 12待領 存換成 13交貨
+                $pm_emp_id_arr = explode(",",$receive_row["pm_emp_id"]);       // 資料表是字串，要炸成陣列
+                $in_sign            = $pm_emp_id_arr[0] ?? NULL;               // 由 12->13時，即業務窗口簽核，未到主管
+                $in_signName        = $pm_emp_id_arr[1] ?? NULL;               // 由 存換成 NULL
+                $flow               = 'PPEpm';                                 // 由 存換成 delivery 13交貨
+                $idty_after         = $idty;                                   // 由 12待領 存換成 13交貨
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));   // item資料前處理  // 去除陣列中空白元素再要編碼
             
             }else if($idty == 99){                                   // case = 99退貨

@@ -262,7 +262,7 @@
                 } else if ($submit === 'pno') {         // 上傳--Part_NO料號pno
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('料號', '料號註解', '年度', '器材編號SN', '尺寸');
+                    $theadTitles = array('料號', '料號註解', '年度', '年度/單價NT$', '器材編號SN', '尺寸', 'MOQ', '開關', '最後更新');
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 justify-content-center border bg-light">';
@@ -303,15 +303,22 @@
                                 echo '<td>' . htmlspecialchars($row[2]) . '</td>';
                                 echo '<td>' . htmlspecialchars($row[3]) . '</td>';
                                 echo '<td>' . htmlspecialchars($row[4]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[5]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[6]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[7]) . '</td>';
+                                echo '<td>' . htmlspecialchars($row[8]) . '</td>';
 
                                 $process = array(
                                     'part_no'        => $part_no_replace,
                                     'pno_remark'     => $row[1],
                                     '_year'          => $row[2],
                                     '_quoteYear'     => $row[2],
-                                    'cata_SN'        => $row[3],
-                                    'size'           => $row[4]
-
+                                    'price'          => $row[3],
+                                    'cata_SN'        => $row[4],
+                                    'size'           => $row[5],
+                                    'MOQ'            => $row[6],
+                                    'flag'           => $row[7],
+                                    'updated_at'     => $row[8]
                                 );
                                 $result[] = $process;
 

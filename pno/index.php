@@ -133,6 +133,7 @@
                                         <div class="col-6 col-md-6 p-0"><?php echo $thisYear."y";?></div>
                                     </div>
                                 </th>
+                                <th>MOQ</br>最少請購量</th>
                                 <th style="width: 25%">part_remark</br>註解說明</th>
                                 <th>flag</th>
                                 <th><?php echo ($sys_role <= 1) ? "action":""; ?></th>
@@ -169,7 +170,9 @@
                                     <td class="text-end fix_quote" id="<?php echo $pno["id"];?>" name="<?php echo $thisYear;?>" contenteditable="true">
                                         <?php echo isset($price_arr[$thisYear]) ? $price_arr[$thisYear] : "0";?>
                                     </td>
-
+                                    <td class="text-end" >
+                                        <?php echo $pno["MOQ"]; ?>
+                                    </td>
                                     <td class="word_bk"><?php echo $pno["pno_remark"];?></td>
                                     <td><?php if($sys_role <= 1){ ?>
                                             <button type="button" name="pno" id="<?php echo $pno['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $pno['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $pno['flag'];?>"><?php echo $pno['flag'];?></button>
@@ -278,6 +281,12 @@
                                     </tr>
                                 </table>
                             </div>
+                            <div class="col-12 col-md-4 py-1">
+                                <div class="form-floating">
+                                    <input type="number" name="MOQ" id="edit_MOQ" class="form-control" required placeholder="MOQ最少請購量" min="0">
+                                    <label for="editMOQ" class="form-label">MOQ/最少請購量：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
                             <div class="col-12 text-end p-0" id="edit_pno_info"></div>
                         </div>
                     </div>
@@ -361,7 +370,7 @@
     var pno          = <?=json_encode($pnos)?>;                                                // 引入pnos資料
     var thisYear_num = Number(<?=$thisYear?>);                                                 // 引入$thisYear資料
     var thisYear_str = String(<?=$thisYear?>);                                                 // 引入$thisYear資料
-    var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','flag'];      // 交給其他功能帶入 delete_pno_id
+    var pno_item = ['id','_year','part_no','size','cata_SN','pno_remark','price','MOQ', 'flag'];      // 交給其他功能帶入 delete_pno_id
 
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)

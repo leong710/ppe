@@ -67,7 +67,7 @@
         document.querySelector("#edit_pno .modal-header").classList.add('edit_mode_bgc');
         // remark: to_module = 來源與目的 site、fab、local
         // step1.將原排程陣列逐筆繞出來
-        Object(window[to_module]).forEach(function(row){          
+        Object(window[to_module]).forEach(function(row){  
             if(row['id'] == row_id){
                 // step2.鋪畫面到module
                 Object(window[to_module+'_item']).forEach(function(item_key){
@@ -316,6 +316,7 @@
                     "_year"         : "年度", 
                     "part_no"       : "料號", 
                     // "price"         : "年度/單價NT$", 
+                    "MOQ"           : "最少請購量", 
                     "pno_remark"    : "料號註解", 
                     "flag"          : "開關",
                     "updated_at"    : "最後更新",

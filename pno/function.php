@@ -25,10 +25,10 @@
             );
             $price_json = json_encode($price_arr);
 
-        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, price, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,now(),now())";
+        $sql = "INSERT INTO _pno(part_no, pno_remark, _year, cata_SN, size, price, MOQ, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price_json, $flag, $updated_user]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $price_json, $MOQ, $flag, $updated_user]);
             $result = TRUE;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -44,7 +44,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $pno = $stmt->fetch();
+            $pno = $stmt->fetch(PDO::FETCH_ASSOC);
             return $pno;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -62,11 +62,11 @@
             $row_pno_price_enc = json_encode($row_pno_price_arr);
 
         $sql = "UPDATE _pno
-                SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, flag=?, updated_user=?, updated_at=now()
+                SET part_no=?, pno_remark=?, _year=?, cata_SN=?, size=?, price=?, MOQ=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $row_pno_price_enc, $flag, $updated_user, $id]);
+            $stmt->execute([$part_no, $pno_remark, $_year, $cata_SN, $size, $row_pno_price_enc, $MOQ, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -91,7 +91,7 @@
         $sql_check = "SELECT _pno.* FROM _pno WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -168,7 +168,7 @@
             }else{
                 $stmt->execute([$_year]);      //處理 by_year
             }
-            $pnos = $stmt->fetchAll();
+            $pnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $pnos;
 
         }catch(PDOException $e){
@@ -186,7 +186,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -202,7 +202,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $checked_years = $stmt->fetchAll();
+            $checked_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();

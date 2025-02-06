@@ -76,15 +76,15 @@
                 break;                    
             case "pno":
                 $filename_head = "PPE_Part_NO料號_總表下載";
-                $columns = ['B', 'C', 'D', 'G', 'H', 'J'];
+                $columns = ['B', 'C', 'D', 'E', 'G', 'H', 'I', 'J', 'K'];
                 break;
             case "issueAmount":
                 $filename_head = "PPE_請購需求單待轉PR_總表下載";
-                $columns = ['C', 'H'];
+                $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' ];
                 break;
             case "issueAmount_PR":
                 $filename_head = "PPE_請購需求單已開PR：{$_REQUEST["pr_no"]}_總表下載";
-                $columns = [];
+                $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' ];
                 break;
             case "cata":
                 $filename_head = "PPE_器材目錄管理_總表下載";

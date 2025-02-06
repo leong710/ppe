@@ -191,7 +191,7 @@
     <?php $sys_sfab_id = get_sfab_id($sys_id, "arr");     // 240125-這裡補上防空值 ?>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
+            <div class="col-12 border rounded px-2 py-3" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-4 py-0">
@@ -261,7 +261,7 @@
 
                         <!-- 3.申請單成立 -->
                         <div class="tab-pane bg-white rounded fade show active" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
-                            <div class="col-12 py-3 px-5">
+                            <div class="col-12 py-2 px-4">
                                 <div class="row">
                                     <!-- 表頭 -->
                                     <div class="col-6 col-md-6">
@@ -477,7 +477,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 py-1 px-4">
+                            <div class="col-12 py-1 px-3">
                                 <table class="for-table logs table table-sm table-hover">
                                     <thead>
                                         <tr>

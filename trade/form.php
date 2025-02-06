@@ -122,7 +122,7 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col-11 border rounded px-3 py-4" style="background-color: #D4D4D4;">
+            <div class="col-12 border rounded px-2 py-3" style="background-color: #D4D4D4;">
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
@@ -184,7 +184,7 @@
                         <div class="tab-content rounded bg-light" id="nav-tabContent">
                             <!-- 1.商品目錄 -->
                             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                                <div class="col-12 px-4">
+                                <div class="col-12 px-3">
                                     <table id="catalog_list" class="catalog_list table table-striped table-hover">
                                         <thead>
                                             <tr>
@@ -258,7 +258,7 @@
                             
                             <!-- 2.購物車 -->
                             <div class="tab-pane fade" id="nav-shopping_cart" role="tabpanel" aria-labelledby="nav-shopping_cart-tab">
-                                <div class="col-12 px-4">
+                                <div class="col-12 px-3">
                                     <div class="row">
                                         <div class="col-12 col-md-6 py-0">
                                             <label class="form-label">器材用品/數量單位：<sup class="text-danger"> *</sup></label>
@@ -291,7 +291,7 @@
     
                             <!-- 3.申請單成立 -->
                             <div class="tab-pane bg-white fade" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab">
-                                <div class="col-12 py-4 px-5">
+                                <div class="col-12 py-3 px-4">
                                     <!-- 表列0 說明 -->
                                     <div class="row">
                                         <div class="col-6 col-md-6 px-2">
@@ -400,7 +400,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 py-1 px-4">
+                            <div class="col-12 py-1 px-3">
                                 <table class="for-table logs table table-sm table-hover">
                                     <thead>
                                         <tr>

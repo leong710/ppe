@@ -33,6 +33,7 @@
                 'model'         => $cata["model"],
                 'size'          => $cata["size"],
                 'unit'          => $cata["unit"],
+                'MOQ'           => $cata["MOQ"],
                 'SPEC'          => $cata["SPEC"],
                 'part_no'       => $cata["part_no"],
                 'scomp_no'      => $cata["scomp_no"],
@@ -46,7 +47,7 @@
             ];
         }
         
-    $all_item = [];  $all_amount = []; $issue_fab = []; $issue_SN_list = [];
+    $all_item = [];  $all_amount = []; $issue_fab = []; $issue_SN_list = []; $issue_fab_arr = [];
 
     // 針對item儲存狀況快照的內容進行反解處理
     foreach($issues as $is){
@@ -70,8 +71,28 @@
             }else{
                 $issue_fab[$ikey] = $issue_fab[$ikey].'</br>'.$is['fab_i_title'].': '.$item_dec_amount["need"];
             }
+            // 20250206-展開需求廠區數量
+            $issue_fab_arr[$is['fab_i_title']][$ikey] = $item_dec_amount["need"];
+
             array_push($issue_SN_list, $is['id']);
         }
+    }
+    // 20250206-展開需求廠區數量 - 取出fabKey
+    $issue_fab_arrkey = array_keys($issue_fab_arr);
+
+    // 20250206-基於MOQ算出最少訂單數量; a 是 需求數量; b 是 廠商最少出貨數量MOQ; c 是 基本下單數量
+    function calculateOrderQuantity($a, $b) {
+        $b = ($b < 0 || empty($b)) ? 1 : $b;
+        // 設定初始的計算量
+        $c = $b; // 最少出貨數量
+    
+        // 如果需求數量 a 大於或等於 MOQ 並且不是剛好等於 MOQ
+        if ($a >= $b) {
+            // 計算需要的整批數量
+            $multiple = ceil($a / $b); // 向上取整
+            $c = $multiple * $b; // 計算出基於 MOQ 的數量
+        }
+        return $c;
     }
 
 ?>
@@ -136,9 +157,17 @@
                                         <th>品名</th>
                                         <th>型號</th>
                                         <th>尺寸</th>
-                                        <th>數量</th>
+                                        <th>需求數</th>
                                         <th>單位</th>
+                                        <th class="<?php echo $sys_role <= 1 ? '' : 'unblock';?>">MOQ</th>
+                                        <th class="<?php echo $sys_role <= 1 ? '' : 'unblock';?>">請購數</th>
                                         <th>細項</th>
+                                        <?php // 20250206-展開需求廠區數量
+                                            if(!empty($issue_fab_arrkey)){
+                                                foreach($issue_fab_arrkey as $fabKey){
+                                                    echo "<th class='unblock'>{$fabKey}</th>";
+                                                }
+                                            } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -153,7 +182,16 @@
                                             <td><?php echo $obj_catalogs[$it]['size'];?></td>
                                             <td><?php echo $all_amount[$it];?></td>
                                             <td><?php echo $obj_catalogs[$it]['unit'];?></td>
+                                            <td class="<?php echo $sys_role <= 1 ? '' : 'unblock';?>"><?php echo $obj_catalogs[$it]['MOQ'];?></td>
+                                            <td class="<?php echo $sys_role <= 1 ? '' : 'unblock';?>"><?php echo calculateOrderQuantity($all_amount[$it] , $obj_catalogs[$it]['MOQ']);?></td>
                                             <td class="t-left"><?php echo $issue_fab[$it];?></td>
+                                            <?php // 20250206-展開需求廠區數量
+                                                if(!empty($issue_fab_arrkey)){
+                                                    foreach($issue_fab_arrkey as $fabKey){
+                                                        $fabValue = $issue_fab_arr[$fabKey][$obj_catalogs[$it]['SN']] ?? '';    // 防呆
+                                                        echo "<td class='unblock'>{$fabValue}</td>";
+                                                    }
+                                                } ?>
                                         </tr>
                                     <?php }?>
                                 </tbody>

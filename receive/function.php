@@ -53,6 +53,11 @@
                 $sql .= " ( ? IN (_r.emp_id, _r.created_emp_id)) ";         // 申請單加上查詢對象的is_emp_id
                 array_push($stmt_arr, $is_emp_id);
             }
+            if($idty != "All"){                                        // 處理過濾 idty != All  
+                $sql .= ($_year != "All" || $_month != "All" || $fab_id != "All" || $is_emp_id != "All" ? " AND ":" WHERE ") ;
+                $sql .= " _r.idty = ? ";         // 申請單加上查詢對象的idty
+                array_push($stmt_arr, $idty);
+            }
         }
         
         // 後段-堆疊查詢語法：加入排序
@@ -514,6 +519,35 @@
         }
         return $swal_json;
     }
+    // assignSign動作的_receive表單
+    function assignSign_receive($request){
+        $pdo = pdo();
+        extract($request);
+
+        $swal_json = array(                                 // for swal_json
+            "fun"       => "assignSign_receive",
+            "content"   => "指派簽核--"
+        );
+
+        // 更新_receive表單
+        $sql = "UPDATE _receive
+                SET in_sign=?, in_signName=?
+                WHERE uuid = ? ";
+        $stmt = $pdo->prepare($sql);
+
+        try {
+            $stmt->execute([$in_sign, $in_signName, $uuid]);
+            $swal_json["action"]   = "success";
+            $swal_json["content"] .= '更新成功';
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $swal_json["action"]   = "error";
+            $swal_json["content"] .= '更新失敗';
+        }
+        
+        return $swal_json;
+    }
+
 
     // 20231106 結案簽核時，送簽給主管環安 = 找出業務窗口的環安主管
     function query_omager($emp_id){

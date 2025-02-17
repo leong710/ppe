@@ -126,6 +126,11 @@
                         
                         if(fun == 'omager_badge'){     // 搜尋申請人上層主管emp_id
                             $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
+
+                        }else if(fun == 'assignSign_badge'){     // 搜尋申請人上層主管emp_id
+                            $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '<span class="remove">x</span></div>');
+                            document.getElementById(tag_id+'Name').value = obj_val.cname;   // 帶入待簽人姓名
+
                         }else{
                             $('#'+fun).append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
@@ -149,6 +154,13 @@
         document.getElementById('in_sign').value = '';            // 將欄位cname清除
         document.getElementById('in_signName').value = '';        // 將欄位in_signName清除
         $('#in_sign_badge').empty();
+    });
+    $('#assignSign_badge').on('click', '.remove', function() {
+        console.log(this);
+        $(this).closest('.tag').remove();                         // 自畫面中移除
+        document.getElementById('assignSign').value = '';            // 將欄位cname清除
+        document.getElementById('assignSignName').value = '';        // 將欄位assignSignName清除
+        $('#assignSign_badge').empty();
     });
 
 // // // 第三頁：searchUser function 
@@ -418,5 +430,28 @@
                 $('#return_btn').prop('disabled', true) // .addClass("unblock");
             }
         }
+
+        // p1-3. 增加指派簽核鈕的監聽動作...
+        assignSignSubmit_btn.addEventListener('click', async function() {
+            mloading();
+            const getValue = id => document.querySelector(`#assignSignModal input[id="${id}"]`).value;              // 取得數值
+            const setValue = newOmger_str => document.querySelector(`snap[id="newSign"]`).innerText = newOmger_str; // 指定顯示內容
+            const newSignEmpID = getValue('assignSign');        // 取得新簽核工號
+            if (newSignEmpID) {
+                const newSignName = getValue('assignSignName'); // 取得新簽核姓名
+                const newOmger_str = `指派簽核：${newSignName} (${newSignEmpID})`; // 組合字串
+                setValue(newOmger_str);                         // 指定snap顯示新簽核訊息內容
+                inside_toast(newOmger_str, 5000, 'warning');    // 調用toast顯示新簽核訊息內容
+                assignSign_modal.hide();                      // 關閉modal
+
+            } else {
+                alert('沒有新簽核工號訊息 !!');
+            }
+            
+            $('#assignSign_Badge').empty();                      // 清除modal畫面中Badge
+            $('#assignSign, #assignSignName').val('');          // 清除modal中empId&cName
+            // console.log('assignSign =>', staff_inf);
+            $("body").mLoading("hide");
+        })
 
     })

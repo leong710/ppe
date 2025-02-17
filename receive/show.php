@@ -57,7 +57,11 @@
     <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
-
+    <style>
+        .inb {
+                display: inline-block;
+            }
+    </style>
 </head>
 
 <body>
@@ -96,6 +100,11 @@
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
+                        <!-- 指派簽核主管 -->
+                        <div class="inb">
+                            <button type="button" id="assignSign_btn" class="btn btn-warning <?php echo ($sys_role <= 0) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#assignSignModal"><i class="fa-solid fa-user-tie"></i> 指派簽核</button>
+                            <snap id="newSign"></snap>
+                        </div>
                         <!-- <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button> -->
                         <!-- <button type="button" class="btn btn-secondary" onclick="location.href='<php echo $up_href;?>'"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
                         <button type="button" class="btn btn-secondary rtn_btn" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
@@ -388,6 +397,41 @@
             </div>
         </div>
     </div>
+    
+    <!-- 模組 assignSignModal-->
+    <form action="store.php" method="post" >
+        <div class="modal fade" id="assignSignModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">指派簽核：</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body px-4 pt-1">
+                        <!-- 第二排的功能 : 搜尋功能 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="input-group search">
+                                    <span class="input-group-text form-label">指派</span>
+                                    <input type="text" name="in_sign" id="assignSign" class="form-control" placeholder="請輸入工號"
+                                            aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">&nbsp;&nbsp;
+                                    <div id="assignSign_badge"></div>
+                                    <input type="hidden" name="in_signName" id="assignSignName" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input  type="hidden" name="uuid"   id="uuid"   value="<?php echo $receive_row['uuid'];?>">
+                        <input  type="hidden" name="action" id="action" value="assignSign">
+                        <button type="submit" id="assignSignSubmit" class="btn btn-primary <?php echo ($sys_role <= 0) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -407,6 +451,10 @@
     var json                 = <?=json_encode($logs_arr)?>;                 // 鋪設logs紀錄 240124-JSON.parse長度有bug   240124-改去除JSON.parse
     var receive_url          = '<?=$receive_url?>';                         // push訊息    // 本文件網址
 
+    const assignSign_btn       = document.getElementById('assignSign_btn');      // 定義出assignSign_btn
+    const assignSignSubmit_btn = document.getElementById('assignSignSubmit'); // 定義出assignSignSubmit_btn
+    var   assignSign_Modal     = new bootstrap.Modal(document.getElementById('assignSignModal'), { keyboard: false });
+ 
 </script>
 
 <script src="receive_show.js?v=<?=time()?>"></script>

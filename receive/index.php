@@ -30,10 +30,11 @@
         }
 
     // 2-3.篩選年分~~
-        $_year  = (isset($_REQUEST["_year"]))  ? $_REQUEST["_year"] : date('Y');   // 預設今年
+        $_year  = (isset($_REQUEST["_year"]))  ? $_REQUEST["_year"]  : date('Y');   // 預設今年
         // $_year = date('Y');                       // 今年    // 全年 All
         $_month = (isset($_REQUEST["_month"])) ? $_REQUEST["_month"] : "All";      // 今月
         // $_month = date('m');                      // 今月
+        $idty   = (isset($_REQUEST["idty"]))   ? $_REQUEST["idty"]   : "All";      // 今月
 
     // 組合查詢陣列
         $query_arr = array(
@@ -45,6 +46,7 @@
             'is_emp_id' => $is_emp_id,
             '_year'     => $_year,
             '_month'    => $_month,
+            'idty'      => $idty
         );
         
     // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
@@ -217,6 +219,17 @@
                                                 echo "<option for='sort_emp_id' value='All' ".(($is_emp_id == "All") ? "selected":"").">-- All user --</option>";
                                             } 
                                             echo "<option for='sort_emp_id' value='{$auth_emp_id}' ".(($is_emp_id == $auth_emp_id) ? "selected":"").">{$auth_emp_id}_{$auth_cname}</option>";
+                                        ?>
+                                    </select>
+                                    <select name="idty" id="sort_idty" class="form-select">
+                                        <?php 
+                                            echo "<option for='sort_idty' value='All' ".(($idty == "All") ? "selected":"").">-- All idty --</option>";
+                                            $idty_arr = [
+                                                "11" => "環安主管", "12" => "待領", "13" => "業務承辦"
+                                            ];
+                                            foreach($idty_arr as $idty_key => $idty_value){ 
+                                                echo "<option for='sort_idty' value='{$idty_key}' ".(($idty == $idty_key) ? "selected":"").">{$idty_key}_{$idty_value}</option>";
+                                            }
                                         ?>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary">查詢</button>

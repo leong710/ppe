@@ -22,6 +22,9 @@
                 $swal_json = sign_receive($_REQUEST);
             }
             break;
+        case "assignSign":        // 編輯
+            $swal_json = assignSign_receive($_REQUEST);
+            break;
         case "return":        // 20240429 退貨
                 $swal_json = sign_receive($_REQUEST);
             break;

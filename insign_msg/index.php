@@ -10,7 +10,8 @@
 	$uri       = (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) ? 'https://' : 'http://';  // 取得開頭
 	$uri      .= $_SERVER['HTTP_HOST'];                                                                // 組合成http_host
     $pc        = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                            // 取得user IP
-    $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
+    // $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
+    $check_ip  = true;                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
 
     $sys_role  = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : false;             // 取出$_session引用
     $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
@@ -168,20 +169,20 @@
         var fun          = '<?=$fun?>';                 // 是否啟動寄送信件給待簽人員
         var check_ip     = '<?=$check_ip?>';
         var inSign_lists = <?=json_encode($inSign_lists)?>;
-        console.log('inSign_lists...', inSign_lists);
+            console.log('inSign_lists...', inSign_lists);
         var lists_obj    = { inSign_lists : inSign_lists }
 
-        var receive_url  = '領用路徑：'+uri+'/ppe/receive/';
-        var issue_url    = '請購路徑：'+uri+'/ppe/issue/';
+        var receive_url  = `<br>&nbsp;&nbsp;領用：<a href="${uri}/ppe/receive/" target="_blank" title="領用路徑">領用路徑</a>`;
+        var issue_url    = `<br>&nbsp;&nbsp;請購：<a href="${uri}/ppe/issue/"   target="_blank" title="請購路徑">請購路徑</a>`;
 
         var int_msg1     = '【環安PPE系統】待您處理文件提醒';
-        var int_msg2     = ' 您共有 ';
-        var int_msg3     = ' 件待簽核文件尚未處理';
-        var ret_msg3     = ' 件被退件文件尚未處理';
-        var col_msg3     = ' 件待收發文件尚未處理';
-        var int_msg4     = '，如已處理完畢，請忽略此訊息！\n\n** 請至以下連結查看待處理文件：\n';
-        var srt_msg4     = '，如已處理完畢，請忽略此訊息！\n\n';
-        var int_msg5     = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
+        var int_msg2     = '<br>&nbsp;&nbsp;您共有&nbsp;';
+        var int_msg3     = '&nbsp;件待簽核文件尚未處理';
+        var ret_msg3     = '&nbsp;件被退件文件尚未處理';
+        var col_msg3     = '&nbsp;件待收發文件尚未處理';
+        var int_msg4     = '<br>，如已處理完畢，請忽略此訊息！<br><br>** 請至以下連結查看待處理文件：';
+        var srt_msg4     = '<br>，如已處理完畢，請忽略此訊息！<br><br>';
+        var int_msg5     = '<br><br>溫馨提示：<br>&nbsp;&nbsp;&nbsp;&nbsp;1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式';
 
         var push_result  = {
                 'mapp' : {

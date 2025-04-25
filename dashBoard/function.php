@@ -63,7 +63,7 @@
                     , ROUND((COUNT(cl.form_type) / (SELECT COUNT(fab_title) FROM _fab WHERE flag = 'On') * 100), 1) AS 'percentage'
                 FROM checked_log cl
                 LEFT JOIN _fab _f ON cl.fab_id = _f.id
-                WHERE cl.checked_year = ? AND cl.half = ? AND cl.form_type = 'stock'
+                WHERE cl.checked_year = ? AND cl.half = ? AND cl.form_type = 'stock' AND _f.flag = 'On'
                 GROUP BY cl.form_type ";
         $stmt = $pdo->prepare($sql);
         try {
@@ -84,17 +84,18 @@
         $sql = "SELECT _s.local_id, COUNT(_s.cata_SN) AS count_SN
                     , SUM(CASE WHEN _s.amount < _s.standard_lv THEN 1 ELSE 0 END) AS low_level
                     , ROUND((low_level / count_SN * 100), 1) AS percentage
-                    , fab_id, fab_title, fab_remark, local_title, local_remark
+                    , fab_id, fab_title, fab_remark, local_title, local_remark, fflag
                 FROM _stock _s
                 LEFT JOIN (
-                    SELECT local_id, COUNT(cata_SN) AS count_SN
-                        , SUM(CASE WHEN amount < standard_lv THEN 1 ELSE 0 END) AS low_level
-                        , _f.fab_title, _f.fab_remark, _l.fab_id, _l.local_title, _l.local_remark
-                    FROM _stock
-                    LEFT JOIN _local _l ON _stock.local_id = _l.id	
-                    LEFT JOIN _fab _f ON _l.fab_id = _f.id
-                    GROUP BY _stock.local_id
+                        SELECT local_id, COUNT(cata_SN) AS count_SN
+                            , SUM(CASE WHEN amount < standard_lv THEN 1 ELSE 0 END) AS low_level
+                            , _f.fab_title, _f.fab_remark, _l.fab_id, _l.local_title, _l.local_remark, _f.flag AS fflag
+                        FROM _stock
+                        LEFT JOIN _local _l ON _stock.local_id = _l.id	
+                        LEFT JOIN _fab _f ON _l.fab_id = _f.id
+                        GROUP BY _stock.local_id
                     ) AS sub ON _s.local_id = sub.local_id
+                WHERE fflag = 'On'
                 GROUP BY _s.local_id ";
         $stmt = $pdo->prepare($sql);
         try {

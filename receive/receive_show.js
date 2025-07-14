@@ -252,14 +252,16 @@
 
         $.ajax({
             // url:'http://10.53.248.167/SendNotify',                           // 20230505 正式修正要去掉port 801
-            url:'http://tneship.cminl.oa/api/pushmapp/index.php',               // 正式2024新版
+            url:'http://tneship.cminl.oa/api/pushmapp/index.php',               // 正式2024新版--升級dataItem
             method:'post',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',               // ppe
-                eid     : emp_id,                                               // 傳送對象
-                message : receive_msg                                           // 傳送訊息
+                uuid         : '752382f7-207b-11ee-a45f-2cfda183ef4f',          // ppe
+                kind         : 'broadChat',                                     // 訊息頻道
+                ask          : 'to',                                            // 個人
+                ACCOUNT_LIST : emp_id,                                          // 傳送對象
+                TEXT_CONTENT : receive_msg,                                     // 傳送訊息
             },
             success: function(res){
                 console.log("push_mapp -- success：",res);

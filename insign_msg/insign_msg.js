@@ -132,7 +132,7 @@
             }
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
+                    url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版--升級dataItem
                     method:'post',
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
@@ -155,26 +155,37 @@
             });
         }
         // 20240314 將訊息郵件發送給對的人~
-        function sendmail(user_email, int_msg1_title, mg_msg){
+        function sendmail(to_email, int_msg1_title, mg_msg){
             if(!debugMode.email){
-                console.log(user_email, int_msg1_title, mg_msg);
+                console.log(to_email, int_msg1_title, mg_msg);
                 return true;
             }
             return new Promise((resolve, reject) => {
+                var formData = new FormData();  // 創建 FormData 物件
+                // 將已有的參數加入 FormData
+                    formData.append('uuid', uuid);              // nurse
+                    formData.append('sysName', 'PPE');          // 貫名
+                    // formData.append('to', to_email);            // 1.傳送對象
+                    // formData.append('to', 'leong.chen;');       // 2.傳送開發對象
+                    formData.append('to', `${to_email}`);       // 3.傳送測試對象
+                    formData.append('subject', int_msg1_title); // 信件標題
+                    formData.append('body', mg_msg);            // 訊息內容
+    
+                // 假設你有一個檔案輸入框，其 ID 是 'fileInput'
+                    var fileInput = document.getElementById('fileInput');
+                    if (fileInput && fileInput.files.length > 0) {
+                        formData.append('file', fileInput.files[0]);  // 把檔案添加到 FormData
+                    }
+
                 $.ajax({
-                    url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2024新版
+                    url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
                     method:'post',
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
-                    data:{
-                        uuid    : uuid,                                         // ppe
-                        sysName : 'PPE',                                        // 貫名
-                        to      : user_email,                                   // 傳送對象
-                        subject : int_msg1_title,                               // 信件標題
-                        body    : mg_msg                                        // 訊息內容
-                    },
+                    data: formData,
+                    processData: false,                                         // 不處理資料
+                    contentType: false,                                         // 不設置 Content-Type，讓瀏覽器自動設置
                     success: function(res){
-                        // console.log("push_mapp -- success",res);
                         resolve(true);                                          // 成功時解析為 true 
                     },
                     error: function(res){

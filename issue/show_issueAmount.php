@@ -60,19 +60,20 @@
         foreach($item_key as $ikey){
             $all_item[$ikey] = $ikey;
             $item_dec_amount = (array) $item_dec[$ikey];
+            $i_need = isset($item_dec_amount["need"]) ? $item_dec_amount["need"] : 0;
 
             if(empty($all_amount[$ikey])){
-                $all_amount[$ikey] = $item_dec_amount["need"];
+                $all_amount[$ikey] = $i_need;
             }else{
-                $all_amount[$ikey] = $all_amount[$ikey] + $item_dec_amount["need"];
+                $all_amount[$ikey] = $all_amount[$ikey] + $i_need;
             }
             if(empty($issue_fab[$ikey])){
-                $issue_fab[$ikey] = ($is['fab_i_title'].': '.$item_dec_amount["need"]);
+                $issue_fab[$ikey] = "{$is['fab_i_title']}: {$i_need}";
             }else{
-                $issue_fab[$ikey] = $issue_fab[$ikey].'</br>'.$is['fab_i_title'].': '.$item_dec_amount["need"];
+                $issue_fab[$ikey] = "{$issue_fab[$ikey]}</br>{$is['fab_i_title']}: {$i_need}";
             }
             // 20250206-展開需求廠區數量
-            $issue_fab_arr[$is['fab_i_title']][$ikey] = $item_dec_amount["need"];
+            $issue_fab_arr[$is['fab_i_title']][$ikey] = $i_need;
 
             array_push($issue_SN_list, $is['id']);
         }
@@ -112,7 +113,7 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <!-- <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;"> -->
-            <div class="col-12 rounded p-4" style="background-color: rgba(200, 255, 255, .6);">
+            <div class="col-12 rounded p-3" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表單表頭功能鍵 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-4">
@@ -147,7 +148,7 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="px-3">
+                        <div class="px-1">
                             <table class="for-table" id="issueAmount_table">
                                 <thead>
                                     <tr>

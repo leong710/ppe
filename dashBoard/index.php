@@ -1,6 +1,7 @@
 <?php
     require_once("../pdo.php");
     require_once("../sso.php");
+    require_once("../user_info.php");
     require_once("function.php");
     require_once("count_visitor.php");              // 網站計數器
     if(!isset($_SESSION)){                          // 確認session是否啟動
@@ -10,11 +11,8 @@
 		accessDenied_sys($sys_id);                  // 套用sys_id權限
     }
     
-    $login_AUTH = (isset($_SESSION[$sys_id])) ? true : false ;
-    $sys_role   = !empty($_SESSION[$sys_id]["role"]) ? $_SESSION[$sys_id]["role"] : "";
-
     // 讓一般nobody用戶帶到 我的申請文件
-    if($login_AUTH && $sys_role >= 3 && empty($_SESSION["AUTH"]["dept"])){
+    if($sys_auth && $sys_role >= 3 && empty($_SESSION["AUTH"]["dept"])){
         header("refresh:0;url=../receive/");
         exit;
     }
@@ -38,7 +36,6 @@
     if(empty($stock_db2)){
         $stock_db2 = [];
     }
-
 ?>
 
 <?php include("../template/header.php"); ?>
@@ -181,7 +178,7 @@
                     </div>
                 </div>
 
-                <?php if($login_AUTH){ ?>
+                <?php if($sys_auth){ ?>
                     <!-- 0.綜合統計數字看板 -->
                     <div class="col_xl_10 col-10 rounded p-3 my-2" style="background-color: rgba(255, 255, 255, .7);">
                         <div class="row center">
@@ -248,7 +245,7 @@
     </div>
     
     <!-- 內容 -->
-    <?php if($login_AUTH){ ?>
+    <?php if($sys_auth){ ?>
         <div class="col-12 pt-0">
             <div class="row justify-content-center">
                 <div class="col_xl_10 col-10">
@@ -510,7 +507,7 @@
     })
 
     // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
-    // <php echo "var login_AUTH ='$login_AUTH';";?>              // 是否已經登入
+    // <php echo "var sys_auth ='$sys_auth';";?>              // 是否已經登入
 
     // Bootstrap Alarm function
     function alert(message, type) {

@@ -40,7 +40,7 @@
         $query_arr = array(
             // 'sys_id'    => $sys_id,
             'role'      => $sys_role,
-            'sign_code' => $_SESSION["AUTH"]["sign_code"],
+            'sign_code' => $auth_sign_code,
             'emp_id'    => $auth_emp_id,
             // 'is_fab_id' => $is_fab_id,
             'is_emp_id' => $is_emp_id,
@@ -50,7 +50,7 @@
         );
         
     // 3.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的coverFab廠區
-        if(!in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
+        if(!empty($sys_sfab_id) && !in_array($sys_fab_id, $sys_sfab_id)){                       // 4-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
             array_push($sys_sfab_id, $sys_fab_id);                      // 4-1.*** 取sfab_id (此時已包含fab_id)
         }
         $coverFab_lists = show_coverFab_lists($query_arr);              // 4-2.呼叫fun 用$sign_code模糊搜尋
@@ -62,9 +62,9 @@
             }
         }
 
-        $cover_fab_id = $sys_sfab_id;                               // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
-        // $cover_fab_id = array_filter($cover_fab_id);             // 4-3.去除空陣列 // 他會把0去掉
-        $cover_fab_id = implode(",",$cover_fab_id);                 // 4-3.sfab_id是陣列，要儲存前要轉成字串
+        // $cover_fab_id = $sys_sfab_id;                                // 4-3.*** 取sfab_id  (此時已包含fab_id、coverFab)
+        // $cover_fab_id = array_filter($cover_fab_id);                 // 4-3.去除空陣列 // 他會把0去掉
+        $cover_fab_id = (!empty($sys_sfab_id)) ? implode(",",$sys_sfab_id) : "0";  // 4-3.sfab_id是陣列，要儲存前要轉成字串
 
     // 4.(左下)我的轄區清單 = 套 allMy、$cover_fab_id
         $query_arr["fab_id"] = 'allMy';
@@ -117,11 +117,11 @@
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
 <head>
-    <link href="../../libs/aos/aos.css" rel="stylesheet">                                   <!-- goTop滾動畫面aos.css 1/4-->
-    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>    <!-- Jquery -->
-    <script src="../../libs/jquery/jquery.mloading.js"></script>                            <!-- mloading JS 1/3 -->
-    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                    <!-- mloading CSS 2/3 -->
-    <script src="../../libs/jquery/mloading_init.js"></script>                              <!-- mLoading_init.js 3/3 -->
+    <link href="../../libs/aos/aos.css" rel="stylesheet">
+    <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
+    <script src="../../libs/jquery/jquery.mloading.js"></script>
+    <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
+    <script src="../../libs/jquery/mloading_init.js"></script>
     <style>
         .page_title, .op_tab_btn {
             color: white;
@@ -293,9 +293,6 @@
                                                         echo "<td class='word_bk'>";
                                                         echo "<button type='button' value='show.php?uuid={$my_inSign["uuid"]}&action=sign' title='aid:{$my_inSign["id"]}' onclick='openUrl(this.value)' class='tran_btn'>";
                                                         echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"]."</button>";
-
-                                                            // <a href="show.php?uuid=<?php echo $my_inSign['uuid'];>&action=sign" title="aid:<?php echo $my_inSign['id'];>">
-                                                                // <php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];></a></td>
                                                         echo "</td><td>";
                                                         $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
                                                         switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
@@ -318,7 +315,7 @@
                                     <div class="rounded bg-light px-3 py-2 bsod">
                                         <div class="col-12 px-0 pb-0">
                                             <h5><i class="fa-solid fa-restroom"></i> 廠區待領清單：<sup>- collect </sup>
-                                                <?php echo count($my_collect_lists) != 0 ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
+                                                <?php echo (count($my_collect_lists) != 0) ? "<sup><span class='badge rounded-pill bg-warning text-dark'> +".count($my_collect_lists)."</sup></span>" :"" ;?>
                                             </h5>
                                         </div>
                                         <div class="col-12 px-0 pb-1 pt-0">
@@ -749,15 +746,12 @@
     </div>
 </body>
 
-<script src="../../libs/aos/aos.js"></script>                   <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
-<script src="../../libs/aos/aos_init.js"></script>              <!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/sweetalert/sweetalert.min.js"></script> <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
-<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>           <!-- 彈出子畫面 -->
+<script src="../../libs/aos/aos.js"></script>
+<script src="../../libs/aos/aos_init.js"></script>
+<script src="../../libs/sweetalert/sweetalert.min.js"></script>
+<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>
 <script>
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-    })
+
     // tab_table的顯示關閉功能
     function op_tab(tab_value){
         $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
@@ -806,6 +800,8 @@
     $(document).ready(function () {
         op_tab('sign_remark');
         op_tab('scope_remark');
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     })
 </script>
 

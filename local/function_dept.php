@@ -1,18 +1,37 @@
 <?php
 // // // dept_CRUD group
 
-    // 20231004-改用msSQL-hrDB -R
+        //  * 由外部提取 signCode 條件
+        function loadSignCode($filename = "../../sign_code.json") {
+            if (!file_exists($filename)) {
+                $sign_code = ["dept_no"  => "9O061500"];  // carux台灣esh
+                return $sign_code;
+            } else {
+                $json = file_get_contents($filename);
+                return json_decode($json, true);
+            }
+        }
+
+    // 20231004-改用msSQL-hrDB -R // 251014 改版
     function show_dept(){
         $pdo = pdo_hrdb();
-        $sql = "SELECT DISTINCT dp.* , d1.OSSTEXT AS up_sign_dept , u.cname AS dept_sir
-                  FROM `DEPT` dp
-                  LEFT JOIN `HCM_VW_DEPT08` d1 ON dp.up_dep = d1.OSDEPNO
-                  LEFT JOIN `STAFF` u ON dp.emp_id = u.emp_id 
-                  ORDER BY dp.sign_code ASC ";
+        $_sign_code = loadSignCode();
+        $sql = "SELECT d01.OOBJID AS sign_dep_id, d01.OSTEXT_10 AS center, d01.OSTEXT_05 AS central_plant 
+                    , d01.OSTEXT_30 AS plant
+                    , d01.OSTEXT_40 AS dept
+                    , d01.OSTEXT_50 AS Section
+                    , d01.OSHORT AS sign_code
+                    , d01.OSTEXT AS sign_dept
+                    , d01.OMAGER AS emp_id
+                    , d01.KOSTL AS up_dep
+                    , d01.OSSTEXT AS up_sign_dept , staff.cname AS dept_sir
+                FROM `hcm_vw_dept01` d01
+                LEFT JOIN staff ON d01.OMAGER = staff.emp_id
+                WHERE d01.ODEPNO_40 = ? ";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute();
-            $depts = $stmt->fetchAll();
+            $stmt->execute([$_sign_code["dept_no"]]);
+            $depts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $depts;
         }catch(PDOException $e){
             echo $e->getMessage();

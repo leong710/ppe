@@ -114,93 +114,91 @@
     }
 
     // // // 第三頁：searchUser function 
-    // // fun3-1：search Key_word
-    function search_fun(){
-        mloading("show");                       // 啟用mLoading
-        let search = $('.search > input').val().trim();
-        search = search.trim();
-        if(!search || (search.length < 8)){
-            alert("查詢工號字數最少 8 個字以上!!");
-            $("body").mLoading("hide");
-            return false;
-        } 
+        // // fun3-1：search Key_word
+        function search_fun(){
+            mloading("show");                       // 啟用mLoading
+            let search = $('.search > input').val().trim();
+            search = search.trim();
+            if(!search || (search.length < 8)){
+                alert("查詢工號字數最少 8 個字以上!!");
+                $("body").mLoading("hide");
+                return false;
+            } 
 
-        $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
-            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
-            method:'post',
-            dataType:'json',
-            data:{
-                functionname: 'showStaff',                              // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
-                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
-            },
-            success: function(res){
-                var res_r = res["result"];
-                // 將結果進行渲染
-                if (res_r !== '') {
-                    var obj_val = res_r;                                         // 取Object物件0
-                    if(obj_val){     
-                        var com_val = obj_val.emp_id+','+obj_val.cname;
-                        tagsInput_me(com_val);
+            $.ajax({
+                // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
+                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
+                method:'post',
+                dataType:'json',
+                data:{
+                    functionname: 'showStaff',                              // 操作功能
+                    uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // CarUX
+                    emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
+                },
+                success: function(res){
+                    var res_r = res["result"];
+                    // 將結果進行渲染
+                    if (res_r !== '') {
+                        var obj_val = res_r;                                         // 取Object物件0
+                        if(obj_val){     
+                            var com_val = obj_val.emp_id+','+obj_val.cname;
+                            tagsInput_me(com_val);
 
-                    }else{
-                        alert('查無工號：'+ search +' !!');
+                        }else{
+                            alert('查無工號：'+ search +' !!');
+                        }
                     }
+                },
+                error (){
+                    console.log("search error");
                 }
-            },
-            error (){
-                console.log("search error");
-            }
-        })
-        document.querySelector('#key_word').value = '';
-        $("body").mLoading("hide");
-    }
-    // // fun3-2：移除單項模組
-    $('#selectUserItem').on('click', '.remove', function() {
-        var tagIndex = $(this).closest('.tag').index();
-        let tagg = tags[tagIndex];                       // 取得目標數值 emp_id,cname
-        let emp_id = tagg.substr(0, tagg.search(','));   // 指定 emp_id
-        let tag_user = document.getElementById(emp_id);
-        if(tag_user){
-            tag_user.value = tagg;
+            })
+            document.querySelector('#key_word').value = '';
+            $("body").mLoading("hide");
         }
-        tags.splice(tagIndex, 1);           // 自陣列中移除
-        $(this).closest('.tag').remove();   // 自畫面中移除
-        let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
-        if(edit_pm_emp_id){
-            edit_pm_emp_id.value = tags;
-        }
-    });
-    // // fun3-3：清除search keyWord
-    function resetMain(){
-        $("#result").removeClass("border rounded bg-white");
-        $('#result_table').empty();
-        document.querySelector('#key_word').value = '';
-    }
-    // // fun3-3：選染功能
-    function tagsInput_me(val) {
-        let emp_id = val.substr(0, val.search(','));    // 取第1位 指定emp_id
-        let cname = val.substr(val.search(',',)+1);     // 取第2位 指定cname
-        if (val !== '') {
-            tags.push(val);
-            $('#selectUserItem').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+        // // fun3-2：移除單項模組
+        $('#selectUserItem').on('click', '.remove', function() {
+            var tagIndex = $(this).closest('.tag').index();
+            let tagg = tags[tagIndex];                       // 取得目標數值 emp_id,cname
+            let emp_id = tagg.substr(0, tagg.search(','));   // 指定 emp_id
             let tag_user = document.getElementById(emp_id);
             if(tag_user){
-                tag_user.value = '';
+                tag_user.value = tagg;
             }
+            tags.splice(tagIndex, 1);           // 自陣列中移除
+            $(this).closest('.tag').remove();   // 自畫面中移除
             let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
             if(edit_pm_emp_id){
                 edit_pm_emp_id.value = tags;
             }
+        });
+        // // fun3-3：清除search keyWord
+        function resetMain(){
+            $("#result").removeClass("border rounded bg-white");
+            $('#result_table').empty();
+            document.querySelector('#key_word').value = '';
         }
-    }
+        // // fun3-3：選染功能
+        function tagsInput_me(val) {
+            let emp_id = val.substr(0, val.search(','));    // 取第1位 指定emp_id
+            let cname = val.substr(val.search(',',)+1);     // 取第2位 指定cname
+            if (val !== '') {
+                tags.push(val);
+                $('#selectUserItem').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+                let tag_user = document.getElementById(emp_id);
+                if(tag_user){
+                    tag_user.value = '';
+                }
+                let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+                if(edit_pm_emp_id){
+                    edit_pm_emp_id.value = tags;
+                }
+            }
+        }
     // // // 第三頁：searchUser function 
 
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-
+    
+    $(document).ready(function(){
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 
@@ -223,10 +221,9 @@
                 } 
             } 
         };
-    })
-
-    $(document).ready(function(){
-        // 切換指定NAV分頁
-        //激活选项卡
+        
+        // 切換指定NAV分頁 激活选项卡
         $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     });

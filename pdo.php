@@ -1,6 +1,6 @@
 <?php
     date_default_timezone_set("Asia/Taipei"); 
-    $sys_id = "ppe";
+    $sys_id = "carux_ppe";
     $config = require 'pdo_config.php';
 
     function pdo(){

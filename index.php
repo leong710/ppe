@@ -5,6 +5,6 @@
 		$uri = 'http://';
 	}
 	$uri .= $_SERVER['HTTP_HOST'];
-	header('Location: '.$uri.'/ppe/dashboard/index.php');
+	header('Location: '.$uri.'/carux_ppe/dashboard/index.php');
 	exit;
 ?>

@@ -34,6 +34,36 @@ body {
     /* 背景固定不移動 */
     background-attachment: fixed;
 }
+
+/* 螢幕解析度 */
+    /* 當螢幕寬度小於或等於 1366px時 */
+    @media (max-width: 1366px) {
+        .col-lm-3 {
+            flex: 0 0 calc(100% / 12 * 3);
+        }
+        .col-lm-12 {
+            flex: 0 0 calc(100% / 12 * 12);
+        }
+        /* 當螢幕解析度低於 1366px 時，顯示該元素 */
+        .d-custom-none {
+            display: block; /* 顯示 */
+        }
+    }
+    /* 當螢幕寬度大於 1366px時 */
+    @media (min-width: 1367px) {
+        .col-lm-3 {
+            flex: 0 0 calc(100% / 12 * 2);
+        }
+        .col-lm-12 {
+            flex: 0 0 calc(100% / 12 * 11);
+        }
+        /* 當螢幕解析度大於或等於 1366px 時，隱藏該元素 */
+        .d-custom-none {
+            display: none; /* 不顯示 */
+        }
+    }
+/* 螢幕解析度 */
+
 table, td, th {
     border: 0px solid #aaa;
     border-collapse: collapse;

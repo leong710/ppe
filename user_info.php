@@ -15,3 +15,13 @@
 
     // 複製本頁網址藥用
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
+
+    
+    function pp($parm){
+        if(!empty($parm)){
+            echo "<span class='text-white'><pre>";
+                print_r($parm);
+                    // echo "<hr>";
+            echo "</pre></span>";
+        }
+    }

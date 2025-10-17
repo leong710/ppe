@@ -1,7 +1,7 @@
 <?php
     return [
         'db_host'      => 'localhost',
-        'db_name'      => 'ppe',
+        'db_name'      => 'CarUX_ppe',
         'db_charset'   => 'utf8mb4',
         'db_user'      => 'tnesh',
         'db_pass'      => '&9t040500',

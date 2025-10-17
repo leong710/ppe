@@ -11,17 +11,14 @@
     if(isset($_POST["site_submit"])){ store_site($_REQUEST); }
     if(isset($_POST["fab_submit"])){ store_fab($_REQUEST); }
     if(isset($_POST["local_submit"])){ store_local($_REQUEST); }
-    if(isset($_POST["ptlocal_submit"])){ store_ptlocal($_REQUEST); }
     // 更新U
     if(isset($_POST["edit_site_submit"])){ update_site($_REQUEST); }
     if(isset($_POST["edit_fab_submit"])){ update_fab($_REQUEST); }
     if(isset($_POST["edit_local_submit"])){ update_local($_REQUEST); }
-    if(isset($_POST["edit_ptlocal_submit"])){ update_ptlocal($_REQUEST); }
     // 刪除D
     if(isset($_POST["delete_site"])){ delete_site($_REQUEST); }
     if(isset($_POST["delete_fab"])){ delete_fab($_REQUEST); }
     if(isset($_POST["delete_local"])){ delete_local($_REQUEST); }
-    if(isset($_POST["delete_ptlocal"])){ delete_ptlocal($_REQUEST); }
     // 調整flag ==> 20230712改用AJAX
     
     // 3.組合查詢陣列
@@ -32,7 +29,6 @@
 
     $locals = (isset($_POST["local_sort_submit"])) ? show_local($_REQUEST) : show_local($query_arr);
 
-    $ptlocals   = show_ptlocal($query_arr);
     $fabs       = show_fab($query_arr);
     $sites      = show_site($query_arr);
     $dept_lists = show_dept();
@@ -41,7 +37,6 @@
     $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 2 = local
 
     if(isset($_GET["make_server_window"])){ make_server_window($fabs); }
-
     $sw_arr = (array) json_decode($sw_json);                // service window 物件轉陣列
 
 ?>
@@ -102,8 +97,7 @@
                                 <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
                                 <?php if($sys_role <= 2){ ?>
                                     <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp安全存量設定</a>
-                                    <?php } ?>
-                                <button class="nav-link" id="nav-ptlocal-tab" data-bs-toggle="tab" data-bs-target="#nav-ptlocal_table" type="button" role="tab" aria-controls="nav-ptlocal" aria-selected="false">除汙儲存點</button>
+                                <?php } ?>
                             </div>
                         </nav>
                     </div>
@@ -295,58 +289,6 @@
                         </div>
                     </div>
 
-                    <!-- pt Local 20240122 -->
-                    <div id="nav-ptlocal_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
-                        <div class="row">
-                            <div class="col-12 col-md-8 py-0">
-                                <h3>除汙儲存點管理</h3>
-                            </div>
-                            <div class="col-12 col-md-4 py-0 text-end">
-                                <?php if($sys_role <= 1){ ?>
-                                    <button type="button" id="add_ptlocal_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_ptlocal" onclick="add_module('ptlocal')" > <i class="fa fa-plus"></i> 新增除汙儲存點</button>
-                                <?php } ?>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="col-12 p-0">
-                                <table>
-                                    <thead>
-                                        <tr class="">
-                                            <th>ai</th>
-                                            <th>fab_id</th>
-                                            <th>local_title (remark)</th>
-                                            <th>low_level</th>
-                                            <th>flag</th>
-                                            <?php if($sys_role <= 1){ ?>    
-                                                <th>action</th>
-                                            <?php } ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach($ptlocals as $ptlocal){ ?>
-                                            <tr>
-                                                <td style="font-size: 12px;"><?php echo $ptlocal['id']; ?></td>
-                                                <td class="text-start"><?php echo $ptlocal['fab_id']."_".$ptlocal['fab_title']." (".$ptlocal['fab_remark'].")"; if($ptlocal["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
-                                                <td class="text-start"><?php echo $ptlocal['local_title']." (".$ptlocal['local_remark'].")"; ?></td>
-                                                <td><a href="low_level.php?ptlocal_id=<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs <?php echo !empty($ptlocal['low_level']) ? "btn-success":"btn-warning";?>">
-                                                    <?php echo !empty($ptlocal['low_level']) ? "已設定":"未設定";?></a></td>
-                                                <td><?php if($sys_role <= 1){ ?>  
-                                                        <button type="button" name="ptlocal" id="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs flagBtn <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>" value="<?php echo $ptlocal['flag'];?>"><?php echo $ptlocal['flag'];?></button>
-                                                    <?php }else{ ?>
-                                                        <span class="btn btn-sm btn-xs <?php echo $ptlocal['flag'] == 'On' ? 'btn-success':'btn-warning';?>">
-                                                            <?php echo $ptlocal['flag'] == 'On' ? '顯示':'隱藏';?></span>
-                                                    <?php } ?></td>
-                                                <td><?php if($sys_role <= 1){ ?>    
-                                                    <button type="button" id="edit_ptlocal_btn" value="<?php echo $ptlocal['id'];?>" class="btn btn-sm btn-xs btn-info" 
-                                                        data-bs-toggle="modal" data-bs-target="#edit_ptlocal" onclick="edit_module('ptlocal',this.value)" >編輯</button>
-                                                <?php } ?></td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                     <hr>
                 </div>
 
@@ -633,81 +575,6 @@
             </div>
         </div>
     </div>
-<!-- 模組 新增編輯ptLocal 20240122 -->
-    <div class="modal fade" id="edit_ptlocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><span id="ptlocal_modal_action"></span>除汙儲存點資訊</h4>
-                    <form action="" method="post">
-                        <input type="hidden" name="id" id="ptlocal_delete_id">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="ptlocal_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
-                    </form>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="post">
-                    <div class="modal-body px-5">
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($sys_role > 1) ? "disabled":"";?>>
-                                        <option value="" hidden>--請選擇fab廠別--</option>
-                                        <?php foreach($fabs as $fab){ ?>
-                                            <option value="<?php echo $fab["id"];?>" for="edit_fab_id">
-                                                <?php echo $fab["id"]."_".$fab["fab_title"]."(".$fab["fab_remark"].")"; echo ($fab["flag"] == "Off") ? ' -- 已關閉':''; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($sys_role > 1) ? " - disabled":" *"; ?></sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="local_title" id="edit_local_title" class="form-control" required placeholder="local名稱">
-                                    <label for="edit_local_title" class="form-label">local_title/名稱：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating">
-                                    <input type="text" name="local_remark" id="edit_local_remark" class="form-control" required placeholder="註解說明">
-                                    <label for="edit_local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <table>
-                                    <tr>
-                                        <td style="text-align: right;">
-                                            <label for="edit_flag" class="form-label">flag/顯示開關：</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_ptlocal_On" class="form-check-input" checked>&nbsp
-                                            <label for="edit_ptlocal_On" class="form-check-label">On</label>
-                                        </td>
-                                        <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="edit_ptlocal_Off" class="form-check-input">&nbsp
-                                            <label for="edit_ptlocal_Off" class="form-check-label">Off</label>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-12 text-end p-0" id="edit_ptlocal_info"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="text-end">
-                            <input type="hidden" name="activeTab" value="3">
-                            <input type="hidden" name="id" id="ptlocal_edit_id" >
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                <span id="ptlocal_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
-                            <input type="reset" class="btn btn-info" id="ptlocal_reset_btn" value="清除">
-                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
-                        </div>
-                    </div>
-                </form>
-    
-            </div>
-        </div>
-    </div>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -723,11 +590,9 @@
     var site        = <?=json_encode($sites)?>;                                                 // 引入sites資料
     var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
     var local       = <?=json_encode($locals)?>;                                                // 引入locals資料
-    var ptlocal     = <?=json_encode($ptlocals)?>;                                              // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
     var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','buy_ty','flag'];    // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
-    var ptlocal_item= ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     
     var tags        = [];                                                                       // fun3-1：search Key_word
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）

@@ -137,7 +137,7 @@
     <div class="container-fluid">
 
         <a class="navbar-brand" href="<?php echo $webroot;?>/">
-            <img class="navbar-brand-full pl-3" src="../template/tnesh_logo.png" height="40" width="100" alt="tnESH Logo">
+            <img class="navbar-brand-full pl-3" src="../template/carux_logo.jpg" height="40" width="100" alt="tnESH Logo">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -199,14 +199,6 @@
 
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/checked/"><i class="fa-solid fa-list-check"></i>&nbsp<b>半年檢紀錄表</b></a></li>
-
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/"><i class="fa-solid fa-kit-medical"></i>&nbsp<b>除汙器材管理</b>
-                                        <?php if($checked_type["ptstock"]["onGoing"] === true && $checked_type["ptstock"]["checked"] != 0){ 
-                                            echo "<span class='badge rounded-pill bg-danger'><i class='fa-solid fa-car-on'></i></span>";
-                                        }?></a></li>
-
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/pt_stock/sum_report.php"><i class="fa-solid fa-chart-column"></i>&nbsp<b>除汙器材管控清單</b></a></li>
                                 </ul>
                             </li>
                         <?php } ?>
@@ -225,17 +217,9 @@
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/supp/"><i class="fa-solid fa-address-book"></i>&nbsp供應商聯絡人管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/formplan/"><i class="fa-regular fa-calendar-days"></i>&nbsp表單計畫</a></li>
-                                </ul>
-                            </li>
-
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_4">
-                                    <?php if($sys_role <= 1 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/insign_msg/"><i class="fa-solid fa-comment-sms"></i>&nbsp待簽清單統計</a></li>
-                                    <?php } ?>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbspMAPP發報記錄管理</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/insign_msg/"><i class="fa-regular fa-rectangle-list"></i>&nbsp;待簽清單統計</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-solid fa-comment-sms"></i>&nbsp;MAPP發報記錄管理</a></li>
                                 </ul>
                             </li>
                         <?php } ?>
@@ -248,7 +232,6 @@
             <ul class="navbar-nav ms-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if(!$sys_auth){ ?>
                     <li class="nav-item mx-1"><a href="<?php echo $webroot;?>/auth/login.php" class=""><i class="fa fa-sign-in" aria-hidden="true"></i> 登入</a></li>
-                    <!-- <li class="nav-item mx-1 disabled"><a href="<php echo $webroot;?>/auth/register.php" class="btn btn-success">註冊</a></li> -->
                 <?php } else { ?>
                     <!-- 下拉式選單 -->
                     <li class="nav-item dropdown">
@@ -256,7 +239,6 @@
                             title="<?php echo $sys_auth ? 'sys_role：'.$sys_role:'';?>">
                             <?php
                                     echo (isset($_SESSION["AUTH"]["pass"]) && $_SESSION["AUTH"]["pass"] == "ldap") ? '<i class="fa fa-user" aria-hidden="true"></i>':'<i class="fa fa-user-secret" aria-hidden="true"></i>';
-                                    // echo (isset($_SESSION[$sys_id]["site_title"])) ? "(".$_SESSION[$sys_id]["site_title"].") ":"";
                                     echo (isset($_SESSION["AUTH"]["dept"])) ? "&nbsp(".$_SESSION["AUTH"]["dept"].")":"";
                                     echo $sys_auth ? "&nbsp".$auth_cname:""; 
                                     echo $sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':""; 

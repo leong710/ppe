@@ -153,7 +153,6 @@
 
         $sql .= " ORDER BY _f.id ASC ";
         $stmt = $pdo->prepare($sql);
-                
         try {
             if($fab_id != "All"){
                 if($fab_id != "allMy"){

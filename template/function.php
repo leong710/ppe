@@ -58,8 +58,11 @@
         extract($request);
         $sql = "SELECT form_type, count(form_type) AS cunt
                 FROM `checked_log` cl
-                WHERE cl.checked_year = ? AND cl.half = ? AND cl.fab_id IN ({$sfab_id})
-                GROUP BY cl.form_type ";
+                WHERE cl.checked_year = ? AND cl.half = ? ";
+        if(!empty($sfab_id)){
+            $sql .= "AND cl.fab_id IN ({$sfab_id}) ";
+        }
+        $sql .= "GROUP BY cl.form_type ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$checked_year, $half]);

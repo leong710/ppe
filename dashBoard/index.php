@@ -51,7 +51,7 @@
         .TOP {
             background-image: 
                 repeating-linear-gradient(black 0px, black 1px, transparent 1px, transparent 2px),
-                URL('../images/stock2.jpg');
+                URL('../images/111.jpg');
             width: auto;
             height: auto;
             position: relative;
@@ -501,11 +501,6 @@
         }
     }
 
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-    })
-
     // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
     // <php echo "var sys_auth ='$sys_auth';";?>              // 是否已經登入
 
@@ -542,6 +537,8 @@
             const activeTabPane = $(activeTab.data('bs-target'));
             activeTabPane.addClass('show active');
         }
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     });
 
 

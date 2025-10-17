@@ -64,7 +64,7 @@
                             , _e.OSHORT AS dept_no, _e.OSTEXT AS emp_dept , _e.ZLBSUPTXT AS vendor, _e.ZLBSUP AS dormitory , _e.OMAGER 
                             , _e.ZJOBCODE2TXT , _e.CSTEXT , _e.STAT2 , _e.STAT2TXT , _e.COMID2 , _e.COMID3 , _e.SCHKZ , _e.SCHKZTXT 
                             , _d.OSTEXT_10 AS dept_center, _d.ODEPNO_30 AS dept_plant_code , _d.OSTEXT_30 AS plant , _d.OSTEXT_20 AS dept_a, _d.OSTEXT_30 AS dept_b, _d.OSTEXT_40 AS dept_c, _d.OSTEXT_50 AS dept_d 
-                            , _d.OFTEXT , _e.GESCH , _e.NATIO , _e.NATIOTXT , _e.BTRTL
+                            , _d.OFTEXT , _e.GESCH , _e.NATIO , _e.NATIOTXT , _e.BTRTL , _d.KOSTL
                         FROM HCM_VW_EMP01_hiring _e
                         LEFT JOIN HCM_VW_DEPT01 _d ON _e.OSHORT = _d.OSHORT
                         WHERE _e.COMID1 = ? ";
@@ -98,14 +98,14 @@
         $sys_pm_row   = getPmRole($pdo, $emp_id);
         $sys_user_row = getUserRole($pdo, $emp_id);
         $user         = strtoupper($_SESSION["AUTH"]["user"]);
-        $inx_mb       = getHrdbUser($pdo_hrdb, $user);
+        $hrdb_mb      = getHrdbUser($pdo_hrdb, $user) ?? [];
 
         // 環安BTRTL處理
-        if ($inx_mb) {
-            $_SESSION["AUTH"]["emp_scope"] = $_SESSION["AUTH"]["emp_scope"] ?? ($inx_mb["emp_scope"] ?? "");
-            if (!empty($inx_mb["BTRTL"])) {
+        if ($hrdb_mb) {
+            $_SESSION["AUTH"]["emp_scope"] = $_SESSION["AUTH"]["emp_scope"] ?? ($hrdb_mb["emp_scope"] ?? "");
+            if (!empty($hrdb_mb["BTRTL"])) {
                 $cur = $_SESSION["AUTH"]["BTRTL"] ?? "";
-                $arr = $cur ? array_unique(array_merge(explode(",", $cur), [$inx_mb["BTRTL"]])) : [$inx_mb["BTRTL"]];
+                $arr = $cur ? array_unique(array_merge(explode(",", $cur), [$hrdb_mb["BTRTL"]])) : [$hrdb_mb["BTRTL"]];
                 $_SESSION["AUTH"]["BTRTL"] = implode(",", $arr);
             }
         }
@@ -114,7 +114,7 @@
         $login_inf = [
             "id"        => $sys_user_row["id"] ?? false,
             "role"      => 3,
-            "BTRTL"     => $inx_mb["BTRTL"] ?? "",
+            "BTRTL"     => $hrdb_mb["BTRTL"] ?? "",
             "_fab_scope" => [],
             "_fab_title" => "",
         ];
@@ -134,9 +134,9 @@
         // signCode判斷環安部門
         $signCode_arr = loadSignCode();
         $isEshMb = false;
-        $esh_mb = $inx_mb ?? [];
+        // $esh_mb = $hrdb_mb ?? [];
         foreach ($signCode_arr as $key => $codes) {
-            if (isset($esh_mb[$key]) && in_array($esh_mb[$key], [$codes])) {
+            if (isset($hrdb_mb[$key]) && in_array($hrdb_mb[$key], [$codes])) {
                 $isEshMb = true;
                 break;
             }

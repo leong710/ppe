@@ -23,7 +23,7 @@
         function loadSignCode($filename = "../../sign_code.json") {
             if (!file_exists($filename)) {
                 $sign_code = [
-                    "dept_no"  => "9O061500"
+                    "dept_no"  => "9O061500"    // 9O車用
                 ];
                 return $sign_code;
             } else {
@@ -43,8 +43,9 @@
         }
         // 取得使用者角色
         function getUserRole($pdo, $emp_id) {
-            $sql = "SELECT u.id, u.emp_id, u.user, u.cname, u.role
+            $sql = "SELECT u.* , _fab.fab_title, _fab.fab_remark
                     FROM _users u 
+                    LEFT JOIN _fab ON u.fab_id = _fab.id
                     WHERE u.emp_id = ? ";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$emp_id]);
@@ -56,7 +57,7 @@
             //                 , _e.OSHORT AS dept_no, _e.OSTEXT AS emp_dept , _e.ZLBSUPTXT AS vendor, _e.ZLBSUP AS dormitory , _e.OMAGER 
             //                 , _e.ZJOBCODE2TXT , _e.CSTEXT , _e.STAT2 , _e.STAT2TXT , _e.COMID2 , _e.COMID3 , _e.SCHKZ , _e.SCHKZTXT 
             //                 , _d.OSTEXT_10 AS dept_center, _d.ODEPNO_30 AS dept_plant_code , _d.OSTEXT_30 AS plant , _d.OSTEXT_20 AS dept_a, _d.OSTEXT_30 AS dept_b, _d.OSTEXT_40 AS dept_c, _d.OSTEXT_50 AS dept_d 
-            //                 , _d.OFTEXT , _e.GESCH , _e.NATIO , _e.NATIOTXT , _e.BTRTL
+            //                 , _d.OFTEXT , _e.GESCH , _e.NATIO , _e.NATIOTXT , _e.BTRTL , _d.KOSTL
             //             FROM [hrDB].[dbo].[HCM_VW_EMP01_hiring] _e
             //             LEFT JOIN [hrDB].[dbo].[HCM_VW_DEPT01] _d ON _e.OSHORT = _d.OSHORT
             //             WHERE _e.COMID1 = ? ";
@@ -112,24 +113,24 @@
 
         // 權限初始值
         $login_inf = [
-            "id"        => $sys_user_row["id"] ?? false,
-            "role"      => 3,
-            "BTRTL"     => $hrdb_mb["BTRTL"] ?? "",
-            "_fab_scope" => [],
-            "_fab_title" => "",
+            "id"         => $sys_user_row["id"] ?? false,
+            "role"       => 3,
+            "BTRTL"      => $hrdb_mb["BTRTL"] ?? "",
+            "fab_id"     => $sys_user_row["fab_id"] ?? "",
+            "fab_title"  => $sys_user_row["fab_title"] ?? "",
+            "fab_remark" => $sys_user_row["fab_remark"] ?? "",
+            "sfab_id"    => (!empty($sys_user_row["sfab_id"])) ? explode(",",$sys_user_row["sfab_id"]) : [],
         ];
         
-        // PM範圍
+        // PM範圍$sys_pm_row
         if ($sys_pm_row && !empty($sys_pm_row["_fab_scope"])) {
-            $login_inf["_fab_scope"] = !empty($sys_pm_row["_fab_scope"]) ? explode(",", $sys_pm_row["_fab_scope"]) : [];
-            $login_inf["_fab_title"] = $sys_pm_row["_fab_title"] ?? "";
-            $login_inf["role"] = count($login_inf["_fab_scope"]) > 0 ? 2 : 2.5; // 權限分級 1=大PM ,1.5=esh主管 ,2=siteUser ,2.5=eshUser ,3=otherUser
+            $pm_fab_scope = !empty($sys_pm_row["_fab_scope"]) ? explode(",", $sys_pm_row["_fab_scope"]) : [];
+            $login_inf["role"] = count($pm_fab_scope) > 0 ? 2 : 2.5; // 權限分級 1=大PM ,1.5=esh主管 ,2=siteUser ,2.5=eshUser ,3=otherUser
             $sys_pm_row["role"] = $login_inf["role"];
         }
 
         $_SESSION[$sys_id] = $login_inf;
         // $_SESSION[$sys_id]['debug'] = $sys_pm_row;
-
 
         // signCode判斷環安部門
         $signCode_arr = loadSignCode();
@@ -145,8 +146,9 @@
 
         // local user_role強化
         if ($sys_user_row) {
-            $pm_sc = !empty($sys_user_row["_fab_scope"]) ? explode(",", $sys_user_row["_fab_scope"]) : [];
-            $_SESSION[$sys_id]["_fab_scope"] = array_merge($_SESSION[$sys_id]["_fab_scope"], $pm_sc);
+            $user_fab_scope = !empty($sys_user_row["sfab_id"]) ? explode(",", $sys_user_row["sfab_id"]) : [];
+            $_SESSION[$sys_id]["sfab_id"] = array_merge($_SESSION[$sys_id]["sfab_id"], $user_fab_scope);
+            $_SESSION[$sys_id]["sfab_id"] = array_diff($_SESSION[$sys_id]["sfab_id"], array("",null));  // 去除空陣列
 
             if (isset($sys_user_row["id"], $sys_user_row["role"]) && $sys_user_row["role"] !== "") {
                 $_SESSION[$sys_id]["role"] = min($sys_user_row["role"], $login_inf["role"]);

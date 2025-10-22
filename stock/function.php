@@ -711,7 +711,7 @@
                     $form_type_name = "除汙器材";
                 }
             $swal_json["msg"]     .= "【環安PPE系統】".$form_type_name."點檢完成通知\n(".$cname.") 已提送".$fab_title."(".$fab_remark.")".$checked_year."/".$half."點檢，待您確認";
-            $swal_json["msg"]     .= "\n，如已確認完畢，請忽略此訊息！\n** 請至以下連結查看文件：\nhttp://tw059332n.cminl.oa/ppe/checked/";
+            $swal_json["msg"]     .= "\n，如已確認完畢，請忽略此訊息！\n** 請至以下連結查看文件：\nhttp://tw059332n.cminl.oa/carux_ppe/checked/";
             $swal_json["msg"]     .= "\n溫馨提示：\n1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n<此訊息為系統自動發出，請勿回覆>";
 
         }catch(PDOException $e){

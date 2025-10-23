@@ -381,7 +381,7 @@
                                         <h5 class="modal-title">Do you submit this 領用申請：</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body px-5">
+                                    <div class="modal-body px-3">
                                         <label for="sign_comm" class="form-check-label" >command：</label>
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
@@ -521,7 +521,6 @@
     var catalog          = <?=json_encode($catalogs)?>;                  // 第一頁：info modal function 引入catalogs資料
     var action           = '<?=$action?>';                               // Edit選染 // 引入action資料
     var receive_row      = <?=json_encode($receive_row)?>;               // Edit選染 // 引入receive_row資料作為Edit
-    // var json           = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json             = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var uuid             = '<?=$receive_row["uuid"]?>';                  // 鋪設logs紀錄
 

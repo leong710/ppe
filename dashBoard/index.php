@@ -12,7 +12,7 @@
     }
     
     // 讓一般nobody用戶帶到 我的申請文件
-    if($sys_auth && $sys_role >= 3 && empty($_SESSION["AUTH"]["dept"])){
+    if($sys_auth && $sys_role >= 2.5 && ($_SESSION[$sys_id]["isEshMb"] == "")){
         header("refresh:0;url=../receive/");
         exit;
     }
@@ -160,7 +160,7 @@
                     <div class="col-12 page_title">
                         <div class="row">
                             <div class="col-12 col-md-6 py-0">
-                                <h3><b>tnESH PPE防護具管理</b></h3>
+                                <h3><b>CarUX PPE防護具管理</b></h3>
                             </div>
 
                             <div class="col-12 col-md-6 py-0 text-end">

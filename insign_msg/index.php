@@ -169,13 +169,12 @@
         var fun          = '<?=$fun?>';                 // 是否啟動寄送信件給待簽人員
         var check_ip     = '<?=$check_ip?>';
         var inSign_lists = <?=json_encode($inSign_lists)?>;
-            console.log('inSign_lists...', inSign_lists);
         var lists_obj    = { inSign_lists : inSign_lists }
 
-        var receive_url  = `<br>&nbsp;&nbsp;領用：<a href="${uri}/ppe/receive/" target="_blank" title="領用路徑">領用路徑</a>`;
-        var issue_url    = `<br>&nbsp;&nbsp;請購：<a href="${uri}/ppe/issue/"   target="_blank" title="請購路徑">請購路徑</a>`;
+        var receive_url  = `<br>&nbsp;&nbsp;領用：<a href="${uri}/carux_ppe/receive/" target="_blank" title="領用路徑">領用路徑</a>`;
+        var issue_url    = `<br>&nbsp;&nbsp;請購：<a href="${uri}/carux_ppe/issue/"   target="_blank" title="請購路徑">請購路徑</a>`;
 
-        var int_msg1     = '【環安PPE系統】待您處理文件提醒';
+        var int_msg1     = '【CarUX_PPE系統】待您處理文件提醒';
         var int_msg2     = '<br>&nbsp;&nbsp;您共有&nbsp;';
         var int_msg3     = '&nbsp;件待簽核文件尚未處理';
         var ret_msg3     = '&nbsp;件被退件文件尚未處理';

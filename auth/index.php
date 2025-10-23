@@ -482,7 +482,6 @@
         }
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url: 'http://tneship.cminl.oa/api/hrdb/index.php',          // 正式2024新版
             method: 'post',
             dataType: 'json',
@@ -509,7 +508,6 @@
     function postList(res_r){
         // 清除表頭
         $('#result_table').empty();
-        // $("#result").addClass("border rounded bg-white");
         $("#result").addClass("bg-white");
         // 定義表格頭段
         var div_result_table = document.querySelector('.result table');
@@ -539,7 +537,6 @@
                 '</tr>';
         }
         $("body").mLoading("hide");                                 // 關閉mLoading
-        // document.getElementById("searchUser_btn").click();       // 切到searchUser頁面
         user_modal.hide();
         searchUser_modal.show();                                    // 切到searchUser頁面
 
@@ -605,7 +602,6 @@
         
         var add_btn = '<input type="submit" name="submit_edit_'+to_module+'" class="btn btn-primary" value="儲存'+to_module+'">';
         $('#'+to_module+'_modal_button').append(add_btn);                       // 填上儲存鈕
-        // var del_btn = '<input type="submit" name="submit_delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
         var del_btn ='<button type="submit" name="submit_delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)"><i class="fa-solid fa-user-xmark"></i></button>';
         $('#'+to_module+'_modal_delect_btn').append(del_btn);                   // 填上刪除鈕
 
@@ -631,7 +627,6 @@
                         // 第0階段：套用既有數據
                         var intt_val_str = row['sfab_id'];                    // 引入PM資料
                         var intt_val = [];
-                        // if(intt_val_str.length !== 0){                       // 過濾原本pm字串不能為空
                         if(intt_val_str){                                       // 過濾原本pm字串不能為空
                             intt_val = intt_val_str.split(',');                 // 直接使用 split 方法得到陣列
                             intt_val.forEach(function(sfab_val){

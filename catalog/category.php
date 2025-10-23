@@ -29,7 +29,6 @@
                     <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_cate_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="add_module('cate')" > <i class="fa fa-plus"></i> 新增分類</button>
                     <?php } ?>
-                    <!-- <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a> -->
                     <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp返回管理</button>
                 </div>
             </div>

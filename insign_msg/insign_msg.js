@@ -1,4 +1,4 @@
-    const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';            // ppe
+    const uuid = '06d4e304-a8bd-11f0-8ffe-1c697a98a75f';            // carux
     // 241209 確認是否是測試帳號
         const debugMode = { 
             'test'     : (fun == 'debug') ? true : false,           // true  = 啟動測試 
@@ -140,7 +140,8 @@
                         uuid         : uuid,                                    // ppe
                         kind         : 'broadChat',                             // 訊息頻道
                         ask          : 'to',                                    // 個人
-                        ACCOUNT_LIST : user_emp_id,                             // 傳送對象
+                        // ACCOUNT_LIST : user_emp_id,                             // 傳送對象
+                        ACCOUNT_LIST : '10008048',                             // 傳送對象
                         TEXT_CONTENT : mg_msg,                                  // 傳送訊息
                     },
                     success: function(res){
@@ -164,10 +165,10 @@
                 var formData = new FormData();  // 創建 FormData 物件
                 // 將已有的參數加入 FormData
                     formData.append('uuid', uuid);              // nurse
-                    formData.append('sysName', 'PPE');          // 貫名
+                    formData.append('sysName', 'CarUX_PPE');          // 貫名
                     // formData.append('to', to_email);            // 1.傳送對象
-                    // formData.append('to', 'leong.chen;');       // 2.傳送開發對象
-                    formData.append('to', `${to_email}`);       // 3.傳送測試對象
+                    formData.append('to', 'leong.chen;');       // 2.傳送開發對象
+                    // formData.append('to', `${to_email}`);       // 3.傳送測試對象
                     formData.append('subject', int_msg1_title); // 信件標題
                     formData.append('body', mg_msg);            // 訊息內容
     
@@ -494,7 +495,7 @@
         function checkPopup() {
             var urlParams = new URLSearchParams(window.location.search);
             if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener) || (sessionStorage.getItem('isPopup') === 'true')) {
-                console.log('popup');
+                // console.log('popup');
                 sessionStorage.removeItem('isPopup');
 
                 let nav = document.querySelector('nav');                // 獲取 <nav> 元素
@@ -509,7 +510,7 @@
                         };
                     });
             }else{
-                console.log('main');
+                // console.log('main');
             }
         }
 

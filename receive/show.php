@@ -326,7 +326,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     
-                                    <div class="modal-body px-5">
+                                    <div class="modal-body px-3">
                                         <!-- 第二排的功能 : 搜尋功能 -->
                                         <div class="row unblock" id="forwarded">
                                             <div class="col-12" id="searchUser_table">

@@ -107,13 +107,12 @@
         } 
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
                 functionname: 'showStaff',                              // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // carux
                 emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
@@ -251,13 +250,12 @@
         receive_msg = sort_receive();       // 呼叫fun 取得整理的文字串
 
         $.ajax({
-            // url:'http://10.53.248.167/SendNotify',                           // 20230505 正式修正要去掉port 801
             url:'http://tneship.cminl.oa/api/pushmapp/index.php',               // 正式2024新版--升級dataItem
             method:'post',
             async: false,                                                       // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                uuid         : '752382f7-207b-11ee-a45f-2cfda183ef4f',          // ppe
+                uuid         : '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',          // carux
                 kind         : 'broadChat',                                     // 訊息頻道
                 ask          : 'to',                                            // 個人
                 ACCOUNT_LIST : emp_id,                                          // 傳送對象
@@ -302,7 +300,7 @@
 
         var receive_row_cart = JSON.parse(receive_row['cata_SN_amount']);   // get申請單品項數量
         var i_cunt = 1;                                                     // 各品項前的計數
-        var add_cata_item = '[ PPE領用申請 - '+action+' ]';
+        var add_cata_item = '[ CarUX_PPE領用申請 - '+action+' ]';
         add_cata_item += '\n申請日期：'+receive_row['created_at'];
         add_cata_item += '\n申請單位：'+receive_row['plant'];
         add_cata_item += '\n申請人：'+receive_row['cname']+'  分機：'+receive_row['extp'];
@@ -366,7 +364,7 @@
     function checkPopup() {
         var urlParams = new URLSearchParams(window.location.search);
         if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener) || (sessionStorage.getItem('isPopup') === 'true')) {
-            console.log('popup');
+            // console.log('popup');
             sessionStorage.removeItem('isPopup');
 
             let nav = document.querySelector('nav');                // 獲取 <nav> 元素
@@ -379,38 +377,9 @@
                     };
                 });
         }else{
-            console.log('main');
+            // console.log('main');
         }
-    }
-
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-
-        // 20230817 禁用Enter鍵表單自動提交 
-        document.onkeydown = function(event) { 
-            var target, code, tag; 
-            if (!event) { 
-                event = window.event;       //針對ie瀏覽器 
-                target = event.srcElement; 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "TEXTAREA") { return true; } 
-                    else { return false; } 
-                } 
-            } else { 
-                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
-                code = event.keyCode; 
-                if (code == 13) { 
-                    tag = target.tagName; 
-                    if (tag == "INPUT") { return false; } 
-                    else { return true; } 
-                } 
-            } 
-        };
-    })
-    
+    }   
 
     $(document).ready(function () {
         
@@ -455,5 +424,30 @@
             // console.log('assignSign =>', staff_inf);
             $("body").mLoading("hide");
         })
+
+        // 20230817 禁用Enter鍵表單自動提交 
+        document.onkeydown = function(event) { 
+            var target, code, tag; 
+            if (!event) { 
+                event = window.event;       //針對ie瀏覽器 
+                target = event.srcElement; 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "TEXTAREA") { return true; } 
+                    else { return false; } 
+                } 
+            } else { 
+                target = event.target;      //針對遵循w3c標準的瀏覽器，如Firefox 
+                code = event.keyCode; 
+                if (code == 13) { 
+                    tag = target.tagName; 
+                    if (tag == "INPUT") { return false; } 
+                    else { return true; } 
+                } 
+            } 
+        };
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
 
     })

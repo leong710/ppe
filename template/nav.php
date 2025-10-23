@@ -161,7 +161,7 @@
                             <a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/receive/"><i class="fa-solid fa-cart-plus"></i>&nbsp領用管理
                             <?php echo ($num3 !=0) ? '<span class="badge rounded-pill bg-danger">'.$num3.'</span>':''; ?></a></li>
 
-                        <?php if($sys_role <= 2.5 ){ ?>
+                        <?php if($sys_role <= 2 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-warehouse"></i>&nbsp庫存管理
@@ -244,19 +244,10 @@
                                     echo $sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':""; 
                             ?> 你好</a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_reg">
-                            <?php   
-                                if($sys_auth){  
-                                    if($sys_role <= 2){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/edit.php?user=<?php echo $_SESSION["AUTH"]["user"];?>"><i class="fa fa-user-circle" aria-hidden="true"></i> 編輯User資訊</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                <?php } 
-                                    if($sys_role <= 1){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/"><i class="fa fa-address-card" aria-hidden="true"></i> 管理使用者</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                <?php } 
-                                } else {?>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> SSO登入</a></li>
-                                <?php } ?>
+                            <?php if($sys_auth && $sys_role <= 1 ){ ?>
+                                <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/"><i class="fa fa-address-card" aria-hidden="true"></i> 管理使用者</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            <?php } ?>
                             <li><a class="dropdown-item" href="<?php echo $webroot;?>/auth/logout.php" class=""><i class="fa fa-sign-out" aria-hidden="true"></i> 登出</a></li>
                         </ul>
                     </li>

@@ -29,7 +29,7 @@
         $query_arr = array(
             'sys_id'    => $sys_id,
             'role'      => $sys_role,
-            'sign_code' => $_SESSION["AUTH"]["sign_code"],
+            'sign_code' => $auth_sign_code,
             'emp_id'    => $auth_emp_id,
             'fab_id'    => $is_fab_id,
             'is_emp_id' => $is_emp_id,

@@ -49,26 +49,15 @@
     var url = 'index.php';
 
     $(document).ready(function () {
-        
         if(swal_json.length != 0){
-            // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});         // 3秒
-            // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});           // 關閉畫面
-            
             if(swal_json['action'] == 'success'){
-                // location.href = this.url;
-                // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});      // 關閉畫面
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow()});      // 關閉畫面
-                
             }else if(swal_json['action'] == 'error'){
-                // history.back();
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});           // 關閉畫面
             }
-    
         }else{
-
             location.href = url;
         }
-        
     })
     
 </script>

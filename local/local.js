@@ -107,7 +107,6 @@
                 }
             });
 
-            // swal('套用資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
 
         }
@@ -126,7 +125,6 @@
             } 
 
             $.ajax({
-                // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
                 url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
                 method:'post',
                 dataType:'json',

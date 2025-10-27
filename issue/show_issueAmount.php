@@ -54,7 +54,6 @@
         $item_str = $is["item"];                                    // 把item整串(未解碼)存到$item_str
         $item_dec = json_decode($item_str);                         // 解碼後存到$item_dec
         if(is_object($item_dec)) { $item_dec = (array)$item_dec; }  // PHP stdClass Object轉array 
-        // $item_key = array_keys((array)$item_dec);                   // 取得item陣列key
         $item_key = array_keys($item_dec);                          // 取得item陣列key
 
         foreach($item_key as $ikey){
@@ -98,7 +97,6 @@
 
 ?>
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
@@ -112,7 +110,6 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <!-- <div class="col-12 border rounded p-4 my-2" style="background-color: #D4D4D4;"> -->
             <div class="col-12 rounded p-3" style="background-color: rgba(200, 255, 255, .6);">
                 <!-- 表單表頭功能鍵 -->
                 <div class="row px-2">
@@ -123,7 +120,7 @@
                     </div> 
                     <div class="col-12 col-md-8 text-end">
                         <div class="">
-                            <?php if($_SESSION[$sys_id]["role"] <=1 && count($issues) > 0){ ?>
+                            <?php if($sys_role <=1 && count($issues) > 0){ ?>
                                 <a href="#" target="_blank" title="PR開單確認" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#issue2pr"> <i class="fa fa-edit" aria-hidden="true"></i> PR開單確認</a>
                                 <!-- 20231128 下載Excel -->
                                 <form id="myForm" method="post" action="../_Format/download_excel.php" style="display:inline-block;">
@@ -224,8 +221,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                            <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $_SESSION["AUTH"]["emp_id"];?>">
+                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
+                            <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                             <input type="hidden" name="idty"                                value="11">
                             <input type="hidden" name="step"                                value="PR開單">
                             <input type="hidden" name="flow"                                value="collect">

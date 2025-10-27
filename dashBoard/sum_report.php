@@ -394,7 +394,6 @@
     function show_reports(){
         // step-1.把 catalog對應的p_no報價繞出來
         Object(catalogs).forEach(function(cata){
-            // var cata_yy_p = JSON.parse(cata['price'])[report_yy];
             var cata_p = JSON.parse(String(cata['price']));
             if((cata_p === 0) || (cata_p === null)){
                 cata_p = {};

@@ -17,8 +17,6 @@
             }
         }
 
-        // if(!empty($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
-
     // 決定表單開啟方式
     $action = (!empty($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
@@ -104,10 +102,9 @@
         $step = $step_arr[$step_index];
     // }
 
+    include("../template/header.php");
 ?>
 
-<?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -129,7 +126,6 @@
                         <h3><i class="fa-solid fa-2"></i>&nbsp<b>調撥出庫</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="<?php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a> -->
                         <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                     </div>
                 </div>
@@ -138,7 +134,7 @@
                     <div class="col-12 col-md-6">
                         出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "trade_aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $trade_row["out_user_id"]." / ".$trade_row["cname_o"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <!-- 表頭：右側上=選擇出庫廠區 -->
@@ -147,7 +143,7 @@
                                 <select name="local_id" id="select_local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                     <option value="" hidden>--請選擇 出貨 儲存點--</option>
                                     <?php foreach($allLocals as $allLocal){ ?>
-                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                        <?php if($sys_role <= 1 || $allLocal["fab_id"] == $sys_fab_id || (in_array($allLocal["fab_id"], $sys_sfab_id))){ ?>  
                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                         <?php } ?>
@@ -322,12 +318,12 @@
                                             <div class="form-floating">
                                                 <select name="in_local" id="in_local" class="form-select" required >
                                                     <option value="" hidden>--請選擇 入庫 儲存點--</option>
-                                                    <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($allLocal["id"] != $select_local["id"]){?>
+                                                    <?php foreach($allLocals as $allLocal){
+                                                        if($allLocal["id"] != $select_local["id"]){?>
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["site_title"];?>" >
                                                                 <?php echo $allLocal["id"];?>:<?php echo $allLocal["site_title"];?>&nbsp<?php echo $allLocal["fab_title"];?>_<?php echo $allLocal["local_title"];?><?php if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
-                                                        <?php } ?>
-                                                    <?php } ?>
+                                                        <?php }
+                                                    } ?>
                                                 </select>
                                                 <label for="in_local" class="form-label">in_local/入庫廠區：<sup class="text-danger"> *</sup></label>
                                             </div>
@@ -370,8 +366,8 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $_SESSION["AUTH"]["cname"];?>">
-                                        <input type="hidden" name="cname"                           value="<?php echo $_SESSION["AUTH"]["cname"];?>">   <!-- cname/出庫填單人cname -->
+                                        <input type="hidden" name="updated_user" id="updated_user"  value="<?php echo $auth_cname;?>">
+                                        <input type="hidden" name="cname"                           value="<?php echo $auth_cname;?>">                  <!-- cname/出庫填單人cname -->
                                         <input type="hidden" name="out_user_id"                     value="<?php echo $auth_emp_id;?>">                 <!-- out_user_id/出庫填單人emp_id -->
                                         <input type="hidden" name="out_local"                       value="<?php echo $select_local["id"];?>">          <!-- out_local/出庫廠區 -->    
                                         <input type="hidden" name="form_type"   id="form_type"      value="export">
@@ -475,7 +471,6 @@
     var id          = '<?=$trade_row["id"]?>';
 
 </script>
-
 <script src="trade_form.js?v=<?=time();?>"></script>
 
 <?php include("../template/footer.php"); ?>

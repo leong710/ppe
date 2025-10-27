@@ -10,8 +10,7 @@
 	$uri       = (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) ? 'https://' : 'http://';  // 取得開頭
 	$uri      .= $_SERVER['HTTP_HOST'];                                                                // 組合成http_host
     $pc        = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                            // 取得user IP
-    // $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
-    $check_ip  = true;                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
+    $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
 
     $sys_role  = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : false;             // 取出$_session引用
     $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
@@ -54,10 +53,10 @@
                         <div class="col-12 col-md-6 py-0 text-end">
                             <?php if($sys_role == 0 && $check_ip){ ?>
                                 <button type="button" id="upload_myTodo_btn" class="btn btn-sm btn-xs <?php echo !$mailTo_insign ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
-                                    title="send notify" onclick="return confirm('確認發報？') && notify_insign()">傳送&nbspEmail&nbsp<i class="fa-solid fa-paper-plane"></i>&nbsp+&nbspMAPP&nbsp<i class="fa-solid fa-comment-sms"></i></button>
+                                    title="send notify" onclick="return confirm('確認發報？') && notify_insign()">傳送&nbsp;Email&nbsp;<i class="fa-solid fa-paper-plane"></i>&nbsp;+&nbsp;MAPP&nbsp;<i class="fa-solid fa-comment-sms"></i></button>
                                     
                             <?php } ?>
-                            <button type="button" class="btn btn-secondary rtn_btn" onclick="location.href = '../index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                            <button type="button" class="btn btn-secondary rtn_btn" onclick="location.href = '../index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;回首頁</button>
                         </div>
                     </div>
 

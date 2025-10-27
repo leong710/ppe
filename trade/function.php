@@ -1094,7 +1094,6 @@
 
             $lot_num        = "9999-12-31";                                             // 0.批號/效期
             $stock_remark   = " *".$cama["title"]."：".$cama["icon"].$p_amount;         // 0.備註
-                // // $stock_remark .= $stk_row_list[$i]['stock_remark'];
             
             // step-2 建立新紀錄到資料庫
             $sql = "INSERT INTO _stock(local_id, cata_SN, standard_lv, amount, stock_remark, pno, po_no, lot_num, updated_user, created_at, updated_at)
@@ -1221,7 +1220,6 @@
 
     // deBug專用 20230919 edition
     function deBug($request){
-        // extract($request);
         echo "<pre>";
         print_r($request);
         echo '</pre><hr>';

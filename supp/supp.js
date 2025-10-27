@@ -20,7 +20,6 @@
                 var stopUpload = iframeDocument.getElementById('stopUpload');
 
                 if (excel_json) {
-                    // console.log(excel_json.value);
                     document.getElementById('excelTable').value = excel_json.value;
 
                 } else if(stopUpload) {

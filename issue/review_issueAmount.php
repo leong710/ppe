@@ -81,7 +81,6 @@
 
 ?>
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
@@ -105,7 +104,6 @@
                     <div class="col-12 col-md-6 text-end">
                         <div class="">
                             <?php if($sys_role <= 1  ){
-                                // <a href="../trade/restock.php?pr_no=<?php echo $pr_no;>" target="_blank" title="發貨確認" class="btn btn-primary" ><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbspPR請購進貨</a>
                                 echo "<button type='button' value='../trade/restock.php?pr_no={$pr_no}' onclick='closeWindow(); openUrl(this.value)' title='發貨確認' class='btn btn-primary' ><i class='fa-solid fa-arrow-right-to-bracket'></i>&nbspPR請購進貨</button>";
                                 if(count($issues) > 0) { ?> 
                                     <!-- 20231128 下載Excel -->
@@ -117,7 +115,6 @@
                                     </form>
                                 <?php } ?>
                             <?php } ?>
-                            <!-- <a href="../issue/" title="返回" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回</a> -->
                             <button type="button" class="btn btn-secondary" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                         </div>
                     </div> 
@@ -190,7 +187,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="idty" value="12">
-                        <input type="hidden" name="out_user_id" value="<?php echo $_SESSION["AUTH"]['id'];?>">
+                        <input type="hidden" name="out_user_id" value="<?php echo $auth_emp_id;?>">
                         <input type="hidden" name="pr2site" value="<?php echo implode(',',$issue_SN_list);?>">
                         <input type="submit" name="pr2site_submit" value="Submit" class="btn btn-primary" hidden>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -177,7 +177,7 @@
                     <div class="col-12 col-md-4">
                         出入單號：<?php echo ($trade_row['id'])          ? "trade_aid_".$trade_row['id'] : "(尚未給號)";?></br>
                         開單日期：<?php echo ($trade_row['out_date'])    ? $trade_row['out_date'] : date('Y-m-d H:i')."&nbsp(實際以送出時間為主)";?></br>
-                        填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $auth_emp_id." / ".$_SESSION["AUTH"]["cname"];?>
+                        填單人員：<?php echo ($trade_row["out_user_id"]) ? $trade_row["out_user_id"]." / ".$trade_row["cname_o"] : $auth_emp_id." / ".$auth_cname;?>
                     </div>
                     <div class="col-12 col-md-8 text-end">
                         <?php if($trade_row['idty'] == 1){  // 1.簽核中 ?>
@@ -311,7 +311,7 @@
                                             <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                            <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
                                             <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
                                             <input type="hidden" name="id"              id="id"             value="">
                                             <input type="hidden" name="action"          id="action"         value="<?php echo $action;?>">

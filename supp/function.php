@@ -24,7 +24,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $supp = $stmt->fetch();
+            $supp = $stmt->fetch(PDO::FETCH_ASSOC);
             return $supp;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -95,7 +95,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $supps = $stmt->fetchAll();
+            $supps = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $supps;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -110,7 +110,7 @@
         $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
         try {
             $stmt->execute();
-            $rs = $stmt->fetchAll();
+            $rs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $rs;
         }catch(PDOException $e){
             echo $e->getMessage(); 
@@ -142,7 +142,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $contact = $stmt->fetch();
+            $contact = $stmt->fetch(PDO::FETCH_ASSOC);
             return $contact;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -214,7 +214,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $contacts = $stmt->fetchAll();
+            $contacts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $contacts;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -229,7 +229,7 @@
         $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
         try {
             $stmt->execute();
-            $rs = $stmt->fetchAll();
+            $rs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $rs;
         }catch(PDOException $e){
             echo $e->getMessage(); 

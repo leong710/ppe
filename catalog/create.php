@@ -310,7 +310,7 @@
                 </div>
                 <hr>
                 <div class="text-end">
-                    <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                    <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                     <?php if($sys_role <= 1){ ?>
                         <input type="submit" value="儲存" name="submit" class="btn btn-primary" id="show_loading_btn">
                     <?php } ?>
@@ -405,33 +405,6 @@
 
 <script>
     
-    //選擇圖片函數
-    $(function(){
-        $('#selectImg').click(function(){
-            $('.cover').show();
-        })
-        $('.cancel').click(function(){
-            $('.cover').hide();
-        })
-        $('.selected').click(function(){
-            $.ajax({
-                url:'create.php',
-                type:'get',
-                data: {
-                    img: $('.img:checked').val().substr(6 +1)      // 6 = images +1 = bypass %2f
-                },
-                success(){
-                    location.href = this.url;
-                    $('.cover').hide();
-                },
-                error(e){
-                    console.log('error:',e);
-                }
-            })
-        })
-
-    })
-
     // loading 畫面css 4/4
     var show_loading_btn = document.querySelector("#show_loading_btn");     // 定義submit按鈕
     var show_loading = document.querySelector("#show_loading");             // 定義show_loading的觸發按鈕(已隱藏)
@@ -568,6 +541,30 @@
     //             tagsInput_me(intt_val[i]+','+intt_val[i+1]);    // 利用合併帶入
     //         }
     //     }
+        //選擇圖片函數
+        $('#selectImg').click(function(){
+            $('.cover').show();
+        })
+        $('.cancel').click(function(){
+            $('.cover').hide();
+        })
+        $('.selected').click(function(){
+            $.ajax({
+                url:'create.php',
+                type:'get',
+                data: {
+                    img: $('.img:checked').val().substr(6 +1)      // 6 = images +1 = bypass %2f
+                },
+                success(){
+                    location.href = this.url;
+                    $('.cover').hide();
+                },
+                error(e){
+                    console.log('error:',e);
+                }
+            })
+        })
+
     })
 </script>
 

@@ -117,7 +117,6 @@
                 }
             }
         }
-        // check_shopping_count();
         return false;       // false = 沒找到數值
     }
     // 清算購物車件數，顯示件數，切換申請單按鈕
@@ -162,12 +161,11 @@
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',       // carux
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
                 var obj_val = res["result"];
-
                 // 將結果進行渲染
                 if (obj_val !== '') {
                     // 搜尋申請人emp_id
@@ -181,9 +179,7 @@
                         var input_in_signName = document.getElementById('in_signName'); // 待簽姓名
 
                         if(obj_val){
-
                             input_cname.value = obj_val.cname;                          // 將欄位帶入數值 = cname
-
                             if(obj_val.comid3 != ' '){
                                 input_extp.value = obj_val.comid3;                      // 將欄位帶入數值 = extp/comid3分機
                                 $("#extp").addClass("autoinput");
@@ -263,7 +259,7 @@
             dataType:'json',
             data:{
                 functionname: 'showDelegation',                     // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',       // carux
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -304,7 +300,6 @@
 
 // // // Edit選染
     function edit_item(){
-        // var issue_row = <?=json_encode($issue_row);?>;                        // 引入issue_row資料作為Edit
         var issue_item = {
             "plant"          : "plant/申請單位", 
             "dept"           : "dept/部門名稱", 
@@ -353,8 +348,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var id = '<?=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -399,8 +392,6 @@
             let value = Math.ceil(pay * buy_dm);                // 算出建議值
             $('#receive_'+key).empty();                                             // 清除領用格+建議值
             $('#receive_'+key).append(pay+' x '+ buy_dm +'</br>= '+ value +' / '+ unit );  // 貼上領用總量+建議值計算公式
-            // document.getElementById('buy_qt_'+key).classList.add('alert_it');       // 將建議值套用css:alert_it
-            // document.getElementById(key).value = value;                             // input.value套用
         })
 
         let sinn = '<b>** 自動帶入 年領用累計 與 建議值 ... 完成</b>~';
@@ -527,11 +518,8 @@
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化

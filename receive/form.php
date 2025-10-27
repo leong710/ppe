@@ -17,8 +17,6 @@
             }
         }
 
-        // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
-
     // 決定表單開啟方式
     $action = (isset($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
@@ -117,7 +115,6 @@
                         <h3><i class="fa-solid fa-3"></i>&nbsp<b>領用申請</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <!-- <a href="<php echo $up_href;?>" class="btn btn-secondary" onclick="return confirm('確認返回？');" ><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</a> -->
                         <button type="button" class="btn btn-secondary rtn_btn" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                     </div>
                 </div>

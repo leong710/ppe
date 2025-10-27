@@ -77,9 +77,14 @@
         })
     }
 
-    $(function(){
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
+    $(document).ready(function () {
+        // 假如index找不到當下存在已完成的表單，就alarm它!
+        if (check_yh_list_num == '0') {
+            let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ ';
+            alert( message, 'danger')
+        }
+
+        put_in();
 
         // 定義檢視按鈕與對應功能
         let reviewBtns = [...document.querySelectorAll('.reviewBtn')];
@@ -89,15 +94,8 @@
             }
         }
 
-    })
-
-    $(document).ready(function () {
-        // 假如index找不到當下存在已完成的表單，就alarm它!
-        if (check_yh_list_num == '0') {
-            let message  = '*** '+ thisYear +' '+ half +'年度 PPE儲存量確認開始了! 請務必在指定時間前完成確認 ~ ';
-            alert( message, 'danger')
-        }
-        put_in();
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     })
 
 

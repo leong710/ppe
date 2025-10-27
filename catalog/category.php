@@ -14,7 +14,6 @@
     $categories = show_categories();
 ?>
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
  
 <div class="container my-2">
     <div class="row justify-content-center">
@@ -29,7 +28,7 @@
                     <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_cate_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_cate" onclick="add_module('cate')" > <i class="fa fa-plus"></i> 新增分類</button>
                     <?php } ?>
-                    <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp返回管理</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;返回管理</button>
                 </div>
             </div>
             <hr>
@@ -81,7 +80,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><span id="modal_action"></span>分類</h5>
-                &nbsp&nbsp&nbsp&nbsp&nbsp
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <form action="" method="post">
                     <input type="hidden" name="id" id="cate_delete_id">
                         <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
@@ -117,11 +116,11 @@
                                         <label for="flag" class="form-label">flag/顯示開關：</label>
                                     </td>
                                     <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="On" id="edit_cate_On" class="form-check-input">&nbsp
+                                        <input type="radio" name="flag" value="On" id="edit_cate_On" class="form-check-input">&nbsp;
                                         <label for="edit_cate_On" class="form-check-label">On</label>
                                     </td>
                                     <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="Off" id="edit_cate_Off" class="form-check-input">&nbsp
+                                        <input type="radio" name="flag" value="Off" id="edit_cate_Off" class="form-check-input">&nbsp;
                                         <label for="edit_cate_Off" class="form-check-label">Off</label>
                                     </td>
                                 </tr>
@@ -135,7 +134,7 @@
                 <div class="modal-footer">
                     <div class="text-end">
                         <input type="hidden" name="id" id="cate_edit_id" >
-                        <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                        <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                             <span id="modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                         <input type="reset" class="btn btn-info" id="reset_btn" value="清除">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>

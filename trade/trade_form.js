@@ -160,7 +160,6 @@
                 }
             }
         }
-        // check_shopping_count();
         return false;       // false = 沒找到數值
     }
 
@@ -190,13 +189,12 @@
             return false;
         } 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
                 functionname: 'search',                                 // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // carux
                 emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
@@ -216,7 +214,6 @@
                         inside_toast(sinn);
                     }
                 }
-
             },
             error (){
                 console.log("search error");
@@ -239,7 +236,6 @@
 
 // // // Edit選染
     function edit_item(){
-        // var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
         var trade_item = {
             "in_user_id"     : "in_user_id/收貨人工號",
             "cname_i"        : "cname_i/申請人姓名",
@@ -271,8 +267,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var id = '<?=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -321,11 +315,8 @@
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化
@@ -340,10 +331,8 @@
             amount.onchange = e => {
                 let amount_id = e.target.id;
                 if(amount.value == ''){
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=false;     // 取消選取 = 停用
                     document.getElementById('add_'+ amount_id).value = '';
                 } else {
-                    // document.getElementById('catalog_SN_'+ amount_id).checked=true;      // 增加選取 = 停用
                     document.getElementById('add_'+ amount_id).value = amount.value;
                 }
             }

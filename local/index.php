@@ -96,7 +96,7 @@
                                 <button class="nav-link" id="nav-fab-tab"   data-bs-toggle="tab" data-bs-target="#nav-fab_table"   type="button" role="tab" aria-controls="nav-fab"   aria-selected="false">Fab</button>
                                 <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
                                 <?php if($sys_role <= 2){ ?>
-                                    <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp安全存量設定</a>
+                                    <a class="nav-link" href="low_level.php" title="fab_安全存量設定"><i class="fa-solid fa-ban"></i>&nbsp;安全存量設定</a>
                                 <?php } ?>
                             </div>
                         </nav>
@@ -304,7 +304,7 @@
                     <h4 class="modal-title"><span id="site_modal_action"></span>site資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="site_delete_id">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <span id="site_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
 
@@ -334,11 +334,11 @@
                                             <label for="edit_flag" class="form-label">flag/顯示開關：</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_site_On" class="form-check-input" checked>&nbsp
+                                            <input type="radio" name="flag" value="On" id="edit_site_On" class="form-check-input" checked>&nbsp;
                                             <label for="edit_site_On" class="form-check-label">On</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="edit_site_Off" class="form-check-input">&nbsp
+                                            <input type="radio" name="flag" value="Off" id="edit_site_Off" class="form-check-input">&nbsp;
                                             <label for="edit_site_Off" class="form-check-label">Off</label>
                                         </td>
                                     </tr>
@@ -351,7 +351,7 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="0">
                             <input type="hidden" name="id" id="site_edit_id" >
-                            <input type="hidden" value="<?php echo $_SESSION["AUTH"]["cname"];?>" name="updated_user">
+                            <input type="hidden" value="<?php echo $auth_cname;?>" name="updated_user">
                                 <span id="site_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="site_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
@@ -370,7 +370,7 @@
                     <h4 class="modal-title"><span id="fab_modal_action"></span>fab資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="fab_delete_id">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <span id="fab_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -432,11 +432,11 @@
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="a" id="edit_buy_a" class="form-check-input" required >
-                                            <label for="edit_buy_a" class="form-check-label">&nbspa.安量倍數</label>
+                                            <label for="edit_buy_a" class="form-check-label">&nbsp;a.安量倍數</label>
                                         </td>
                                         <td style="text-align: left;">
                                             <input type="radio" name="buy_ty" value="b" id="edit_buy_b" class="form-check-input" required >
-                                            <label for="edit_buy_b" class="form-check-label">&nbspb.安量倍數</label>
+                                            <label for="edit_buy_b" class="form-check-label">&nbsp;b.安量倍數</label>
                                         </td>
                                     </tr>
                                 </table>
@@ -449,11 +449,11 @@
                                             <label for="edit_flag" class="form-label">flag/顯示開關：</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" >&nbsp
+                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" >&nbsp;
                                             <label for="edit_fab_On" class="form-check-label">On</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="edit_fab_Off" class="form-check-input">&nbsp
+                                            <input type="radio" name="flag" value="Off" id="edit_fab_Off" class="form-check-input">&nbsp;
                                             <label for="edit_fab_Off" class="form-check-label">Off</label>
                                         </td>
                                     </tr>
@@ -489,7 +489,7 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="1">
                             <input type="hidden" name="id" id="fab_edit_id" >
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                                 <span id="fab_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="fab_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
@@ -508,7 +508,7 @@
                     <h4 class="modal-title"><span id="local_modal_action"></span>local資訊</h4>
                     <form action="" method="post">
                         <input type="hidden" name="id" id="local_delete_id">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <span id="local_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                     </form>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -547,11 +547,11 @@
                                             <label for="edit_flag" class="form-label">flag/顯示開關：</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_local_On" class="form-check-input" checked>&nbsp
+                                            <input type="radio" name="flag" value="On" id="edit_local_On" class="form-check-input" checked>&nbsp;
                                             <label for="edit_local_On" class="form-check-label">On</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="edit_local_Off" class="form-check-input">&nbsp
+                                            <input type="radio" name="flag" value="Off" id="edit_local_Off" class="form-check-input">&nbsp;
                                             <label for="edit_local_Off" class="form-check-label">Off</label>
                                         </td>
                                     </tr>
@@ -564,7 +564,7 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab" value="2">
                             <input type="hidden" name="id" id="local_edit_id" >
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                                 <span id="local_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
                             <input type="reset" class="btn btn-info" id="local_reset_btn" value="清除">
                             <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>

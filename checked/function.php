@@ -5,7 +5,6 @@
     function store_checked($request){
         $pdo = pdo();
         extract($request);
-        // $logs = JSON_encode($stocks_log);
         $sql = "INSERT INTO checked_log(form_type, fab_id, stocks_log, emp_id, updated_user, checked_remark, checked_year, half, created_at, updated_at)VALUES(?,?,?,?,?,?,?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
@@ -25,7 +24,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $checkeds = $stmt->fetch();
+            $checkeds = $stmt->fetch(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -67,7 +66,7 @@
         try {
             // $stmt->execute([$fab_id]);
             $stmt->execute();
-            $checkeds = $stmt->fetchAll();
+            $checkeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -84,7 +83,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id, $checked_year, $half]);
-            $check_yh_list = $stmt->fetchAll();
+            $check_yh_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $check_yh_list;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -102,7 +101,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$checked_year]);
-            $checkeds = $stmt->fetchAll();
+            $checkeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -118,7 +117,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $checked_years = $stmt->fetchAll();
+            $checked_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -136,7 +135,7 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();                                       //處理 byAll
-            $fabs = $stmt->fetchAll();
+            $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -155,7 +154,7 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute([$checked_year]);                        // 處理 $checked_year
-            $checked_year = $stmt->fetchAll();
+            $checked_year = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_year;
         }catch(PDOException $e){
             echo $e->getMessage();

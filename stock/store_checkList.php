@@ -47,9 +47,6 @@
                         'updated_user'  => $stock["updated_user"]
                     );
                     $stock_enc = JSON_encode($stock_arr);           // 小陣列要先編碼才能塞進去大陣列forStore儲存
-                        // $stock_dec = JSON_decode($stock_enc);            // 小陣列要先編碼才能塞進去大陣列forStore儲存
-                        // $stock_str = implode("-," , (array) $stock_dec); // 陣列轉成字串進行儲存到mySQL
-                        // array_unshift($stocksLog_arr, $stock_arr);       // 插到前面
                     array_push($stocksLog_arr, $stock_enc);         // 插到後面
                 }
 
@@ -127,22 +124,19 @@
     // 2023/12/13 step_1 將訊息推送到TN PPC(mapp)給對的人~ // 20240220_增加mapp推播訊息
     function push_mapp(user_emp_id, mg_msg){
         $.ajax({
-            // url:'http://10.53.248.167/SendNotify',                      // 20230505 正式修正要去掉port 801
             url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
             method:'post',
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                uuid    : '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                uuid    : '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',       // carux
                 eid     : user_emp_id,                                  // 傳送對象
                 message : mg_msg                                        // 傳送訊息
             },
             success: function(res){
-                // console.log("push_mapp -- success：",res);
                 mapp_result_check = true; 
             },
             error: function(res){
-                // ** 受到CORS阻擋，但實際上已完成發送... 所以全部填success
                 console.log("push_mapp -- error：",res);
                 mapp_result_check = false;
             }
@@ -154,27 +148,20 @@
     $(document).ready(function () {
         
         if(swal_json.length != 0){
-            // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});         // 3秒
-            // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{window.close();});           // 關閉畫面
             if(swal_json['action'] == 'success'){
-
-                if(swal_json['fun'] == 'store_checked' && myOmager.length !=0 ){
+                if(swal_json['fun'] == 'store_checked' && myOmager.length != 0 ){
                     var mg_msg = swal_json['msg'];
                     var myOmager_emp_id = String(myOmager['OMAGER']).trim();            // 定義 user_emp_id + 去空白
                     push_mapp(myOmager_emp_id, mg_msg);
                 }
-                // location.href = this.url;
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{location.href = url});     // 關閉畫面
                 
             }else if(swal_json['action'] == 'error'){
-                // history.back();
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});          // 關閉畫面
             }
-    
         }else{
             location.href = url;
         }
-        
     })
     
 </script>

@@ -44,11 +44,11 @@
         $sql = "SELECT u.*
                 FROM `STAFF` u
                 LEFT JOIN `HCM_VW_DEPT08` d ON u.dept_no = d.OSHORT
-                WHERE d.ODEPNO_30 = '9T040500' AND u.zjobcode2txt = 'M' ";
+                WHERE d.ODEPNO_30 = '9O061500' AND u.zjobcode2txt = 'M' ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sir = $stmt->fetchAll();
+            $sir = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sir;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -66,7 +66,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code, $sign_code]);
-            $depts = $stmt->fetchAll();
+            $depts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $depts;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -84,7 +84,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $deptLists = $stmt->fetchAll();
+            $deptLists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $deptLists;
         }catch(PDOException $e){
             echo $e->getMessage();

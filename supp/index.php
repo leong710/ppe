@@ -51,9 +51,9 @@
                         <nav>
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <button class="nav-link" id="nav-supp-tab"  data-bs-toggle="tab" data-bs-target="#nav-supp_table"  type="button" role="tab" aria-controls="nav-supp" aria-selected="false">
-                                    供應商&nbsp<span class="badge bg-secondary"><?php echo $count_supp;?></span></button>
+                                    供應商&nbsp;<span class="badge bg-secondary"><?php echo $count_supp;?></span></button>
                                 <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact_table" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
-                                    聯絡人&nbsp<span class="badge bg-secondary"><?php echo $count_contact;?></span></button>
+                                    聯絡人&nbsp;<span class="badge bg-secondary"><?php echo $count_contact;?></span></button>
                             </div>
                         </nav>
                     </div>
@@ -303,7 +303,7 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab"  id="supp_activeTab"  value="">
                             <input type="hidden" name="id"         id="supp_edit_id"    value="">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                             <?php if($sys_role <= 1){ ?>   
                                 <span id="supp_modal_submit_btn"></span>
                             <?php } ?>
@@ -405,7 +405,7 @@
                         <div class="text-end">
                             <input type="hidden" name="activeTab"   id="contact_activeTab"  value="">
                             <input type="hidden" name="id"          id="contact_edit_id"    value="">
-                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                            <input type="hidden" name="updated_user" value="<?php echo $auth_cname;?>">
                             <?php if($sys_role <= 1){ ?> 
                                 <span id="contact_modal_submit_btn"></span>
                             <?php } ?>
@@ -452,7 +452,7 @@
                 <div class="modal-footer">
                     <form action="import_excel.php" method="POST">
                         <input  type="hidden" name="excelTable"   id="excelTable"       value="">
-                        <input  type="hidden" name="updated_user" id="updated_user"     value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                        <input  type="hidden" name="updated_user" id="updated_user"     value="<?php echo $auth_cname;?>">
                         <button type="submit" name="import_excel" id="import_excel_btn" value="" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
                     </form>
                     <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>

@@ -76,10 +76,8 @@
                     <div class="col-md-6 text-end">
                         <?php if($sys_role <= 1){ 
                             echo "<button type='button' id='add_formplan_btn' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#edit_modal' onclick='add_module()' > <i class='fa fa-plus'></i> 新增計畫</button> ";
-                            // <a href="formcase.php" title="編輯表單" class="btn btn-warning"> <i class="fa fa-wrench"></i> 編輯表單</a>
                             echo " <button type='button' value='formcase.php' class='btn btn-warning' onclick='openUrl(this.value)' title='編輯表單' > <i class='fa fa-wrench'></i> 編輯表單</button>";
                         } ?>
-                        <!-- <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a> -->
                     </div>
                     <div class="col-md-12 rounded bg-warning px-4">
                         <div>

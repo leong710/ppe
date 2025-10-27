@@ -45,7 +45,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sn]);
-            $catalogr = $stmt->fetch();
+            $catalogr = $stmt->fetch(PDO::FETCH_ASSOC);
             return $catalogr;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -94,7 +94,7 @@
         $sql_check = "SELECT _cata.* FROM _cata WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -146,7 +146,7 @@
             }else{
                 $stmt->execute();
             }
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
 
         }catch(PDOException $e){
@@ -172,7 +172,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sn]);
-            $catalogStock = $stmt->fetchAll();
+            $catalogStock = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogStock;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -274,7 +274,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $cate = $stmt->fetch();
+            $cate = $stmt->fetch(PDO::FETCH_ASSOC);
             return $cate;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -311,7 +311,7 @@
         $sql_check = "SELECT _cate.* FROM _cate WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -340,7 +340,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $categories = $stmt->fetchAll();
+            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $categories;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -355,7 +355,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sum_category = $stmt->fetchAll();
+            $sum_category = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sum_category;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -377,7 +377,7 @@
         if($stmt_check -> rowCount() >0){     
             // 確認no編號是否已經被註冊掉，用rowCount最快~不要用fetch
             echo "<script>alert('local同批號衛材已存在，將進行合併計算~')</script>";
-            $row = $stmt_check -> fetch();
+            $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
             $amount += $row["amount"];
 
             $sql = "UPDATE _stock
@@ -435,7 +435,7 @@
             if($stmt_check -> rowCount() >0){     
                 // 確認no編號是否已經被註冊掉，用rowCount最快~不要用fetch
                 echo "<script>alert('local同批號衛材已存在，將進行合併計算~')</script>";
-                $row = $stmt_check -> fetch();
+                $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
                 $amount += $row["amount"];
     
                 $sql = "UPDATE _stock
@@ -517,7 +517,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sites = $stmt->fetchAll();
+            $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sites;
             
         }catch(PDOException $e){
@@ -537,7 +537,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$site_id]);
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
 
         }catch(PDOException $e){
@@ -557,7 +557,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
 
         }catch(PDOException $e){
@@ -576,7 +576,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
 
         }catch(PDOException $e){
@@ -607,7 +607,7 @@
             }else{
                 $stmt->execute([$_year]);      //處理 by_year
             }
-            $pnos = $stmt->fetchAll();
+            $pnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $pnos;
 
         }catch(PDOException $e){
@@ -626,7 +626,7 @@
         $stmt = $pdo->prepare($sql);
         try{
             $stmt->execute([$key_word ,$key_word ,$key_word ,$key_word]);
-            $searchResult = $stmt->fetchAll();
+            $searchResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $searchResult;
 
         }catch(PDOException $e){

@@ -116,7 +116,7 @@
                                     <tr>
                                         <td style="text-align:right;" width="20%">SN/編號：</td>
                                         <td style="text-align:left;" width="40%" title="id=<?php echo $catalog["id"];?>">
-                                            <?php echo $catalog["SN"];?>&nbsp&nbsp
+                                            <?php echo $catalog["SN"];?>&nbsp;&nbsp;
                                             <span class="badge <?php echo $catalog['flag'] == 'On' ? 'bg-success':'bg-warning text-dark';?>"><?php echo $catalog['flag'] == 'On' ? '上架':'下架';?></span>
                                         </td>
                                     </tr>
@@ -203,7 +203,7 @@
                         ?>
                         <?php foreach($catalogStocks as $catalogStock){ ?>
                             <tr <?php if($check_item != $catalogStock['fab_title']){?>style="border-top:3px #FFD382 solid;"<?php } ?>>
-                                <td style="text-align: left;"><?php echo $catalogStock["site_title"]."&nbsp".$catalogStock["fab_title"]."_".$catalogStock["local_title"]."(".$catalogStock["local_remark"].")";?></td>
+                                <td style="text-align: left;"><?php echo $catalogStock["site_title"]."&nbsp;".$catalogStock["fab_title"]."_".$catalogStock["local_title"]."(".$catalogStock["local_remark"].")";?></td>
                                 <td><?php echo $catalogStock["standard_lv"];?></td>
                                     <?php if($check_local0 != $catalogStock["site_title"]."_".$catalogStock["local_title"]){
                                             $sum_s += (int)$catalogStock["standard_lv"];    // 相同local+相同catelog將standard_lv(low_level)合併成一筆計算
@@ -259,8 +259,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp儲存品</h4><span id="modal_sup"></span>
-                    &nbsp&nbsp&nbsp&nbsp&nbsp
+                    <h4 class="modal-title"><span id="modal_action"></span>&nbsp;儲存品</h4><span id="modal_sup"></span>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <form action="" method="post">
                         <input type="hidden" name="id" id="stock_delete_id">
                         <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
@@ -279,7 +279,7 @@
                                             <option value="" selected hidden>-- 請選擇儲存點 --</option>
                                             <?php foreach($locals as $local){ ?>
                                                 <option value="<?php echo $local["id"];?>">
-                                                    <?php echo $local["id"]."：".$local["site_title"]."&nbsp".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
+                                                    <?php echo $local["id"]."：".$local["site_title"]."&nbsp;".$local["fab_title"]."_".$local["local_title"]; echo ($local["flag"] == "Off") ? " - (已關閉)":"";?></option>
                                             <?php } ?>
                                         </select>
                                         <label for="edit_local_id" class="form-label">local_id/儲存位置：<sup class="text-danger">*</sup></label>
@@ -486,21 +486,6 @@
         }
     }
 
-    $(function(){
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-
-        // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
-        // 監聽lot_num是否有輸入值，跟著改變樣態
-        $('#add_lot_num').on('input', function() {
-            change_btn('add');
-        });
-        $('#edit_lot_num').on('input', function() {
-            change_btn('edit');
-        });
-
-    });
-
 // // // add mode function
     function add_module(to_module){     // 啟用新增模式
         $('#modal_action, #modal_button, #modal_delect_btn, #edit_stock_info, #modal_sup').empty();     // 清除model功能
@@ -577,7 +562,18 @@
     $(document).ready(function(){
         
         checkPopup();
-        
+
+        // 20230131 新增保存日期為'永久'    20230714 升級合併'永久'、'清除'
+        // 監聽lot_num是否有輸入值，跟著改變樣態
+        $('#add_lot_num').on('input', function() {
+            change_btn('add');
+        });
+        $('#edit_lot_num').on('input', function() {
+            change_btn('edit');
+        });
+
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     })
 
 </script>

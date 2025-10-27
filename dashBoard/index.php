@@ -501,9 +501,6 @@
         }
     }
 
-    // <php echo "var check_yh_list_num ='$numChecked';";?>       // 年度檢查筆數
-    // <php echo "var sys_auth ='$sys_auth';";?>              // 是否已經登入
-
     // Bootstrap Alarm function
     function alert(message, type) {
         var wrapper = document.createElement('div');

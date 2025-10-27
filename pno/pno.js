@@ -1,37 +1,3 @@
-
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-        // All resources finished loading! // 關閉mLoading提示
-
-        // 20231128 以下為上傳後"iframe"的部分
-            // 監控按下送出鍵後，打開"iframe"
-            upload_excel_btn.addEventListener('click', function() {
-                iframeLoadAction();
-                checkExcelForm();
-            });
-            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
-            iframe.addEventListener('load', function(){
-                iframeLoadAction();
-            });
-            // 監控按下[載入]鍵後----呼叫Excel載入購物車
-            import_excel_btn.addEventListener('click', function() {
-                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                var excel_json = iframeDocument.getElementById('excel_json');
-                var stopUpload = iframeDocument.getElementById('stopUpload');
-
-                if (excel_json) {
-                    document.getElementById('excelTable').value = excel_json.value;
-
-                } else if(stopUpload) {
-                    console.log('請確認資料是否正確');
-                }else{
-                    console.log('找不到 ? 元素');
-                }
-            });
-
-    })
-
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
@@ -148,7 +114,6 @@
                 }
             });
 
-            // swal('資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
         }
     }
@@ -176,8 +141,6 @@
             var newValue = parseFloat(this.innerHTML.replace(/[^\d.-]/g, ""));
             var originalValue = parseFloat(this.getAttribute("data-original-value").replace(/[^\d.-]/g, ""));
  
-            // if (isNaN(newValue)) { newValue = 0; }
-            // if (isNaN(originalValue)) { originalValue = 0; }
             newValue = isNaN(newValue) ? 0 : newValue;
             originalValue = isNaN(originalValue) ? 0 : originalValue;
             
@@ -213,7 +176,6 @@
                 _id: _request['rowId'],
                 _quoteYear: _request['rowName'],
                 _price: _request['newValue'],
-                // json_request: JSON.stringify({_request})
             },
             success: function(res){
                 swal_action = 'success';
@@ -339,11 +301,8 @@
     }
 
     $(document).ready(function () {
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#pno_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化
@@ -351,5 +310,35 @@
                 url: "../../libs/dataTables/dataTable_zh.json"
             }
         });
+
+        // 20231128 以下為上傳後"iframe"的部分
+            // 監控按下送出鍵後，打開"iframe"
+            upload_excel_btn.addEventListener('click', function() {
+                iframeLoadAction();
+                checkExcelForm();
+            });
+            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+            iframe.addEventListener('load', function(){
+                iframeLoadAction();
+            });
+            // 監控按下[載入]鍵後----呼叫Excel載入購物車
+            import_excel_btn.addEventListener('click', function() {
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var excel_json = iframeDocument.getElementById('excel_json');
+                var stopUpload = iframeDocument.getElementById('stopUpload');
+
+                if (excel_json) {
+                    document.getElementById('excelTable').value = excel_json.value;
+
+                } else if(stopUpload) {
+                    console.log('請確認資料是否正確');
+                }else{
+                    console.log('找不到 ? 元素');
+                }
+            });
+
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
+        // All resources finished loading! // 關閉mLoading提示
     })
 

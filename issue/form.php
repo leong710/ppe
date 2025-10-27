@@ -123,7 +123,6 @@
 ?>
 
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -148,17 +147,17 @@
                 <!-- 表頭1 -->
                 <div class="row px-2">
                     <div class="col-12 col-md-6 py-0">
-                        <h3><i class="fa-solid fa-1"></i>&nbsp<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
+                        <h3><i class="fa-solid fa-1"></i>&nbsp;<b>請購需求</b><?php echo empty($action) ? "":" - ".$action;?></h3>
                     </div>
                     <div class="col-12 col-md-6 py-0 text-end">
-                        <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                        <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;回首頁</button>
                     </div>
                 </div>
 
                 <div class="row px-2">
                     <div class="col-12 col-md-6">
                         需求單號：<?php echo ($action == 'create') ? "(尚未給號)": "issue_aid_".$issue_row['id']; ?></br>
-                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$issue_row['create_date']; ?></br>
+                        開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp;(實際以送出時間為主)":$issue_row['create_date']; ?></br>
                         填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $issue_row["in_user_id"]." / ".$issue_row["cname_i"] ;?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
@@ -173,9 +172,9 @@
                                     <select name="local_id" id="select_local_id" class="form-control" required style='width:90%;' onchange="this.form.submit()">
                                         <option value="" hidden>--請選擇 需求 儲存點--</option>
                                         <?php foreach($allLocals as $allLocal){ ?>
-                                            <?php if($sys_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                            <?php if($sys_role <= 1 || $allLocal["fab_id"] == $sys_fab_id || (in_array($allLocal["fab_id"], $sys_sfab_id))){ ?>  
                                                 <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
-                                                    <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
+                                                    <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp;".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                             <?php } ?>
                                         <?php } ?>
                                     </select>
@@ -199,7 +198,7 @@
                             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" 
                                 aria-controls="nav-home" aria-selected="true">1.選取器材用品</button>
                             <button class="nav-link" id="nav-shopping_cart-tab" data-bs-toggle="tab" data-bs-target="#nav-shopping_cart" type="button" role="tab" 
-                                aria-controls="nav-shopping_cart" aria-selected="false">2.購物車&nbsp<span id="shopping_count" class="badge rounded-pill bg-danger"></span></button>
+                                aria-controls="nav-shopping_cart" aria-selected="false">2.購物車&nbsp;<span id="shopping_count" class="badge rounded-pill bg-danger"></span></button>
                             <button class="nav-link disabled" id="nav-review-tab" data-bs-toggle="tab" data-bs-target="#nav-review" type="button" role="tab" 
                                 aria-controls="nav-review" aria-selected="false">3.申請單成立</button>
                         </div>
@@ -215,11 +214,11 @@
                                             <tr>
                                                 <th class="unblock">cate_no</th>
                                                 <th>PIC</th>
-                                                <th>名稱&nbsp<i class="fa fa-info-circle" aria-hidden="true"></i></th>
+                                                <th>名稱&nbsp;<i class="fa fa-info-circle" aria-hidden="true"></i></th>
                                                 <th>分類</th>
                                                 <th>尺寸</th>
                                                 <th data-toggle="tooltip" data-placement="bottom" title="<?php echo $thisYear;?>年總累計">年領用 x <?php echo (!empty($buy_ty)) ? $buy_ty:"?";?></br>= 建議值</th>
-                                                <th>需求&nbsp<i class="fa-solid fa-cart-plus"></i>&nbsp購物車</th>
+                                                <th>需求&nbsp;<i class="fa-solid fa-cart-plus"></i>&nbsp;購物車</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -256,13 +255,12 @@
                                                     <td>
                                                         <?php 
                                                             // 20231229_更新目錄或換約時會出現，找不到的狀況 // 因為low_level儲存時用了array_filter濾除了安量0的項目導致錯誤
-                                                            // $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level[$catalog["SN"]]; 
                                                             $local_low_level_cata_SN = (!empty($local_low_level[$catalog["SN"]])) ? $local_low_level[$catalog["SN"]] : "0";
                                                             $buy_qty = (!empty($catalog["stock_stand"])) ? $catalog["stock_stand"] : $local_low_level_cata_SN; 
                                                         ?>
 
                                                         <div class="col-12 text-center py-0 " style="color:<?php echo ($catalog['amount'] <= $catalog['stock_stand']) ? "red" : "blue"; ?>">
-                                                            <b><?php echo "安量:&nbsp" . $buy_qty . "&nbsp/&nbsp現量: " . (!empty($catalog["amount"]) ? $catalog["amount"] : "0"); ?></b>
+                                                            <b><?php echo "安量:&nbsp;" . $buy_qty . "&nbsp;/&nbsp;現量: " . (!empty($catalog["amount"]) ? $catalog["amount"] : "0"); ?></b>
                                                         </div>
                                                         <div class="input-group">
                                                             <input type="number" id="<?php echo $catalog['SN']; ?>" class="form-control amount t-center"
@@ -338,7 +336,7 @@
                                             <?php if($sys_role <= 3){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                                            <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;回首頁</button>
                                         </div>
                                         <hr>
                                     </div>
@@ -400,13 +398,13 @@
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
                                             <div style="display: flex;">
-                                                <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp
+                                                <label for="ppty" class="form-label">ppty/需求類別：</label></br>&nbsp;
                                                 <input type="radio" name="ppty" value="0" id="ppty_0" class="form-check-input" required disabled >
-                                                <label for="ppty_0" class="form-check-label">&nbsp臨時&nbsp&nbsp</label>
+                                                <label for="ppty_0" class="form-check-label">&nbsp;臨時&nbsp;&nbsp;</label>
                                                 <input type="radio" name="ppty" value="1" id="ppty_1" class="form-check-input" required checked >
-                                                <label for="ppty_1" class="form-check-label">&nbsp定期&nbsp&nbsp</label>
+                                                <label for="ppty_1" class="form-check-label">&nbsp;定期&nbsp;&nbsp;</label>
                                                 <input type="radio" name="ppty" value="3" id="ppty_3" class="form-check-input" required disabled >
-                                                <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp緊急</label>
+                                                <label for="ppty_3" class="form-check-label" data-toggle="tooltip" data-placement="bottom" title="注意：事故須先通報防災!!">&nbsp;緊急</label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-4 py-1 px-2">
@@ -415,7 +413,6 @@
                                                         data-toggle="tooltip" data-placement="bottom" title="輸入主管工號"
                                                         onchange="search_fun(this.value);">
                                                 <label for="omager" class="form-label">omager/上層主管工號：<sup class="text-danger"> *</sup></label>
-                                                <!-- <h5><span id="omager_badge" class="badge pill bg-primary"></span></h5> -->
                                                 <div id="omager_badge"></div>
                                             </div>
                                             <input type="hidden" name="in_signName" id="in_signName" class="form-control">
@@ -433,8 +430,8 @@
                                         <hr>
                                         <div class="col-12 py-1">
                                             備註：
-                                            </br>&nbsp1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
-                                            </br>&nbsp2.簽核：申請人=>申請人主管=>PPEpm=>PR待轉=>轉PR=>PPEpm交貨=>申請人驗收=>商品入庫+表單結案。 
+                                            </br>&nbsp;1.填入申請人工號、姓名、需求廠區、需求類別、器材數量。
+                                            </br>&nbsp;2.簽核：申請人=>申請人主管=>PPEpm=>PR待轉=>轉PR=>PPEpm交貨=>申請人驗收=>商品入庫+表單結案。 
                                         </div>
                                     </div>
     
@@ -447,7 +444,7 @@
                                             <?php if($sys_role <= 2){ ?>
                                                 <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                                             <?php } ?>
-                                            <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                                            <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;回首頁</button>
                                         </div>
                                     </div>
                                 </div>
@@ -565,7 +562,7 @@
                         <div class="modal-body px-4">
                             <div class="row">
                                 <div class="col-6 col-md-8 py-0">
-                                    <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/issue_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                    <label for="excelFile" class="form-label">需求清單 <span>&nbsp;<a href="../_Format/issue_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                         <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                     <div class="input-group">
                                         <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
@@ -606,7 +603,6 @@
     var action          = '<?=$action?>';                                // 引入action資料
     var catalog         = <?=json_encode($catalogs)?>;                   // 引入catalogs資料
     var issue_row       = <?=json_encode($issue_row)?>;                  // 引入issue_row資料作為Edit
-    // var json            = JSON.parse('<=json_encode($logs_arr)?>');    // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json            = <?=json_encode($logs_arr)?>;                   // 鋪設logs紀錄 240124-改去除JSON.parse
     var id              = '<?=$issue_row["id"]?>';
     var myReceives      = <?=json_encode($myReceives)?>;                  // 引入myReceives資料，算年領用量

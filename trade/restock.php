@@ -19,8 +19,6 @@
             }
         }
 
-        // if(isset($_POST["delete_log"])){ updateLogs($_REQUEST); } // 更新log
-
     // 決定表單開啟方式
     $action = (!empty($_REQUEST["action"])) ? $_REQUEST["action"] : 'create';   // 有action就帶action，沒有action就新開單
 
@@ -88,10 +86,9 @@
         $step = $step_arr[$step_index];
     // }
 
+    include("../template/header.php"); 
 ?>
 
-<?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -122,7 +119,7 @@
                     <div class="col-12 col-md-6">
                         出入單號：<?php echo ($action == 'create') ? "(尚未給號)": "trade_aid_".$trade_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create') ? date('Y-m-d H:i')."&nbsp(實際以送出時間為主)":$trade_row['out_date']; ?></br>
-                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$_SESSION["AUTH"]["cname"] : $trade_row["out_user_id"];?>
+                        填單人員：<?php echo ($action == 'create') ? $auth_emp_id." / ".$auth_cname : $trade_row["out_user_id"];?>
                     </div>
                     <div class="col-12 col-md-6 text-end">
                         <?php if(($sys_id_role <= 1 ) && (isset($trade_row['idty']) && $trade_row['idty'] != 0)){ ?>
@@ -270,7 +267,7 @@
                                                 <select name="in_local" id="in_local" class="form-control" required>
                                                     <option value="" selected hidden>--請選擇 進貨 儲存點--</option>
                                                     <?php foreach($allLocals as $allLocal){ ?>
-                                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $_SESSION[$sys_id]["fab_id"] || (in_array($allLocal["fab_id"], $_SESSION[$sys_id]["sfab_id"]))){ ?>  
+                                                        <?php if($sys_id_role <= 1 || $allLocal["fab_id"] == $sys_fab_id  || (in_array($allLocal["fab_id"], $sys_sfab_id))){ ?>  
                                                             <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" >
                                                                 <?php echo $allLocal["id"]."：".$allLocal["site_title"]."&nbsp".$allLocal["fab_title"]."_".$allLocal["local_title"]; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                                         <?php } ?>
@@ -327,7 +324,7 @@
                                         <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="hidden" name="cname"       id="cname"      value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="cname"       id="cname"      value="<?php echo $auth_cname;?>">
                                         <input type="hidden" name="out_user_id" id="out_user_id" value="<?php echo $auth_emp_id;?>">
                                         <input type="hidden" name="stock_remark"                value="(PO編號)">
                                         <input type="hidden" name="form_type"   id="form_type"  value="import">
@@ -335,7 +332,7 @@
                                         <input type="hidden" name="idty"        id="idty"       value="1">
                                         <input type="hidden" name="step"        id="step"       value="<?php echo $step;?>">
 
-                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                        <input type="hidden" name="updated_user" id="updated_user" value="<?php echo $auth_cname;?>">
                                         <input type="hidden" name="id"          id="id"         value="">
                                         <?php if($sys_id_role <= 2){ ?>
                                             <button type="submit" value="Submit" name="trade_submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>

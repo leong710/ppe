@@ -1,5 +1,4 @@
 // // // 第一頁：info modal function
-    // var catalog = <?=json_encode($catalogs);?>;                        // 引入catalogs資料
     var catalog_item = {
         "SN"            : "SN/編號", 
         "cate_no"       : "category/分類", 
@@ -160,14 +159,13 @@
         } 
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showStaff',                              // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // carux
                 emp_id: search                                          // 查詢對象key_word
             },
             success: function(res){
@@ -210,7 +208,6 @@
                                 $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
                                 $('#omager_badge').empty();
                                 input_omager.value = obj_val.omager;                   // 將欄位帶入數值 = omager/omager 上層主管
-                                // $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '<span class="remove">x</span></div>');
                                 $('#omager_badge').append('<div class="tag">' + obj_val.s2_cname + '&nbsp</div>');
                                 input_in_signName.value = obj_val.s2_cname;             // 帶入待簽人姓名
 
@@ -239,7 +236,6 @@
                     // 搜尋申請人上層主管emp_id    
                     }else{                    
                         if(obj_val){ 
-                            // $('#omager_badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             $('#omager_badge').append('<div class="tag">' + obj_val.cname + '&nbsp</div>');
                             $("#omager").addClass("autoinput");
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
@@ -265,14 +261,13 @@
     // fun3-1A 用上層主管工號查詢簽核代理人
     function showDelegation(search){
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
                 functionname: 'showDelegation',                         // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // carux
                 emp_id: search                                          // 查詢對象key_word 
             },
             success: function(res){
@@ -282,12 +277,10 @@
                     $('#omager_badge').closest('.tag').remove();           // 泡泡自畫面中移除
                     $('#omager_badge').empty();
                     document.getElementById('omager').value = obj_val.DEPUTYEMPID;                   // 將欄位帶入數值 = omager/omager 上層主管                          
-                    // $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '<span class="remove">x</span></div>');
                     $('#omager_badge').append('<div class="tag">代理人：' + obj_val.DEPUTYCNAME + '&nbsp</div>');
                     $("#omager").addClass("autoinput");
 
                     document.getElementById('in_signName').value = obj_val.DEPUTYCNAME;             // 將欄位帶入待簽人姓名                          
-
                 }
             },
             error(err){
@@ -317,7 +310,6 @@
 // // // 第三頁：searchUser function 
 
 // // // Edit選染
-    // var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
         // var receive_row = <?=json_encode($receive_row);?>;                        // 引入receive_row資料作為Edit
         var receive_item = {
@@ -369,8 +361,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var uuid = '<?=$receive_row["uuid"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -527,11 +517,8 @@
 
         checkPopup();
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化

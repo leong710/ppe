@@ -22,8 +22,6 @@
             $su = array (
                 "table"     => !empty($_REQUEST["table"])     ? $_REQUEST["table"]     : NULL,    // 日期
                 "flag"      => !empty($_REQUEST["flag"])      ? $_REQUEST["flag"]      : NULL,    // 系統id  
-                // "id"        => !empty($_REQUEST["id"])        ? $_REQUEST["id"]        : NULL,       // 各別訂製
-                
                 "amount"    => !empty($_REQUEST["_amount"])   ? $_REQUEST["_amount"]   : NULL,    // 訊息內容
             );
 

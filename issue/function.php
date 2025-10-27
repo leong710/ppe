@@ -58,7 +58,7 @@
             }else{
                 $stmt->execute();                                       //處理 byAll
             }
-            $issues = $stmt->fetchAll();
+            $issues = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $issues;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -87,7 +87,7 @@
             }else{
                 $stmt->execute();                                           //處理 byAll
             }
-            $sum_issue = $stmt->fetchAll();
+            $sum_issue = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sum_issue;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -116,7 +116,7 @@
             }else{
                 $stmt->execute();                                           //處理 byAll
             }
-            $sum_issue_ship = $stmt->fetchAll();
+            $sum_issue_ship = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sum_issue_ship;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -142,7 +142,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$site_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -168,7 +168,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -206,7 +206,7 @@
             } else {                                                    // $_5我的待領清單myCollect 'myCollect'
                 $stmt->execute();
             }
-            $my_inSign_lists = $stmt->fetchAll();
+            $my_inSign_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $my_inSign_lists;
 
         }catch(PDOException $e){
@@ -226,7 +226,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $coverFab_lists = $stmt->fetchAll();
+            $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
 
         }catch(PDOException $e){
@@ -264,7 +264,7 @@
             }else{
                 $stmt->execute();
             }
-            $myFab_lists = $stmt->fetchAll();
+            $myFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $myFab_lists;
 
         }catch(PDOException $e){
@@ -281,7 +281,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $checked_years = $stmt->fetchAll();
+            $checked_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -311,7 +311,7 @@
             }else{
                 $stmt->execute();
             }
-            $formplans = $stmt->fetchAll();
+            $formplans = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $formplans;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -437,26 +437,18 @@
         $pdo = pdo();
         extract($request);
         $sql = "SELECT _issue.*, users_o.cname as cname_o, users_i.cname as cname_i
-                        -- , _local_o.local_title as local_o_title, _local_o.local_remark as local_o_remark
                         , _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark
-                        -- , _fab_o.id AS fab_o_id, _fab_o.fab_title as fab_o_title, _fab_o.fab_remark as fab_o_remark, _fab_o.pm_emp_id as fab_o_pm_emp_id
                         , _fab_i.id AS fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, _fab_i.sign_code AS fab_i_sign_code, _fab_i.pm_emp_id as fab_i_pm_emp_id
-                        -- , _site_o.id as site_o_id, _site_o.site_title as site_o_title, _site_o.site_remark as site_o_remark
-                        -- , _site_i.id as site_i_id, _site_i.site_title as site_i_title, _site_i.site_remark as site_i_remark
                 FROM `_issue`
                 LEFT JOIN _users users_o ON _issue.out_user_id = users_o.emp_id
                 LEFT JOIN _users users_i ON _issue.in_user_id = users_i.emp_id
-                -- LEFT JOIN _local _local_o ON _issue.out_local = _local_o.id
                 LEFT JOIN _local _local_i ON _issue.in_local = _local_i.id
-                -- LEFT JOIN _fab _fab_o ON _local_o.fab_id = _fab_o.id
                 LEFT JOIN _fab _fab_i ON _local_i.fab_id = _fab_i.id
-                -- LEFT JOIN _site _site_o ON _fab_o.site_id = _site_o.id
-                -- LEFT JOIN _site _site_i ON _fab_i.site_id = _site_i.id 
                 WHERE _issue.id = ? ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $issue = $stmt->fetch();
+            $issue = $stmt->fetch(PDO::FETCH_ASSOC);
             return $issue;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -485,9 +477,6 @@
             $flow = "Manager";
             $idty = 1;
         }
-        // 把_issue表單logs叫近來處理
-            // $query = array('id'=> $id );
-            // $issue_logs = showLogs($query);
         // 製作log紀錄前處理：塞進去製作元素
             $logs_request["action"] = $action;
             $logs_request["step"]   = $step."-編輯";
@@ -686,7 +675,7 @@
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$emp_id]);
-                $query_omager = $stmt->fetch();
+                $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
                 return $query_omager;
     
             }catch(PDOException $e){
@@ -704,7 +693,7 @@
             $stmt = $pdo->prepare($sql);
             try {
                 $stmt->execute([$sign_code]);
-                $query_omager = $stmt->fetch();
+                $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
                 return $query_omager;
     
             }catch(PDOException $e){
@@ -727,12 +716,9 @@
                 $pm_emp_id = $issue_row["pm_emp_id"];
                 $pm_emp_id_arr = explode(",",$pm_emp_id);       //資料表是字串，要炸成陣列
                     // case != 13交貨 && 發貨人沒有在pm_emp_id名單中就返回
-                    // if($idty != 13 && !in_array($updated_emp_id, $pm_emp_id_arr)){ return;}
                     if($idty != 13 || !in_array($updated_emp_id, $pm_emp_id_arr)){ 
                         return;
                     }
-            // $issue_logs["logs"] = $issue_row["logs"];   // 已調閱表單，直接取用logs
-            // if(empty($issue_logs["logs"])){ $issue_logs["logs"] = ""; }
             // 製作log紀錄前處理：塞進去製作元素
                 $logs_request["action"] = $action;
                 $logs_request["step"]   = "業務承辦";   
@@ -769,7 +755,6 @@
     // 在issue_list秀出所有issueAmount清單
     function show_issueAmount($ppty){
         $pdo = pdo();
-        // extract($request);
         $sql = "SELECT _issue.*,
                         _local_i.local_title as local_i_title, _local_i.local_remark as local_i_remark,              
                         _fab_i.id as fab_i_id, _fab_i.fab_title as fab_i_title, _fab_i.fab_remark as fab_i_remark, 
@@ -791,7 +776,7 @@
             }else{
                 $stmt->execute();
             }    
-            $issuesAmount = $stmt->fetchAll();
+            $issuesAmount = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $issuesAmount;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -812,7 +797,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$pr_no]);      
-            $issuesAmount = $stmt->fetchAll();
+            $issuesAmount = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $issuesAmount;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -925,7 +910,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -943,7 +928,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -953,34 +938,6 @@
     function read_local_stock($request){
         $pdo = pdo();
         extract($request);
-        $sql_old = "SELECT _cata.*, _cate.cate_title, _cate.id AS cate_id, ps.*
-                FROM _cata 
-                LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
-                LEFT JOIN (
-                            SELECT _stock.cata_SN , sum(_stock.amount) AS amount, s.stock_stand, s.sqty
-                            FROM `_stock`
-                            LEFT JOIN _local ON _stock.local_id = _local.id
-                            LEFT JOIN _cata ON _stock.cata_SN = _cata.SN
-                            LEFT JOIN (
-                                        SELECT concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) AS tcc	
-                                            , sum(_s.standard_lv) AS stock_stand	
-                                            , sum(_stock.amount)-sum(_s.standard_lv) AS sqty	
-                                        FROM `_stock`
-                                        LEFT JOIN _local ON _stock.local_id = _local.id	
-                                        LEFT JOIN (	
-                                                    SELECT _stock.id, _stock.standard_lv	
-                                                    FROM `_stock`
-                                                    LEFT JOIN _local _l ON _stock.local_id = _l.id	
-                                                    GROUP BY local_id, cata_SN	
-                                                    ) _s ON _stock.id = _s.id	
-                                        GROUP BY _stock.local_id, _stock.cata_SN	
-                                    ) s ON concat_ws('_',_local.fab_id, _stock.local_id, _stock.cata_SN) = tcc	
-                            WHERE _local.id=?
-                            GROUP BY _local.id, _stock.cata_SN
-                            ORDER BY cata_SN, lot_num ASC
-                        ) ps ON	_cata.SN = ps.cata_SN
-                ORDER BY _cate.id, _cata.id ASC ";
-
         $sql = "SELECT c.*, cate.cate_title, cate.id AS cate_id, ps.*, _p.part_no, _p.pno_remark, _p._year, _p.size
                 FROM _cata c
                 LEFT JOIN _cate cate ON c.cate_no = cate.cate_no
@@ -1006,7 +963,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -1020,12 +977,11 @@
                 FROM _cata
                 LEFT JOIN _cate ON _cata.cate_no = _cate.cate_no
                 LEFT JOIN _pno ON _cata.SN = _pno.cata_SN
-                -- WHERE _cata.flag = 'On'
                 ORDER BY _cata.id ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -1043,7 +999,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id, $thisYear]);
-            $my_receive_lists = $stmt->fetchAll();
+            $my_receive_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $my_receive_lists;
 
         }catch(PDOException $e){
@@ -1177,7 +1133,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $_issue = $stmt->fetch();
+            $_issue = $stmt->fetch(PDO::FETCH_ASSOC);
             return $_issue;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -1257,7 +1213,6 @@
             }
             return $process_result;
         }else{                                                                              // B.- 開新紀錄
-            // echo "<script>alert('case:4. 開新紀錄~')</script>";                              // deBug
             // step-1 先把local資料叫出來，抓取low_level數量
                 $row_check = "SELECT _l.* , _f.fab_title 
                                 FROM `_local` _l
@@ -1359,7 +1314,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             return $user;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -1379,7 +1334,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$site_id]);
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -1396,7 +1351,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sites = $stmt->fetchAll();
+            $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sites;
         }catch(PDOException $e){
             echo $e->getMessage();

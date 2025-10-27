@@ -31,7 +31,7 @@
             $fabs = show_fab($sort_fab_setting);                    // 篩選查詢清單用
 
     // 查詢篩選條件：fab_id 
-        $fab_id       = (isset($_SESSION[$sys_id]["fab_id"])) ? $_SESSION[$sys_id]["fab_id"] : "0";   // 1-1.取fab_id
+        $fab_id       = (!empty($sys_fab_id)) ? $sys_fab_id : (isset($sys_sfab_id) ? $sys_sfab_id[0] : 0);   // 1-1.取fab_id
         $sort_fab_id  = (isset($_REQUEST["fab_id"])) ? $_REQUEST["fab_id"] : $fab_id;    // 有帶查詢，套查詢參數，沒有就先給預設值
         // 查詢篩選條件：cate_no
         $sort_cate_no = (isset($_REQUEST["cate_no"])) ? $_REQUEST["cate_no"] : "All";
@@ -139,13 +139,13 @@
                     </div>
                     <!-- 表頭按鈕 -->
                     <div class="col-md-4 py-0 text-end inb">
-                        <?php if(isset($_SESSION[$sys_id]) && isset($sortFab["id"])){ ?>
+                        <?php if($sys_auth && isset($sortFab["id"])){ ?>
                             <?php if($_inplan && $sys_role <= 2 && ($check_yh_list_num == 0)){?>
                                 <div class="inb">
                                     <button type="button" id="checkList_btn" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#checkList"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>&nbsp點檢表</button>
                                 </div>
                             <?php } ?>
-                            <?php if($sys_role <= 1 ){ ?>
+                            <?php if($sys_role <= 2 ){ ?>
                                 <div class="inb">
                                     <button type="button" id="add_stock_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_stock" onclick="add_module('stock')"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
@@ -413,7 +413,7 @@
                                 </div>
                                 <div class="col-md-6 py-0">
                                     <h5>
-                                        <input type="checkbox" name="ccOmager" value="1" id="ccOmager" class="form-check-input" checked <?php echo $sys_role == 0 ? "":" disabled";?>>
+                                        <input type="checkbox" name="ccOmager" value="1" id="ccOmager" class="form-check-input"  <?php echo $sys_role == 0 ? "":"disabled";?>>
                                         <label for="ccOmager" class="form-label" <?php echo $sys_role == 0 ? "":" title='您無權修改!'";?>>mapp知會所屬主管!</label>
                                     </h5>
                                     <h5>

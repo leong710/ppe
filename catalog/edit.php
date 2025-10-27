@@ -10,21 +10,18 @@
 
     if(isset($_POST["delete"])){
         delete_catalog($_REQUEST);
-        // header("location:../catalog/");
         echo "<script>closeWindow(true)</script>";
         exit;
     }
 
     if(isset($_POST["submit"])){
         update_catalog($_REQUEST);
-        // header("location:../catalog/?cate_no={$sort_cate_no}");
         echo "<script>closeWindow(true)</script>";
         exit;
     }
 
     // // *** PNO篩選組合項目~~
     $_year = (isset($_REQUEST["_year"])) ? $_REQUEST["_year"] : "All"; // 全部
-    // $_year = date('Y');                              // 今年
     $sort_PNO_year = array(  '_year' => $_year );
 
     $pnos       = show_pno($sort_PNO_year);             // 取得料號清單

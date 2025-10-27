@@ -50,22 +50,8 @@
     }
 
     $(document).ready(function () {
-        // 停用 dataTable => 原因是它換頁後，前面的數值無法送出...
-            // $('#catalog_list').DataTable({
-            //     "autoWidth": false,
-            //     // 排序
-            //     // "order": [[ 4, "asc" ]],
-            //     // 顯示長度
-            //     "pageLength": 25,
-            //     // 中文化
-            //     "language":{
-            //         url: "../../libs/dataTables/dataTable_zh.json"
-            //     }
-            // });
-
         // call fun show 年領用量與建議值
         if(myReceives.length >= 1){
             show_myReceives();
         }
-
     })

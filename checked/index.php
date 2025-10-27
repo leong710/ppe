@@ -265,7 +265,6 @@
 
 <!-- 模組 除汙器材領用 品項 -->
     <div class="modal fade" id="review_checked" tabindex="-1" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true" aria-modal="true" role="dialog" >
-        <!-- <div class="modal-dialog modal-fullscreen"> -->
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header add_mode_bgc">
@@ -388,7 +387,6 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script>
-    // <php echo "var check_yh_list_num ='$check_yh_list_num';";?>
     // 半年檢
     var check_yh_list_num   = 'x';
     var thisYear            = '<?=$thisYear?>';

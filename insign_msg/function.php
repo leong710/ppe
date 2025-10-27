@@ -131,8 +131,6 @@
     function inCollect_list(){
         $pdo = pdo();
         $sql = "SELECT emp_id, cname  ,fab_title, local_title
-                    -- , SUM(esh_collect)  AS esh_collect
-                    -- , SUM(user_collect) AS user_collect 
                     , SUM(esh_collect + user_collect) AS total_collect
                     , SUM(esh_ppty_3 + user_ppty_3) AS ppty_3_count
 

@@ -120,21 +120,17 @@
                 // 將結果進行渲染
                 if (res_r !== '') {
                     var obj_val = res_r;                                         // 取Object物件0
-
                     if(obj_val){     
-                        
                         if(fun == 'omager_badge'){     // 搜尋申請人上層主管emp_id
                             $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
 
                         }else if(fun == 'assignSign_badge'){     // 搜尋申請人上層主管emp_id
                             $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '<span class="remove">x</span></div>');
                             document.getElementById(tag_id+'Name').value = obj_val.cname;   // 帶入待簽人姓名
-
                         }else{
                             $('#'+fun).append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
                             document.getElementById('in_signName').value = obj_val.cname;             // 帶入待簽人姓名
                         }
-                        
                     }else{
                         alert('查無工號：'+ search +' !!');
                     }
@@ -166,10 +162,8 @@
 
 // // // Edit選染
     // 引入action資料
-    // var action = '<?=$action;?>';
     function edit_item(){
         // 引入receive_row資料作為Edit
-        // var receive_row = <?=json_encode($receive_row);?>;
         var receive_item = {
             "plant"          : "plant/申請單位", 
             "dept"           : "dept/部門名稱", 
@@ -200,8 +194,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var uuid = '<=$receive_row["uuid"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -421,7 +413,6 @@
             
             $('#assignSign_Badge').empty();                      // 清除modal畫面中Badge
             $('#assignSign, #assignSignName').val('');          // 清除modal中empId&cName
-            // console.log('assignSign =>', staff_inf);
             $("body").mLoading("hide");
         })
 

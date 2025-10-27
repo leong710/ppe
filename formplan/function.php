@@ -19,7 +19,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $formplan = $stmt->fetch();
+            $formplan = $stmt->fetch(PDO::FETCH_ASSOC);
             return $formplan;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -57,7 +57,7 @@
         $sql_check = "SELECT _formplan.* FROM _formplan WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
         }else{
@@ -92,7 +92,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $formplans = $stmt->fetchAll();
+            $formplans = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $formplans;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -119,7 +119,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $formcase = $stmt->fetch();
+            $formcase = $stmt->fetch(PDO::FETCH_ASSOC);
             return $formcase;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -156,7 +156,7 @@
         $sql_check = "SELECT _formcase.* FROM _formcase WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -184,7 +184,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $formcase = $stmt->fetchAll();
+            $formcase = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $formcase;
         }catch(PDOException $e){
             echo $e->getMessage();

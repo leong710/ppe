@@ -21,7 +21,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $site = $stmt->fetch();
+            $site = $stmt->fetch(PDO::FETCH_ASSOC);
             return $site;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -61,7 +61,7 @@
         $sql_check = "SELECT _site.* FROM _site WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -98,7 +98,7 @@
             }
         try {
             $stmt->execute();
-            $sites = $stmt->fetchAll();
+            $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sites;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -127,7 +127,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $fab = $stmt->fetch();
+            $fab = $stmt->fetch(PDO::FETCH_ASSOC);
             return $fab;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -174,7 +174,7 @@
         $sql_check = "SELECT _fab.* FROM _fab WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -212,7 +212,7 @@
             }
         try {
             $stmt->execute();
-            $fabs = $stmt->fetchAll();
+            $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -241,7 +241,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -281,7 +281,7 @@
         $sql_check = "SELECT _local.* FROM _local WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -331,7 +331,7 @@
             }else{
                 $stmt->execute([$fab_id]);      //處理 byFab
             }
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -360,7 +360,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $ptlocal = $stmt->fetch();
+            $ptlocal = $stmt->fetch(PDO::FETCH_ASSOC);
             return $ptlocal;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -400,7 +400,7 @@
         $sql_check = "SELECT pt_local.* FROM pt_local WHERE id=?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$id]);
-        $row = $stmt_check -> fetch();
+        $row = $stmt_check -> fetch(PDO::FETCH_ASSOC);
 
         if($row['flag'] == "Off" || $row['flag'] == "chk"){
             $flag = "On";
@@ -450,7 +450,7 @@
             }else{
                 $stmt->execute([$fab_id]);      //處理 byFab
             }
-            $ptlocals = $stmt->fetchAll();
+            $ptlocals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $ptlocals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -470,7 +470,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -488,7 +488,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -504,7 +504,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -561,7 +561,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id, $thisYear]);
-            $my_receive_lists = $stmt->fetchAll();
+            $my_receive_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $my_receive_lists;
 
         }catch(PDOException $e){
@@ -579,7 +579,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $show_stock_cata_SN_result = $stmt->fetchAll();
+            $show_stock_cata_SN_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $show_stock_cata_SN_result;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -625,7 +625,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $coverFab_lists = $stmt->fetchAll();
+            $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
 
         }catch(PDOException $e){

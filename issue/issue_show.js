@@ -1,5 +1,4 @@
 
-
     // 加入購物車清單
     function add_item(cata_SN, add_amount, swal_flag){
         var swal_title = '加入購物車清單';
@@ -110,7 +109,7 @@
             dataType:'json',
             data:{
                 functionname: 'showStaff',                          // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',       // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',       // carux
                 search: search                                      // 查詢對象key_word
             },
             success: function(res){
@@ -119,9 +118,7 @@
                 // 將結果進行渲染
                 if (res_r !== '') {
                     var obj_val = res_r;                                         // 取Object物件0
-
                     if(obj_val){     
-                        
                         if(fun == 'omager_badge'){     // 搜尋申請人上層主管emp_id
                             $('#'+fun).append('<div class="tag"> ' + obj_val.cname + '&nbsp</div>');
                         }else{
@@ -155,7 +152,6 @@
 // // // Edit選染
     function edit_item(){
         // 引入issue_row資料作為Edit
-        // var issue_row = <?=json_encode($issue_row);?>;
         var issue_item = {
             "in_user_id"     : "in_user_id/工號",
             "cname_i"        : "cname_i/申請人姓名",
@@ -193,7 +189,6 @@
         })
 
         // 鋪設logs紀錄
-        // var id = '<=$issue_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -255,13 +250,12 @@
         issue_msg = sort_issue();       // 呼叫fun 取得整理的文字串
 
         $.ajax({
-            // url:'http://10.53.248.167/SendNotify',                   // 20230505 正式修正要去掉port 801
             url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版--升級dataItem
             method:'post',
             async: false,                                               // ajax取得數據包後，可以return的重要參數
             dataType:'json',
             data:{
-                uuid         : '752382f7-207b-11ee-a45f-2cfda183ef4f',  // ppe
+                uuid         : '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',  // carux
                 kind         : 'broadChat',                             // 訊息頻道
                 ask          : 'to',                                    // 個人
                 ACCOUNT_LIST : emp_id,                                  // 傳送對象
@@ -290,7 +284,6 @@
     
     // 2023/10/25 整理請購需求單內訊息給mapp用
     function sort_issue(){
-        
         // get領用地點
             var getLocal_id = document.getElementById('local_id');
             if(getLocal_id){
@@ -329,9 +322,14 @@
         return add_cata_item;
     }
 
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
+    $(document).ready(function () {
+
+        edit_item();        // 啟動鋪設畫面
+
+        omager_id = document.getElementById("omager").value     // 2.提取上層主管工號
+        if(omager_id){
+            search_fun('omager', omager_id)                     // 3.查詢工號並鋪設姓名
+        }
 
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
@@ -355,16 +353,9 @@
                 } 
             } 
         };
-    })
-    
-    $(document).ready(function () {
 
-        edit_item();        // 啟動鋪設畫面
-
-        omager_id = document.getElementById("omager").value     // 2.提取上層主管工號
-        if(omager_id){
-            search_fun('omager', omager_id)                     // 3.查詢工號並鋪設姓名
-        }
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
 
     })
 

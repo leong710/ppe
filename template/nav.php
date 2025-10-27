@@ -4,14 +4,6 @@
 
     $webroot = "..";
     
-    if(isset($_SESSION[$sys_id])){
-        // 取出$_session引用
-        $sys_auth = true; 
-    }else{
-        $sys_auth = false; 
-        $sys_role = false; 
-    }
-
     // init
         $numReceive = 0; $numTrade = 0; $numIssue = 0; $numChecked = 0; 
         // 今年年份
@@ -228,7 +220,6 @@
                 <?php } ?>
             </ul>
             
-            <!-- .navbar-toggler, .navbar-collapse 和 .navbar-expand{-sm|-md|-lg|-xl} -->
             <ul class="navbar-nav ms-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if(!$sys_auth){ ?>
                     <li class="nav-item mx-1"><a href="<?php echo $webroot;?>/auth/login.php" class=""><i class="fa fa-sign-in" aria-hidden="true"></i> 登入</a></li>
@@ -238,7 +229,7 @@
                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_reg" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                             title="<?php echo $sys_auth ? 'sys_role：'.$sys_role:'';?>">
                             <?php
-                                    echo (isset($_SESSION["AUTH"]["pass"]) && $_SESSION["AUTH"]["pass"] == "ldap") ? '<i class="fa fa-user" aria-hidden="true"></i>':'<i class="fa fa-user-secret" aria-hidden="true"></i>';
+                                    echo (isset($auth_pass) && $auth_pass == "ldap") ? '<i class="fa fa-user" aria-hidden="true"></i>':'<i class="fa fa-user-secret" aria-hidden="true"></i>';
                                     echo (isset($_SESSION["AUTH"]["dept"])) ? "&nbsp(".$_SESSION["AUTH"]["dept"].")":"";
                                     echo $sys_auth ? "&nbsp".$auth_cname:""; 
                                     echo $sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':""; 

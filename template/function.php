@@ -12,7 +12,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$emp_id]);
-            $myReceive = $stmt->fetch();
+            $myReceive = $stmt->fetch(PDO::FETCH_ASSOC);
             return $myReceive;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -30,7 +30,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $myTrade = $stmt->fetch();
+            $myTrade = $stmt->fetch(PDO::FETCH_ASSOC);
             return $myTrade;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -45,7 +45,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $myIssue = $stmt->fetch();
+            $myIssue = $stmt->fetch(PDO::FETCH_ASSOC);
             return $myIssue;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -66,7 +66,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$checked_year, $half]);
-            $check_yh_list = $stmt->fetchAll();
+            $check_yh_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $check_yh_list;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -98,7 +98,7 @@
             }else{
                 $stmt->execute();
             }
-            $formplans = $stmt->fetchAll();
+            $formplans = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $formplans;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -137,16 +137,11 @@
     // 20240125 4.組合我的廠區到$sys_sfab_id => 包含原sfab_id、fab_id和sign_code所涵蓋的廠區
     function get_sfab_id2($sys_id, $type){
         // 1-1a 將fab_id加入sfab_id
-        if(isset($_SESSION[$sys_id]["fab_id"])){
-            $fab_id = $_SESSION[$sys_id]["fab_id"];              // 1-1.取fab_id
-        }else{
-            $fab_id = "0";
-        }
-        if(isset($_SESSION[$sys_id]["sfab_id"])){
-            $sfab_id = $_SESSION[$sys_id]["sfab_id"];            // 1-1.取sfab_id
-        }else{
-            $sfab_id = [];
-        }
+        // 1-1.取fab_id
+        $fab_id = isset($_SESSION[$sys_id]["fab_id"]) ? $_SESSION[$sys_id]["fab_id"] : "0";
+        // 1-1.取sfab_id
+        $sfab_id = isset($_SESSION[$sys_id]["sfab_id"]) ? $_SESSION[$sys_id]["sfab_id"] : [];
+
         if(!in_array($fab_id, $sfab_id)){                        // 1-1.當fab_id不在sfab_id，就把部門代號id套入sfab_id
             array_push($sfab_id, $fab_id);
         }
@@ -193,7 +188,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $coverFab_lists = $stmt->fetchAll();
+            $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
 
         }catch(PDOException $e){

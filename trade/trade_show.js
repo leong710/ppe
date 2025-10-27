@@ -139,8 +139,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var id = '<=$trade_row["id"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -157,12 +155,6 @@
         document.getElementById('idty').value = idty;
         $('#idty_title').append(idty_title);
     }
-    
-    // 子功能
-    $(function () {
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
-    })
     
     $(document).ready(function () {
         
@@ -194,7 +186,8 @@
             edit_item();        // 啟動鋪設畫面
             $('.nav-tabs button:eq(1)').tab('show');        // 切換頁面到購物車
         // }
-
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
     })
 
 

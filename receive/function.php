@@ -104,7 +104,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $allFab_lists = $stmt->fetchAll();
+            $allFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $allFab_lists;
 
         }catch(PDOException $e){
@@ -126,7 +126,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $coverFab_lists = $stmt->fetchAll();
+            $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
 
         }catch(PDOException $e){
@@ -180,7 +180,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $checked_years = $stmt->fetchAll();
+            $checked_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -558,7 +558,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$emp_id]);
-            $query_omager = $stmt->fetch();
+            $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
             return $query_omager;
 
         }catch(PDOException $e){
@@ -576,7 +576,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $query_omager = $stmt->fetch();
+            $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
             return $query_omager;
 
         }catch(PDOException $e){
@@ -654,7 +654,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $local = $stmt->fetch();
+            $local = $stmt->fetch(PDO::FETCH_ASSOC);
             return $local;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -672,7 +672,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $locals = $stmt->fetchAll();
+            $locals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $locals;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -689,7 +689,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $catalogs = $stmt->fetchAll();
+            $catalogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $catalogs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -702,7 +702,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $categories = $stmt->fetchAll();
+            $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $categories;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -717,7 +717,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sum_category = $stmt->fetchAll();
+            $sum_category = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sum_category;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -745,7 +745,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$local_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -772,7 +772,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$site_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -846,7 +846,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$uuid]);
-            $receive_logs = $stmt->fetch();
+            $receive_logs = $stmt->fetch(PDO::FETCH_ASSOC);
             return $receive_logs;
 
         }catch(PDOException $e){
@@ -905,7 +905,7 @@
 
         if($stmt_check -> rowCount() >0){                                       // A.- 已有紀錄
             // echo "<script>alert('process_trade:已有紀錄~')</script>";         // deBug
-            $stk_row_list = $stmt_check -> fetchAll();
+            $stk_row_list = $stmt_check -> fetchAll(PDO::FETCH_ASSOC);
             $stk_row_list_length = count($stk_row_list);                        // 取stock件數長度
 
             $sql = "UPDATE _stock SET amount=?, updated_user=?, updated_at=now() WHERE id=? ";
@@ -975,7 +975,7 @@
                 $stmt_check -> execute([$p_local]);
                 
                 if($stmt_check -> rowCount() >0){                                               // 有取得local資料
-                    $row = $stmt_check->fetch();
+                    $row = $stmt_check->fetch(PDO::FETCH_ASSOC);
                     $row_lowLevel = json_decode($row["low_level"]);                             // 將local.low_level解碼
                     if(is_object($row_lowLevel)) { $row_lowLevel = (array)$row_lowLevel; }      // 將物件轉成陣列
                     if(isset($row_lowLevel[$cata_SN])){
@@ -1081,7 +1081,7 @@
         $stmt_check -> execute([$p_local, $cata_SN]);
 
         if($stmt_check -> rowCount() >0){                                       // A.- 已有紀錄
-            $stk_row_list = $stmt_check -> fetchAll();
+            $stk_row_list = $stmt_check -> fetchAll(PDO::FETCH_ASSOC);
             $stk_row_list_length = count($stk_row_list);                        // 取stock件數長度
 
             $sql = "UPDATE _stock SET amount=?, updated_user=?, updated_at=now() WHERE id=? ";
@@ -1111,7 +1111,7 @@
                 $stmt_check -> execute([$p_local]);
                 
                 if($stmt_check -> rowCount() >0){                                               // 有取得local資料
-                    $row = $stmt_check->fetch();
+                    $row = $stmt_check->fetch(PDO::FETCH_ASSOC);
                     $row_lowLevel = (array) json_decode($row["low_level"]);                     // 將local.low_level解碼
                     $low_level = (isset($row_lowLevel[$cata_SN])) ? $row_lowLevel[$cata_SN] : 0 ; // 取得該目錄品項的安全存量值
 

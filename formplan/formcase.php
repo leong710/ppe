@@ -14,7 +14,6 @@
     $formcases = show_formcase();
 ?>
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 
 <div class="container my-2">
     <div class="row justify-content-center">
@@ -29,7 +28,7 @@
                     <?php if($sys_role <= 1){ ?>
                         <button type="button" id="add_formcase_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module('formcase')" > <i class="fa fa-plus"></i> 新增表單</button>
                     <?php } ?>
-                    <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp返回管理</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeWindow()" title="回上層列表"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;返回管理</button>
                 </div>
             </div>
             <!-- 分類列表 -->
@@ -56,7 +55,7 @@
                                         class="btn btn-sm btn-xs flagBtn <?php echo $formcase['flag'] == 'On' ? 'btn-success':'btn-warning';?>"><?php echo $formcase['flag'];?></button>
                                 </td>
                                 <td><?php echo $formcase["created_at"]."</br>".$formcase["updated_at"];?></td>
-                                <td><?php echo $formcase["updated_user"]."&nbsp";?>    
+                                <td><?php echo $formcase["updated_user"]."&nbsp;";?>    
                                     <button type="button" id="edit_formcase_btn" value="<?php echo $formcase['id'];?>" class="btn btn-sm btn-xs btn-info" 
                                         data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="edit_module('formcase',this.value)" >編輯</button>
                                 </td>
@@ -79,7 +78,7 @@
 
                 <form action="" method="post">
                     <input type="hidden" name="id" id="formcase_delete_id">
-                    &nbsp&nbsp&nbsp&nbsp&nbsp
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <span id="modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
                 </form>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -110,11 +109,11 @@
                                         <label for="flag" class="form-label">flag/顯示開關：</label>
                                     </td>
                                     <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="On" id="formcase_On" class="form-check-input" checked >&nbsp
+                                        <input type="radio" name="flag" value="On" id="formcase_On" class="form-check-input" checked >&nbsp;
                                         <label for="formcase_On" class="form-check-label">On</label>
                                     </td>
                                     <td style="text-align: left;">
-                                        <input type="radio" name="flag" value="Off" id="formcase_Off" class="form-check-input">&nbsp
+                                        <input type="radio" name="flag" value="Off" id="formcase_Off" class="form-check-input">&nbsp;
                                         <label for="formcase_Off" class="form-check-label">Off</label>
                                     </td>
                                 </tr>

@@ -70,7 +70,7 @@
                     <h4>安全存量設定</h4>
                 </div>
                 <div class="col-12 col-md-6 pb-0 text-end">
-                    <?php if(($_SESSION[$sys_id]["role"] <= 2) && !empty($buy_ty)){ ?>    
+                    <?php if(($sys_role <= 2) && !empty($buy_ty)){ ?>    
                         <a href="#" target="_blank" title="Submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit"> <i class="fa fa-paper-plane" aria-hidden="true"></i> 送出</a>
                     <?php } ?>
                     <a href="#access_info" target="_blank" title="連線說明" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#access_info">
@@ -89,7 +89,7 @@
                             <select name="local_id" id="local_id" class="form-control" required style='width:80%;' onchange="this.form.submit()">
                                 <option value="" hidden>--請選擇 low_level 儲存點--</option>
                                 <?php foreach($allLocals as $allLocal){ ?>
-                                    <?php if($_SESSION[$sys_id]["role"] <= 1 || (in_array($allLocal["fab_id"], $sfab_id))){ ?>  
+                                    <?php if($sys_role <= 1 || (in_array($allLocal["fab_id"], $sfab_id))){ ?>  
                                         <option value="<?php echo $allLocal["id"];?>" title="<?php echo $allLocal["fab_title"];?>" <?php echo $allLocal["id"] == $select_local["id"] ? "selected":""; ?>>
                                             <?php echo $allLocal["id"].": ".$allLocal["fab_title"]."&nbsp(".$allLocal["fab_remark"].")_".$allLocal["local_title"]."&nbsp(".$allLocal["local_remark"].")"; if($allLocal["flag"] == "Off"){ ?>(已關閉)<?php }?></option>
                                     <?php } ?>
@@ -199,10 +199,10 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                    <input type="hidden" name="updated_user"    value="<?php echo $auth_cname;?>">
                                     <input type="hidden" name="action"          value="store_lowLevel">
                                     <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
-                                    <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                    <?php if($sys_role <= 2){ ?>
                                         <input type="submit" name="low_level_submit" value="Submit" class="btn btn-primary">
                                     <?php } ?>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -239,10 +239,10 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <input type="hidden" name="updated_user"    value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                <input type="hidden" name="updated_user"    value="<?php echo $auth_cname;?>">
                                 <input type="hidden" name="action"          value="update_stock_stand_lv">
                                 <input type="hidden" name="local_id"        value="<?php echo $select_local["id"];?>">
-                                <?php if($_SESSION[$sys_id]["role"] <= 2){ ?>
+                                <?php if($sys_role <= 2){ ?>
                                     <input type="submit" name="stand_lv_submit" value="Submit" class="btn btn-primary">
                                 <?php } ?>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -29,7 +29,7 @@
         $query_arr = array(
             'sys_id'    => $sys_id,
             'role'      => $sys_role,
-            'sign_code' => $_SESSION["AUTH"]["sign_code"],
+            'sign_code' => $auth_sign_code,
             'emp_id'    => $auth_emp_id,
             'fab_id'    => $is_fab_id,
             'is_emp_id' => $is_emp_id,
@@ -240,8 +240,6 @@
                                                         echo "<td class='word_bk'>";
                                                         echo "<button type='button' value='show.php?id={$my_inSign["id"]}&action=sign' title='aid:{$my_inSign["id"]}' onclick='openUrl(this.value)' class='tran_btn' >";
                                                         echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"]."</button>";
-                                                            // <a href="show.php?id=<?php echo $my_inSign['id'];>&action=sign" title="aid:<php echo $my_inSign['id'];>">
-                                                                // <php echo $my_inSign['fab_title']." / ".$my_inSign['dept']." / ".$my_inSign["cname"];></a> 
                                                         echo "</td><td>";
                                                         $sign_sys_role = (($my_inSign['in_sign'] == $auth_emp_id) || ($sys_role <= 1));
                                                         switch($my_inSign['idty']){     // 處理 $_2我待簽清單  idty = 1申請送出、11發貨後送出、13發貨
@@ -273,8 +271,6 @@
                                             <tbody>
                                                 <?php foreach($sum_issues_ship as $sum_issue_ship){ 
                                                     echo "<tr><td>".substr($sum_issue_ship['in_date'],0,10)."</td><td style='word-break: break-all;'>";
-                                                        // <a href="review_issueAmount.php?pr_no=<?php echo $sum_issue_ship['_ship'];>" data-toggle="tooltip" data-placement="bottom" title="<?php echo $sum_issue_ship['ship_count']."&nbsp件";>">
-                                                            // <php echo $sum_issue_ship['_ship'];></a>
                                                     echo "<button type='button' value='review_issueAmount.php?pr_no={$sum_issue_ship["_ship"]}' data-toggle='tooltip' data-placement='bottom' title='{$sum_issue_ship["ship_count"]}&nbsp件'";
                                                     echo " onclick='openUrl(this.value)' class='tran_btn' >{$sum_issue_ship["_ship"]}</button>"."</td></tr>";
                                                 } ?>
@@ -578,9 +574,6 @@
     var start_time  = '<?=$start_time?>';
     var end_time    = '<?=$end_time?>';
                                     
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    })
     // tab_table的顯示關閉功能
     function op_tab(tab_value){
         $("#"+tab_value+"_btn .fa-chevron-circle-down").toggleClass("fa-chevron-circle-up");
@@ -602,7 +595,6 @@
 
     $(document).ready(function () {
         op_tab('sign_remark');
-        // op_tab('scope_remark');
 
         // 假如index找不到當下存在已完成的表單，就alarm它!
         if (_inplan && (sys_role <= 2)) {
@@ -610,6 +602,8 @@
             message += '&nbsp<i class="fa-solid fa-right-long"></i>&nbsp<button value="form.php?action=create" onclick="openUrl(this.value)" class="tran_btn" ><b>打開請購需求單</b></button>';
             alert( message, 'warning')
         }
+
+        $('[data-toggle="tooltip"]').tooltip();
 
     })
 </script>

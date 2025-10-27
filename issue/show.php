@@ -44,11 +44,7 @@
     $pm_emp_id_arr = explode(",",$pm_emp_id);       // 資料表是字串，要炸成陣列
 
     $catalogs = show_catalogs();                    // 器材=All
-    // $allLocals = show_allLocal();                   // 所有儲存站點
-    // $categories = show_categories();                // 分類
-    // $sum_categorys = show_sum_category();           // 統計分類與數量
 
-    // $fab_o_id = $issue_row["fab_o_id"];                 // 取表單上出貨的fab_id
     $fab_i_id = $issue_row["fab_i_id"];                 // 取表單上收貨的fab_id
 
         // 身份陣列
@@ -72,9 +68,6 @@
             switch($issue_row["idty"]){
                 case "0":   // $act = '同意/待PR';
                 case "1":   // $act = '送出 (Submit)';
-                    // if(( $fab_i_id == $sys_fab_id) || (in_array($fab_i_id, $sys_sfab_id)) && ($issue_row["in_user_id"] == $auth_emp_id) ){
-                    //     $step_index = '7';      // ppe site user
-                    // }
                     if($issue_row["in_sign"] == $auth_emp_id){
                         if($issue_row["flow"] == "Manager"){  
                             $step_index = '2';      // 2.申請人主管
@@ -126,12 +119,6 @@
                     } else if($sys_role == 0){
                         $step_index = '9';      // 9.系統管理員
                     }
-
-                    // if($issue_row["fab_i_id"] == $sys_fab_id){
-                    //     $step_index = '4';      // 4.業務承辦
-                    // }else if($issue_row["in_sign"] == $auth_emp_id){
-                    //     $step_index = '5';      // 5.環安主管
-                    // }
                     break;
                 case "12":                      // $act = '待收發貨 (Awaiting collection)'; 
                     if($issue_row['flow'] == 'collect' && in_array($issue_row["fab_i_id"], $sys_sfab_id)){
@@ -176,7 +163,6 @@
 ?>
 
 <?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -219,8 +205,6 @@
                         ?>
                     </div>
                     <div class="col-12 col-md-4 py-0 text-end">
-                        <!-- <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button> -->
-                        <!-- <button type="button" class="btn btn-secondary" onclick="location.href='<?php echo $up_href;?>'"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
                         <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
                     </div>
                 </div>
@@ -517,7 +501,6 @@
     var action              = '<?=$action?>';                               // 引入action資料
     var issue_row           = <?=json_encode($issue_row)?>;                 // 引入issue_row資料作為Edit
     var issue_collect_role  = '<?=$issue_collect_role?>';                   // collect選染 // 引入issue_row_發放人權限作為渲染標記
-    // var json                = JSON.parse('<=json_encode($logs_arr)?>');  // 鋪設logs紀錄 240124-JSON.parse長度有bug
     var json                = <?=json_encode($logs_arr)?>;                  // 鋪設logs紀錄 240124-改去除JSON.parse
     var issue_url           = '<?=$issue_url?>';                            // push訊息 // 本文件網址
 </script>

@@ -13,7 +13,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $Allcount = $stmt->fetch();
+            $Allcount = $stmt->fetch(PDO::FETCH_ASSOC);
             return $Allcount;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -46,7 +46,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $stock_db1 = $stmt->fetch();
+            $stock_db1 = $stmt->fetch(PDO::FETCH_ASSOC);
             return $stock_db1;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -68,7 +68,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$checked_year, $half]);
-            $stock_db1 = $stmt->fetch();
+            $stock_db1 = $stmt->fetch(PDO::FETCH_ASSOC);
             return $stock_db1;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -100,7 +100,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $stock_percentage = $stmt->fetchAll();
+            $stock_percentage = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stock_percentage;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -123,7 +123,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -157,7 +157,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $stock_losts = $stmt->fetchAll();
+            $stock_losts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stock_losts;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -171,12 +171,11 @@
         $sql = "SELECT DISTINCT dp.sign_code , d1.OSSTEXT AS up_sign_dept -- , u.cname AS dept_sir
                   FROM `DEPT` dp
                   LEFT JOIN `HCM_VW_DEPT08` d1 ON dp.up_dep = d1.OSDEPNO
-                  -- LEFT JOIN STAFF u ON dp.emp_id = u.emp_id 
                   ORDER BY dp.sign_code ASC ";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $depts = $stmt->fetchAll();
+            $depts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $depts;
         }catch(PDOException $e){
             echo $e->getMessage();

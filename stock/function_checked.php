@@ -47,7 +47,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$id]);
-            $checkeds = $stmt->fetch();
+            $checkeds = $stmt->fetch(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -79,7 +79,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $checkeds = $stmt->fetchAll();
+            $checkeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -97,7 +97,7 @@
         $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料
         try {
             $stmt->execute([$fab_id]);
-            $rs = $stmt->fetchAll();
+            $rs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $rs;
         }catch(PDOException $e){
             echo $e->getMessage(); 
@@ -113,7 +113,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id, $checked_year, $half]);
-            $check_yh_list = $stmt->fetchAll();
+            $check_yh_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $check_yh_list;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -131,7 +131,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$checked_year]);
-            $checkeds = $stmt->fetchAll();
+            $checkeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checkeds;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -147,7 +147,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $checked_years = $stmt->fetchAll();
+            $checked_years = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $checked_years;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -171,7 +171,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$fab_id]);
-            $stocks = $stmt->fetchAll();
+            $stocks = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $stocks;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -189,7 +189,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$emp_id]);
-            $query_omager = $stmt->fetch();
+            $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
             return $query_omager;
 
         }catch(PDOException $e){
@@ -207,7 +207,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$sign_code]);
-            $query_omager = $stmt->fetch();
+            $query_omager = $stmt->fetch(PDO::FETCH_ASSOC);
             return $query_omager;
 
         }catch(PDOException $e){

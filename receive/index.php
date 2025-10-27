@@ -343,8 +343,6 @@
                                                 <tbody>
                                                     <?php foreach($my_collect_lists as $my_collect){
                                                         echo "<tr><td title='aid:{$my_collect["id"]}'>".substr($my_collect["created_at"],0,10)."</td><td style='text-align: left; word-break: break-all;'>";
-                                                            // <a href="show.php?uuid=<?php echo $my_collect['uuid'];>&action=collect" title="aid:<?php echo $my_collect['id'];>">
-                                                                // <?php echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"];></a></td>
                                                         echo "<button type='button' value='show.php?uuid={$my_collect['uuid']}&action=collect' title='aid:{$my_collect["id"]}' onclick='openUrl(this.value)' class='tran_btn'>";
                                                         echo $my_collect['fab_title']." / ".$my_collect['dept']." / ".$my_collect["cname"]."</button>"."</td></tr>";
                                                     } ?>

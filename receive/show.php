@@ -105,9 +105,7 @@
                             <button type="button" id="assignSign_btn" class="btn btn-warning <?php echo ($sys_role <= 0) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#assignSignModal"><i class="fa-solid fa-user-tie"></i> 指派簽核</button>
                             <snap id="newSign"></snap>
                         </div>
-                        <!-- <button type="button" class="btn btn-secondary" onclick="location.href='index.php'"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button> -->
-                        <!-- <button type="button" class="btn btn-secondary" onclick="location.href='<php echo $up_href;?>'"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
-                        <button type="button" class="btn btn-secondary rtn_btn" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp回首頁</button>
+                        <button type="button" class="btn btn-secondary rtn_btn" onclick="closeWindow()"><i class="fa fa-caret-up" aria-hidden="true"></i>&nbsp;回首頁</button>
                     </div>
                 </div>
 

@@ -184,13 +184,12 @@
         } 
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method:'post',
             dataType:'json',
             data:{
                 functionname: 'showStaff',                              // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
+                uuid: '06d4e304-a8bd-11f0-8ffe-1c697a98a75f',           // carux
                 emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
             },
             success: function(res){
@@ -235,9 +234,7 @@
 // // // 第三頁：searchUser function 
 
 // // // Edit選染
-    // var action = '<?=$action;?>';                       // 引入action資料
     function edit_item(){
-        // var trade_row = <?=json_encode($trade_row);?>;                        // 引入trade_row資料作為Edit
         var trade_item = {
             "out_local"      : "out_local/發貨廠區", 
             "in_local"       : "in_local/收貨廠區", 
@@ -245,7 +242,6 @@
             "form_type"      : "form_type/工號",
             "item"           : "item",
             "id"             : "id",
-            // "sign_comm"       : "command/簽核comm",
         };    // 定義要抓的key=>value
         // step1.將原排程陣列逐筆繞出來
         Object.keys(trade_item).forEach(function(trade_key){
@@ -274,8 +270,6 @@
         })
 
         // 鋪設logs紀錄
-        // var json = JSON.parse('<?=json_encode($logs_arr)?>');
-        // var uuid = '<?=$trade_row["uuid"]?>';
         var forTable = document.querySelector('.logs tbody');
         for (var i = 0, len = json.length; i < len; i++) {
             json[i].remark = json[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
@@ -408,11 +402,8 @@
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#catalog_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化

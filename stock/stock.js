@@ -180,34 +180,11 @@
     }
     // tableFun_4.API更新
     async function updateCellValue(cell, newValue, _request) {
-        // cell.innerHTML = newValue;
-            // $.ajax({
-            //     url    :'api.php',
-            //     method :'post',
-            //     async  : false,                                           // ajax取得數據包後，可以return的重要參數
-            //     dataType :'json',
-            //     data   :{
-            //         function : 'update_amount',           // 操作功能
-            //         _id      : _request['rowId'],
-            //         _rowName : _request['rowName'],
-            //         _amount  : _request['newValue']
-            //     },
-            //     success: function(res){
-            //         swal_action = 'success';
-            //         update_catchValue(_request);                        // 呼叫 tableFun_5.更新pno_Catch中的數值
-            //     },
-            //     error: function(e){
-            //         swal_action = 'error';
-            //         console.log("error");
-            //     }
-            // });
         return new Promise((resolve, reject) => {
-
             const fun       = 'update_amount';
             const _id       = _request['rowId'];
             const _rowName  = _request['rowName'];
             const _newValue = _request['newValue'];
-
             let formData = new FormData();
                 formData.append('fun', fun);
                 formData.append('id', _id);                         // 後端依照fun進行parm參數的採用
@@ -298,11 +275,8 @@
 
     $(document).ready(function () {
         
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#stock_list').DataTable({
             "autoWidth": false,
-            // 排序
-            // "order": [[ 4, "asc" ]],
             // 顯示長度
             "pageLength": 25,
             // 中文化

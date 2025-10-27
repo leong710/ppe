@@ -10,8 +10,8 @@
     $auth_sign_code = isset($_SESSION["AUTH"]["sign_code"])   ? $_SESSION["AUTH"]["sign_code"] : false ;
     $sys_role       = isset($_SESSION[$sys_id]["role"])       ? $_SESSION[$sys_id]["role"]     : false ;
     $sys_auth       = isset($_SESSION[$sys_id])               ? true                           : false ; 
-    $sys_fab_id     = isset($_SESSION[$sys_id]["fab_id"])     ? $_SESSION[$sys_id]["fab_id"]   : "1" ;     
-    $sys_sfab_id    = isset($_SESSION[$sys_id]["sfab_id"])    ? $_SESSION[$sys_id]["sfab_id"]  : "" ;  
+    $sys_fab_id     = isset($_SESSION[$sys_id]["fab_id"])     ? $_SESSION[$sys_id]["fab_id"]   : 0 ;     
+    $sys_sfab_id    = isset($_SESSION[$sys_id]["sfab_id"])    ? $_SESSION[$sys_id]["sfab_id"]  : [] ;  
 
     // 複製本頁網址藥用
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁

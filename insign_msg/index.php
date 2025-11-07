@@ -174,13 +174,13 @@
         var issue_url    = `<br>&nbsp;&nbsp;請購：<a href="${uri}/carux_ppe/issue/"   target="_blank" title="請購路徑">請購路徑</a>`;
 
         var int_msg1     = '【CarUX_PPE系統】待您處理文件提醒';
-        var int_msg2     = '<br>&nbsp;&nbsp;您共有&nbsp;';
+        var int_msg2     = '<br><br>&nbsp;&nbsp;您共有&nbsp;';
         var int_msg3     = '&nbsp;件待簽核文件尚未處理';
         var ret_msg3     = '&nbsp;件被退件文件尚未處理';
         var col_msg3     = '&nbsp;件待收發文件尚未處理';
-        var int_msg4     = '<br>，如已處理完畢，請忽略此訊息！<br><br>** 請至以下連結查看待處理文件：';
-        var srt_msg4     = '<br>，如已處理完畢，請忽略此訊息！<br><br>';
-        var int_msg5     = '<br><br>溫馨提示：<br>&nbsp;&nbsp;&nbsp;&nbsp;1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式';
+        var int_msg4     = '<br><br>** 請至以下連結查看待處理文件： ';
+        var srt_msg4     = ' ，如已處理完畢，請忽略此訊息！';
+        var int_msg5     = '<br><br>溫馨提示：登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式<br>';
 
         var push_result  = {
                 'mapp' : {

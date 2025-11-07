@@ -305,7 +305,7 @@
                             emergency       : emergency_count
                         }
                         // step.1-1 組合訊息文字
-                        var mg_msg  = int_msg1 + "\n"; //+ " (" + user['cname'] + ")";
+                        var mg_msg  = int_msg1 + "\n\n"; //+ " (" + user['cname'] + ")";
                         // 定義每一封mail title
                         var int_msg1_title = int_msg1 + " (";
                         
@@ -362,13 +362,13 @@
 
                         var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
                         // 拼接尾段訊息
-                        if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0)) {
-                            mg_msg += int_msg4 ;    // 套用有網址長訊息
-                            if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
+                        if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0) || (user['total_collect'] > 0)) {
+                            mg_msg += int_msg4 + srt_msg4;    // 套用有網址長訊息
+                            if((user['receive_waiting'] > 0) || (user['receive_reject'] > 0) || (user['total_collect'] > 0)){
                                 mg_msg += receive_url;      // 套用receive網址
                             }
-                            if((user['issue_waiting'] > 0) || (user['issue_reject'] >0 )){
-                                if((user['receive_waiting'] > 0) || (user['receive_reject'] >0 )){
+                            if((user['issue_waiting'] > 0) || (user['issue_reject'] > 0)){
+                                if((user['receive_waiting'] > 0) || (user['receive_reject'] > 0)){
                                     mg_msg += '\n';
                                 }
                                 mg_msg += issue_url;        // 套用issue網址

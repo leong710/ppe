@@ -221,9 +221,12 @@
             </ul>
             
             <ul class="navbar-nav ms-auto   my-2 my-lg-0 navbar-nav-scroll">
-                <?php if(!$sys_auth){ ?>
-                    <li class="nav-item mx-1"><a href="<?php echo $webroot;?>/auth/login.php" class=""><i class="fa fa-sign-in" aria-hidden="true"></i> 登入</a></li>
-                <?php } else { ?>
+                <?php if(!$sys_auth){ 
+                    echo "<li class='nav-item mx-1'><a href='{$webroot}/auth/login.php' class='track_click' data-item='{$sys_id},NAV,login-btn \ 手動登入'
+                            ><i class='fa fa-sign-in' aria-hidden='true'></i> 手動登入</a></li>";
+                    echo "<li class='nav-item mx-1'><a href='{$webroot}/../tnesh_sso/?sys_id={$sys_id}'  class='track_click' data-item='{$sys_id},NAV,login-btn \ SSO登入'
+                            data-toggle='tooltip' data-placement='bottom' title='SAMv4' ><i class='fa-solid fa-fingerprint'></i> SSO登入</a></li>";
+                } else { ?>
                     <!-- 下拉式選單 -->
                     <li class="nav-item dropdown">
                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_reg" role="button" data-bs-toggle="dropdown" aria-expanded="false"

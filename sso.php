@@ -6,7 +6,8 @@
             session_start();
         }
         if(!isset($_SESSION["AUTH"]) || !isset($_SESSION[$sys_id])){
-            header("refresh:0;url={$url}tnESH_SSO/login.php?sys_id={$sys_id}");
+            // header("refresh:0;url={$url}tnESH_SSO/login.php?sys_id={$sys_id}");     // 手動
+            header("refresh:0;url={$url}tnESH_SSO/?sys_id={$sys_id}");              // SSOv4自動
             exit;
         }
         return;
@@ -77,7 +78,7 @@
                 exit;
             }
         }else{                                                              // 確認AUTH/pass => false
-            header("refresh:0;url={$url}tnESH_SSO/login.php?sys_id={$sys_id}");
+            header("refresh:0;url={$url}tnESH_SSO/login.php?sys_id={$sys_id}");     // 手動
             exit;
         }
         return;

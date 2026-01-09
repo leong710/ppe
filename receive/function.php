@@ -484,7 +484,8 @@
                     "content"   => "領用申請單--"
                 );
                 $sql .= " , cata_SN_amount = ? ";
-                $idty_after = $receive_row["idty"];                // 維持原有的idty
+                // $idty_after = $receive_row["idty"];                // 維持原有的idty
+                $idty_after = 2;                                    // idty = 2.退回編輯 
                 $cata_SN_amount_enc = json_encode(array_filter($cata_SN_amount));        // item資料前處理  // 去除陣列中空白元素再要編碼
 
             }else{

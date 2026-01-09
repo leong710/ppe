@@ -2,9 +2,9 @@
     // 241209 確認是否是測試帳號
         const debugMode = { 
             'test'     : (fun == 'debug') ? true : false,           // true  = 啟動測試 
-            'mapp'     : true ,                                     // false = 放棄執行
-            'email'    : true ,                                     // false = 放棄執行
-            'toLog'    : true ,                                     // false = 放棄執行
+            'mapp'     : false ,                                     // false = 放棄執行
+            'email'    : false ,                                     // false = 放棄執行
+            'toLog'    : false ,                                     // false = 放棄執行
             'title'    : '!!! Now is DEBUGMODE !!!',
             'to_empId' : '10008048',
             'to_email' : 'leong.chen@innolux.com'
@@ -125,14 +125,15 @@
 
         }
         // 20240314 將訊息推送到TN PPC(mapp)給對的人~
-        function push_mapp(user_emp_id, mg_msg) {
+        function push_mapp(user_emp_id, mapp_mg_msg) {
             if(!debugMode.mapp){
-                console.log(user_emp_id, mg_msg);
+                console.log('push_mapp-user_emp_id:', user_emp_id);
+                console.log('push_mapp-mapp_mg_msg:', mapp_mg_msg);
                 return true;
             }
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版--升級dataItem
+                    url:'https://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版--升級dataItem
                     method:'post',
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
@@ -141,13 +142,14 @@
                         kind         : 'broadChat',                             // 訊息頻道
                         ask          : 'to',                                    // 個人
                         ACCOUNT_LIST : user_emp_id,                             // 傳送對象
-                        TEXT_CONTENT : mg_msg,                                  // 傳送訊息
+                        // ACCOUNT_LIST : '10008048',                             // 傳送對象
+                        TEXT_CONTENT : mapp_mg_msg,                            // 傳送訊息
                     },
                     success: function(res){
                         resolve(true);                                          // 成功時解析為 true 
                     },
                     error: function(res){
-                        console.log("push_mapp -- error：",res);
+                        console.error("push_mapp -- error：",res);
                         reject(false);                                          // 失敗時拒絕 Promise
                     }
                 });
@@ -156,14 +158,16 @@
         // 20240314 將訊息郵件發送給對的人~
         function sendmail(to_email, int_msg1_title, mg_msg){
             if(!debugMode.email){
-                console.log(to_email, int_msg1_title, mg_msg);
+                console.log('sendmail-to_email:',to_email);
+                console.log('sendmail-int_msg1_title:', int_msg1_title);
+                console.log('sendmail-mg_msg:', mg_msg);
                 return true;
             }
             return new Promise((resolve, reject) => {
                 var formData = new FormData();  // 創建 FormData 物件
                 // 將已有的參數加入 FormData
                     formData.append('uuid', uuid);              // nurse
-                    formData.append('sysName', 'CarUX_PPE');          // 貫名
+                    formData.append('sysName', 'CarUX_PPE');    // 貫名
                     formData.append('to', to_email);            // 1.傳送對象
                     // formData.append('to', 'leong.chen;');       // 2.傳送開發對象
                     // formData.append('to', `${to_email}`);       // 3.傳送測試對象
@@ -177,7 +181,7 @@
                     }
 
                 $.ajax({
-                    url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
+                    url:'https://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
                     method:'post',
                     async: false,                                               // ajax取得數據包後，可以return的重要參數
                     dataType:'json',
@@ -188,7 +192,7 @@
                         resolve(true);                                          // 成功時解析為 true 
                     },
                     error: function(res){
-                        console.log("send_mail -- error：",res);
+                        console.error("send_mail -- error：",res);
                         reject(false);                                          // 失敗時拒絕 Promise
                     }
                 });
@@ -200,14 +204,14 @@
 
             if(!search || (search.length < 8)){
                 let reject_msg = "查詢 工號字數最少 8 個字!! 請確認："+search;
-                console.log(reject_msg);
+                console.error(reject_msg);
                 alert(reject_msg);
                 $("body").mLoading("hide");
                 return false;
             } 
 
             $.ajax({
-                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
+                url:'https://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
                 method  :'post',
                 async   : false,                                            // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
@@ -226,11 +230,11 @@
 
                     }else{
                         // alert("查無工號["+search+"]!!");
-                        console.log("查無工號["+search+"]!!");
+                        console.error("查無工號["+search+"]!!");
                     }
                 },
                 error(err){
-                    console.log("search error:", err);
+                    console.error("search error:", err);
                 }
             })
             return comid2;
@@ -305,13 +309,12 @@
                             emergency       : emergency_count
                         }
                         // step.1-1 組合訊息文字
-                        var mg_msg  = int_msg1 + "\n\n"; //+ " (" + user['cname'] + ")";
+                        var mg_msg  = int_msg1; //+ " (" + user['cname'] + ")";
                         // 定義每一封mail title
                         var int_msg1_title = int_msg1 + " (";
                         
                         // 待簽核 waiting
                         if(user['total_waiting'] > 0){
-                            mg_msg += "\r\n";
                             mg_msg += int_msg2 + user['total_waiting'] + int_msg3 + '(';    // 20240112 新添加 請購和領用
                             if(user['issue_waiting'] > 0){
                                 mg_msg += '請購'+user['issue_waiting']+'件'
@@ -330,7 +333,6 @@
                         }
                         // 被退件 reject
                         if(user['total_reject'] > 0){
-                            mg_msg += "\r\n";
                             mg_msg += int_msg2 + user['total_reject'] + ret_msg3 + '(';    // 20240112 新添加 請購和領用
                             if(user['issue_reject'] > 0){
                                 mg_msg += '請購'+user['issue_reject']+'件'
@@ -350,7 +352,6 @@
                         }
                         // 待收發 collect
                         if(user['total_collect'] > 0){
-                            mg_msg += "\r\n";
                             mg_msg += int_msg2 + user['total_collect'] + col_msg3 ;    
                             mg_msg += (user['ppty_3_collect'] > 0) ? '(急件'+user['ppty_3_collect']+'件)' : '';
 
@@ -361,27 +362,34 @@
                         }
 
                         var logs_source = mg_msg.replace(int_msg1, "");     // 20240514...縮減log文字內容
+                        var mapp_mg_msg;    // 260109 初始mapp訊息
                         // 拼接尾段訊息
                         if((user['issue_waiting'] > 0) || (user['receive_waiting'] > 0) || (user['issue_reject'] > 0) || (user['receive_reject'] > 0) || (user['total_collect'] > 0)) {
-                            mg_msg += int_msg4 + srt_msg4;    // 套用有網址長訊息
+                            mg_msg += int_msg4 + srt_msg4;      // 套用有網址長訊息
                             if((user['receive_waiting'] > 0) || (user['receive_reject'] > 0) || (user['total_collect'] > 0)){
-                                mg_msg += receive_url;      // 套用receive網址
+                                mapp_mg_msg = mg_msg + mapp_receive_url;    // mapp套用receive網址
+                                mg_msg += receive_url;                      // mail套用receive網址
                             }
                             if((user['issue_waiting'] > 0) || (user['issue_reject'] > 0)){
                                 if((user['receive_waiting'] > 0) || (user['receive_reject'] > 0)){
                                     mg_msg += '\n';
                                 }
-                                mg_msg += issue_url;        // 套用issue網址
+                                mapp_mg_msg = mg_msg + mapp_issue_url;      // mapp套用issue網址
+                                mg_msg += issue_url;                        // mail套用issue網址
                             }
+                            mapp_mg_msg += int_msg5;
                             mg_msg += int_msg5;
                         }else{
-                            mg_msg += srt_msg4;     // 套用無網址短訊息
+                            mapp_mg_msg += srt_msg4;                        // mapp套用無網址短訊息
+                            mg_msg += srt_msg4;                             // mail套用無網址短訊息
                         }
 
                         logs_source          = logs_source.replace(/文件尚未處理/g, ""); // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
                         logs_source          = logs_source.replace(/您共有 /g, "");      // 小-物件log 紀錄mg_msg訊息 // 20240522...縮減log文字內容
-                        user_log['mg_msg']   = logs_source;                             // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
-                        user_log['thisTime'] = thisTime;                                // 小-物件log 紀錄thisTime
+                        user_log['mg_msg']   = logs_source;                              // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                        user_log['thisTime'] = thisTime;                                 // 小-物件log 紀錄thisTime
+                        mapp_mg_msg = mapp_mg_msg.replace(/&nbsp;/g, ' ');              // 260109 mapp訊息轉換代碼
+                        mapp_mg_msg = mapp_mg_msg.replace(/<br>/g, '\n');               // 260109 mapp訊息轉換代碼
 
                         // step.2 執行通知 --
                         // *** 2-1 發送mail
@@ -389,7 +397,7 @@
                             // --- 確認email是否有誤
                             if(!user_email || (user_email.length < 12)){
                                 // alert("email字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
-                                console.log("email 有誤：", user_emp_id, user_email);
+                                console.error("email 有誤：", user_emp_id, user_email);
                                 push_result['mapp']['error']++; 
                                 push_result['email']['error']++; 
                                 return false;
@@ -404,13 +412,13 @@
                             // --- 確認工號是否有誤
                             if(!user_emp_id || (user_emp_id.length < 8)){
                                 // alert("工號字數有誤 !!");                            // 避免無人職守時被alert中斷，所以取消改console.log
-                                console.log("工號 有誤：", user_emp_id);
+                                console.error("工號 有誤：", user_emp_id);
                                 push_result['mapp']['error']++; 
                                 push_result['email']['error']++; 
                                 return false;
                             }
                             // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
-                            let mapp_result_check = (user_mapp) ? await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mg_msg) : false;
+                            let mapp_result_check = (user_mapp) ? await push_mapp((debugMode.test ? debugMode.to_empId : user_emp_id), mapp_mg_msg) : false;
                             return mapp_result_check;
                         };
 
@@ -451,7 +459,7 @@
                                 }
                             })
                             .catch(error => {
-                                console.log('Error:', error);
+                                console.error('Error:', error);
                             })
                         );
                     };
@@ -512,15 +520,11 @@
             }
         }
 
-
-
     // fun啟動自動執行
     $(document).ready( async function () {
         // 啟用mLoading
         mloading("show");
         checkPopup();
-        // 在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
         // 241209 debugMode
         if(debugMode.test){
             const dm = document.getElementById("dabugTitle");
@@ -564,6 +568,7 @@
         }else{
             $('#result').append(' ...standBy...</br>');
         }
-
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
         $("body").mLoading("hide");
     } );

@@ -146,7 +146,7 @@
                                 if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ 
                                     echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button> ";
                                 } 
-                            // 20240429 承辦退貨選項 idty=10.同意退貨 => 2.結案 (Close)
+                            // 20240429 承辦退貨選項 idty=10.同意退貨 => 2.退回 (Reject)
                             if( $receive_row['idty'] == 10 && ((in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 )){ 
                                 echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button> ';
                             }
